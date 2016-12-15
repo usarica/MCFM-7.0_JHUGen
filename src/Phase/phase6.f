@@ -18,7 +18,7 @@ c---- with all 2 pi's (ie 1/(2*pi)^14)
       double precision p12(4),p345(4),p678(4),p78(4),p34(4),smin,
      & p348(4),p567(4),p56(4),p3456(4),p5678(4),tmp(4)
       double precision wt,wt0,wt12,wt678,wt345,wt34,wt78,wt3456,wt56,
-     & wt5678,s34,s56,s36,s45,wt_zz,wt_ww
+     & wt5678,s34,s56,s36,s45,wt_zz,wt_ww,hwidth10
       integer j
       parameter(wt0=1d0/twopi**4)
       oldzerowidth=zerowidth
@@ -66,21 +66,11 @@ c---- calculate momenta of top and bbbar
         call phi1_2(r(1),r(2),r(3),r(4),p12,p345,p678,wt12,*99)
         zerowidth=oldzerowidth
       elseif ((case .eq. 'qqZZqq') .or. (case .eq. 'qqWWqq')) then
-c--- Three different branches depending on cuts
-        if (m3456max .lt. 200d0) then
-c------ all events should be close to Higgs peak: use Higgs BW with 0.1 GeV width
-          call phi1_2bw(r(1),r(2),r(3),r(4),
-     &                  p12,p3456,p78,hmass,0.1d0,wt12,*99)
-        else
-          if (m3456min .gt. 135d0) then
-c------ range does not include peak so do not use BW form at all 
-          call phi1_2nobw(r(1),r(2),r(3),r(4),p12,p3456,p78,wt12,*99)
-          else
 c------ entire range of m3456, including peak:  use BW at Higgs mass with 10 GeV width 
-          call phi1_2bw(r(1),r(2),r(3),r(4),
-     &                  p12,p3456,p78,hmass,10d0,wt12,*99)
-          endif
-        endif
+        hwidth10=hwidth*10d0 
+c----        hwidth10=100d0 
+        call phi1_2bw(r(1),r(2),r(3),r(4),
+     &              p12,p3456,p78,hmass,hwidth10,wt12,*99)
         call phi1_2(r(5),r(6),r(7),r(8),p3456,p56,p34,wt3456,*99)
         call phi3m0(r(13),r(14),p34,p3,p4,wt34,*99)
         call phi3m0(r(11),r(12),p56,p5,p6,wt56,*99)

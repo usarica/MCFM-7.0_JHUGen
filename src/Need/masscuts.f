@@ -104,7 +104,7 @@ c--- do not accept s56<cutoff either
       if (VBSprocess) then
         s78=+(p(7,4)+p(8,4))**2-(p(7,1)+p(8,1))**2
      &      -(p(7,2)+p(8,2))**2-(p(7,3)+p(8,3))**2
-        if (s78 .lt. 1d4) return 1
+        if (s78 .lt. 3d2) return 1
       endif
 
    97 format(' *         ',f8.2,'  <   ',a5,'  < ',f8.2,'          *')

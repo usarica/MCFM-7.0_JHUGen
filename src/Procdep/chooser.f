@@ -3937,14 +3937,6 @@ c-----------------------------------------------------------------------
         if (nproc .eq. 2241) VVstrong=.true.
         mb=0d0
         call sethparams(br,wwbr,zzbr,tautaubr,gamgambr,zgambr)
-C----charge for 34-swapped line
-        q1=-1d0
-        l1=le
-        r1=re
-C----charge for 56-swapped line
-        q2=0d0
-        l2=ln
-        r2=rn
         plabel(3)='el'
         plabel(4)='ea'
         plabel(5)='nl'

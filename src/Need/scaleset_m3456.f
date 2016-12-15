@@ -41,6 +41,7 @@ c--- invariant mass of particles 3, 4, 5 and 6
      &   (case .eq. 'ggVVbx') .or.
      &   (case .eq. 'ggZZ4l') .or.
      &   (case .eq. 'ggZZbx') .or.
+     &   (case .eq. 'qqZZqq') .or.
      &   (case .eq. 'HmZZ4l')) then 
         mu0=(p(3,4)+p(4,4)+p(5,4)+p(6,4))**2
      &     -(p(3,1)+p(4,1)+p(5,1)+p(6,1))**2
