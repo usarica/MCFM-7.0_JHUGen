@@ -106,8 +106,12 @@ c---   for no jets in the final state, straightforward
           icolup(2,2)=501
         endif
       else
-        write(6,*) 'LHE output not yet available for nqcdjets=',nqcdjets
-        stop
+c---        write(6,*) 'LHE output not yet available for nqcdjets=',nqcdjets
+          icolup(1,1)=501
+          icolup(2,1)=502
+          icolup(1,2)=502
+          icolup(2,2)=501
+c---        stop
       endif
 
 c--- number of entries to write

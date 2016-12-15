@@ -37,20 +37,22 @@ c --- DSW.
       include 'bypart.f'
       integer pflav,pbarflav
 c--- To use VEGAS random number sequence :
-      double precision ran2
+      double precision ran2,s3456
+      double precision lowintbo,lowintho,xmsqho,xmsqbo 
       integer ih1,ih2,j,k,nvec,sgnj,sgnk,ii,i1,i2,i3,i4
       integer i,t
-      double precision r(mxdim),W,xmsq,val,val2,ptmp,
+      double precision r(mxdim),W,xmsq,val,val2,ptmp,valbo,valho,
      . fx1(-nf:nf),fx2(-nf:nf),p(mxpart,4),pjet(mxpart,4),
      . pswt,rscalestart,fscalestart,
      . fx1_H(-nf:nf),fx2_H(-nf:nf),fx1_L(-nf:nf),fx2_L(-nf:nf),
      . fxb1(-nf:nf),fxb2(-nf:nf),xmsq_array(-nf:nf,-nf:nf)
-      double precision wgt,msq(-nf:nf,-nf:nf),m3,m4,m5,xmsqjk
+      double precision wgt,msq(-nf:nf,-nf:nf),m3,m4,m5,xmsqjk,
+     &msqbo(-nf:nf,-nf:nf),msqho(-nf:nf,-nf:nf),xmsqjkbo,xmsqjkho
       double precision msq1(-nf:nf,-nf:nf),
      & msq4(-nf:nf,-nf:nf,-nf:nf,-nf:nf)
       double precision flux,vol,vol_mass,vol3_mass,vol_wt,BrnRat
       double precision xmsq_bypart(-1:1,-1:1)
-      logical bin,first,includedipole,checkpiDpjk
+      logical bin,first,includedipole,checkpiDpjk,doHO,doBO
       double precision b1scale,q2scale,q1scale,b2scale
       external qg_tbq,BSYqqb_QQbdk_gvec,qqb_QQbdk,qg_tbqdk,qg_tbqdk_gvec,
      & qqb_Waa,qqb_Waa_mad
@@ -74,6 +76,8 @@ c--- To use VEGAS random number sequence :
 
       ntotshot=ntotshot+1
       lowint=0d0
+      lowintbo=0d0
+      lowintho=0d0
 c--- ensure isolation code does not think this is fragmentation piece
       z_frag=0d0
       
@@ -433,7 +437,15 @@ c        call getvbfpoint(p)
         if (VVstrong) then
           call qq_ZZqqstrong(p,msq)
         else
-          call qq_ZZqq(p,msq)
+c       HO BO 
+          doho = .false.
+          dobo = .false.
+          call qq_ZZqq(doho,dobo,p,msq)
+c          doho = .true.
+c          call qq_ZZqq(doho,dobo,p,msqho)
+c          dobo = .true.
+c          doho = .false.
+c          call qq_ZZqq(doho,dobo,p,msqbo)
         endif
 c        call comparevbf(msq)
       elseif (case .eq. 'qqWWqq') then
@@ -642,6 +654,8 @@ c--- do not calculate the flux if we're only checking the volume
 c--- initialize a PDF set here, if calculating errors
   777 continue    
       xmsq=0d0
+      xmsqbo=0d0
+      xmsqho=0d0
       if (PDFerrors) then
         call InitPDF(currentPDF)
       endif
@@ -685,6 +699,7 @@ c--- usual case
 
       do j=-nflav,nflav
       do k=-nflav,nflav    
+c       if ( (j .eq. 1) .and. ( k .eq. 2) )  then
 
       if (ggonly) then
       if ((j.ne.0) .or. (k.ne.0)) goto 20
@@ -723,9 +738,17 @@ c--- special case for dynamic scale in t-channel single top
       else
 c--- DEFAULT
         xmsqjk=fx1(j)*fx2(k)*msq(j,k)
+        xmsqjkbo=fx1(j)*fx2(k)*msqbo(j,k)
+        xmsqjkho=fx1(j)*fx2(k)*msqho(j,k)
+c        print *,j,k,msq(j,k),msqbo(j,k),msqho(j,k) 
+c        print *,j,k,(msq(j,k)-msqbo(j,k) 
+c     &  -msqho(j,k))/sqrt(msqbo(j,k))
+c     &  /sqrt(msqho(j,k))/2.d0,xmsqjk 
       endif
 
       xmsq=xmsq+xmsqjk
+      xmsqbo=xmsqbo+xmsqjkbo
+      xmsqho=xmsqho+xmsqjkho
       xmsq_array(j,k)=xmsqjk
       
       if     (j .gt. 0) then
@@ -746,6 +769,8 @@ c--- DEFAULT
       if (currentPDF .eq. 0) then
         xmsq_bypart(sgnj,sgnk)=xmsq_bypart(sgnj,sgnk)+xmsqjk
       endif
+
+c      endif
       
  20   continue
       enddo
@@ -753,6 +778,8 @@ c--- DEFAULT
 
       if (currentPDF .eq. 0) then
         lowint=flux*pswt*xmsq/BrnRat
+        lowintbo=flux*pswt*xmsqbo/BrnRat
+        lowintho=flux*pswt*xmsqho/BrnRat
       endif
             
 c--- loop over all PDF error sets, if necessary
@@ -787,6 +814,8 @@ c--- loop over all PDF error sets, if necessary
       enddo
 
       val=lowint*wgt
+      valbo=lowintbo*wgt
+      valho=lowintho*wgt
       val2=val**2
 c---  SSbegin
       lowint = lowint*reweight
@@ -801,6 +830,14 @@ c---  but not if we are already unweighting ...
 
 
       if (bin) then
+c         call mcfm_writelhe(pjet,xmsq_array,val)
+c--         write(6,*) 'Test weight ',val
+c        s3456=+(p(3,4)+p(4,4)+p(5,4)+p(6,4))**2
+c     &      -(p(3,1)+p(4,1)+p(5,1)+p(6,1))**2
+c     &      -(p(3,2)+p(4,2)+p(5,2)+p(6,2))**2
+c     &      -(p(3,3)+p(4,3)+p(5,3)+p(6,3))**2
+c         print *,(xmsq-xmsqbo-xmsqho)/2.d0/sqrt(xmsqbo)/sqrt(xmsqho),
+c     &   sqrt(s3456),val
          call nplotter(pjet,val,val2,0)
 c---  POWHEG-style output if requested
          if (writepwg) then
@@ -830,6 +867,12 @@ c ---     just in case the weight was negative :
           newwt = newwt*dsign(1d0,val)
 c         call nplotter(pjet,newwt,newwt,0)
 !$omp critical(LowintWriteLHE)
+c        s3456=+(p(3,4)+p(4,4)+p(5,4)+p(6,4))**2
+c     &      -(p(3,1)+p(4,1)+p(5,1)+p(6,1))**2
+c     &      -(p(3,2)+p(4,2)+p(5,2)+p(6,2))**2
+c     &      -(p(3,3)+p(4,3)+p(5,3)+p(6,3))**2
+c         print *, 'cos',(val-valbo-valho)/2.d0/sqrt(valbo)/sqrt(valho),
+c     &   sqrt(s3456),val
           call mcfm_writelhe(pjet,xmsq_array,newwt)
 !$omp end critical(LowintWriteLHE)
         endif
