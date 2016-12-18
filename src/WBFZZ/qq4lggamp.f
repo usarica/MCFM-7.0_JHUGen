@@ -71,7 +71,7 @@ C---set up couplings dependent on whether we are doing 34- or 56- line
       xq2=q1
       else
       write(6,*) 'Unexpected case qq4lggamp.f'
-      stop
+      stop 1
       endif
 
       do jdu=1,2

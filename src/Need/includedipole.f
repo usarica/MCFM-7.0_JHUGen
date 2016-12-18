@@ -219,7 +219,7 @@ c        endif
 c        return
 c      else
 c        write(6,*) 'Unexpected case in mcfmincdipole.f!'
-c        stop
+c        stop 1
 c      endif
 c      endif
 c
