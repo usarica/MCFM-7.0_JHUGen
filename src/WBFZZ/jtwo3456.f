@@ -54,7 +54,7 @@ C---setting up couplings dependent on whether we are doing 34-line or 56-line
       xq2=q1
       else
       write(6,*) 'Unexpected case jtwo3456.f'
-      stop
+      stop 1
       endif
 
       s34=s(n3,n4)

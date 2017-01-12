@@ -102,7 +102,7 @@ c---  e.g. entering interference
         Higgsint=.true.
       else
         write(6,*) 'Unexpected case in gg_WW_int: ',case
-        stop
+        stop 1
       endif
       
       do j=-nf,nf
@@ -402,7 +402,7 @@ c--- This only accumulates the interference
      &             -cdabs(Ahiggs(h1,h2))**2
       else
         write(6,*) 'Unexpected case in gg_WW_int: ',case
-        stop
+        stop 1
       endif
       
       enddo
