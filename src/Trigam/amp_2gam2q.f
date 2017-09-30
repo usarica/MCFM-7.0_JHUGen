@@ -1,5 +1,7 @@
-      double complex function amp_2gam2q_mpmppp(j1,j2,j3,j4,j5,j6,za,zb,
-     & Q12,Q34)
+      function amp_2gam2q_mpmppp(j1,j2,j3,j4,j5,j6,za,zb,Q12,Q34)
+      implicit none
+      include 'types.f'
+      complex(dp):: amp_2gam2q_mpmppp
 c--- -i*Amplitude for the process
 c---     0  -->  qb(j1) + q(j2) + qbar(j3) + q(j4) + gam(j5) + gam(j6)
 c--- helicities:  -       +        -         +        +         +
@@ -8,12 +10,15 @@ c---
 c--- Taken from "Multi-Photon Amplitudes for Next-to-Leading Order QCD"
 c---  V. Del Duca, W. Kilgore and F. Maltoni, hep-ph/9910253
 c---
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'sprods_com.f'
       include 'zprods_decl.f'
-      integer j1,j2,j3,j4,j5,j6
-      double precision Q12,Q34
+      integer:: j1,j2,j3,j4,j5,j6
+      real(dp):: Q12,Q34
 
 c--- Equation (2.15) with m=2, r=0 (n=6) and f(+,+) from Eq. (2.13)
       amp_2gam2q_mpmppp=      
@@ -28,8 +33,10 @@ c--- Equation (2.15) with m=2, r=0 (n=6) and f(+,+) from Eq. (2.13)
       end
 
       
-      double complex function amp_2gam2q_mppmpp(j1,j2,j3,j4,j5,j6,za,zb,
-     & Q12,Q34)
+      function amp_2gam2q_mppmpp(j1,j2,j3,j4,j5,j6,za,zb,Q12,Q34)
+      implicit none
+      include 'types.f'
+      complex(dp):: amp_2gam2q_mppmpp
 c--- -i*Amplitude for the process
 c---     0  -->  qb(j1) + q(j2) + qbar(j3) + q(j4) + gam(j5) + gam(j6)
 c--- helicities:  -       +        +         -        +         +
@@ -38,12 +45,15 @@ c---
 c--- Taken from "Multi-Photon Amplitudes for Next-to-Leading Order QCD"
 c---  V. Del Duca, W. Kilgore and F. Maltoni, hep-ph/9910253
 c---
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'sprods_com.f'
       include 'zprods_decl.f'
-      integer j1,j2,j3,j4,j5,j6
-      double precision Q12,Q34
+      integer:: j1,j2,j3,j4,j5,j6
+      real(dp):: Q12,Q34
 
 c--- Equation (2.15) with m=2, r=0 (n=6) and f(+,-) from Eq. (2.13)
       amp_2gam2q_mppmpp=      
@@ -58,8 +68,10 @@ c--- Equation (2.15) with m=2, r=0 (n=6) and f(+,-) from Eq. (2.13)
       end
 
       
-      double complex function amp_2gam2q_pmmppp(j1,j2,j3,j4,j5,j6,za,zb,
-     & Q12,Q34)
+      function amp_2gam2q_pmmppp(j1,j2,j3,j4,j5,j6,za,zb,Q12,Q34)
+      implicit none
+      include 'types.f'
+      complex(dp):: amp_2gam2q_pmmppp
 c--- -i*Amplitude for the process
 c---     0  -->  qb(j1) + q(j2) + qbar(j3) + q(j4) + gam(j5) + gam(j6)
 c--- helicities:  +       -        -         +        +         +
@@ -68,12 +80,15 @@ c---
 c--- Taken from "Multi-Photon Amplitudes for Next-to-Leading Order QCD"
 c---  V. Del Duca, W. Kilgore and F. Maltoni, hep-ph/9910253
 c---
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'sprods_com.f'
       include 'zprods_decl.f'
-      integer j1,j2,j3,j4,j5,j6
-      double precision Q12,Q34
+      integer:: j1,j2,j3,j4,j5,j6
+      real(dp):: Q12,Q34
 
 c--- Equation (2.15) with m=2, r=0 (n=6) and f(-,+) from Eq. (2.13)
       amp_2gam2q_pmmppp=      
@@ -88,8 +103,11 @@ c--- Equation (2.15) with m=2, r=0 (n=6) and f(-,+) from Eq. (2.13)
       end
 
       
-      double complex function amp_2gam2q_pmpmpp(j1,j2,j3,j4,j5,j6,za,zb,
+      function amp_2gam2q_pmpmpp(j1,j2,j3,j4,j5,j6,za,zb,
      & Q12,Q34)
+      implicit none
+      include 'types.f'
+      complex(dp):: amp_2gam2q_pmpmpp
 c--- -i*Amplitude for the process
 c---     0  -->  qb(j1) + q(j2) + qbar(j3) + q(j4) + gam(j5) + gam(j6)
 c--- helicities:  +       -        +         -        +         +
@@ -98,12 +116,15 @@ c---
 c--- Taken from "Multi-Photon Amplitudes for Next-to-Leading Order QCD"
 c---  V. Del Duca, W. Kilgore and F. Maltoni, hep-ph/9910253
 c---
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'sprods_com.f'
       include 'zprods_decl.f'
-      integer j1,j2,j3,j4,j5,j6
-      double precision Q12,Q34
+      integer:: j1,j2,j3,j4,j5,j6
+      real(dp):: Q12,Q34
 
 c--- Equation (2.15) with m=2, r=0 (n=6) and f(-,-) from Eq. (2.13)
       amp_2gam2q_pmpmpp=      
@@ -118,8 +139,10 @@ c--- Equation (2.15) with m=2, r=0 (n=6) and f(-,-) from Eq. (2.13)
       end
 
       
-      double complex function amp_2gam2q_pmpmmp(j1,j2,j3,j4,j5,j6,za,zb,
-     & Q12,Q34)
+      function amp_2gam2q_pmpmmp(j1,j2,j3,j4,j5,j6,za,zb,Q12,Q34)
+      implicit none
+      include 'types.f'
+      complex(dp):: amp_2gam2q_pmpmmp
 c--- -i*Amplitude for the process
 c---     0  -->  qb(j1) + q(j2) + qbar(j3) + q(j4) + gam(j5) + gam(j6)
 c--- helicities:  +       -        +         -        -         +
@@ -128,13 +151,16 @@ c---
 c--- Taken from "Multi-Photon Amplitudes for Next-to-Leading Order QCD"
 c---  V. Del Duca, W. Kilgore and F. Maltoni, hep-ph/9910253
 c---
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'sprods_com.f'
       include 'zprods_decl.f'
-      integer j1,j2,j3,j4,j5,j6
-      double precision Q12,Q34
-      double complex g1_2gam2q,g2_2gam2q
+      integer:: j1,j2,j3,j4,j5,j6
+      real(dp):: Q12,Q34
+      complex(dp):: g1_2gam2q,g2_2gam2q
 
 c--- Equation (4.5), first line
       amp_2gam2q_pmpmmp=      
@@ -147,8 +173,10 @@ c--- Equation (4.5), first line
       end
 
       
-      double complex function amp_2gam2q_pmmpmp(j1,j2,j3,j4,j5,j6,za,zb,
-     & Q12,Q34)
+      function amp_2gam2q_pmmpmp(j1,j2,j3,j4,j5,j6,za,zb,Q12,Q34)
+      implicit none
+      include 'types.f'
+      complex(dp):: amp_2gam2q_pmmpmp
 c--- -i*Amplitude for the process
 c---     0  -->  qb(j1) + q(j2) + qbar(j3) + q(j4) + gam(j5) + gam(j6)
 c--- helicities:  +       -        -         +        -         +
@@ -157,13 +185,16 @@ c---
 c--- Taken from "Multi-Photon Amplitudes for Next-to-Leading Order QCD"
 c---  V. Del Duca, W. Kilgore and F. Maltoni, hep-ph/9910253
 c---
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'sprods_com.f'
       include 'zprods_decl.f'
-      integer j1,j2,j3,j4,j5,j6
-      double precision Q12,Q34
-      double complex g1_2gam2q,g2_2gam2q
+      integer:: j1,j2,j3,j4,j5,j6
+      real(dp):: Q12,Q34
+      complex(dp):: g1_2gam2q,g2_2gam2q
 
 c--- Equation (4.5), second line
       amp_2gam2q_pmmpmp=      
@@ -176,19 +207,25 @@ c--- Equation (4.5), second line
       end
 
       
-      double complex function g1_2gam2q(j1,j2,j3,j4,j5,j6,za,zb)
+      function g1_2gam2q(j1,j2,j3,j4,j5,j6,za,zb)
+      implicit none
+      include 'types.f'
+      complex(dp):: g1_2gam2q
 c--- -i*g1(j1,j2,j3,j4,j5,j6): auxiliary function for the process
 c---     0  -->  qb(j1) + q(j2) + qbar(j3) + q(j4) + gam(j5) + gam(j6)
 c---
 c--- Taken from "Multi-Photon Amplitudes for Next-to-Leading Order QCD"
 c---  V. Del Duca, W. Kilgore and F. Maltoni, hep-ph/9910253
 c---
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'sprods_com.f'
       include 'zprods_decl.f'
-      integer j1,j2,j3,j4,j5,j6
-      double precision t
+      integer:: j1,j2,j3,j4,j5,j6
+      real(dp):: t
 
 c--- Equation (3.9)
       g1_2gam2q=
@@ -204,19 +241,25 @@ c--- Equation (3.9)
       end
             
             
-      double complex function g2_2gam2q(j1,j2,j3,j4,j5,j6,za,zb)
+      function g2_2gam2q(j1,j2,j3,j4,j5,j6,za,zb)
+      implicit none
+      include 'types.f'
+      complex(dp):: g2_2gam2q
 c--- -i*g2(j1,j2,j3,j4,j5,j6): auxiliary function for the process
 c---     0  -->  qb(j1) + q(j2) + qbar(j3) + q(j4) + gam(j5) + gam(j6)
 c---
 c--- Taken from "Multi-Photon Amplitudes for Next-to-Leading Order QCD"
 c---  V. Del Duca, W. Kilgore and F. Maltoni, hep-ph/9910253
 c---
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'sprods_com.f'
       include 'zprods_decl.f'
-      integer j1,j2,j3,j4,j5,j6
-      double precision t
+      integer:: j1,j2,j3,j4,j5,j6
+      real(dp):: t
 
 c--- Equation (3.10)
       g2_2gam2q=

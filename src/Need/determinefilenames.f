@@ -1,13 +1,15 @@
       subroutine determinefilenames(inputfile,workdir)
       implicit none
+      include 'types.f'
+      
       character*72 workdir
       character*72 inputfile,getinput
-      integer nargs,lenocc,lenarg
+      integer:: nargs,lenocc,lenarg
 c--- work out the name of the input file and return it
 
 
       nargs=iargc()
-      if (nargs .ge. 1) then
+      if (nargs >= 1) then
         call getarg(1,inputfile)
       else
         inputfile='input.DAT'
@@ -15,14 +17,14 @@ c--- work out the name of the input file and return it
       
       lenarg=lenocc(inputfile)
 
-      if ((lenarg.lt.4).or.(inputfile(lenarg-3:lenarg).ne.'.DAT')) then
+      if ((lenarg<4).or.(inputfile(lenarg-3:lenarg).ne.'.DAT')) then
         workdir=inputfile
 c--- truncate if the directory / is included
-        if (workdir(lenarg:lenarg) .eq. '/') then
+        if (workdir(lenarg:lenarg) == '/') then
            workdir(lenarg:lenarg)=' '
            lenarg=lenarg-1
         endif
-        if (nargs .ge. 2) then
+        if (nargs >= 2) then
           call getarg(2,getinput)
           inputfile=workdir(1:lenarg)//'/'//getinput
         else  

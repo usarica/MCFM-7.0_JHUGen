@@ -1,18 +1,23 @@
       subroutine gen3mdk(r,p,m3,m4,m5,pswt,*)
+      implicit none
+      include 'types.f'
 c--- this routine is an extension of gen3m to include the decay
 c--- of one of the heavy particles
 
-      implicit none
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'mxdim.f'
       include 'masses.f'
       include 'zerowidth.f'
       include 'limits.f'
       include 'breit.f'
-      double precision r(mxdim)
-      double precision p(mxpart,4),m3,m4,m5,pswt,wtbw,wten,smin
-      double precision pt(4),pb(4),pw(4),pe(4),pn(4),pbbar(4),pq(4)
-      integer nu
+      real(dp):: r(mxdim)
+      real(dp):: p(mxpart,4),m3,m4,m5,pswt,wtbw,wten,smin
+      real(dp):: pt(4),pb(4),pw(4),pe(4),pn(4),pbbar(4),pq(4)
+      integer:: nu
 
 c--- these must be set this way for gen3m
       mass3=m4 ! =mb
@@ -58,7 +63,7 @@ c--- put vectors in their proper places
       return
 
   999 continue
-      pswt=0d0
+      pswt=0._dp
       return 1
 
       end

@@ -1,5 +1,7 @@
       subroutine qqb_QQbdku_g(p,msq)
       implicit none
+      include 'types.f'
+
 C***********************************************************************
 *     Author: R.K. Ellis                                               *
 *     June, 2010.                                                      *
@@ -13,23 +15,26 @@ C***********************************************************************
 *     uncorrelated decays                                              *
 ************************************************************************
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ewcouple.f'
       include 'masses.f'
-      integer j,k,nu
-      double precision pt1Dpe1,pb1Dpn1,pt2Dpe2,pb2Dpn2,decay,s
-      double precision msq(-nf:nf,-nf:nf),p(mxpart,4),q(mxpart,4)
-      double complex  prop
-      s(j,k)=2d0
-     . *(p(j,4)*p(k,4)-p(j,1)*p(k,1)-p(j,2)*p(k,2)-p(j,3)*p(k,3))
+      integer:: j,k,nu
+      real(dp):: pt1Dpe1,pb1Dpn1,pt2Dpe2,pb2Dpn2,decay,s
+      real(dp):: msq(-nf:nf,-nf:nf),p(mxpart,4),q(mxpart,4)
+      complex(dp)::  prop
+      s(j,k)=2._dp
+     & *(p(j,4)*p(k,4)-p(j,1)*p(k,1)-p(j,2)*p(k,2)-p(j,3)*p(k,3))
 
-      prop=dcmplx(s(3,4)-wmass**2,wmass*wwidth)
-     .    *dcmplx(s(7,8)-wmass**2,wmass*wwidth)
-     .    *dcmplx(zip,mt*twidth)**2
+      prop=cplx2(s(3,4)-wmass**2,wmass*wwidth)
+     &    *cplx2(s(7,8)-wmass**2,wmass*wwidth)
+     &    *cplx2(zip,mt*twidth)**2
 
 C----set all elements to zero
       do j=-nf,nf
       do k=-nf,nf
-      msq(j,k)=0d0
+      msq(j,k)=0._dp
       enddo
       enddo
 
@@ -40,7 +45,7 @@ C----set all elements to zero
       q(4,nu)=+p(6,nu)+p(7,nu)+p(8,nu)
       q(5,nu)=p(9,nu)
       do j=6,mxpart
-      q(j,nu)=0d0
+      q(j,nu)=0._dp
       enddo
       enddo
 
@@ -48,7 +53,7 @@ C----set all elements to zero
       pt2Dpe2=q(4,4)*p(7,4)-q(4,1)*p(7,1)-q(4,2)*p(7,2)-q(4,3)*p(7,3)
       pb1Dpn1=p(3,4)*p(5,4)-p(3,1)*p(5,1)-p(3,2)*p(5,2)-p(3,3)*p(5,3)
       pb2Dpn2=p(6,4)*p(8,4)-p(6,1)*p(8,1)-p(6,2)*p(8,2)-p(6,3)*p(8,3)
-      decay=4d0*gwsq**4*pt1Dpe1*pb1Dpn1*pt2Dpe2*pb2Dpn2/abs(prop)**2
+      decay=4._dp*gwsq**4*pt1Dpe1*pb1Dpn1*pt2Dpe2*pb2Dpn2/abs(prop)**2
 
       call qqb_QQb_g(q,msq)
 

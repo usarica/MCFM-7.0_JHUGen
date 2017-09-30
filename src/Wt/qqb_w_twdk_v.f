@@ -1,4 +1,6 @@
       subroutine qqb_w_twdk_v(p,msq)
+      implicit none
+      include 'types.f'
 ************************************************************************
 *     Author: Francesco Tramontano                                     *
 *     February, 2005.                                                  *
@@ -17,40 +19,39 @@
 *                            |                                         *
 *                            --> nu(p3) + e^+(p4)                      *
 ************************************************************************
-      implicit none
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'sprods_com.f'
       include 'zprods_com.f'
       include 'ewcouple.f'
       include 'qcdcouple.f'
       include 'nwz.f'
-      integer j,k,i3,i4,i5,i6,iq
-      double precision msq(-nf:nf,-nf:nf),p(mxpart,4),
-     . q(mxpart,4),msq_gq,msq_qg,fac,r(mxpart,4),wprop
-      double complex ampl0(2),amplv(2),amplp(2,2),ampld(2)
-      double precision twotDg,dot
-      double complex spp_ft,spm_ft,
-     . smm_ft,smp_ft,virt_pp,virt_pm,virt_mp,virt_mm
+      integer:: j,k,i3,i4,i5,i6,iq
+      real(dp):: msq(-nf:nf,-nf:nf),p(mxpart,4),
+     & q(mxpart,4),msq_gq,msq_qg,fac,r(mxpart,4),wprop
+      complex(dp):: ampl0(2),amplv(2),amplp(2,2),ampld(2)
+      real(dp):: twotDg,dot
+      complex(dp):: spp_ft,spm_ft,
+     & smm_ft,smp_ft,virt_pp,virt_pm,virt_mp,virt_mm
 
 c---initialize
-      msq_gq=0d0
-      msq_qg=0d0
+      msq_gq=zero
+      msq_qg=zero
+      msq(:,:)=zero
 
-      do j=-nf,nf
-      do k=-nf,nf
-      msq(j,k)=0d0
-      enddo
-      enddo
 
 c--- set up lepton variables depending on whether it's t or tbar
-      if     (nwz .eq. -1) then
+      if     (nwz == -1) then
         i3=3
         i4=4
         i5=5
         i6=6
         iq=1 ! top quark
-      elseif (nwz .eq. +1) then
+      elseif (nwz == +1) then
         i3=4
         i4=3
         i5=6
@@ -62,10 +63,10 @@ c--- set up lepton variables depending on whether it's t or tbar
       endif
 
 c--- overall factor contained in diag.prc
-      fac=ason2pi*aveqg*(V/2d0)*2d0*gsq*gwsq**4
+      fac=ason2pi*aveqg*(V/two)*two*gsq*gwsq**4
 
 c-- calculate auxiliary momentum array - gq case
-      twotDg=2d0*(dot(p,5,1)+dot(p,6,1)+dot(p,7,1))
+      twotDg=two*(dot(p,5,1)+dot(p,6,1)+dot(p,7,1))
       do k=1,4
       do j=1,7
       q(j,k)=p(j,k)
@@ -92,7 +93,7 @@ c--- Note: call to tree now passes top mass as a parameter
       smm_ft=virt_mm(mt,1,2,i3,i4,5,r)
       smp_ft=virt_mp(mt,1,2,i3,i4,5,r)
 
-      wprop=dsqrt((s(3,4)-wmass**2)**2+(wmass*wwidth)**2)
+      wprop=sqrt((s(3,4)-wmass**2)**2+(wmass*wwidth)**2)
 
 c--- we have demonstrated that amplp(1,1)=lomm_ft/wprop etc.
 
@@ -110,24 +111,24 @@ c--- the heavy quark, for Born and virtual
 
 c--- lowest order amplitudes
       ampl0(1)=amplp(1,1)*ampld(1)
-     .        +amplp(2,1)*ampld(2)
+     &        +amplp(2,1)*ampld(2)
 
       ampl0(2)=amplp(1,2)*ampld(1)
-     .        +amplp(2,2)*ampld(2)
+     &        +amplp(2,2)*ampld(2)
 
 c--- virtual amplitudes
       amplv(1)=(smm_ft/wprop)*ampld(1)
-     .        +(spm_ft/wprop)*ampld(2)
+     &        +(spm_ft/wprop)*ampld(2)
 
       amplv(2)=(smp_ft/wprop)*ampld(1)
-     .        +(spp_ft/wprop)*ampld(2)
+     &        +(spp_ft/wprop)*ampld(2)
 
       do j=1,2
-      msq_gq=msq_gq+dble(amplv(j)*Dconjg(ampl0(j)))
+      msq_gq=msq_gq+real(amplv(j)*conjg(ampl0(j)))
       enddo
 
 c-- calculate auxiliary momentum array - qg case
-      twotDg=2d0*(dot(p,5,2)+dot(p,6,2)+dot(p,7,2))
+      twotDg=two*(dot(p,5,2)+dot(p,6,2)+dot(p,7,2))
       do k=1,4
 c      do j=1,7
 c      q(j,k)=p(j,k)
@@ -153,7 +154,7 @@ c---fill matrices of spinor products
       smm_ft=virt_mm(mt,2,1,i3,i4,5,r)
       smp_ft=virt_mp(mt,2,1,i3,i4,5,r)
 
-      wprop=dsqrt((s(3,4)-wmass**2)**2+(wmass*wwidth)**2)
+      wprop=sqrt((s(3,4)-wmass**2)**2+(wmass*wwidth)**2)
 
 c--- we have demonstrated that amplp(1,1)=lomm_ft/wprop etc.
 
@@ -171,28 +172,28 @@ c--- the heavy quark, for Born and virtual
 
 c--- lowest order amplitudes
       ampl0(1)=amplp(1,1)*ampld(1)
-     .        +amplp(2,1)*ampld(2)
+     &        +amplp(2,1)*ampld(2)
 
       ampl0(2)=amplp(1,2)*ampld(1)
-     .        +amplp(2,2)*ampld(2)
+     &        +amplp(2,2)*ampld(2)
 
 c--- virtual amplitudes
       amplv(1)=(smm_ft/wprop)*ampld(1)
-     .        +(spm_ft/wprop)*ampld(2)
+     &        +(spm_ft/wprop)*ampld(2)
 
       amplv(2)=(smp_ft/wprop)*ampld(1)
-     .        +(spp_ft/wprop)*ampld(2)
+     &        +(spp_ft/wprop)*ampld(2)
 
       do j=1,2
-      msq_qg=msq_qg+dble(amplv(j)*Dconjg(ampl0(j)))
+      msq_qg=msq_qg+real(amplv(j)*conjg(ampl0(j)))
       enddo
 
       do j=-nf,nf,nf
       do k=-nf,nf,nf
-      msq(j,k)=0d0
-      if     ((j .eq. +5*iq) .and. (k .eq. 0)) then
+      msq(j,k)=zero
+      if     ((j == +5*iq) .and. (k == 0)) then
           msq(j,k)=fac*msq_qg
-      elseif ((j .eq. 0) .and. (k .eq. +5*iq)) then
+      elseif ((j == 0) .and. (k == +5*iq)) then
           msq(j,k)=fac*msq_gq
       endif
       enddo

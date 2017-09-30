@@ -1,2 +1,2 @@
-      integer ntrue,nfalse,ncount
+      integer:: ntrue,nfalse,ncount
       common/nn/ntrue,nfalse

@@ -1,16 +1,22 @@
-      double precision function xwqqbqqb(i1,i2,i3,i4,n1,n2)
+      function xwqqbqqb(i1,i2,i3,i4,n1,n2)
       implicit none
+      include 'types.f'
+      real(dp):: xwqqbqqb
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'basic.f'
       include 'ckm.f'
       include 'ckm1.f'
 
-      double precision fac,xma,xmb,xmc,xmd,xme
-      integer n1,n2,nj,nk,i1,i2,i3,i4
+      real(dp):: fac,xma,xmb,xmc,xmd,xme
+      integer:: n1,n2,nj,nk,i1,i2,i3,i4
 
 
-      double complex mlll1,mlll2,mlrl1,mlrl2
-      double complex mrll1,mrll2
+      complex(dp):: mlll1,mlll2,mlrl1,mlrl2
+      complex(dp):: mrll1,mrll2
 
 
 
@@ -21,7 +27,7 @@ C*************************************************************
 C++++ subcase a
 c     qi(-p1)+qbarj(-p2)-->qk(p3)+qbarj(p4)+W+/-  (k .ne. i,j)
 
-      fac=0d0
+      fac=0._dp
       do nk=-nf,nf
       fac=fac+(fl*gl(n1,nk)*VV(n1,nk))**2
 c      write(6,*) 'n1,nk,fac',n1,nk,fac
@@ -42,7 +48,7 @@ c      left-right matrix element
 C++++ subcase b
 c     qi(-p1)+qbarj(-p2)-->qi(p3)+qbark(p4)+W+/-  (k .ne. i,j)
 
-      fac=0d0
+      fac=0._dp
       do nk=-nf,nf
       fac=fac+(fl*gl(n2,nk)*VV(n2,nk))**2
       enddo
@@ -70,11 +76,11 @@ c      left-right matrix element
       mlrl2=-Lla(i1,i3,i4,i2)
 
       xmc=fac*half*aveqq*Von4*(
-     & +abs(mlll1)**2+abs(mlll2)**2-two/XN*dble(mlll1*Dconjg(mlll2))
+     & +abs(mlll1)**2+abs(mlll2)**2-two/XN*real(mlll1*conjg(mlll2))
      & +abs(mlrl1)**2+abs(mlrl2)**2)
 
 c++++ subcase d
-c     qi(-p1)+qbarj(-p2)-->qi(p3)+qbari(p4)+W+/-  (k .eq. i)
+c     qi(-p1)+qbarj(-p2)-->qi(p3)+qbari(p4)+W+/-  (k == i)
 
       fac=(fl*gl(n2,n1)*VV(n2,n1))**2
 
@@ -86,7 +92,7 @@ c      right-left matrix element
       mrll2=-Lla(i1,i3,i4,i2)
 
       xmd=fac*half*aveqq*Von4*(
-     & +abs(mlll1)**2+abs(mlll2)**2-two/XN*dble(mlll1*Dconjg(mlll2))
+     & +abs(mlll1)**2+abs(mlll2)**2-two/XN*real(mlll1*conjg(mlll2))
      & +abs(mrll1)**2+abs(mrll2)**2)
 
 c++++ subcase e
@@ -101,18 +107,18 @@ c      right-left matrix element
       xme=fac*half*aveqq*Von4*(
      & +abs(mlll2)**2+abs(mlrl2)**2)
 
-      xwqqbqqb=xma+xmb+xmc+xmd+xme
+      xwqqbqqb=xma+xmb+xmc+xm.e+_dpxme
 
       return
 
 C************************************************************
-      elseif (n1 .eq. -n2) then
+      elseif (n1 == -n2) then
 
 Case 4 Identical qi-qbari - charged coupling
 c++++ subcase a
 c     qi(-p1)+qbari(-p2)-->qj(p3)+qbari(p4)+W+/-  (k .ne. i)
 
-      fac=0d0
+      fac=0._dp
       do nk=-nf,nf
       fac=fac+(fl*gl(n1,nk)*VV(n1,nk))**2
       enddo
@@ -127,13 +133,13 @@ c----left-right matrix element
 
       xma=fac*aveqq*Von4*(
      & +abs(mlll1)**2+abs(mlll2)**2
-     & -two/XN*dble(mlll1*Dconjg(mlll2))
+     & -two/XN*real(mlll1*conjg(mlll2))
      & +abs(mlrl1)**2+abs(mlrl2)**2)
 
 c++++ subcase b
 c     qi(-p1)+qbari(-p2)-->qi(p3)+qbark(p4)+W+/-  (k .ne. i)
 
-      fac=0d0
+      fac=0._dp
       do nk=-nf,nf
       fac=fac+(fl*gl(n2,nk)*VV(n2,nk))**2
       enddo
@@ -149,18 +155,18 @@ c----right-left matrix element
 
       xmb=fac*aveqq*Von4*(
      & +abs(mlll1)**2+abs(mlll2)**2
-     & -two/XN*dble(mlll1*Dconjg(mlll2))
+     & -two/XN*real(mlll1*conjg(mlll2))
      & +abs(mrll1)**2+abs(mrll2)**2)
 
 
 c++++ subcase c
 c     qi(-p1)+qbari(-p2)-->qj(p3)+qbark(p4)+W+/-  (j,k .ne. i)
 
-      fac=0d0
+      fac=0._dp
 
       do nj=-nf,nf
       do nk=-nf,nf
-      if ((nj .eq. n1) .or. (nk .eq. n2)) then
+      if ((nj == n1) .or. (nk == n2)) then
       continue
       else
       fac=fac+(fl*gl(nj,nk)*VV(nj,nk))**2

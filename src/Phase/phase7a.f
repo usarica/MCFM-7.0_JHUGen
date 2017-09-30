@@ -1,39 +1,42 @@
       subroutine phase7a(r,p1,p2,p3,p4,p5,p6,p7,p8,p9,wt,*)
       implicit none
+      include 'types.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
       include 'masses.f'
       include 'mxdim.f'
       include 'zerowidth.f'
-      include 'process.f'
+      include 'kprocess.f'
       include 'breit.f'
 c******* generate phase space for 2-->5 process
 c******* r(mxdim),p1(4),p2(4) are inputs reversed in sign from physical values 
 c---- phase space for -p1-p2 --> p5+p6+p3+p4+p7+p8+p9
 c---- with all 2 pi's (ie 1/(2*pi)^17)
-      logical oldzerowidth
-      double precision r(mxdim)
-      double precision p1(4),p2(4),p5(4),p6(4),p3(4),p4(4),p7(4),
-     . p8(4),p9(4)
-      double precision p12(4),p789(4),p34(4),p78(4),p56(4),p3456(4)
-      double precision wt,wt0,wt12,wt789,wt34,wt78,wt3456,wt56
-      integer j
-      parameter(wt0=1d0/twopi**5)
+      logical:: oldzerowidth
+      real(dp):: r(mxdim)
+      real(dp):: p1(4),p2(4),p5(4),p6(4),p3(4),p4(4),p7(4),
+     & p8(4),p9(4)
+      real(dp):: p12(4),p789(4),p34(4),p78(4),p56(4),p3456(4)
+      real(dp):: wt,wt0,wt12,wt789,wt34,wt78,wt3456,wt56
+      integer:: j
+      parameter(wt0=1._dp/twopi**5)
 
 c--- written for real contribution to qq->H(->WW)+qq only
-      if  ((case .eq. 'qq_HWW') .or. (case .eq. 'qq_HZZ')
-     ..or. (case .eq. 'HWW2jt') .or. (case .eq. 'HZZ2jt')
-     ..or. (case .eq. 'HWW3jt') .or. (case .eq. 'HZZ3jt')
-     ..or. (case .eq. 'WpWp3j')) then
+      if  ((kcase==kqq_HWW) .or. (kcase==kqq_HZZ)
+     ..or. (kcase==kHWW2jt) .or. (kcase==kHZZ2jt)
+     ..or. (kcase==kHWW3jt) .or. (kcase==kHZZ3jt)
+     ..or. (kcase==kWpWp3j)) then
         continue
       else 
         write(6,*) 'Phase space routine not correct - needs updating.'
-        write(6,*) 'case',case
+        write(6,*) 'kcase',kcase
         stop
       endif
 
       oldzerowidth=zerowidth
 
-      wt=0d0
+      wt=0._dp
       do j=1,4
       p12(j)=-p1(j)-p2(j)
       enddo
@@ -41,7 +44,7 @@ c--- written for real contribution to qq->H(->WW)+qq only
 c--- In the case of HWW/HZZ+2jets, we should generate s3456 according
 c--- to a Breit-Wigner at mH
 
-      if (case.eq.'WpWp3j') then
+      if (kcase==kWpWp3j) then
         n2=0
         mass2=0
         width2=0
@@ -55,23 +58,23 @@ c--- to a Breit-Wigner at mH
 
       call phi1_2(r(1),r(2),r(3),r(4),p12,p3456,p789,wt12,*99)
 
-      if     ((case .eq. 'HWW2jt') .or. (case .eq. 'qq_HWW')
-     &   .or. (case .eq. 'HWW3jt')) then
+      if     ((kcase==kHWW2jt) .or. (kcase==kqq_HWW)
+     &   .or. (kcase==kHWW3jt)) then
         n2=1
         mass2=wmass
         width2=wwidth
         n3=1
         mass3=wmass
         width3=wwidth
-      elseif ((case .eq. 'HZZ2jt') .or. (case .eq. 'qq_HZZ')
-     &   .or. (case .eq. 'HZZ3jt')) then
+      elseif ((kcase==kHZZ2jt) .or. (kcase==kqq_HZZ)
+     &   .or. (kcase==kHZZ3jt)) then
         n2=1
         mass2=zmass
         width2=zwidth
         n3=1
         mass3=zmass
         width3=zwidth
-      elseif (case .eq. 'WpWp3j') then
+      elseif (kcase==kWpWp3j) then
         n2=1
         mass2=wmass
         width2=wwidth
@@ -88,7 +91,7 @@ c--- to a Breit-Wigner at mH
       wt=wt0*wt12*wt3456*wt34*wt56*wt789*wt78
       return
       
- 99   wt=0d0
+ 99   wt=0._dp
       zerowidth=oldzerowidth
       return 1
       end

@@ -1,6 +1,12 @@
-      double complex function TWbbpZab(p1,p2,p3,p4,p5,p6,p7,p8)
+      function TWbbpZab(p1,p2,p3,p4,p5,p6,p7,p8)
       implicit none
+      include 'types.f'
+      complex(dp):: TWbbpZab
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_com.f'
       include 'sprods_com.f'
 C     Author: R.K. Ellis Feb, 2013
@@ -10,9 +16,9 @@ C     off light line, only three diagrams with Z emitted before W
 C     Calculation is performed for LH light-line (perforce because of W)
 C     Calculation is performed for RH bbbar-line
 C     Calculation is performed for LH Z-dcay line
-      integer p1,p2,p3,p4,p5,p6,p7,p8
-      double precision s3,s4,s34,s56,s134,s234,s567,s568,s5678
-      double complex d9p,d10p
+      integer:: p1,p2,p3,p4,p5,p6,p7,p8
+      real(dp):: s3,s4,s34,s56,s134,s234,s567,s568,s5678
+      complex(dp):: d9p,d10p
 C     statement functions
       s3(p1,p2,p3)=s(p1,p2)+s(p1,p3)+s(p2,p3)
       s4(p1,p2,p3,p4)=s(p1,p2)+s(p1,p3)+s(p1,p4)

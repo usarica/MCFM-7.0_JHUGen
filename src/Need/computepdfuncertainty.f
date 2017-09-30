@@ -1,5 +1,7 @@
       subroutine computepdfuncertainty(PDFarray,PDFcentral,
      & PDFperror,PDFnerror,PDFerror)
+      implicit none
+      include 'types.f'
 c--- Routine to compute PDF uncertainty given an array of results
 c--- for different PDF uncertainty sets (PDFarray).
 c--- Returns central value (PDFcentral), positive and negative
@@ -11,19 +13,23 @@ c---  it is current as of 9/2013)
 c---
 c--- This routine is similar to the one provided natively in LHAPDFv5.8.5
 c--- onwards ("uncertainties.f", written by Graeme Watt)
-      implicit none
+      
+      include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'lhapdf.f'
       include 'PDFerrors.f'
-      integer j
-      double precision PDFarray(0:1000),PDFcentral,PDFperror,PDFnerror,
+      integer:: j
+      real(dp):: PDFarray(0:1000),PDFcentral,PDFperror,PDFnerror,
      & PDFerror,sum1,sum2,PDFMCav,PDFMCer
-      logical first
+      logical:: first
       data first/.true./
       save first
 
 c--- NNPDF: just compute average and standard deviation    
-      if ((index(PDFname,'NNPDF') .gt. 0) .or.
-     &    (index(PDFname,'nnpdf') .gt. 0)) then
+      if ((index(PDFname,'NNPDF') > 0) .or.
+     &    (index(PDFname,'nnpdf') > 0)) then
         if (first) then
         write(6,*)'****************************************************'
         write(6,*)'*    Using MC prescription for PDF uncertainties,  *'
@@ -34,16 +40,16 @@ c--- NNPDF: just compute average and standard deviation
         write(6,*)'****************************************************'
         first=.false.
         endif
-        sum1=0d0
-        sum2=0d0
+        sum1=zip
+        sum2=zip
         do j=1,maxPDFsets
            if (PDFarray(j) .ne. 0.) then
              sum1=sum1+PDFarray(j)
-             sum2=sum2+PDFarray(j)**2d0
+             sum2=sum2+PDFarray(j)**2._dp
            endif
         enddo
         PDFMCav = sum1/maxPDFsets
-        PDFMCer = dsqrt(sum2/maxPDFsets -  PDFMCav**2d0)
+        PDFMCer = sqrt(sum2/maxPDFsets -  PDFMCav**2._dp)
 
         PDFperror=PDFMCer
         PDFnerror=PDFMCer
@@ -53,12 +59,12 @@ c--- NNPDF: just compute average and standard deviation
       endif      
 
 c--- Alekhin et al: Hessian approach (symmetric)     
-      if ((index(PDFname,'ABM') .gt. 0) .or.
-     &    (index(PDFname,'ABKM') .gt. 0) .or.
-     &    (index(PDFname,'A02M') .gt. 0).or.
-     &    (index(PDFname,'abm') .gt. 0) .or.
-     &    (index(PDFname,'abkm') .gt. 0) .or.
-     &    (index(PDFname,'a02m') .gt. 0)) then
+      if ((index(PDFname,'ABM') > 0) .or.
+     &    (index(PDFname,'ABKM') > 0) .or.
+     &    (index(PDFname,'A02M') > 0).or.
+     &    (index(PDFname,'abm') > 0) .or.
+     &    (index(PDFname,'abkm') > 0) .or.
+     &    (index(PDFname,'a02m') > 0)) then
         if (first) then
         write(6,*)'****************************************************'
         write(6,*)'*   Using symmetric Hessian prescription for PDF   *'
@@ -66,13 +72,13 @@ c--- Alekhin et al: Hessian approach (symmetric)
         write(6,*)'****************************************************'
         first=.false.
         endif
-        PDFerror=0d0
+        PDFerror=zip
         do j=1,maxPDFsets
            if (PDFarray(j) .ne. 0.) then
-             PDFerror=PDFerror+(PDFarray(j)-PDFarray(0))**2d0
+             PDFerror=PDFerror+(PDFarray(j)-PDFarray(0))**2._dp
            endif
         enddo
-        PDFerror=dsqrt(PDFerror)
+        PDFerror=sqrt(PDFerror)
         PDFperror=PDFerror
         PDFnerror=PDFerror
         PDFcentral=PDFarray(0)
@@ -91,21 +97,21 @@ c--- everyone else (CTEQ and MSTW): Hessian approach (asymmetric)
         write(6,*)'****************************************************'
         first=.false.
         endif
-        PDFperror=0d0
-        PDFnerror=0d0
-        PDFerror=0d0
+        PDFperror=zip
+        PDFnerror=zip
+        PDFerror=zip
         do j=1,maxPDFsets-1,2
            if (PDFarray(j) .ne. 0.) then
-              PDFperror=PDFperror+max(0d0,
+              PDFperror=PDFperror+max(zip,
      &        PDFarray(j)-PDFarray(0),PDFarray(j+1)-PDFarray(0))**2
-              PDFnerror=PDFnerror+max(0d0,
+              PDFnerror=PDFnerror+max(zip,
      &        PDFarray(0)-PDFarray(j),PDFarray(0)-PDFarray(j+1))**2
               PDFerror=PDFerror+(PDFarray(j)-PDFarray(j+1))**2
            endif
         enddo
-        PDFerror=0.5d0*dsqrt(PDFerror)
-        PDFperror=dsqrt(PDFperror)
-        PDFnerror=dsqrt(PDFnerror)
+        PDFerror=half*sqrt(PDFerror)
+        PDFperror=sqrt(PDFperror)
+        PDFnerror=sqrt(PDFnerror)
         PDFcentral=PDFarray(0)
         return
 

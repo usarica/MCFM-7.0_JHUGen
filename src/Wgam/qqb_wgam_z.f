@@ -1,19 +1,24 @@
       subroutine qqb_wgam_z(p,z)
       implicit none
+      include 'types.f'
+      
 c---Integrated Matrix element SUBTRACTION squared averaged 
 C---over initial colors and spins
 c     q(-p1)+qbar(-p2) -->  W^+(nu(p3)+e+(p4))+a(p5)+g(p6)
 c     q(-p1)+qbar(-p2) -->  W^-(e-(p3)+nubar(p4))+a(p5)+g(p6)
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'qcdcouple.f'
       include 'scale.f'
       include 'PR_new.f'
       include 'agq.f'
-      integer is
-      double precision z,xl12,p(mxpart,4),dot,ii_qq,ii_qg,tempqq,tempqg
+      integer:: is
+      real(dp):: z,xl12,p(mxpart,4),dot,ii_qq,ii_qg,tempqq,tempqg
       
 
-      xl12=dlog(two*dot(p,1,2)/musq)
+      xl12=log(two*dot(p,1,2)/musq)
       
     
 c----contributions for one leg

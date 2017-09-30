@@ -1,20 +1,26 @@
-      double precision function msqWaa(p1,p2,p3,p4,p5,p6,za,zb)
+      function msqWaa(p1,p2,p3,p4,p5,p6,za,zb)
       implicit none
+      include 'types.f'
+      real(dp):: msqWaa
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ewcouple.f'
       include 'masses.f'
       include 'ckm.f'
       include 'zprods_decl.f'
       include 'sprods_com.f'
-      double precision p(mxpart,4),msq(-nf:nf,-nf:nf),
+      real(dp):: p(mxpart,4),msq(-nf:nf,-nf:nf),
      & s34,s345,s346,s3456,s156,s256,s456,Qup,Qdo,s15,s16
-      integer p1,p2,p3,p4,p5,p6,b5p,b5m,b6p,b6m
-      double complex lo(2,2),iden,iza,izb,zab2,zab3,mwsq
+      integer:: p1,p2,p3,p4,p5,p6,b5p,b5m,b6p,b6m
+      complex(dp):: lo(2,2),iden,iza,izb,zab2,zab3,mwsq
       
 c     statement function
-      iden(s34)=1d0/(s34-mwsq)
-      iza(p1,p2)=1d0/za(p1,p2)
-      izb(p1,p2)=1d0/zb(p1,p2)
+      iden(s34)=1._dp/(s34-mwsq)
+      iza(p1,p2)=1._dp/za(p1,p2)
+      izb(p1,p2)=1._dp/zb(p1,p2)
       zab2(p1,p2,p3,p4)=za(p1,p2)*zb(p2,p4)+za(p1,p3)*zb(p3,p4)
       zab3(p1,p2,p3,p4,p5)=
      & za(p1,p2)*zb(p2,p5)+za(p1,p3)*zb(p3,p5)+za(p1,p4)*zb(p4,p5)
@@ -193,8 +199,8 @@ c--- implementation of complex mass scheme
      & )*iza(p1,p5)*iza(p2,p5)*izb(p1,p6)*izb(p2,p6)
 
       msqWaa=      
-     &  cdabs(lo(1,1))**2+cdabs(lo(1,2))**2
-     & +cdabs(lo(2,1))**2+cdabs(lo(2,2))**2
+     &  abs(lo(1,1))**2+abs(lo(1,2))**2
+     & +abs(lo(2,1))**2+abs(lo(2,2))**2
      
       return
       end

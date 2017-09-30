@@ -1,11 +1,14 @@
       subroutine phase4(r,p1,p2,p3,p4,p5,p6,wt,*)
       implicit none
+      include 'types.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
       include 'heavyflav.f'
       include 'masses.f'
       include 'mxdim.f'
       include 'debug.f'
-      include 'process.f'
+      include 'kprocess.f'
       include 'breit.f'
       include 'zerowidth.f'
       include 'limits.f'
@@ -14,13 +17,13 @@ c---- r(mxdim),p1(4),p2(4) are inputs reversed in sign
 c---- from physical values 
 c---- phase space for -p1-p2 --> p3+p4+p5+p6
 c---- with all 2 pi's (ie 1/(2*pi)^8)
-      double precision r(mxdim)
-      double precision p1(4),p2(4),p3(4),p4(4),p5(4),p6(4)
-      double precision p12(4),p34(4),p56(4),p345(4)
-      double precision wt,wt3456,wt34,wt56,wt0,mtbsq
-      double precision p35(4),p46(4),wt35,wt46
-      integer j,n2save,n3save
-      parameter(wt0=1d0/twopi**2)
+      real(dp):: r(mxdim)
+      real(dp):: p1(4),p2(4),p3(4),p4(4),p5(4),p6(4)
+      real(dp):: p12(4),p34(4),p56(4),p345(4)
+      real(dp):: wt,wt3456,wt34,wt56,wt0,mtbsq
+      real(dp):: p35(4),p46(4),wt35,wt46
+      integer:: j,n2save,n3save
+      parameter(wt0=1._dp/twopi**2)
 
       n2save=n2
       n3save=n3
@@ -31,10 +34,10 @@ c---- with all 2 pi's (ie 1/(2*pi)^8)
 c p56 is the b-bbar system
 c--- p3 and p4 are normally massless, except for single top
 c--- production with an explicit b - then use mt (p3) and mb (p4)
-      if ((case .eq. 'qg_tbq') .or. (case .eq. 'qq_tbg')
-     ..or.(case .eq. 'qqtbgg') .or. (case .eq. 'qgtbqq')) then
+      if ((kcase==kqg_tbq) .or. (kcase==kqq_tbg)
+     ..or.(kcase==kqqtbgg) .or. (kcase==kqgtbqq)) then
 c--- hack to generate small s56
-c        r(1)=1d0-r(1)/1d3
+c        r(1)=1._dp-r(1)/1d3
 c        r(2)=r(2)/1d3
 c--- end of hack
 
@@ -52,19 +55,19 @@ c        return
 c--- end hack      
 c--- New-style PS generation
         mtbsq=(mt+mb)**2
-        call phi1_2m(0d0,r(1),r(2),r(3),mtbsq,p12,p6,p345,wt3456,*99)
-        call phi1_2m(0d0,r(4),r(5),r(6),mtbsq,p345,p5,p34,wt56,*99)
+        call phi1_2m(0._dp,r(1),r(2),r(3),mtbsq,p12,p6,p345,wt3456,*99)
+        call phi1_2m(0._dp,r(4),r(5),r(6),mtbsq,p345,p5,p34,wt56,*99)
         call phi3m(r(7),r(8),p34,p3,p4,mt,mb,wt34,*99)
         wt=wt0*wt3456*wt34*wt56
         return
 
-      elseif ((case .eq. 'H_tjet') .or. (case .eq. 'H_tdkj')) then
+      elseif ((kcase==kH_tjet) .or. (kcase==kH_tdkj)) then
 c--- New-style PS generation
         mtbsq=(mt+hmass)**2
-        call phi1_2m(0d0,r(1),r(2),r(3),mtbsq,p12,p6,p345,wt3456,*99)
+        call phi1_2m(0._dp,r(1),r(2),r(3),mtbsq,p12,p6,p345,wt3456,*99)
         n2=0
         n3=1
-        mtbsq=(hmass-20d0*hwidth)**2
+        mtbsq=(hmass-20._dp*hwidth)**2
         call phi1_2m(mt,r(4),r(5),r(6),mtbsq,p345,p5,p34,wt56,*99)
         n2=n2save
         n3=n3save
@@ -72,14 +75,14 @@ c--- New-style PS generation
         wt=wt0*wt3456*wt34*wt56
         return
 
-      elseif ((case .eq. 'Z_tjet') .or. (case .eq. 'Z_tdkj')) then
+      elseif ((kcase==kZ_tjet) .or. (kcase==kZ_tdkj)) then
 c--- New-style PS generation
         if (zerowidth) then
           mtbsq=(mt+zmass)**2
         else
-          mtbsq=(mt+dsqrt(wsqmin))**2
+          mtbsq=(mt+sqrt(wsqmin))**2
         endif
-        call phi1_2m(0d0,r(1),r(2),r(3),mtbsq,p12,p6,p345,wt3456,*99)
+        call phi1_2m(0._dp,r(1),r(2),r(3),mtbsq,p12,p6,p345,wt3456,*99)
         n2=0
         n3=1
         mtbsq=wsqmin
@@ -91,13 +94,13 @@ c--- New-style PS generation
         return
 
 c--- This branch is good for testing cancellation of IR singularities
-      elseif ((case .eq. 'qq_tbgIR') .or. (case .eq. 'qqtbggIR')) then
-c        r(1)=r(1)*1d-5 ! to check small s35
-        call phi1_2(r(1),r(2),r(3),r(4),p12,p35,p46,wt3456,*99)
-        call phi3m(r(5),r(6),p35,p3,p5,mt,0d0,wt35,*99)
-        call phi3m(r(7),r(8),p46,p4,p6,mb,0d0,wt46,*99)
-        wt=wt0*wt3456*wt35*wt46
-        return
+c      elseif ((kcase=='qq_tbgIR') .or. (kcase=='qqtbggIR')) then
+c        r(1)=r(1)*1.e-5_dp ! to check small s35
+c        call phi1_2(r(1),r(2),r(3),r(4),p12,p35,p46,wt3456,*99)
+c        call phi3m(r(5),r(6),p35,p3,p5,mt,0._dp,wt35,*99)
+c        call phi3m(r(7),r(8),p46,p4,p6,mb,0._dp,wt46,*99)
+c        wt=wt0*wt3456*wt35*wt46
+c        return
 
 c--- Default case
       else
@@ -105,30 +108,30 @@ c--- Default case
         call phi3m0(r(7),r(8),p34,p3,p4,wt34,*99)
       endif
       
-      if ( ((case .eq. 'Wbbmas') .and. (flav .eq. 5))
-     ..or. ((case .eq. 'Zbbmas') .and. (flav .eq. 5))
-     ..or. (case .eq. 'WHbbar')
-     ..or. (case .eq. 'ZHbbar')
-     ..or. (case .eq. 'Zccmas') .or. (case .eq. 'vlchkm')) then
+      if ( ((kcase==kWbbmas) .and. (flav == 5))
+     ..or. ((kcase==kZbbmas) .and. (flav == 5))
+     ..or. (kcase==kWHbbar)
+     ..or. (kcase==kZHbbar)
+     ..or. (kcase==kZccmas) .or. (kcase==kvlchkm)) then
         call phi3m(r(5),r(6),p56,p5,p6,mb,mb,wt56,*99)
-      elseif ((case .eq. 'Wbbmas') .and. (flav .eq. 4)) then
+      elseif ((kcase==kWbbmas) .and. (flav == 4)) then
         call phi3m(r(5),r(6),p56,p5,p6,mc,mc,wt56,*99)
-      elseif (((case .eq. 'Zbbmas') .and. (flav .eq. 6))
-     &    .or. (case .eq. 'qq_ttz') .or. (case .eq. 'qqtthz')) then
+      elseif (((kcase==kZbbmas) .and. (flav == 6))
+     &    .or. (kcase==kqq_ttz) .or. (kcase==kqqtthz)) then
         call phi3m(r(5),r(6),p56,p5,p6,mt,mt,wt56,*99)
-      elseif ((case .eq. 'qq_ttw') .or. (case .eq. 'ttwldk') 
-     &   .or. (case .eq. 'Wttmas')) then
+      elseif ((kcase==kqq_ttw) .or. (kcase==kttwldk) 
+     &   .or. (kcase==kWttmas)) then
         call phi3m(r(5),r(6),p56,p5,p6,mt,mt,wt56,*99)
-      elseif (case .eq. 'W_cjet') then
+      elseif (kcase==kW_cjet) then
         call phi3m(r(5),r(6),p56,p5,p6,mc,zip,wt56,*99)
-      elseif (case .eq. 'H_tjet') then
+      elseif (kcase==kH_tjet) then
         call phi3m(r(5),r(6),p56,p5,p6,mt,zip,wt56,*99)
        
-      elseif (case .eq. 'Wbfrmc') then
+      elseif (kcase==kWbfrmc) then
         call phi3m(r(5),r(6),p56,p5,p6,mb,zip,wt56,*99)
-      elseif (case .eq. 'W_tndk') then
+      elseif (kcase==kW_tndk) then
         call phi3m(r(5),r(6),p56,p5,p6,mt,zip,wt56,*99)
-      elseif (case .eq. 'Wtbndk') then
+      elseif (kcase==kWtbndk) then
         call phi3m(r(5),r(6),p56,p5,p6,mt,mb,wt56,*99)
       else
         call phi3m0(r(5),r(6),p56,p5,p6,wt56,*99)
@@ -138,7 +141,7 @@ c--- Default case
       return
       n2=n2save
       n3=n3save
- 99   wt=0d0
+ 99   wt=0._dp
       return 1
       end
 

@@ -1,2 +1,2 @@
-      double precision sqrts
+      real(dp):: sqrts
       common/energy/sqrts

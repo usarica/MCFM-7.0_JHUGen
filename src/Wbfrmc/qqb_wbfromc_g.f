@@ -1,5 +1,7 @@
       subroutine qqb_wbfromc_g(p,msq)
       implicit none
+      include 'types.f'
+      
 c----Matrix element for W production
 C----averaged over initial colours and spins
 C for nwz=+1
@@ -7,6 +9,9 @@ c     f(-p1)+f(-p2)--> W^+(n(p3)+e^+(p4))   + cbar(p5) + f(p6)
 C For nwz=-1
 c     f(-p1)+f(-p2)--> W^-(e^-(p3)+nbar(p4))+ c(p5) + f(p6)
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'ewcouple.f'
       include 'qcdcouple.f'
@@ -14,25 +19,25 @@ c     f(-p1)+f(-p2)--> W^-(e^-(p3)+nbar(p4))+ c(p5) + f(p6)
       include 'nwz.f'
       include 'nflav.f'
       include 'ckm.f'
-      double precision msq(-nf:nf,-nf:nf),p(mxpart,4), 
-     .                 facgg,prop
-      double precision qgWqg2,qbgWqbg2,gqbWqbg2,gqWqg2,ggWqqb2,ggWqbq2
-      double precision qgWqg2_cs(0:2),qbgWqbg2_cs(0:2),
-     .                 gqbWqbg2_cs(0:2),gqWqg2_cs(0:2),
-     .                 ggWqbq2_cs(0:2),
-     .                 ggWqqb2_cs(0:2)
-      double precision sbqWcbq,sqWcq,qsWcq,qsbWcbq,qqbWcsb,qqbWcbs
-      double precision s34
+      real(dp):: msq(-nf:nf,-nf:nf),p(mxpart,4), 
+     &                 facgg,prop
+      real(dp):: qgWqg2,qbgWqbg2,gqbWqbg2,gqWqg2,ggWqqb2,ggWqbq2
+      real(dp):: qgWqg2_cs(0:2),qbgWqbg2_cs(0:2),
+     &                 gqbWqbg2_cs(0:2),gqWqg2_cs(0:2),
+     &                 ggWqbq2_cs(0:2),
+     &                 ggWqqb2_cs(0:2)
+      real(dp):: sbqWcbq,sqWcq,qsWcq,qsbWcbq,qqbWcsb,qqbWcbs
+      real(dp):: s34
       common/facgg/facgg
 c--- we label the amplitudes by helicity (qqb1 ... qqb4)
 c--- and by type of contribution qqb(1) ... qqb(n)
-      integer i,j,k
+      integer:: i,j,k
 !$omp threadprivate(/facgg/)
       
 c--- initialize matrix elements
       do j=-nf,nf
       do k=-nf,nf
-      msq(j,k)=0d0
+      msq(j,k)=0._dp
       enddo
       enddo
 
@@ -50,13 +55,13 @@ c--- note that these are symmetric under interchange of q and qb
       call wqq_sc(6,5,3,4,2,1,p,qqbWcsb)
       call wqq_sc(6,5,4,3,1,2,p,qqbWcbs)
 
-      s34=2d0*(p(3,4)*p(4,4)-p(3,1)*p(4,1)-p(3,2)*p(4,2)-p(3,3)*p(4,3))
+      s34=2._dp*(p(3,4)*p(4,4)-p(3,1)*p(4,1)-p(3,2)*p(4,2)-p(3,3)*p(4,3))
       prop=s34**2/((s34-wmass**2)**2+wmass**2*wwidth**2)
-      facgg=V*xn/four*(gwsq/2d0*gsq)**2*prop
+      facgg=V*xn/four*(gwsq/2._dp*gsq)**2*prop
  
 c--- calculate 2-quark, 2-gluon amplitudes
   
-      if     (nwz .eq. -1) then
+      if     (nwz == -1) then
         call w2jetsq_mass(1,5,4,3,2,6,p,qbgWqbg2)
         call storecs(qbgWqbg2_cs)
 
@@ -73,7 +78,7 @@ c--- calculate 2-quark, 2-gluon amplitudes
         gqbWqbg2= gqbWqbg2_cs(1)+gqbWqbg2_cs(2)+gqbWqbg2_cs(0)
         qbgWqbg2= qbgWqbg2_cs(1)+qbgWqbg2_cs(2)+qbgWqbg2_cs(0)
         ggWqbq2 = ggWqbq2_cs(1) +ggWqbq2_cs(2) +ggWqbq2_cs(0) 
-      elseif (nwz .eq. +1) then
+      elseif (nwz == +1) then
         call w2jetsq_mass(2,5,3,4,1,6,p,gqWqg2)
         call storecs(gqWqg2_cs)
 
@@ -89,25 +94,25 @@ c        call BBamps_nores(p,1,2,3,4,5,6,ampgg_ag)
 c        call BBamps_nores(p,2,1,3,4,5,6,ampgg_ga)
 cc        call BBamps(p,1,2,3,4,5,6,ampgg_ag)
 cc        call BBamps(p,2,1,3,4,5,6,ampgg_ga)
-c        msq_gg=0d0
+c        msq_gg=0._dp
 cc--- sum over helicities of gluons and massive quarks
 c          do ib=1,2
 c          do it=1,2
 c          do ia=1,2
 c          do ig=1,2
 c            msq_gg=msq_gg+xn*cf**2*(
-c     .            + abs(ampgg_ag(ia,ig,ib,it))**2
-c     .            + abs(ampgg_ga(ig,ia,ib,it))**2
-c     .            - one/xn/cf*dble(ampgg_ag(ia,ig,ib,it)
-c     .                     *dconjg(ampgg_ga(ig,ia,ib,it))))
+c     &            + abs(ampgg_ag(ia,ig,ib,it))**2
+c     &            + abs(ampgg_ga(ig,ia,ib,it))**2
+c     &            - one/xn/cf*real(ampgg_ag(ia,ig,ib,it)
+c     &                     *conjg(ampgg_ga(ig,ia,ib,it))))
 c          enddo
 c          enddo
 c          enddo
 c          enddo
 c
 cc-- veto b-jet contribution if doing subtraction and pt(b)>ptbjetmin GeV
-c          if (dsqrt(p(6,1)**2+p(6,2)**2) .gt. ptbjetmin) then
-c            msq_gg=0d0
+c          if (sqrt(p(6,1)**2+p(6,2)**2) > ptbjetmin) then
+c            msq_gg=0._dp
 c          endif
 c      
 c          ggWqqb2=avegg*gsq**2*gwsq**2*msq_gg*(prop/s34**2)          
@@ -131,33 +136,33 @@ cc--- end of alternative calculation
       do k=-nflav,nflav
       
 c--- 2-quark, 2-gluon contribution to matrix elements      
-      if     (((j .eq. +2).or.(j .eq. +4)) .and. (k .eq. 0)) then
+      if     (((j == +2).or.(j == +4)) .and. (k == 0)) then
           msq(j,k)=Vsq(j,-5)*qgWqg2
           do i=0,2
             msq_cs(i,j,k)=Vsq(j,-5)*qgWqg2_cs(i)
           enddo
-      elseif (((j .eq. -2).or.(j .eq. -4)) .and. (k .eq. 0)) then
+      elseif (((j == -2).or.(j == -4)) .and. (k == 0)) then
           msq(j,k)=Vsq(j,5)*qbgWqbg2
           do i=0,2
             msq_cs(i,j,k)=Vsq(j,5)*qbgWqbg2_cs(i)
           enddo
-      elseif ((j .eq. 0) .and. ((k .eq. +2).or.(k .eq. +4))) then
+      elseif ((j == 0) .and. ((k == +2).or.(k == +4))) then
           msq(j,k)=Vsq(k,-5)*gqWqg2
           do i=0,2
             msq_cs(i,j,k)=Vsq(k,-5)*gqWqg2_cs(i)
           enddo
-      elseif ((j .eq. 0) .and. ((k .eq. -2).or.(k .eq. -4))) then
+      elseif ((j == 0) .and. ((k == -2).or.(k == -4))) then
           msq(j,k)=Vsq(k,5)*gqbWqbg2
           do i=0,2
             msq_cs(i,j,k)=Vsq(k,5)*gqbWqbg2_cs(i)
           enddo
-      elseif ((j .eq. 0) .and. (k .eq. 0)) then
-          if     (nwz .eq. -1) then
+      elseif ((j == 0) .and. (k == 0)) then
+          if     (nwz == -1) then
             msq(j,k)=(Vsq(-2,5)+Vsq(-4,5))*ggWqbq2
             do i=0,2
               msq_cs(i,j,k)=(Vsq(-2,5)+Vsq(-4,5))*ggWqbq2_cs(i)
             enddo
-          elseif (nwz .eq. +1) then
+          elseif (nwz == +1) then
             msq(j,k)=(Vsq(2,-5)+Vsq(4,-5))*ggWqqb2
             do i=0,2
               msq_cs(i,j,k)=(Vsq(2,-5)+Vsq(4,-5))*ggWqqb2_cs(i)
@@ -166,18 +171,18 @@ c--- 2-quark, 2-gluon contribution to matrix elements
       endif
 
 c--- 4-quark contribution to matrix elements      
-      if     ((j .gt. 0) .and. (k .gt. 0)) then
+      if     ((j > 0) .and. (k > 0)) then
         msq(j,k)=Vsq(j,-5)*sqWcq+Vsq(k,-5)*qsWcq
-      elseif ((j .lt. 0) .and. (k .lt. 0)) then
+      elseif ((j < 0) .and. (k < 0)) then
         msq(j,k)=Vsq(j,+5)*sbqWcbq+Vsq(k,+5)*qsbWcbq
-      elseif ((j .gt. 0) .and. (k .lt. 0)) then
+      elseif ((j > 0) .and. (k < 0)) then
         msq(j,k)=Vsq(j,-5)*sqWcq+Vsq(k,+5)*qsbWcbq
-        if (j .eq. -k) then
+        if (j == -k) then
           msq(j,k)=msq(j,k)+Vsum(-5)*qqbWcsb+Vsum(+5)*qqbWcbs
         endif
-      elseif ((j .lt. 0) .and. (k .gt. 0)) then
+      elseif ((j < 0) .and. (k > 0)) then
         msq(j,k)=Vsq(j,+5)*sbqWcbq+Vsq(k,-5)*qsWcq
-        if (j .eq. -k) then
+        if (j == -k) then
           msq(j,k)=msq(j,k)+Vsum(-5)*qqbWcsb+Vsum(+5)*qqbWcbs
         endif
       endif

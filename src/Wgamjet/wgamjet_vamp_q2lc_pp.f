@@ -2,23 +2,29 @@
 !==== Wgam jet ++ (34) pieces
 
 
-      double complex function wgamjet_vamp_q2lc_pp(i1,i2,i3,i4,i5,i6
+      function wgamjet_vamp_q2lc_pp(i1,i2,i3,i4,i5,i6
+      implicit none
+      include 'types.f'
+      complex(dp):: wgamjet_vamp_q2lc_pp
      &,za,zb)
-      include 'constants.f' 
+      include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h' 
       include 'zprods_decl.f' 
       include 'sprods_com.f'
-      integer i1,i2,i3,i4,i5,i6
-      double complex Atree_q2pp
-      double complex d2me1,d1m1,d1m2 
-      double complex Dcoeff1m_q2lcpp_s134,Dcoeff1m_q2lcpp_s126
-      double complex Dcoeff2me_q2lcpp_s26s34s126s134
-      double complex Bcoeff_q2lcpp_s34
-      double complex Bcoeff_q2lcpp_s16
-      double complex b34,b126,b16
+      integer:: i1,i2,i3,i4,i5,i6
+      complex(dp):: Atree_q2pp
+      complex(dp):: d2me1,d1m1,d1m2 
+      complex(dp):: Dcoeff1m_q2lcpp_s134,Dcoeff1m_q2lcpp_s126
+      complex(dp):: Dcoeff2me_q2lcpp_s26s34s126s134
+      complex(dp):: Bcoeff_q2lcpp_s34
+      complex(dp):: Bcoeff_q2lcpp_s16
+      complex(dp):: b34,b126,b16
 
-      logical do_check 
+      logical:: do_check 
       common/do_check_wgamj/do_check
-      double complex zab2
+      complex(dp):: zab2
       zab2(i1,i2,i3,i4)=za(i1,i2)*zb(i2,i4)+za(i1,i3)*zb(i3,i4)
 
       Atree_q2pp= (za(i1,i3)**2*zab2(i2,i3,i4,i5))/
@@ -37,7 +43,7 @@
 !======== bubble coefficients 
       b34=Bcoeff_q2lcpp_s34(i1,i2,i3,i4,i5,i6,za,zb)
       b16=Bcoeff_q2lcpp_s16(i1,i2,i3,i4,i5,i6,za,zb)
-      b126=3d0/2d0*Atree_q2pp-b34-b16
+      b126=3._dp/2._dp*Atree_q2pp-b34-b16
 
       if(do_check) then
 !==== print out information for KC 

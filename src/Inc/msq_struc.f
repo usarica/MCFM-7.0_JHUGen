@@ -2,10 +2,10 @@ c--- contains the common block and definitions necessary to
 c--- separate matrix elements into their constituent parts - for
 c--- example, by species of parton in the final state or by
 c--- colour orderings (or both)
-      double precision msq_struc(8,-nf:nf,-nf:nf),
-     .                msq_strucv(8,-nf:nf,-nf:nf)
-      integer igg_ab,igg_ba,igg_sym,iqq_a,iqq_b,iqq_i,
-     . igggg_a,igggg_b,igggg_c,iqr
+      real(dp):: msq_struc(8,-nf:nf,-nf:nf),
+     &                msq_strucv(8,-nf:nf,-nf:nf)
+      integer:: igg_ab,igg_ba,igg_sym,iqq_a,iqq_b,iqq_i,
+     & igggg_a,igggg_b,igggg_c,iqr
       common/msq_struc/msq_struc,msq_strucv
 !$omp threadprivate(/msq_struc/)
       parameter(igg_ab=4,igg_ba=5,igg_sym=6)

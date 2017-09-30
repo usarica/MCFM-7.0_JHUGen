@@ -1,2 +1,2 @@
-      integer nvec
+      integer:: nvec
       parameter(nvec=6)

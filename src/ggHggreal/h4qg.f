@@ -1,16 +1,20 @@
       subroutine h4qg(i1,i2,i3,i4,i5,q4ghsq,q4idghsq)
+      implicit none
+      include 'types.f'
 C-----Author R.K.Ellis
 C-----November 2004
 C-----Matrix element squared for
 C     q(p2)+Q(p4) --> q(p1)+Q(p3)+g(p5)+h
 C-----Summed over colors and spins
-      implicit none
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_com.f'
-      integer i1,i2,i3,i4,i5,hq1,hq2,hg,j
-      double precision q4ghsq,q4idghsq,sign
-      double complex ma(4,2,2,2),mb(4,2,2,2),
-     .    q4ghppp1,q4ghppp3,q4ghpmp1,q4ghpmp3
+      integer::i1,i2,i3,i4,i5,hq1,hq2,hg,j
+      real(dp)::q4ghsq,q4idghsq,sign
+      complex(dp)::ma(4,2,2,2),mb(4,2,2,2),
+     &    q4ghppp1,q4ghppp3,q4ghpmp1,q4ghpmp3
 
 C---Amplitudes are labelled by their
 C---1) Color structure m(1),m(2),m(2),m(3),m(4)
@@ -70,17 +74,17 @@ c      ma(2,2,1,2)=-ma(4,2,1,2)-ma(3,2,1,2)-ma(1,2,1,2)
 
 c--- additional sign for the crossed amplitudes with initial gluon
       if (i5 .ne. 5) then
-        sign=-1d0
+        sign=-one
       else
-        sign=+1d0
+        sign=+one
       endif
 
 c--- fastest to obtain remaining amplitudes by symmetry
       do j=1,4
-      ma(j,1,1,1)=sign*dconjg(ma(j,2,2,2))
-      ma(j,2,2,1)=sign*dconjg(ma(j,1,1,2))
-      ma(j,1,2,2)=sign*dconjg(ma(j,2,1,1))
-      ma(j,2,1,2)=sign*dconjg(ma(j,1,2,1))
+      ma(j,1,1,1)=sign*conjg(ma(j,2,2,2))
+      ma(j,2,2,1)=sign*conjg(ma(j,1,1,2))
+      ma(j,1,2,2)=sign*conjg(ma(j,2,1,1))
+      ma(j,2,1,2)=sign*conjg(ma(j,1,2,1))
       enddo
 
 
@@ -130,61 +134,61 @@ c      mb(1,2,1,2)=-mb(3,2,1,2)-mb(4,2,1,2)-mb(2,2,1,2)
 
 c--- fastest to obtain remaining amplitudes by symmetry
       do j=1,4
-      mb(j,1,1,1)=sign*dconjg(mb(j,2,2,2))
-      mb(j,2,2,1)=sign*dconjg(mb(j,1,1,2))
-      mb(j,1,2,2)=sign*dconjg(mb(j,2,1,1))
-      mb(j,2,1,2)=sign*dconjg(mb(j,1,2,1))
+      mb(j,1,1,1)=sign*conjg(mb(j,2,2,2))
+      mb(j,2,2,1)=sign*conjg(mb(j,1,1,2))
+      mb(j,1,2,2)=sign*conjg(mb(j,2,1,1))
+      mb(j,2,1,2)=sign*conjg(mb(j,1,2,1))
       enddo
 
 
 c      write(6,*) i1,i2,i3,i4,i5
-      q4ghsq=0d0
-      q4idghsq=0d0
+      q4ghsq=zip
+      q4idghsq=zip
       do hq1=1,2
       do hq2=1,2
       do hg=1,2
 c      write(6,'(a8,3i3,2f21.12)') 'mb 1 ; ',hq1,hq2,hg,mb(1,hq1,hq2,hg)
-c     . -sign*dconjg(mb(1,3-hq1,3-hq2,3-hg))
+c     & -sign*conjg(mb(1,3-hq1,3-hq2,3-hg))
 c      write(6,'(a8,3i3,2f21.12)') 'mb 2 ; ',hq1,hq2,hg,mb(2,hq1,hq2,hg)
-c     . -sign*dconjg(mb(2,3-hq1,3-hq2,3-hg))
+c     & -sign*conjg(mb(2,3-hq1,3-hq2,3-hg))
 c      write(6,'(a8,3i3,2f21.12)') 'mb 3 ; ',hq1,hq2,hg,mb(3,hq1,hq2,hg)
-c     . -sign*dconjg(mb(3,3-hq1,3-hq2,3-hg))
+c     & -sign*conjg(mb(3,3-hq1,3-hq2,3-hg))
 c      write(6,'(a8,3i3,2f21.12)') 'mb 4 ; ',hq1,hq2,hg,mb(4,hq1,hq2,hg)
-c     . -sign*dconjg(mb(4,3-hq1,3-hq2,3-hg))
+c     & -sign*conjg(mb(4,3-hq1,3-hq2,3-hg))
 
       q4ghsq=q4ghsq+xn**2
-     . *(cdabs(ma(1,hq1,hq2,hg)**2)+cdabs(ma(2,hq1,hq2,hg)**2))
-     .  +cdabs(ma(3,hq1,hq2,hg)**2)+cdabs(ma(4,hq1,hq2,hg)**2)
-     . +2d0*dble(Dconjg(+ma(1,hq1,hq2,hg)+ma(2,hq1,hq2,hg))
-     .                *(+ma(3,hq1,hq2,hg)+ma(4,hq1,hq2,hg)))
+     & *(abs(ma(1,hq1,hq2,hg)**2)+abs(ma(2,hq1,hq2,hg)**2))
+     &  +abs(ma(3,hq1,hq2,hg)**2)+abs(ma(4,hq1,hq2,hg)**2)
+     & +two*real(conjg(+ma(1,hq1,hq2,hg)+ma(2,hq1,hq2,hg))
+     &                *(+ma(3,hq1,hq2,hg)+ma(4,hq1,hq2,hg)))
       q4idghsq=q4idghsq+xn**2
-     . *(+cdabs(ma(1,hq1,hq2,hg)**2)+cdabs(ma(2,hq1,hq2,hg)**2)
-     .   +cdabs(mb(1,hq1,hq2,hg)**2)+cdabs(mb(2,hq1,hq2,hg)**2))
-     .   +cdabs(ma(3,hq1,hq2,hg)**2)+cdabs(ma(4,hq1,hq2,hg)**2)
-     .   +cdabs(mb(3,hq1,hq2,hg)**2)+cdabs(mb(4,hq1,hq2,hg)**2)
-     . +2d0*dble(
-     . +Dconjg(+ma(1,hq1,hq2,hg)+ma(2,hq1,hq2,hg))
-     .       *(+ma(3,hq1,hq2,hg)+ma(4,hq1,hq2,hg))
-     . +Dconjg(+mb(1,hq1,hq2,hg)+mb(2,hq1,hq2,hg))
-     .       *(+mb(3,hq1,hq2,hg)+mb(4,hq1,hq2,hg)))
+     & *(+abs(ma(1,hq1,hq2,hg)**2)+abs(ma(2,hq1,hq2,hg)**2)
+     &   +abs(mb(1,hq1,hq2,hg)**2)+abs(mb(2,hq1,hq2,hg)**2))
+     &   +abs(ma(3,hq1,hq2,hg)**2)+abs(ma(4,hq1,hq2,hg)**2)
+     &   +abs(mb(3,hq1,hq2,hg)**2)+abs(mb(4,hq1,hq2,hg)**2)
+     & +two*real(
+     & +conjg(+ma(1,hq1,hq2,hg)+ma(2,hq1,hq2,hg))
+     &       *(+ma(3,hq1,hq2,hg)+ma(4,hq1,hq2,hg))
+     & +conjg(+mb(1,hq1,hq2,hg)+mb(2,hq1,hq2,hg))
+     &       *(+mb(3,hq1,hq2,hg)+mb(4,hq1,hq2,hg)))
 
 C--- Interference if the helicities are the same
 c--- New version, JMC on 8/19/05; the -ve sign has already been
 c--- applied in the amplitudes, so the signs here should be switched.
 c--- See the text before Eq.(B24) in DFM
-      if (hq1.eq.hq2) then
+      if (hq1==hq2) then
       q4idghsq=q4idghsq
-     . +2d0*xn*dble(
-     .    +Dconjg(ma(1,hq1,hq2,hg))
-     .     *(mb(1,hq1,hq2,hg)+mb(2,hq1,hq2,hg)+mb(3,hq1,hq2,hg))
-     .    +Dconjg(mb(1,hq1,hq2,hg))*ma(3,hq1,hq2,hg)
-     .    +Dconjg(ma(2,hq1,hq2,hg))
-     .     *(mb(1,hq1,hq2,hg)+mb(2,hq1,hq2,hg)+mb(4,hq1,hq2,hg))
-     .    +Dconjg(mb(2,hq1,hq2,hg))*ma(4,hq1,hq2,hg))
+     & +two*xn*real(
+     &    +conjg(ma(1,hq1,hq2,hg))
+     &     *(mb(1,hq1,hq2,hg)+mb(2,hq1,hq2,hg)+mb(3,hq1,hq2,hg))
+     &    +conjg(mb(1,hq1,hq2,hg))*ma(3,hq1,hq2,hg)
+     &    +conjg(ma(2,hq1,hq2,hg))
+     &     *(mb(1,hq1,hq2,hg)+mb(2,hq1,hq2,hg)+mb(4,hq1,hq2,hg))
+     &    +conjg(mb(2,hq1,hq2,hg))*ma(4,hq1,hq2,hg))
 
-     . +2d0/xn*dble(
-     . +Dconjg(ma(3,hq1,hq2,hg)+ma(4,hq1,hq2,hg))
-     .       *(mb(3,hq1,hq2,hg)+mb(4,hq1,hq2,hg)))
+     & +two/xn*real(
+     & +conjg(ma(3,hq1,hq2,hg)+ma(4,hq1,hq2,hg))
+     &       *(mb(3,hq1,hq2,hg)+mb(4,hq1,hq2,hg)))
       endif
 
       enddo
@@ -193,8 +197,8 @@ c--- See the text before Eq.(B24) in DFM
 
 c      pause
 
-      q4ghsq=0.5d0*Cf*q4ghsq
-      q4idghsq=0.5d0*Cf*q4idghsq
+      q4ghsq=half*Cf*q4ghsq
+      q4idghsq=half*Cf*q4idghsq
 
       return
       end

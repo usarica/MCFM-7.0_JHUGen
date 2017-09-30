@@ -1,10 +1,15 @@
       subroutine fillgam
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'swapxz.f'
-      integer m,mu,nu,ro,si,om,i,j
+      integer:: m,mu,nu,ro,si,om,i,j
       parameter(m=4)
-      double complex gam0(4,4),gam1(m,4,4),gam2(m,m,4,4),
+      complex(dp):: gam0(4,4),gam1(m,4,4),gam2(m,m,4,4),
      & gam3(m,m,m,4,4),gam4(m,m,m,m,4,4),gam5(m,m,m,m,m,4,4)
 
       common/gamodd/gam1,gam3,gam5

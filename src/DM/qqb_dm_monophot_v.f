@@ -2,25 +2,30 @@
 
 
       subroutine qqb_dm_monophot_v(p,msq) 
+      implicit none
+      include 'types.f'
 !----- routine for calcuating the virtual corrections to monojet production 
-      implicit none 
-      include 'constants.f' 
+       
+      include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h' 
       include 'dm_params.f' 
       include 'scheme.f' 
       include 'ewcharge.f' 
       include 'ewcouple.f'
       include 'first.f'
-      double precision  qqbg(2),qbqg(2)
-      double precision qqbg_sum(nf),qbqg_sum(nf) 
-      double precision p(mxpart,4),msq(-nf:nf,-nf:nf) 
-      integer j,k 
-      double precision fac
-      double complex cprop
-      double precision propsq
+      real(dp)::  qqbg(2),qbqg(2)
+      real(dp):: qqbg_sum(nf),qbqg_sum(nf) 
+      real(dp):: p(mxpart,4),msq(-nf:nf,-nf:nf) 
+      integer:: j,k 
+      real(dp):: fac
+      complex(dp):: cprop
+      real(dp):: propsq
   
-      logical check_QED 
+      logical:: check_QED 
       common/check_QED/check_QED 
-      double precision fac_dm,s34
+      real(dp):: fac_dm,s34
 !$omp threadprivate(/check_QED/)
 
 
@@ -49,8 +54,8 @@
          s34=(p(3,4)+p(4,4))**2
      &        -(p(3,1)+p(4,1))**2
      &        -(p(3,2)+p(4,2))**2-(p(3,3)+p(4,3))**2         
-         cprop=cone/Dcmplx((s34-medmass**2),medmass*medwidth)
-         propsq=cdabs(cprop)**2 
+         cprop=cone/cplx2((s34-medmass**2),medmass*medwidth)
+         propsq=abs(cprop)**2 
          fac_dm=propsq*g_dmq**2*g_dmx**2
       endif
 
@@ -60,17 +65,17 @@
       qbqg_sum(:)=0d0
       fac=16d0*cf*xn*esq*fac_dm
      
-      if(dm_mediator.eq.'vector') then 
+      if(dm_mediator=='vector') then 
          call qqb_dm_monophot_v_Vamps(p,1,5,2,3,4,qqbg)  
          call qqb_dm_monophot_v_Vamps(p,2,5,1,3,4,qbqg)
-      elseif(dm_mediator.eq.'axvect') then 
+      elseif(dm_mediator=='axvect') then 
          call qqb_dm_monophot_v_Axamps(p,1,5,2,3,4,qqbg)  
          call qqb_dm_monophot_v_Axamps(p,2,5,1,3,4,qbqg)
-      elseif(dm_mediator.eq.'scalar') then 
+      elseif(dm_mediator=='scalar') then 
          call qqb_dm_monophot_v_Samps(p,1,5,2,3,4,qqbg)  
          call qqb_dm_monophot_v_Samps(p,2,5,1,3,4,qbqg)
          fac=fac/4d0
-      elseif(dm_mediator.eq.'pseudo') then 
+      elseif(dm_mediator=='pseudo') then 
          call qqb_dm_monophot_v_PSamps(p,1,5,2,3,4,qqbg)  
          call qqb_dm_monophot_v_PSamps(p,2,5,1,3,4,qbqg)
          fac=fac/4d0
@@ -94,9 +99,9 @@
          do k=-nf,nf 
            if( (j .ne. 0) .and. (k .ne. 0) .and. (j .ne. -k)) goto 20
 
-           if((j.gt.0).and.(k.lt.0)) then 
+           if((j>0).and.(k<0)) then 
               msq(j,k)=aveqq*qqbg_sum(j)*fac*Q(j)**2
-           elseif((j.lt.0).and.(k.gt.0)) then 
+           elseif((j<0).and.(k>0)) then 
               msq(j,k)=aveqq*qbqg_sum(k)*fac*Q(k)**2
            endif
 

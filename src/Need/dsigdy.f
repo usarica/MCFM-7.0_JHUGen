@@ -1,8 +1,10 @@
-      real*8 function dsigdy(x)
-      implicit real*8 (a-h,o-z)
+      function dsigdy(x)
+      implicit none
+      include 'types.f'
       include 'nyy.f'
-      real*8 sig(nyy),xyy(nyy),err
-      logical first
+      real(dp)::dsigdy
+      real(dp)::sig(nyy),xyy(nyy),err
+      logical:: first
       data first/.true./
       save sig,xyy
       if (first) then

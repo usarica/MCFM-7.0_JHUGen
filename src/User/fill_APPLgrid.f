@@ -1,7 +1,12 @@
       subroutine fill_APPLgrid(p)
       implicit none
+      include 'types.f'
+
       include 'constants.f'
-      double precision p(mxpart,4)
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      real(dp):: p(mxpart,4)
 c--- This is a hook to call the APPLgrid routine that should
 c--- write out the grids
 c---  e.g. call fill_grid(p) in v1.2.6 of APPLgrid

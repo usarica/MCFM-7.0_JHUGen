@@ -1,24 +1,33 @@
-      double precision function vol(s,n)
-c     volume of massless phase space including all (2*pi)'s
+      function vol(s,n)
       implicit none
+      include 'types.f'
+      real(dp):: vol
+c     volume of massless phase space including all (2*pi)'s
+      
       include 'constants.f'
-      double precision s
-      integer n,fac
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      real(dp):: s
+      integer:: n,fac
       vol=twopi**(4-3*n)*(pi/two)**(n-1)*s**(n-2)
-      vol=vol/dfloat(fac(n-1)*fac(n-2))
-c      if (n .eq. 6) vol=vol/(5d0*4d0*3d0*2d0)/(4d0*3d0*2d0)
-c      if (n .eq. 5) vol=vol/(4d0*3d0*2d0)    /(3d0*2d0)
-c      if (n .eq. 4) vol=vol/(3d0*2d0)        /(2d0)
-c      if (n .eq. 3) vol=vol/(2d0)            /(1d0)
+      vol=vol/real(fac(n-1)*fac(n-2),dp)
+c      if (n == 6) vol=vol/(5._dp*4._dp*3._dp*2._dp)/(4._dp*3._dp*2._dp)
+c      if (n == 5) vol=vol/(4._dp*3._dp*2._dp)    /(3._dp*2._dp)
+c      if (n == 4) vol=vol/(3._dp*2._dp)        /(2._dp)
+c      if (n == 3) vol=vol/(2._dp)            /(1._dp)
       return
       end
       
-      integer function fac(n)
-      integer j,n
+      function fac(n)
+       implicit none
+      include 'types.f'
+      integer:: fac
+      integer:: j,n
       j=1
       fac=1
  10   continue
-      if (j .le. n) then
+      if (j <= n) then
       fac=fac*j
       j=j+1
       else

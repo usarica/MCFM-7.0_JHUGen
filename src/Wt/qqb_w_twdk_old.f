@@ -1,4 +1,6 @@
       subroutine qqb_w_twdk_old(p,msq)
+      implicit none
+      include 'types.f'
 ************************************************************************
 *     Author: Francesco Tramontano                                     *
 *     February, 2005.                                                  *
@@ -16,34 +18,37 @@
 *                            |                                         *
 *                            --> nu(p3) + e^+(p4)                      *
 ************************************************************************
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_com.f'
       include 'ewcouple.f'
       include 'qcdcouple.f'
       include 'masses.f'
       include 'nwz.f'
-      integer j,k,i3,i4,i5,i6,iq
-      double precision p(mxpart,4),tvec(4),msq(-nf:nf,-nf:nf),
-     . msq_gq,msq_qg,fac
-      double complex ampl_gq(2),ampl_qg(2)
-      double complex zab(mxpart,mxpart),zba(mxpart,mxpart)
+      integer:: j,k,i3,i4,i5,i6,iq
+      real(dp):: p(mxpart,4),tvec(4),msq(-nf:nf,-nf:nf),
+     & msq_gq,msq_qg,fac
+      complex(dp):: ampl_gq(2),ampl_qg(2)
+      complex(dp):: zab(mxpart,mxpart),zba(mxpart,mxpart)
       common/zabprods/zab,zba
 
 c---initialize
-      msq_gq=0d0
-      msq_qg=0d0
+      msq_gq=zero
+      msq_qg=zero
 
-      msq(:,:)=0d0
+      msq(:,:)=zero
 
 c--- set up lepton variables depending on whether it's t or tbar
-      if     (nwz .eq. -1) then
+      if     (nwz == -1) then
         i3=3
 	i4=4
 	i5=5
 	i6=6
 	iq=1 ! top quark
-      elseif (nwz .eq. +1) then
+      elseif (nwz == +1) then
         i3=4
 	i4=3
 	i5=6
@@ -55,7 +60,7 @@ c--- set up lepton variables depending on whether it's t or tbar
       endif
 
 c--- overall factor
-      fac=aveqg*(V/2d0)*2d0*gsq*gwsq**4
+      fac=aveqg*(V/two)*two*gsq*gwsq**4
 
       do j=1,4
          tvec(j)=p(5,j)+p(6,j)+p(7,j)
@@ -77,10 +82,10 @@ c--- sum over gluon helicities
 
       do j=-nf,nf,nf
       do k=-nf,nf,nf
-      msq(j,k)=0d0
-      if     ((j .eq. +5*iq) .and. (k .eq. 0)) then
+      msq(j,k)=zero
+      if     ((j == +5*iq) .and. (k == 0)) then
           msq(j,k)=fac*msq_qg
-      elseif ((j .eq. 0) .and. (k .eq. +5*iq)) then
+      elseif ((j == 0) .and. (k == +5*iq)) then
           msq(j,k)=fac*msq_gq
       endif
       enddo

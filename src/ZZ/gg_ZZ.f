@@ -1,18 +1,23 @@
       subroutine gg_ZZ(p,msqgg)
       implicit none
+      include 'types.f'
+
 c--- Author: J. M. Campbell, September 2013
 c--- Matrix element squared for the process gg->ZZ
 c--- Effects of massive quarks in the third generation may be included
 c--- (default: included)
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ewcouple.f'
       include 'qcdcouple.f'
       include 'docheck.f'
       include 'interference.f'
-      logical includegens1and2,includebottom,includetop
-      integer h1,h2,h34,h56
-      double precision p(mxpart,4),pswap(mxpart,4),msqgg,fac,oprat
-      double complex
+      logical:: includegens1and2,includebottom,includetop
+      integer:: h1,h2,h34,h56
+      real(dp):: p(mxpart,4),pswap(mxpart,4),msqgg,fac,oprat
+      complex(dp)::
      & Mloop_uptype(2,2,2,2),Mloop_dntype(2,2,2,2),
      & Mloop_bquark(2,2,2,2),Mloop_tquark(2,2,2,2),
      & Sloop_uptype(2,2,2,2),Sloop_dntype(2,2,2,2),
@@ -45,38 +50,38 @@ c--- for interference, compute amplitudes after 4<->6 swap
      &  Sloop_uptype,Sloop_dntype,Sloop_bquark,Sloop_tquark)
       endif
 
-      msqgg=0d0
+      msqgg=0._dp
       do h1=1,2
       do h2=1,2
       do h34=1,2
       do h56=1,2
 
       Mamp=
-     &  +2d0*Mloop_uptype(h1,h2,h34,h56)
-     &  +2d0*Mloop_dntype(h1,h2,h34,h56)
+     &  +two*Mloop_uptype(h1,h2,h34,h56)
+     &  +two*Mloop_dntype(h1,h2,h34,h56)
      &      +Mloop_bquark(h1,h2,h34,h56)
      &      +Mloop_tquark(h1,h2,h34,h56)
 
       if (interference .eqv. .false.) then
 c--- normal case
-        msqgg=msqgg+cdabs(Mamp)**2
+        msqgg=msqgg+abs(Mamp)**2
       else
 c--- with interference
         Samp=
-     &  +2d0*Sloop_uptype(h1,h2,h34,h56)
-     &  +2d0*Sloop_dntype(h1,h2,h34,h56)
+     &  +two*Sloop_uptype(h1,h2,h34,h56)
+     &  +two*Sloop_dntype(h1,h2,h34,h56)
      &      +Sloop_bquark(h1,h2,h34,h56)
      &      +Sloop_tquark(h1,h2,h34,h56)
-        if (h34 .eq. h56) then
-          oprat=1d0-2d0*dble(dconjg(Mamp)*Samp)
-     &                 /(cdabs(Mamp)**2+cdabs(Samp)**2)
+        if (h34 == h56) then
+          oprat=1._dp-two*real(conjg(Mamp)*Samp)
+     &                 /(abs(Mamp)**2+abs(Samp)**2)
         else
-          oprat=1d0
+          oprat=1._dp
         endif
         if (bw34_56) then
-          msqgg=msqgg+2d0*cdabs(Mamp)**2*oprat
+          msqgg=msqgg+two*abs(Mamp)**2*oprat
         else
-          msqgg=msqgg+2d0*cdabs(Samp)**2*oprat
+          msqgg=msqgg+two*abs(Samp)**2*oprat
         endif
       endif
 
@@ -86,7 +91,7 @@ c--- with interference
       enddo
 
 c--- overall factor extracted (c.f. getggZZamps.f)
-      fac=avegg*V*(4d0*esq*gsq/(16d0*pisq)*esq)**2
+      fac=avegg*V*(4._dp*esq*gsq/(16._dp*pisq)*esq)**2
 
       msqgg=msqgg*fac*vsymfact
 

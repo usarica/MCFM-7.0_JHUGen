@@ -2,14 +2,19 @@
 !=== routine which takes in a momentum, P and defines two orthogonal 
 !=== spinors p and eta which are can be used in double cuts
       subroutine defpeta_bubs(P,p1,p2) 
-      implicit none 
+      implicit none
+      include 'types.f'
+       
       include 'constants.f'
-      double precision P(4),p1(4),p2(4)
-      double precision Psq,Pdoteta
-      double precision ran2
-      double precision phi1,eta1,Et1
-      double precision r1,r2,r3,tau
-      integer i
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      real(dp):: P(4),p1(4),p2(4)
+      real(dp):: Psq,Pdoteta
+      real(dp):: ran2
+      real(dp):: phi1,eta1,Et1
+      real(dp):: r1,r2,r3,tau
+      integer:: i
 
       Psq=P(4)**2-P(1)**2-P(2)**2-P(3)**2
       r1=ran2()
@@ -17,20 +22,20 @@
       r3=ran2()
 
 !==== first define a random light-like vector 
-      Et1=r1*Psq/2d0
-      eta1=(-5d0*(one-r2)+5d0*r2)
+      Et1=r1*Psq/2._dp
+      eta1=(-5._dp*(one-r2)+5._dp*r2)
       phi1=twopi*r3
 
-      p1(1)=Et1*dcos(phi1)
-      p1(2)=Et1*dsin(phi1)
-      p1(3)=Et1*dsinh(eta1)
-      p1(4)=Et1*dcosh(eta1)
+      p1(1)=Et1*cos(phi1)
+      p1(2)=Et1*sin(phi1)
+      p1(3)=Et1*sinh(eta1)
+      p1(4)=Et1*cosh(eta1)
 
-      Pdoteta=0d0
+      Pdoteta=0._dp
       do i=1,3
-         Pdoteta=Pdoteta-2d0*(P(i)*p1(i))
+         Pdoteta=Pdoteta-2._dp*(P(i)*p1(i))
       enddo
-      Pdoteta=Pdoteta+2d0*(P(4)*p1(4))
+      Pdoteta=Pdoteta+2._dp*(P(4)*p1(4))
 
 !====== now rescale that massless vector by Psq/(2 P.p1)
       tau=Psq/Pdoteta
@@ -56,13 +61,18 @@ c     &,p2(4)**2-p2(3)**2-p2(2)**2-p2(1)**2
       end
 
       subroutine gen_peta_sprods(p,n,inp,za,zb) 
-      implicit none 
-      include 'constants.f' 
+      implicit none
+      include 'types.f'
+       
+      include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h' 
       include 'zprods_decl.f'
       include 'utoolscc.f' 
-      double precision p(mxpart,4),p1(4),p2(4),pmo(mxpart,4) 
-      double precision inP(4)
-      integer n,i,nu
+      real(dp):: p(mxpart,4),p1(4),p2(4),pmo(mxpart,4) 
+      real(dp):: inP(4)
+      integer:: n,i,nu
 !==== n is the number of final state particles 
 
       write(6,*) 'this routine no longer in use'

@@ -1,18 +1,25 @@
-      double precision function ampsq_3gam1g(j1,j2,j3,j4,j5,j6,za,zb)
+      function ampsq_3gam1g(j1,j2,j3,j4,j5,j6,za,zb)
+      implicit none
+      include 'types.f'
+      real(dp):: ampsq_3gam1g
 c--- Matrix element squared for the process
 c---       0  -->  qb(j5) + q(j6) + g(j1) + gam(j2) + gam(j3) + gam(j4)
 c---
 c--- Taken from "Multi-Photon Amplitudes for Next-to-Leading Order QCD"
 c---  V. Del Duca, W. Kilgore and F. Maltoni, hep-ph/9910253
 c---
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'ewcharge.f'
       include 'ewcouple.f'
       include 'qcdcouple.f'
-      integer j1,j2,j3,j4,j5,j6,h1,h2,h3,h4,h5
-      double complex amp(2,2,2,2,2),amp_3gam1g_mppppm,amp_3gam1g_pmpppm,
+      integer:: j1,j2,j3,j4,j5,j6,h1,h2,h3,h4,h5
+      complex(dp):: amp(2,2,2,2,2),amp_3gam1g_mppppm,
+     & amp_3gam1g_pmpppm,
      & amp_3gam1g_ppmppm,amp_3gam1g_pppmpm,amp_3gam1g_mmpppm
       
 c--- ordering of labels in amp is as follows:
@@ -57,16 +64,16 @@ c--- parity and charge conjugation
 c--- note: obvious redundancy in this routine, but might be
 c--- worth checking relations for use in virtual
       
-      ampsq_3gam1g=0d0
+      ampsq_3gam1g=0._dp
       do h1=1,2
       do h2=1,2
       do h3=1,2
       do h4=1,2
       do h5=1,2
 c      write(6,*) h1*10000+h2*1000+h3*100+h4*10+h5,
-c     & cdabs(amp(h1,h2,h3,h4,h5))**2
-c     & *8d0*esq**3*gsq*xn*Cf/6d0*aveqq*Q(2)**6*8d0
-      ampsq_3gam1g=ampsq_3gam1g+cdabs(amp(h1,h2,h3,h4,h5))**2
+c     & abs(amp(h1,h2,h3,h4,h5))**2
+c     & *8._dp*esq**3*gsq*xn*Cf/6._dp*aveqq*Q(2)**6*8._dp
+      ampsq_3gam1g=ampsq_3gam1g+abs(amp(h1,h2,h3,h4,h5))**2
       enddo
       enddo
       enddo

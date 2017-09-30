@@ -1,8 +1,11 @@
-      double complex function virt_mm(mQ,ig,is,ie,in,ic,p)
+      function virt_mm(mQ,ig,is,ie,in,ic,p)
       implicit none
+      include 'types.f'
+      complex(dp):: virt_mm
+
 ************************************************************************
 *     Author: F. Tramontano                                            *
-*     Dicember, 2008                                                   *
+*     December, 2008                                                   *
 ************************************************************************
 c---- One-loop -- helicity amplitude for W+c production
 c---- hQ=-1  with Q(mu)=Q1(mu)+mQ^2/2/Q.g*g(mu)
@@ -13,30 +16,33 @@ c For nwz=-1
 c     f(-p1)+f(-p2)--> W^-(e^-(p3)+nbar(p4))+ Q(p5)
 c----
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'epinv.f'
       include 'b0.f'
       include 'scheme.f'
       include 'scale.f'
       include 'zprods_decl.f'
-      integer is,ig,ic,ie,in,nu,jpart
-      double precision p(mxpart,4),q(mxpart,4)
-      double precision dot,taucg,taugs,taucs,msq,mQ
-      double precision qsq,tcg,tcs,qsqhat,qgs,qcg,qcs,cgs1
-      double precision ddilog,epin,epin2,xlog
-      double complex smm,lomm
-      double complex amm1,amm2,amm3,amm4,amm5
-      double complex fq2m2,fc002,fc00,ffc00,ffc002,fI3me
-      double complex ffcg1,ffcg3,ffcs1,ffcs2,fun1,fun2,fun4
-      double complex fL6m1,fL6m2,fL6m3,L6m1,L6m2,L6m3
-      double complex lnrat,C0fa2m,C0fb2m,I3me
+      integer:: is,ig,ic,ie,in,nu,jpart
+      real(dp):: p(mxpart,4),q(mxpart,4)
+      real(dp):: dot,taucg,taugs,taucs,msq,mQ
+      real(dp):: qsq,tcg,tcs,qsqhat,qgs,qcg,qcs,cgs1
+      real(dp):: ddilog,epin,epin2,xlog
+      complex(dp):: smm,lomm
+      complex(dp):: amm1,amm2,amm3,amm4,amm5
+      complex(dp):: fq2m2,fc002,fc00,ffc00,ffc002,fI3me
+      complex(dp):: ffcg1,ffcg3,ffcs1,ffcs2,fun1,fun2,fun4
+      complex(dp):: fL6m1,fL6m2,fL6m3,L6m1,L6m2,L6m3
+      complex(dp):: lnrat,C0fa2m,C0fb2m,I3me
       scheme='dred'
       msq=mQ**2
       xlog=log(musq/msq)
       epin=epinv+xlog
       epin2=epinv**2+epinv*xlog+half*xlog**2
-      taugs=+2d0*dot(p,is,ig)
-      taucs=+2d0*dot(p,ic,is)
-      taucg=+2d0*dot(p,ic,ig)
+      taugs=+two*dot(p,is,ig)
+      taucs=+two*dot(p,ic,is)
+      taucg=+two*dot(p,ic,ig)
       qsqhat=taucs+taucg+taugs
       qsq=qsqhat+msq
       tcg=taucg+msq
@@ -59,7 +65,7 @@ c----
       do nu=1,4
       do jpart=1,5
       q(jpart,nu)=p(jpart,nu)
-      if (jpart.eq.ic) q(ic,nu)=p(ic,nu)-msq/taucg*p(ig,nu)
+      if (jpart==ic) q(ic,nu)=p(ic,nu)-msq/taucg*p(ig,nu)
       enddo
       enddo
       call spinoru(5,q,za,zb)
@@ -207,15 +213,15 @@ c----
 
 
       lomm =-(za(ig,ie)*zb(ig,is)+za(ie,ic)*zb(is,ic))*zb(is,in)
-     . /zb(ig,is)/zb(ig,ic)
+     & /zb(ig,is)/zb(ig,ic)
 
 c--- include finite counterterm to go from DR to MSbar scheme
 c--- alphas(DR) = alphas(MSbar) * (1+ (Nc / 6) * alphas(MSbar) / (2*pi))
-      smm=smm + lomm * xn/6d0
+      smm=smm + lomm * xn/six
 
 c--- include finite counterterm due to FDH scheme
 c--- gw = gw * ( 1 - 2 * cf * alphas(MSbar) / (2*pi))
-      smm=smm - lomm * cf * 2d0
+      smm=smm - lomm * cf * two
 
       virt_mm=smm
       return

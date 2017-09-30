@@ -1,11 +1,15 @@
       subroutine Ampvirt_AQgg(p1,p2,p3,p4,ab41,ba41,ab43,ba43)
       implicit none
+      include 'types.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_com.f'
-      integer p1,p2,p3,p4
-      double complex ab41(2,2,2),ba41(2,2,2),ab43(2,2,2),ba43(2,2,2),
-     . A41HAQggmppp,A41HAQggmpmm,A41HAQggmpmp,A41HAQggmppm,
-     . A43HAQggmppp,A43HAQggmpmm,A43HAQggmpmp,A43HAQggmppm
+      integer:: p1,p2,p3,p4
+      complex(dp)::ab41(2,2,2),ba41(2,2,2),ab43(2,2,2),ba43(2,2,2),
+     & A41HAQggmppp,A41HAQggmpmm,A41HAQggmpmp,A41HAQggmppm,
+     & A43HAQggmppp,A43HAQggmpmm,A43HAQggmpmp,A43HAQggmppm
 
 c--- calculate all the A41 amplitudes
       ab41(1,2,2)=A41HAQggmppp(p1,p2,p3,p4,za,zb)

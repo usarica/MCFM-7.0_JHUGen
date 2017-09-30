@@ -1,5 +1,7 @@
       subroutine qqb_w_tndk_v(p,msq)
       implicit none
+      include 'types.f'
+
 ************************************************************************
 *     Author: J.M. Campbell                                            *
 *     December, 2004.                                                  *
@@ -12,6 +14,9 @@ C For nwz=-1
 c     f(-p1)+f(-p2)--> W^-(e^-(p3)+nbar(p4))+ t(p5)
 c---
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ewcouple.f'
       include 'masses.f'
       include 'nwz.f'
@@ -19,25 +24,21 @@ c---
       include 'scheme.f'
       include 'sprods_com.f'
       include 'zprods_com.f'
-      integer j,k
-      double precision msq(-nf:nf,-nf:nf),p(mxpart,4),wprop,fac
-      double precision virtqg,virtgq,virtqbg,virtgqb
-      double precision twotDg,q(mxpart,4),dot
-      double complex amp0(2,2),spp,spm,smp,smm,
-     . virt_pp,virt_pm,virt_mp,virt_mm
+      integer:: j,k
+      real(dp):: msq(-nf:nf,-nf:nf),p(mxpart,4),wprop,fac
+      real(dp):: virtqg,virtgq,virtqbg,virtgqb
+      real(dp):: twotDg,q(mxpart,4),dot
+      complex(dp):: amp0(2,2),spp,spm,smp,smm,
+     & virt_pp,virt_pm,virt_mp,virt_mm
 
       scheme='dred'
 
-      do j=-nf,nf
-      do k=-nf,nf
-      msq(j,k)=0d0
-      enddo
-      enddo
+      msq(:,:)=zero
 
       wprop=(s(3,4)-wmass**2)**2+(wmass*wwidth)**2
 
 c--- calculate auxiliary momentum array - gq case
-      twotDg=2d0*dot(p,5,1)
+      twotDg=two*dot(p,5,1)
       do k=1,4
       do j=1,5
       q(j,k)=p(j,k)
@@ -48,29 +49,29 @@ c--- calculate auxiliary momentum array - gq case
 c---fill matrices of spinor products
       call spinoru(6,q,za,zb)
 
-      if     (nwz .eq. -1) then
+      if     (nwz == -1) then
 c---- basic process is g+b -> W- + t
 c--- Note: call to tree now passes top mass as a parameter
         call tree(mt,1,2,3,4,6,amp0)
-        spp=virt_pp(mt,1,2,3,4,5,q)/dsqrt(wprop)
-        spm=virt_pm(mt,1,2,3,4,5,q)/dsqrt(wprop)
-        smm=virt_mm(mt,1,2,3,4,5,q)/dsqrt(wprop)
-        smp=virt_mp(mt,1,2,3,4,5,q)/dsqrt(wprop)
+        spp=virt_pp(mt,1,2,3,4,5,q)/sqrt(wprop)
+        spm=virt_pm(mt,1,2,3,4,5,q)/sqrt(wprop)
+        smm=virt_mm(mt,1,2,3,4,5,q)/sqrt(wprop)
+        smp=virt_mp(mt,1,2,3,4,5,q)/sqrt(wprop)
 
-        virtgq=dble(smm*Dconjg(amp0(1,1))+spp*Dconjg(amp0(2,2))
-     .             +smp*Dconjg(amp0(1,2))+spm*Dconjg(amp0(2,1)))
+        virtgq=real(smm*conjg(amp0(1,1))+spp*conjg(amp0(2,2))
+     &             +smp*conjg(amp0(1,2))+spm*conjg(amp0(2,1)))
 
 c        virtgq=virtsqwcg(2,1,3,4,5,p)/wprop   ! (with mc=mt)
-      elseif (nwz .eq. +1) then
+      elseif (nwz == +1) then
 c---- basic process is g+b~ -> W+ + t~
         call tree(mt,1,2,4,3,6,amp0)
-        spp=virt_pp(mt,1,2,4,3,5,q)/dsqrt(wprop)
-        spm=virt_pm(mt,1,2,4,3,5,q)/dsqrt(wprop)
-        smm=virt_mm(mt,1,2,4,3,5,q)/dsqrt(wprop)
-        smp=virt_mp(mt,1,2,4,3,5,q)/dsqrt(wprop)
+        spp=virt_pp(mt,1,2,4,3,5,q)/sqrt(wprop)
+        spm=virt_pm(mt,1,2,4,3,5,q)/sqrt(wprop)
+        smm=virt_mm(mt,1,2,4,3,5,q)/sqrt(wprop)
+        smp=virt_mp(mt,1,2,4,3,5,q)/sqrt(wprop)
 
-        virtgqb=dble(smm*Dconjg(amp0(1,1))+spp*Dconjg(amp0(2,2))
-     .              +smp*Dconjg(amp0(1,2))+spm*Dconjg(amp0(2,1)))
+        virtgqb=real(smm*conjg(amp0(1,1))+spp*conjg(amp0(2,2))
+     &              +smp*conjg(amp0(1,2))+spm*conjg(amp0(2,1)))
 
 c        virtgqb=virtsqwcg(2,1,4,3,5,p)/wprop   ! (with mc=mt)
       else
@@ -79,7 +80,7 @@ c        virtgqb=virtsqwcg(2,1,4,3,5,p)/wprop   ! (with mc=mt)
       endif
 
 c--- calculate auxiliary momentum array - qg case
-      twotDg=2d0*dot(p,5,2)
+      twotDg=two*dot(p,5,2)
       do k=1,4
       do j=1,5
       q(j,k)=p(j,k)
@@ -90,28 +91,28 @@ c--- calculate auxiliary momentum array - qg case
 c---fill matrices of spinor products
       call spinoru(6,q,za,zb)
 
-      if     (nwz .eq. -1) then
+      if     (nwz == -1) then
 c---- basic process is b+g -> W- + t
         call tree(mt,2,1,3,4,6,amp0)
-        spp=virt_pp(mt,2,1,3,4,5,q)/dsqrt(wprop)
-        spm=virt_pm(mt,2,1,3,4,5,q)/dsqrt(wprop)
-        smm=virt_mm(mt,2,1,3,4,5,q)/dsqrt(wprop)
-        smp=virt_mp(mt,2,1,3,4,5,q)/dsqrt(wprop)
+        spp=virt_pp(mt,2,1,3,4,5,q)/sqrt(wprop)
+        spm=virt_pm(mt,2,1,3,4,5,q)/sqrt(wprop)
+        smm=virt_mm(mt,2,1,3,4,5,q)/sqrt(wprop)
+        smp=virt_mp(mt,2,1,3,4,5,q)/sqrt(wprop)
 
-        virtqg=dble(smm*Dconjg(amp0(1,1))+spp*Dconjg(amp0(2,2))
-     .             +smp*Dconjg(amp0(1,2))+spm*Dconjg(amp0(2,1)))
+        virtqg=real(smm*conjg(amp0(1,1))+spp*conjg(amp0(2,2))
+     &             +smp*conjg(amp0(1,2))+spm*conjg(amp0(2,1)))
 
 c        virtqg=virtsqwcg(1,2,3,4,5,p)/wprop   ! (with mc=mt)
-      elseif (nwz .eq. +1) then
+      elseif (nwz == +1) then
 c---- basic process is b~+g -> W+ + t~
         call tree(mt,2,1,4,3,6,amp0)
-        spp=virt_pp(mt,2,1,4,3,5,q)/dsqrt(wprop)
-        spm=virt_pm(mt,2,1,4,3,5,q)/dsqrt(wprop)
-        smm=virt_mm(mt,2,1,4,3,5,q)/dsqrt(wprop)
-        smp=virt_mp(mt,2,1,4,3,5,q)/dsqrt(wprop)
+        spp=virt_pp(mt,2,1,4,3,5,q)/sqrt(wprop)
+        spm=virt_pm(mt,2,1,4,3,5,q)/sqrt(wprop)
+        smm=virt_mm(mt,2,1,4,3,5,q)/sqrt(wprop)
+        smp=virt_mp(mt,2,1,4,3,5,q)/sqrt(wprop)
 
-        virtqbg=dble(smm*Dconjg(amp0(1,1))+spp*Dconjg(amp0(2,2))
-     .              +smp*Dconjg(amp0(1,2))+spm*Dconjg(amp0(2,1)))
+        virtqbg=real(smm*conjg(amp0(1,1))+spp*conjg(amp0(2,2))
+     &              +smp*conjg(amp0(1,2))+spm*conjg(amp0(2,1)))
 
 c        virtqbg=virtsqwcg(1,2,4,3,5,p)/wprop   ! (with mc=mt)
       endif
@@ -120,13 +121,13 @@ c        virtqbg=virtsqwcg(1,2,4,3,5,p)/wprop   ! (with mc=mt)
 
       do j=-nf,nf,nf
       do k=-nf,nf,nf
-      if     ((j .eq. +5) .and. (k .eq. 0) .and. (nwz .eq. -1)) then
+      if     ((j == +5) .and. (k == 0) .and. (nwz == -1)) then
           msq(j,k)=fac*virtqg
-      elseif ((j .eq. -5) .and. (k .eq. 0) .and. (nwz .eq. +1)) then
+      elseif ((j == -5) .and. (k == 0) .and. (nwz == +1)) then
           msq(j,k)=fac*virtqbg
-      elseif ((j .eq. 0) .and. (k .eq. +5) .and. (nwz .eq. -1)) then
+      elseif ((j == 0) .and. (k == +5) .and. (nwz == -1)) then
           msq(j,k)=fac*virtgq
-      elseif ((j .eq. 0) .and. (k .eq. -5) .and. (nwz .eq. +1)) then
+      elseif ((j == 0) .and. (k == -5) .and. (nwz == +1)) then
           msq(j,k)=fac*virtgqb
       endif
 

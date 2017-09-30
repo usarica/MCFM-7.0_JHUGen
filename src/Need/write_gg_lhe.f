@@ -3,7 +3,11 @@
 !=== gg initiated processes
       subroutine write_gg_lhe(p,xfac)
       implicit none
+      include 'types.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'heprup.f'
       include 'hepeup.f'
       include 'npart.f'
@@ -11,20 +15,19 @@
       include 'facscale.f'
       include 'qcdcouple.f'
       include 'ewcouple.f'
-      include 'process.f'
+      include 'kprocess.f'
       include 'maxwt.f'
       include 'eventbuffer.f'
       include 'runstring.f'
       include 'nproc.f'
-      double precision p(mxpart,4),xfac
-      integer j,k,i,nu,it
-      double precision dot
-      logical first,store_wt
+      real(dp):: p(mxpart,4),xfac,dot
+      integer:: i,nu,it
+      logical:: first,store_wt
       common/store_wt/store_wt
       data first /.true./
       save first
       character*200 outputstring
-      integer iruns
+      integer:: iruns
 
 c      store_wt=.true.
 c      if(store_wt.eqv..false.) then
@@ -50,16 +53,16 @@ c--- events with negative weight or events with weights that exceed wtmax
       endif
 
 !===== Check we are doing an allowed case
-      if ((case.eq.'HZZ_4l') .or. (case.eq.'HZZ_tb')
-     &.or.(case.eq.'HZZint') .or. (case.eq.'ggZZ4l')
-     &.or.(case.eq.'HZZH+i')) then
+      if ((kcase==kHZZ_4l) .or. (kcase==kHZZ_tb)
+     &.or.(kcase==kHZZint) .or. (kcase==kggZZ4l)
+     &.or.(kcase==kHZZHpi)) then
          nup=npart+4
          idprup=10000+nproc
          scalup=facscale
-         aqedup=-1d0
+         aqedup=-1._dp
          aqcdup=as
       else
-         write(6,*) 'LHE output not supported for case=',case
+         write(6,*) 'LHE output not supported for kcase=',kcase
          write(6,*) 'Check write_gg_lhe.f for details'
          stop
       endif
@@ -116,25 +119,25 @@ c--- events with negative weight or events with weights that exceed wtmax
             if((i.ne.3).and.(i.ne.6)) then
                do nu=1,4
                   pup(nu,i)=p(it,nu)
-                  if(i.lt.3) pup(nu,i)=-pup(nu,i)
+                  if(i<3) pup(nu,i)=-pup(nu,i)
                enddo
                it=it+1
-               pup(5,i)=0d0
-            elseif(i.eq.3) then
+               pup(5,i)=0._dp
+            elseif(i==3) then
                do nu=1,4
                   pup(nu,i)=p(3,nu)+p(4,nu)
                enddo
-               pup(5,i)=dsqrt(dot(p,3,4)*2d0)
-            elseif(i.eq.6) then
+               pup(5,i)=sqrt(dot(p,3,4)*2._dp)
+            elseif(i==6) then
                do nu=1,4
                   pup(nu,i)=p(5,nu)+p(6,nu)
                enddo
-               pup(5,i)=dsqrt(dot(p,5,6)*2d0)
+               pup(5,i)=sqrt(dot(p,5,6)*2._dp)
             endif
          enddo
 
-         vtimup(:)=0d0
-         spinup(:)=9d0
+         vtimup(:)=0._dp
+         spinup(:)=9._dp
 
       call lhefwritev(83)
 
@@ -144,21 +147,26 @@ c--- events with negative weight or events with weights that exceed wtmax
 
       subroutine init_lhe_events(iu)
       implicit none
+      include 'types.f'
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'heprup.f'
       include 'hepeup.f'
       include 'maxwt.f'
       include 'xs_store_info.f'
       include 'energy.f'
-      integer nproc
+      integer:: nproc
       common/nproc/nproc
-      integer iu,ih1,ih2
+      integer:: iu,ih1,ih2
       common/density/ih1,ih2
 
       idbmup(1)=isign(2212,ih1)
       idbmup(2)=isign(2212,ih2)
-      ebmup(1)=sqrts/2d0
-      ebmup(2)=sqrts/2d0
+      ebmup(1)=sqrts/2._dp
+      ebmup(2)=sqrts/2._dp
 
       pdfgup(1)=-1
       pdfgup(2)=-1
@@ -169,14 +177,14 @@ c--- events with negative weight or events with weights that exceed wtmax
       idwtup=+3
       nprup=1
 
-      if(xs_store_val.gt.0d0) then
+      if(xs_store_val>0._dp) then
          xsecup(:)=xs_store_val
          xerrup(:)=xs_err_store_val
          xmaxup(:)=wtmax
       else
-         xsecup(:)=1d0
-         xerrup(:)=1d0
-         xmaxup(:)=1d0
+         xsecup(:)=1._dp
+         xerrup(:)=1._dp
+         xmaxup(:)=1._dp
       endif
 
       lprup=nproc+10000
@@ -189,13 +197,19 @@ c--- Adapted from a routine of the same name in POWHEG-BOX, P. Nason et al
 c--- Original routine available at http://powhegbox.mib.infn.it/
       subroutine lhefwritehdr(nlf)
       implicit none
+      include 'types.f'
+
+      include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'heprup.f'
       include 'hepeup.f'
       include 'codeversion.f'
       include 'xs_store_info.f'
-      integer nlf
-      integer ipr,iran,n1ran,n2ran
-      integer idum
+      integer:: nlf
+      integer:: ipr
+      integer:: idum
       common/ranno/idum
       save/ranno/
 
@@ -231,10 +245,16 @@ c--- Adapted from a routine of the same name in POWHEG-BOX, P. Nason et al
 c--- Original routine available at http://powhegbox.mib.infn.it/
       subroutine lhefwritev(nlf)
       implicit none
+      include 'types.f'
+
+      include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'heprup.f'
       include 'hepeup.f'
-      integer nlf
-      integer i,j
+      integer:: nlf
+      integer:: i,j
 
       write(nlf,'(a)')'<event>'
       write(nlf,210) nup,idprup,xwgtup,scalup,aqedup,aqcdup
@@ -256,7 +276,9 @@ c--- Original routine available at http://powhegbox.mib.infn.it/
 
       subroutine lhefwritefooter(nlf)
       implicit none
-      integer nlf
+      include 'types.f'
+
+      integer:: nlf
 
       write(nlf,'(a)') '</LesHouchesEvents>'
 

@@ -1,4 +1,6 @@
       subroutine qqb_wh_ww(p,msq)
+      implicit none
+      include 'types.f'
 c---Matrix element squared averaged over initial colors and spins
 c for nwz=1
 c     q(-p1)+qbar(-p2) -->  H  + W
@@ -12,21 +14,24 @@ c                           |    |
 c                           |    --> e^-(p3)+nubar(p4)
 c                           |
 c                           ---> W^+(nu(p5),e^+(p6))W^-(e^-(p7),nub(p8))
-      implicit none
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'ewcouple.f'
       include 'ckm.f'
-      integer j,k
-      double precision p(mxpart,4)
-      double precision s,prop,fac,qqbWH,qbqWH,s5678
-      double precision msq(-nf:nf,-nf:nf),hdecay
+      integer:: j,k
+      real(dp):: p(mxpart,4)
+      real(dp):: s,prop,fac,qqbWH,qbqWH,s5678
+      real(dp):: msq(-nf:nf,-nf:nf),hdecay
 
-      s(j,k)=2d0
+      s(j,k)=2._dp
      & *(p(j,4)*p(k,4)-p(j,1)*p(k,1)-p(j,2)*p(k,2)-p(j,3)*p(k,3))
       do j=-nf,nf
       do k=-nf,nf
-      msq(j,k)=0d0
+      msq(j,k)=0._dp
       enddo
       enddo
       s5678=s(5,6)+s(5,7)+s(5,8)+s(6,7)+s(6,8)+s(7,8)
@@ -45,8 +50,8 @@ c---calculate the 2 W propagators
 
       do j=-nf,nf
       do k=-nf,nf
-      if ((j .gt. 0) .and. (k .lt. 0)) msq(j,k)=Vsq(j,k)*qqbWH
-      if ((j .lt. 0) .and. (k .gt. 0)) msq(j,k)=Vsq(j,k)*qbqWH
+      if ((j > 0) .and. (k < 0)) msq(j,k)=Vsq(j,k)*qqbWH
+      if ((j < 0) .and. (k > 0)) msq(j,k)=Vsq(j,k)*qbqWH
       enddo
       enddo
       return

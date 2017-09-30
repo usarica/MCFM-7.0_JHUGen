@@ -1,6 +1,8 @@
       subroutine getggWWamps(p,includegens1and2,includegen3,
      & Alight,Agen3)
       implicit none
+      include 'types.f'
+      
 c--- Author: J. M. Campbell, April 2014
 c--- Returns a series of arrays representing the dressed amp[itudes
 c--- for the process gg->WW; there are:
@@ -9,7 +11,7 @@ c---        Mloop_gen3(h1,h2,h34,h56)    (t,b) double with mt>0 but mb=0
 c---
 c--- The overall factor on the amplitude is:
 c---
-c---      2d0*gwsq*gsq/(16d0*pisq)*gwsq/2d0 * delta(a,b)
+c---      2._dp*gwsq*gsq/(16._dp*pisq)*gwsq/2._dp * delta(a,b)
 c---
 c--- For now, work in the approximation of two massless isodoublets
 c--- Box contributions are then complete
@@ -17,6 +19,9 @@ c--- Triangle (vector) pieces always vanish
 c--- Triangle (axial) pieces cancel for massless isodoublets
 
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ewcouple.f'
       include 'qcdcouple.f'
       include 'masses.f'
@@ -25,21 +30,21 @@ c--- Triangle (axial) pieces cancel for massless isodoublets
       include 'Higgsint.f'
       include 'noglue.f'
       include 'first.f'
-      integer j,h1,h2,nu,del1,del2,k12h,k34h,k56h11,k34h11,e
-      double precision p(mxpart,4)
-      double complex Alight(2,2),Agen3(2,2),sum(2,2,-2:0),
+      integer:: j,h1,h2,nu,del1,del2,k12h,k34h,k56h11,k34h11,e
+      real(dp):: p(mxpart,4)
+      complex(dp):: Alight(2,2),Agen3(2,2),sum(2,2,-2:0),
      & box(2,2,-2:0),triang(2,2,-2:0),bub(2,2,-2:0),a64v,props
-      double precision dot,s12,s34,s56,dot1256,afac,bfac,gden,delta,
+      real(dp):: dot,s12,s34,s56,dot1256,afac,bfac,gden,delta,
      & dot1234,dot3456,pttwo,ptWsafetycut_massive,ptWsafetycut_massless
-      logical includegens1and2,includegen3
+      logical:: includegens1and2,includegen3
       parameter(del1=7,del2=8)
       parameter(k12h=9,k34h=10,k56h11=11,k34h11=12)
       
 c--- omit massive loops for pt(W) < "ptWsafetycut_massive" (for num. stability)
-      ptWsafetycut_massive=2d0
+      ptWsafetycut_massive=2._dp
       
 c--- omit massless loops for pt(W) < "ptWsafetycut_massless" (for num. stability)
-      ptWsafetycut_massless=0.05d0
+      ptWsafetycut_massless=0.05_dp
       
       if (first) then
         write(6,*)'****************************************************'
@@ -70,10 +75,10 @@ c--- if neither contribution is included, set to zero and return
 c--- if computing 3rd generation, set up extra flattened vectors 
       if (includegen3) then     
 C--- define flattened vectors (k12 and k56)
-      s12=2d0*dot(p,1,2)
-      s56=2d0*dot(p,5,6)
-      s34=2d0*dot(p,3,4)
-      dot1256=0.5d0*(s34-s12-s56)
+      s12=2._dp*dot(p,1,2)
+      s56=2._dp*dot(p,5,6)
+      s34=2._dp*dot(p,3,4)
+      dot1256=0.5_dp*(s34-s12-s56)
       delta=dot1256**2-s12*s56
       gden=dot1256+sqrt(delta)
       afac=s12/gden
@@ -86,7 +91,7 @@ C--- define flattened vectors (k12 and k56)
       enddo
       
 C--- define flattened vectors (k12 and k34)
-      dot1234=0.5d0*(s56-s12-s34)
+      dot1234=0.5_dp*(s56-s12-s34)
       delta=dot1234**2-s12*s34
       gden=dot1234+sqrt(delta)
       afac=s12/gden
@@ -100,7 +105,7 @@ C--- define flattened vectors (k12 and k34)
       enddo
       
 C--- define flattened vectors (k56 and k34)
-      dot3456=0.5d0*(s12-s56-s34)
+      dot3456=0.5_dp*(s12-s56-s34)
       delta=dot3456**2-s56*s34
       gden=dot3456+sqrt(delta)
       afac=s56/gden
@@ -127,7 +132,7 @@ c--- fill amplitudes used for generations 1 and 2
       if (includegens1and2) then
 c--- ensure numerical stability: set massless loops to zero
 c--- for pt(W) < "ptWsafetycut_massless" GeV
-        if (pttwo(3,4,p) .lt. ptWsafetycut_massless) then
+        if (pttwo(3,4,p) < ptWsafetycut_massless) then
           do h1=1,2
           do h2=1,2
             Alight(h1,h2)=czip
@@ -151,8 +156,8 @@ c--- fill amplitudes used for 3rd generation
       if (includegen3) then
 c--- ensure numerical stability: set massive loops to zero
 c--- for pt(W) < "ptWsafetycut_massive" GeV
-        if ((pttwo(3,4,p)/sqrt(s(1,2)) .lt. 1d-2) 
-     &  .or.(pttwo(3,4,p) .lt. ptWsafetycut_massive)) then
+        if ((pttwo(3,4,p)/sqrt(s(1,2)) < 1.e-2_dp) 
+     &  .or.(pttwo(3,4,p) < ptWsafetycut_massive)) then
           do h1=1,2
           do h2=1,2
             Agen3(h1,h2)=czip
@@ -191,8 +196,8 @@ c---    this contribution is finite, so we only retain "0" piece
       endif
       
       props=
-     &  s(3,4)/dcmplx(s(3,4)-wmass**2,wmass*wwidth)
-     & *s(5,6)/dcmplx(s(5,6)-wmass**2,wmass*wwidth)
+     &  s(3,4)/cplx2(s(3,4)-wmass**2,wmass*wwidth)
+     & *s(5,6)/cplx2(s(5,6)-wmass**2,wmass*wwidth)
       Alight(:,:)=Alight(:,:)*props
       Agen3(:,:)=Agen3(:,:)*props
      

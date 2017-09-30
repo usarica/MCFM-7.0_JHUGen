@@ -1,5 +1,7 @@
       subroutine schantoponshellv(q1,q2,p,m,mv)
       implicit none
+      include 'types.f'
+      
 ************************************************************************
 *     Author: R.K. Ellis, January 2012                                 *
 *                                                                      *
@@ -9,17 +11,20 @@
 *     keeping polarization information for t                           *
 ************************************************************************
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'zprods_decl.f'
       include 'includect.f'
-      double precision p(mxpart,4),q(mxpart,4),
+      real(dp):: p(mxpart,4),q(mxpart,4),
      & alt,alc,dot,s12,mt2,ct
-      double complex m(2,2),mv(2,2),iza,izb,wprop
-      double complex X0L,C0L,C0R,C1L,C1R,C1Lon2,C1Ron2
-      integer p1,p2,t,eb,c,si,i,j,q1,q2
-      logical oldincludect
+      complex(dp):: m(2,2),mv(2,2),iza,izb,wprop
+      complex(dp):: X0L,C0L,C0R,C1L,C1R,C1Lon2,C1Ron2
+      integer:: p1,p2,t,eb,c,si,i,j,q1,q2
+      logical:: oldincludect
       parameter(p1=1,p2=2,eb=4,c=5,t=3)
-C-----matrix element for d+u~ -> t+b~ where both t and b~ are on shell
+C-----matrix element for .e+_dpu~ -> t+b~ where both t and b~ are on shell
 C-----t rendered massless wrt eb, and b rendered massless wrt p1
 c--- statement functions
       iza(i,j)=cone/za(i,j)
@@ -45,17 +50,17 @@ C---zero all arrays
       q(t,si)=p(3,si)+p(4,si)+p(5,si)
       enddo
       mt2=mt**2
-      s12=2d0*dot(q,p1,p2)
-      call coefsdkmass(s12,0d0,0d0,ct,X0L,c0R,c1L,C1R)
+      s12=2._dp*dot(q,p1,p2)
+      call coefsdkmass(s12,0._dp,0._dp,ct,X0L,c0R,c1L,C1R)
       call coefsdkmass(s12,mt,mb,ct,C0L,c0R,c1L,C1R)
-      C1Lon2=0.5d0*c1L
-      C1Ron2=0.5d0*c1R
-      wprop=dcmplx(s12-wmass**2,wmass*wwidth)
+      C1Lon2=0.5_dp*c1L
+      C1Ron2=0.5_dp*c1R
+      wprop=cplx2(s12-wmass**2,wmass*wwidth)
      
 C---- now render "t" massless wrt to vector eb
 C---- now render "pc" massless wrt to vector p1
-      alt=mt2/(2d0*dot(q,t,eb))
-      alc=mb**2/(2d0*dot(q,c,p1))
+      alt=mt2/(2._dp*dot(q,t,eb))
+      alc=mb**2/(2._dp*dot(q,c,p1))
       do si=1,4
       q(t,si)=q(t,si)-alt*q(eb,si)
       q(c,si)=q(c,si)-alc*q(p1,si)

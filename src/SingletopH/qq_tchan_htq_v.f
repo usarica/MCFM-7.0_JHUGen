@@ -1,8 +1,13 @@
       subroutine qq_tchan_htq_v(q,msq)
+      implicit none
+      include 'types.f'
 c--- Virtual contribution averaged over initial colors and spins
 c     u(-p1)+b(p2)->h(p3,p4)+t(p5)+d(p6)
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'epinv.f'
       include 'scheme.f'
       include 'alpha1.f'
@@ -19,16 +24,16 @@ c     u(-p1)+b(p2)->h(p3,p4)+t(p5)+d(p6)
       include 'tensorinfo.f'
       include 'anomHiggs.f'
       include 'first.f'
-      integer nu,icross,u_b,b_u,db_b,b_db
-      integer origitotal,origibadpoint,origipolesfailed
-      double precision p(mxpart,4),msq(-nf:nf,-nf:nf),fac,
+      integer:: nu,icross,u_b,b_u,db_b,b_db
+      integer:: origitotal,origibadpoint,origipolesfailed
+      real(dp):: p(mxpart,4),msq(-nf:nf,-nf:nf),fac,
      & virt(4),q(mxpart,4),hdecay,msqgamgam
-      double complex vtot(2,-2:0),vtotep(2),
+      complex(dp):: vtot(2,-2:0),vtotep(2),
      & xlower(-2:0),xmiddle(-2:0),xscalar(-2:0),
      & vlower(2,-2:0),vmiddle(2,-2:0),vscalar(2,-2:0)
-      double complex lotot(2)
-      integer j5,h5
-      logical failed
+      complex(dp):: lotot(2)
+      integer:: j5,h5
+      logical:: failed
       parameter(u_b=1,b_u=2,db_b=3,b_db=4)
       integer, parameter:: i1(4)=(/1,2,6,6/)
       integer, parameter:: i2(4)=(/2,1,2,1/)
@@ -95,9 +100,9 @@ c--- setup the kinematics for the various crossings
       call kininv(p)
      
 c--- fill leading order amplitudes
-      if     (nwz .eq. +1) then
+      if     (nwz == +1) then
         call ubthdamp(p,1,2,3,4,6,lotot)
-      elseif (nwz .eq. -1) then
+      elseif (nwz == -1) then
         call ubthdamp(p,1,2,4,3,6,lotot)
       else
        write(6,*) 'Problem with nwz in qq_tchan_htq_v.f: nwz=',nwz
@@ -109,7 +114,7 @@ c--- setup currents
 c----- top spin h5
       h5=2*j5-3
 
-      if (nwz .eq. +1) then
+      if (nwz == +1) then
         call stringsh(p,h5,.false.)
       else
         call stringsh(p,h5,.true.)
@@ -144,11 +149,11 @@ c--- block of code for checking poles
       call dopolesh(p,'total',lotot,vtot,first,failed)
 
       if (failed) ipolesfailed=ipolesfailed+1
-c        if (mod(itotal,10000) .eq. 0) then
+c        if (mod(itotal,10000) == 0) then
 c          write(6,*) itotal,': bad points for PV reduction ',
-c     &     dfloat(ibadpoint)/dfloat(itotal)*100d0,'%'
+c     &     real(ibadpoint,dp)/real(itotal,dp)*100d0,'%'
 c          write(6,*) itotal,': poles failing check ',
-c     &     dfloat(ipolesfailed)/dfloat(itotal)*100d0,'%'
+c     &     real(ipolesfailed,dp)/real(itotal,dp)*100d0,'%'
 c          call flush(6)
 c        endif
 c--- this block of code rejects PS point if pole check fails
@@ -164,15 +169,15 @@ c---  this block of code rejects PS point if pole check fails
 c--- wave function renormalization
       vtot(:,-1)=vtot(:,-1)-3d0/2d0*lotot(:)    
       vtot(:, 0)=vtot(:, 0)
-     & -(3d0*dlog(musq/mt**2)+5d0)/2d0*lotot(:)
+     & -(3d0*log(musq/mt**2)+5d0)/2d0*lotot(:)
 
 c--- couplings are applied here
       fac=Cf*ason2pi*gwsq**3*xn**2*hdecay
           
       vtotep(:)=vtot(:,-2)*epinv**2+vtot(:,-1)*epinv+vtot(:,0)
 
-      virt(icross)=aveqq*fac*dble(
-     & +vtotep(1)*dconjg(lotot(1))+vtotep(2)*dconjg(lotot(2)))
+      virt(icross)=aveqq*fac*real(
+     & +vtotep(1)*conjg(lotot(1))+vtotep(2)*conjg(lotot(2)))
     
            
 c      write(6,*) 'virt(icross)',virt(icross)     
@@ -181,7 +186,7 @@ c      write(6,*) 'virt(icross)',virt(icross)
       
 c--- fill matrix elements
 c--- note: variable names are not correct for t~ (nwz=-1)
-      if (nwz .eq. +1) then
+      if (nwz == +1) then
         msq(+2,5)=virt(u_b)
         msq(+4,5)=virt(u_b)
         msq(+5,+2)=virt(b_u)
@@ -207,7 +212,7 @@ c--- note: variable names are not correct for t~ (nwz=-1)
    99 continue
 
 c--- This block repeats calculation using PV if requested
-      if (  (TRtensorcontrol .eq. 1) .and. (doovred .eqv. .true.)
+      if (  (TRtensorcontrol == 1) .and. (doovred .eqv. .true.)
      &.and. (pvbadpoint) ) then
         itotal=origitotal
         ibadpoint=origibadpoint
@@ -225,15 +230,21 @@ c--- This block repeats calculation using PV if requested
 
 
       subroutine dopolesh(p,desc,lo,virt,first,failed)
+      implicit none
+      include 'types.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'scale.f'
       include 'masses.f'
-      double precision p(mxpart,4),dot
+      real(dp):: p(mxpart,4),dot
+      integer::j5
       character*5 desc
-      double complex lo(2),virt(2,-2:0)
-      double complex spnum
-      logical first,failed
-      double precision tol
+      complex(dp):: lo(2),virt(2,-2:0)
+      complex(dp):: spnum
+      logical:: first,failed
+      real(dp):: tol
       
       failed=.false.
       tol=1d-5
@@ -244,12 +255,12 @@ c--- This block repeats calculation using PV if requested
       
       virt(j5,-2)=-lo(j5)*3d0
       virt(j5,-1)=lo(j5)*(-11d0/2d0
-     & -2d0*dlog(musq/(-2d0*dot(p,1,6)))
-     & -2d0*dlog(musq/(-2d0*dot(p,2,5)))
-     & +dlog(musq/mt**2)
+     & -2d0*log(musq/(-2d0*dot(p,1,6)))
+     & -2d0*log(musq/(-2d0*dot(p,2,5)))
+     & +log(musq/mt**2)
      & +3d0/2d0) ! Last term is from w.f. renorm
            
-      if ( abs(spnum/virt(j5,-1)-1d0) .lt. tol ) then
+      if ( abs(spnum/virt(j5,-1)-1d0) < tol ) then
         continue
       else
         failed=.true.

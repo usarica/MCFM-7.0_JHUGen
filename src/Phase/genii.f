@@ -1,18 +1,21 @@
       subroutine genii(nperms,p,wt,msq)
       implicit none
+      include 'types.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
       include 'qcdcouple.f'
       include 'debug.f'
       include 'impsample.f'
       include 'npart.f'
       include 'x1x2.f'
-      logical justjac
-      integer i1,i2,j,k,nperms
-      double precision p(mxpart,4),x,dot,q(mxpart,4),alpha,
-     . msq(-nf:nf,-nf:nf)
-      double precision omx,Pqq,Pqg,facq,facg,s13,omxmin,a,oma,jacbit
-      double precision wt4,wt,wt5_4,wt0
-      parameter(wt0=1d0/eight/pisq)
+      logical:: justjac
+      integer:: i1,i2,j,k,nperms
+      real(dp):: p(mxpart,4),x,dot,q(mxpart,4),alpha,
+     & msq(-nf:nf,-nf:nf)
+      real(dp):: omx,Pqq,Pqg,facq,facg,s13,omxmin,a,oma,jacbit
+      real(dp):: wt4,wt,wt5_4,wt0
+      parameter(wt0=1._dp/eight/pisq)
       common/justjac/justjac
 
       integer,parameter:: j1(2)=(/1,2/)
@@ -24,7 +27,7 @@
 c first of all calculate the variables with which one started
 c---NB all incoming
 
-      s13=2d0*dot(p,i1,3)
+      s13=2._dp*dot(p,i1,3)
       x=(dot(p,i1,i2)+dot(p,i1,3)+dot(p,i2,3))/dot(p,i1,i2)
 c      write(6,*) 'impsample',impsample
 c      omxmin=one-xmin
@@ -32,7 +35,7 @@ c      omxmin=one-xmin
       alpha=-dot(p,i2,3)/dot(p,i1,i2)
       omx=one-x
       a=alpha/omx
-      oma=1d0-a
+      oma=1._dp-a
       if (impsample) then
       jacbit=four*sqrt(omx*omxmin)/(half/sqrt(a)+half/sqrt(oma))
       else
@@ -74,17 +77,17 @@ c---q are in Born level four momenta
 
       do j=-nf,nf
       do k=-nf,nf
-      msq(j,k)=0d0
+      msq(j,k)=0._dp
 
 
-      if     ((j .gt. 0) .and. (k .lt. 0)) then
+      if     ((j > 0) .and. (k < 0)) then
       msq(j,k)=facq/s13*msq(j,k)
-      elseif ((j .lt. 0) .and. (k .gt. 0)) then
+      elseif ((j < 0) .and. (k > 0)) then
       msq(j,k)=facq/s13*msq(j,k)
-      elseif ((j .eq. 0) .and. (k .gt. 0)) then
+      elseif ((j == 0) .and. (k > 0)) then
       msq(j,k)=facg/s13*
      &(msq(-1,k)+msq(-2,k)+msq(-3,k)+msq(-4,k)+msq(-5,k))
-      elseif ((j .eq. 0) .and. (k .lt. 0)) then
+      elseif ((j == 0) .and. (k < 0)) then
       msq(j,k)=facg/s13*
      &(msq(+1,k)+msq(+2,k)+msq(+3,k)+msq(+4,k)+msq(+5,k))
 

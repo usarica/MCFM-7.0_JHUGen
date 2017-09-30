@@ -1,7 +1,12 @@
       subroutine kininv(p)
+      implicit none
+      include 'types.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'decl_kininv.f'
-      double precision p(mxpart,4)
+      real(dp):: p(mxpart,4)
 
       p12(:)=p(1,:)+p(2,:)
       p26(:)=p(2,:)+p(6,:)

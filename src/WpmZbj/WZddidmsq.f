@@ -1,9 +1,15 @@
-      double precision function WZddidmsq(p1,p2,p3,p4,p5,p6,p7,p8)
+      function WZddidmsq(p1,p2,p3,p4,p5,p6,p7,p8)
       implicit none
+      include 'types.f'
+      real(dp):: WZddidmsq
+
 C     u(p1)+d(p8)-->d(p2)+d(p7)+W(p3,p4)+Z(p5,p6) (nwz=+1)
 C     d(p1)+u(p8)-->d(p2)+d(p7)+W(p3,p4)+Z(p5,p6) (nwz=-1)
 C     Author:R.K.Ellis, February 2013
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'sprods_com.f'
       include 'masses.f'
       include 'zcouple.f'
@@ -11,13 +17,13 @@ C     Author:R.K.Ellis, February 2013
       include 'ewcouple.f'
       include 'qcdcouple.f'
       include 'nwz.f'
-      double complex TWZbbab,TWZbbnab,TWbbpZab,TWbbmZab,d123(2,2),
+      complex(dp):: TWZbbab,TWZbbnab,TWbbpZab,TWbbmZab,d123(2,2),
      & d456(2,2),d78(2,2),d910(2,2),prop34,prop56,prop3456,amp(2,2),
      & d11(2,2),d12(2,2),d13(2,2),TWZbbnr1,TWZbbnr2,amps(2,2),
      & d123s(2,2),d456s(2,2),d78s(2,2),d910s(2,2),d11s(2,2),d12s(2,2),
      & d13s(2,2)
-      double precision s3456,s4,fac,q3,q4,l3,l4
-      integer jd,ju,p1,p2,p3,p4,p5,p6,p7,p8
+      real(dp):: s3456,s4,fac,q3,q4,l3,l4
+      integer:: jd,ju,p1,p2,p3,p4,p5,p6,p7,p8
 C     statement functions
       s4(p1,p2,p3,p4)=s(p1,p2)+s(p1,p3)+s(p1,p4)
      &               +s(p2,p3)+s(p2,p4)+s(p3,p4)
@@ -25,11 +31,11 @@ C     end statement functions
 
 C     First index of d123 etc is helicity of Z (56) decay line
 C     Second index of d123 etc is helicity of (78) bbar-line
-      prop56=s(p5,p6)/dcmplx(s(p5,p6)-zmass**2,zmass*zwidth)
-      prop34=s(p3,p4)/dcmplx(s(p3,p4)-wmass**2,wmass*wwidth)
+      prop56=s(p5,p6)/cplx2(s(p5,p6)-zmass**2,zmass*zwidth)
+      prop34=s(p3,p4)/cplx2(s(p3,p4)-wmass**2,wmass*wwidth)
       s3456=s4(p3,p4,p5,p6)
-      prop3456=s3456/dcmplx(s3456-wmass**2,wmass*wwidth)
-      fac=aveqq*4d0*V*gwsq**2*esq**2*gsq**2
+      prop3456=s3456/cplx2(s3456-wmass**2,wmass*wwidth)
+      fac=aveqq*4._dp*V*gwsq**2*esq**2*gsq**2
 
       d123(1,1)=TWZbbab(p1,p2,p3,p4,p5,p6,p7,p8)
       d123(2,1)=TWZbbab(p1,p2,p3,p4,p6,p5,p7,p8)
@@ -66,7 +72,7 @@ C*************
       d13(:,:)=0
       d13s(:,:)=0
 
-      if (nwz .eq. 1) then
+      if (nwz == 1) then
       d123s(1,1)=-TWZbbab(p1,p7,p3,p4,p5,p6,p2,p8)
       d123s(2,1)=-TWZbbab(p1,p7,p3,p4,p6,p5,p2,p8)
       d123s(1,2)=-TWZbbab(p1,p7,p3,p4,p5,p6,p8,p2)
@@ -102,7 +108,7 @@ C*************
       d13s(1,1)=-TWZbbnr2(p1,p7,p5,p6,p3,p4,p2,p8)
       d13s(1,2)=-TWZbbnr2(p1,p7,p5,p6,p3,p4,p8,p2)
 
-      elseif (nwz .eq. -1) then
+      elseif (nwz == -1) then
 
       d123s(1,1)=-TWZbbab(p8,p2,p3,p4,p5,p6,p7,p1)
       d123s(2,1)=-TWZbbab(p8,p2,p3,p4,p6,p5,p7,p1)
@@ -144,19 +150,19 @@ C*************
 
 
 C     For u->dW^+ process Z is emitted after W for 123 and before W for 456
-      if (nwz .eq. 1) then
+      if (nwz == 1) then
       ju=2
       jd=1
-      q3=0d0
+      q3=0._dp
       l3=ln
       q4=qe
       l4=le
-      elseif (nwz .eq. -1) then
+      elseif (nwz == -1) then
       jd=2
       ju=1
       q3=qe
       l3=le
-      q4=0d0
+      q4=0._dp
       l4=ln
       endif
 
@@ -168,7 +174,7 @@ C     Second index of d123 etc is helicity of (7) bbar-line
      &  +(qe*Q(ju)+le*L(ju)*prop56)*d456(1,1)
      &  +(qe*(Q(ju)-Q(jd))+le*(L(ju)-L(jd))*prop56)*d78(1,1)*prop3456
      &  +(qe*Q(1)+le*L(1)*prop56)*d910(1,1)
-     &  +0.5d0/xw*d13(1,1)*prop3456)*prop34
+     &  +0.5_dp/xw*d13(1,1)*prop3456)*prop34
      &  +(qe*q4+le*l4*prop56)*d11(1,1)*prop3456
      &  +(qe*q3+le*l3*prop56)*d12(1,1)*prop3456
       amps(1,1)=
@@ -176,7 +182,7 @@ C     Second index of d123 etc is helicity of (7) bbar-line
      &  +(qe*Q(ju)+le*L(ju)*prop56)*d456s(1,1)
      &  +(qe*(Q(ju)-Q(jd))+le*(L(ju)-L(jd))*prop56)*d78s(1,1)*prop3456
      &  +(qe*Q(1)+le*L(1)*prop56)*d910s(1,1)
-     &  +0.5d0/xw*d13s(1,1)*prop3456)*prop34
+     &  +0.5_dp/xw*d13s(1,1)*prop3456)*prop34
      &  +(qe*q4+le*l4*prop56)*d11s(1,1)*prop3456
      &  +(qe*q3+le*l3*prop56)*d12s(1,1)*prop3456
 
@@ -185,7 +191,7 @@ C     Second index of d123 etc is helicity of (7) bbar-line
      &  +(qe*Q(ju)+re*L(ju)*prop56)*d456(2,1)
      &  +(qe*(Q(ju)-Q(jd))+re*(L(ju)-L(jd))*prop56)*d78(2,1)*prop3456
      &  +(qe*Q(1)+re*L(1)*prop56)*d910(2,1)
-     &  +0.5d0/xw*d13(2,1)*prop3456)*prop34
+     &  +0.5_dp/xw*d13(2,1)*prop3456)*prop34
      &  +(qe*q4+re*l4*prop56)*d11(2,1)*prop3456
      &  +(qe*q3+re*l3*prop56)*d12(2,1)*prop3456
       amps(2,1)=
@@ -193,7 +199,7 @@ C     Second index of d123 etc is helicity of (7) bbar-line
      &  +(qe*Q(ju)+re*L(ju)*prop56)*d456s(2,1)
      &  +(qe*(Q(ju)-Q(jd))+re*(L(ju)-L(jd))*prop56)*d78s(2,1)*prop3456
      &  +(qe*Q(1)+re*L(1)*prop56)*d910s(2,1)
-     &  +0.5d0/xw*d13s(2,1)*prop3456)*prop34
+     &  +0.5_dp/xw*d13s(2,1)*prop3456)*prop34
      &  +(qe*q4+re*l4*prop56)*d11s(2,1)*prop3456
      &  +(qe*q3+re*l3*prop56)*d12s(2,1)*prop3456
 
@@ -202,7 +208,7 @@ C     Second index of d123 etc is helicity of (7) bbar-line
      &  +(qe*Q(ju)+le*L(ju)*prop56)*d456(1,2)
      &  +(qe*(Q(ju)-Q(jd))+le*(L(ju)-L(jd))*prop56)*d78(1,2)*prop3456
      &  +(qe*Q(1)+le*R(1)*prop56)*d910(1,2)
-     &  +0.5d0/xw*d13(1,2)*prop3456)*prop34
+     &  +0.5_dp/xw*d13(1,2)*prop3456)*prop34
      &  +(qe*q4+le*l4*prop56)*d11(1,2)*prop3456
      &  +(qe*q3+le*l3*prop56)*d12(1,2)*prop3456
       amps(1,2)=
@@ -210,7 +216,7 @@ C     Second index of d123 etc is helicity of (7) bbar-line
      &  +(qe*Q(ju)+le*L(ju)*prop56)*d456s(1,2)
      &  +(qe*(Q(ju)-Q(jd))+le*(L(ju)-L(jd))*prop56)*d78s(1,2)*prop3456
      &  +(qe*Q(1)+le*R(1)*prop56)*d910s(1,2)
-     &  +0.5d0/xw*d13s(1,2)*prop3456)*prop34
+     &  +0.5_dp/xw*d13s(1,2)*prop3456)*prop34
      &  +(qe*q4+le*l4*prop56)*d11s(1,2)*prop3456
      &  +(qe*q3+le*l3*prop56)*d12s(1,2)*prop3456
 
@@ -219,7 +225,7 @@ C     Second index of d123 etc is helicity of (7) bbar-line
      &  +(qe*Q(ju)+re*L(ju)*prop56)*d456(2,2)
      &  +(qe*(Q(ju)-Q(jd))+re*(L(ju)-L(jd))*prop56)*d78(2,2)*prop3456
      &  +(qe*Q(1)+re*R(1)*prop56)*d910(2,2)
-     &  +0.5d0/xw*d13(2,2)*prop3456)*prop34
+     &  +0.5_dp/xw*d13(2,2)*prop3456)*prop34
      &  +(qe*q4+re*l4*prop56)*d11(2,2)*prop3456
      &  +(qe*q3+re*l3*prop56)*d12(2,2)*prop3456
       amps(2,2)=
@@ -227,16 +233,16 @@ C     Second index of d123 etc is helicity of (7) bbar-line
      &  +(qe*Q(ju)+re*L(ju)*prop56)*d456s(2,2)
      &  +(qe*(Q(ju)-Q(jd))+re*(L(ju)-L(jd))*prop56)*d78s(2,2)*prop3456
      &  +(qe*Q(1)+re*R(1)*prop56)*d910s(2,2)
-     &  +0.5d0/xw*d13s(2,2)*prop3456)*prop34
+     &  +0.5_dp/xw*d13s(2,2)*prop3456)*prop34
      &  +(qe*q4+re*l4*prop56)*d11s(2,2)*prop3456
      &  +(qe*q3+re*l3*prop56)*d12s(2,2)*prop3456
 
 
       WZddidmsq=fac*(
      & +abs(amp(1,1))**2+abs(amps(1,1))**2
-     & -abs(amp(1,1)*Dconjg(amps(1,1))+Dconjg(amp(1,1))*amps(1,1))/xn
+     & -abs(amp(1,1)*conjg(amps(1,1))+conjg(amp(1,1))*amps(1,1))/xn
      & +abs(amp(2,1))**2+abs(amps(2,1))**2
-     & -abs(amp(2,1)*Dconjg(amps(2,1))+Dconjg(amp(2,1))*amps(2,1))/xn
+     & -abs(amp(2,1)*conjg(amps(2,1))+conjg(amp(2,1))*amps(2,1))/xn
      & +abs(amp(1,2))**2+abs(amps(1,2))**2
      & +abs(amp(2,2))**2+abs(amps(2,2))**2
      & )

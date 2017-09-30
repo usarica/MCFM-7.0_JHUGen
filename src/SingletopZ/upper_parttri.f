@@ -1,29 +1,32 @@
       subroutine upper_parttri(p,upper_tri,first)
       implicit none
+      include 'types.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
       include 'zprods_decl.f'
       include 'alpha1.f'
       include 'masses.f'
       include 'zcouple.f'
       include 'nwz.f'
       include 'decl_kininv.f'
-      integer k1,k2,ep,eta
-      double complex prW,prq,upper_tri(2,2,-2:0),iprZ,
-     & iza,izb
-      double complex vert25x1,vert25x2,vert25x3,
+      integer:: k1,k2,ep,eta
+      complex(dp):: prW,prq,upper_tri(2,2,-2:0),iprZ,iza,izb
+      complex(dp):: vert25x1,vert25x2,vert25x3,
      & vert16x2,vert16x3,vert16x4,vert16x5,vert16x6,vert16x7,
      & vert16x8,vert16x9,vert16x10,vert16x11,vert16x12,vert16x13
-      double complex cprop,facuLl,facdLl
-      double precision p(mxpart,4),q(mxpart,4),mtsq,mwsq
-      double precision p5Deta,omal
-      integer j3,p1,p2,p3,p4,k5,e5,p6
-      integer epmin
-      logical first
+      complex(dp):: cprop,facuLl,facdLl
+      real(dp):: p(mxpart,4),q(mxpart,4),mtsq,mwsq
+      real(dp):: p5Deta,omal
+      integer:: j3,p1,p2,p3,p4,k5,e5,p6
+      integer:: epmin
+      logical:: first
       parameter(p1=1,p2=2,k5=5,p6=7,e5=6)
 
 c----statement function
-      prW(s16)=cone/dcmplx(s16-wmass**2,zip)
-      prq(s16)=cone/dcmplx(s16)
+      include 'cplx.h'
+      prW(s16)=cone/cplx2(s16-wmass**2,zip)
+      prq(s16)=cone/cplx1(s16)
       iza(k1,k2)=cone/za(k1,k2)
       izb(k1,k2)=cone/zb(k1,k2)
 c----end statement function
@@ -41,16 +44,16 @@ C---choose auxiliary vector
       q(5,:)=p(5,:)-0.5d0*mtsq*p(eta,:)/p5Deta
       q(e5,:)=0.5d0*mtsq*p(eta,:)/p5Deta
 
-      if (nwz .eq. +1) then
+      if (nwz == +1) then
       call spinoru(7,q,za,zb)
-      elseif (nwz .eq. -1) then
+      elseif (nwz == -1) then
       call spinoru(7,q,zb,za)
       endif
 
 
 c--- Implementation of Baur-Zeppenfeld treatment of Z width
-      cprop=dcmplx(1d0/dsqrt((s34-zmass**2)**2+(zmass*zwidth)**2))
-      iprZ=dcmplx(s34-zmass**2)
+      cprop=cplx1(1d0/sqrt((s34-zmass**2)**2+(zmass*zwidth)**2))
+      iprZ=cplx1(s34-zmass**2)
       if (first) then
          epmin=-2
       else
@@ -61,16 +64,16 @@ c      write(*,*) 'epmin in upper_tri', epmin
 
       do ep=epmin,0
       do j3=1,2
-      if (j3 .eq. 1) then
+      if (j3 == 1) then
         p3=3
         p4=4
-        facuLl=dcmplx(Qu*q1)*iprZ/s34+dcmplx(L(2)*le)
-        facdLl=dcmplx(Qd*q1)*iprZ/s34+dcmplx(L(1)*le)
-      elseif (j3 .eq. 2) then
+        facuLl=cplx1(Qu*q1)*iprZ/s34+cplx1(L(2)*le)
+        facdLl=cplx1(Qd*q1)*iprZ/s34+cplx1(L(1)*le)
+      elseif (j3 == 2) then
         p3=4
         p4=3
-        facuLl=dcmplx(Qu*q1)*iprZ/s34+dcmplx(L(2)*re)
-        facdLl=dcmplx(Qd*q1)*iprZ/s34+dcmplx(L(1)*re)
+        facuLl=cplx1(Qu*q1)*iprZ/s34+cplx1(L(2)*re)
+        facdLl=cplx1(Qd*q1)*iprZ/s34+cplx1(L(1)*re)
       endif
  
       call upper_vertices(mtsq,ep,facuLl,facdLl,
@@ -428,21 +431,24 @@ c      write(*,*) 'epmin in upper_tri', epmin
      & facuLl,facdLl,vert25x1,vert25x2,vert25x3,
      & vert16x2,vert16x3,vert16x4,vert16x5,vert16x6,vert16x7,
      & vert16x8,vert16x9,vert16x10,vert16x11,vert16x12,vert16x13)
+      implicit none
+      include 'types.f'
+      include 'constants.f'
       include 'poles.f'
       include 'scale.f'
       include 'masses.f'
       include 'decl_kininv.f'
       
-      double precision mtsq
-      integer ep
-      double complex facuLl,facdLl
-      double complex vert25x1,vert25x2,vert25x3,vert16x2,vert16x3,
+      real(dp):: mtsq
+      integer:: ep
+      complex(dp):: facuLl,facdLl
+      complex(dp):: vert25x1,vert25x2,vert25x3,vert16x2,vert16x3,
      & vert16x4,vert16x5,vert16x6,vert16x7,vert16x8,vert16x9,
      & vert16x10,vert16x11,vert16x12,vert16x13
-      double complex qlI2diffs346s25(-2:0),qlI2,qlI3,qlI2diff(-2:0)
-      double complex qlI2diffs134s25(-2:0)
-      double complex qlI2x25,qlI2x34,qlI2x134,qlI2x346
-      double precision p2Dp5
+      complex(dp):: qlI2diffs346s25(-2:0),qlI2,qlI3,qlI2diff(-2:0)
+      complex(dp):: qlI2diffs134s25(-2:0)
+      complex(dp):: qlI2x25,qlI2x34,qlI2x134,qlI2x346
+      real(dp):: p2Dp5
       
       qlI2x25=qlI2(s25,0d0,0d0,musq,ep)
       qlI2x34=qlI2(s34,0d0,0d0,musq,ep)

@@ -1,14 +1,19 @@
       subroutine storedip_mass(msq_dip,msq_dipv)
+      implicit none
+      include 'types.f'
 c--- this routine transfers the information on the colour
 c--- structure from a common block into separate arrays for
 c--- each parton configuration
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'msq_cs.f'
       include 'msqv_cs.f'
-      integer i,j,k
-      double precision 
-     . msq_dip(0:2,-nf:nf,-nf:nf),msq_dipv(0:2,-nf:nf,-nf:nf)
+      integer:: i,j,k
+      real(dp):: 
+     & msq_dip(0:2,-nf:nf,-nf:nf),msq_dipv(0:2,-nf:nf,-nf:nf)
       
       do i=0,2
         do j=-nf,nf

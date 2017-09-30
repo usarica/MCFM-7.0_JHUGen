@@ -10,14 +10,17 @@
 
 !======= Q2 h5=1 h6=1 LEADING COLOR AMPLITUDES (order matches KC)
 !===== two mass easy 
-      double complex function Dcoeff2me_q2lcpp_s26s34s126s134
+      function Dcoeff2me_q2lcpp_s26s34s126s134
      & (i1,i2,i3,i4,i5,i6,za,zb) 
-      implicit none 
-      include 'constants.f' 
+       
+      include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h' 
       include 'zprods_decl.f' 
       include 'sprods_com.f'
-      integer i1,i2,i3,i4,i5,i6
-      double complex zab2,t,ans 
+      integer:: i1,i2,i3,i4,i5,i6
+      complex(dp):: zab2,t,ans 
 !===== statement functions 
       zab2(i1,i2,i3,i4)=za(i1,i2)*zb(i2,i4)+za(i1,i3)*zb(i3,i4)
       t(i1,i2,i3)=s(i1,i2)+s(i2,i3)+s(i1,i3)
@@ -25,7 +28,7 @@
       ans=-(((-(s(i2,i6)*s(i3,i4)) + 
      -        t(i1,i2,i6)*t(i1,i3,i4))*
      -      za(i1,i2)*za(i1,i3)**2)/
-     -    (2d0*za(i1,i5)*za(i1,i6)*za(i2,i5)*
+     -    (2._dp*za(i1,i5)*za(i1,i6)*za(i2,i5)*
      -      za(i2,i6)*za(i3,i4)))
 
       
@@ -34,41 +37,47 @@
       end
 
 !==== one mass (s126)
-      double complex function Dcoeff1m_q2lcpp_s126
+      function Dcoeff1m_q2lcpp_s126
      & (i1,i2,i3,i4,i5,i6,za,zb) 
-      implicit none 
-      include 'constants.f' 
+       
+      include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h' 
       include 'zprods_decl.f' 
       include 'sprods_com.f'
-      integer i1,i2,i3,i4,i5,i6
-      double complex zab2,t,ans 
+      integer:: i1,i2,i3,i4,i5,i6
+      complex(dp):: zab2,t,ans 
 !===== statement functions 
       zab2(i1,i2,i3,i4)=za(i1,i2)*zb(i2,i4)+za(i1,i3)*zb(i3,i4)
       t(i1,i2,i3)=s(i1,i2)+s(i2,i3)+s(i1,i3)
       
       Dcoeff1m_q2lcpp_s126=-((s(i1,i6)*s(i2,i6)*za(i1,i3)**2*
      -      zab2(i2,i3,i4,i5))/
-     -    (2d0*za(i1,i6)*za(i2,i5)*za(i2,i6)*
+     -    (2._dp*za(i1,i6)*za(i2,i5)*za(i2,i6)*
      -      za(i3,i4)*zab2(i5,i3,i4,i5)))
       return 
       end
 
 
 !==== one mass (s134)
-      double complex function Dcoeff1m_q2lcpp_s134
+      function Dcoeff1m_q2lcpp_s134
      & (i1,i2,i3,i4,i5,i6,za,zb) 
-      implicit none 
-      include 'constants.f' 
+       
+      include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h' 
       include 'zprods_decl.f' 
       include 'sprods_com.f'
-      integer i1,i2,i3,i4,i5,i6
-      double complex zab2,t,ans 
+      integer:: i1,i2,i3,i4,i5,i6
+      complex(dp):: zab2,t,ans 
 !===== statement functions 
       zab2(i1,i2,i3,i4)=za(i1,i2)*zb(i2,i4)+za(i1,i3)*zb(i3,i4)
       t(i1,i2,i3)=s(i1,i2)+s(i2,i3)+s(i1,i3)
       
       Dcoeff1m_q2lcpp_s134= -((s(i2,i5)*s(i2,i6)*za(i1,i3)**2)/
-     -    (2d0*za(i1,i6)*za(i2,i5)*za(i3,i4)*
+     -    (2._dp*za(i1,i6)*za(i2,i5)*za(i3,i4)*
      -      za(i5,i6)))
       return 
       end
@@ -78,14 +87,17 @@
 
 !============ two mass s25 s134 
 
-      double complex function Dcoeff2me_q2slcpp_s25s34s125s134
+      function Dcoeff2me_q2slcpp_s25s34s125s134
      & (i1,i2,i3,i4,i5,i6,za,zb) 
-      implicit none 
-      include 'constants.f' 
+       
+      include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h' 
       include 'zprods_decl.f' 
       include 'sprods_com.f'
-      integer i1,i2,i3,i4,i5,i6
-      double complex zab2,t,ans 
+      integer:: i1,i2,i3,i4,i5,i6
+      complex(dp):: zab2,t,ans 
 !===== statement functions 
       zab2(i1,i2,i3,i4)=za(i1,i2)*zb(i2,i4)+za(i1,i3)*zb(i3,i4)
       t(i1,i2,i3)=s(i1,i2)+s(i2,i3)+s(i1,i3)
@@ -100,14 +112,17 @@
 
 
 !======= two mass s26 s34 
-      double complex function Dcoeff2me_q2slcpp_s26s34s126s134
+      function Dcoeff2me_q2slcpp_s26s34s126s134
      & (i1,i2,i3,i4,i5,i6,za,zb) 
-      implicit none 
-      include 'constants.f' 
+       
+      include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h' 
       include 'zprods_decl.f' 
       include 'sprods_com.f'
-      integer i1,i2,i3,i4,i5,i6
-      double complex zab2,t,ans 
+      integer:: i1,i2,i3,i4,i5,i6
+      complex(dp):: zab2,t,ans 
 !===== statement functions 
       zab2(i1,i2,i3,i4)=za(i1,i2)*zb(i2,i4)+za(i1,i3)*zb(i3,i4)
       t(i1,i2,i3)=s(i1,i2)+s(i2,i3)+s(i1,i3)
@@ -123,14 +138,17 @@
 
 !===== two mass s12 s34 
       
-      double complex function Dcoeff2me_q2slcpp_s12s34s126s125
+      function Dcoeff2me_q2slcpp_s12s34s126s125
      & (i1,i2,i3,i4,i5,i6,za,zb) 
-      implicit none 
-      include 'constants.f' 
+       
+      include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h' 
       include 'zprods_decl.f' 
       include 'sprods_com.f'
-      integer i1,i2,i3,i4,i5,i6
-      double complex zab2,t,ans 
+      integer:: i1,i2,i3,i4,i5,i6
+      complex(dp):: zab2,t,ans 
 !===== statement functions 
       zab2(i1,i2,i3,i4)=za(i1,i2)*zb(i2,i4)+za(i1,i3)*zb(i3,i4)
       t(i1,i2,i3)=s(i1,i2)+s(i2,i3)+s(i1,i3)
@@ -145,14 +163,17 @@
 
 
 !=====one mass s126 s12 s26
-      double complex function Dcoeff1m_q2slcpp_s126s12s26
+      function Dcoeff1m_q2slcpp_s126s12s26
      & (i1,i2,i3,i4,i5,i6,za,zb) 
-      implicit none 
-      include 'constants.f' 
+       
+      include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h' 
       include 'zprods_decl.f' 
       include 'sprods_com.f'
-      integer i1,i2,i3,i4,i5,i6
-      double complex zab2,t,ans 
+      integer:: i1,i2,i3,i4,i5,i6
+      complex(dp):: zab2,t,ans 
 !===== statement functions 
       zab2(i1,i2,i3,i4)=za(i1,i2)*zb(i2,i4)+za(i1,i3)*zb(i3,i4)
       t(i1,i2,i3)=s(i1,i2)+s(i2,i3)+s(i1,i3)
@@ -166,14 +187,17 @@
 
 
 !=====one mass s126 s16 s12
-      double complex function Dcoeff1m_q2slcpp_s126s16s12
+      function Dcoeff1m_q2slcpp_s126s16s12
      & (i1,i2,i3,i4,i5,i6,za,zb) 
-      implicit none 
-      include 'constants.f' 
+       
+      include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h' 
       include 'zprods_decl.f' 
       include 'sprods_com.f'
-      integer i1,i2,i3,i4,i5,i6
-      double complex zab2,t,ans 
+      integer:: i1,i2,i3,i4,i5,i6
+      complex(dp):: zab2,t,ans 
 !===== statement functions 
       zab2(i1,i2,i3,i4)=za(i1,i2)*zb(i2,i4)+za(i1,i3)*zb(i3,i4)
       t(i1,i2,i3)=s(i1,i2)+s(i2,i3)+s(i1,i3)
@@ -188,14 +212,17 @@
 
 
 !=====one mass s125 s12 s25
-      double complex function Dcoeff1m_q2slcpp_s125s12s25
+      function Dcoeff1m_q2slcpp_s125s12s25
      & (i1,i2,i3,i4,i5,i6,za,zb) 
-      implicit none 
-      include 'constants.f' 
+       
+      include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h' 
       include 'zprods_decl.f' 
       include 'sprods_com.f'
-      integer i1,i2,i3,i4,i5,i6
-      double complex zab2,t,ans 
+      integer:: i1,i2,i3,i4,i5,i6
+      complex(dp):: zab2,t,ans 
 !===== statement functions 
       zab2(i1,i2,i3,i4)=za(i1,i2)*zb(i2,i4)+za(i1,i3)*zb(i3,i4)
       t(i1,i2,i3)=s(i1,i2)+s(i2,i3)+s(i1,i3)

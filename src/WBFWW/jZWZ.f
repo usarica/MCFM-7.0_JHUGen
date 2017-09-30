@@ -1,17 +1,20 @@
       subroutine ampZWZ(i1,i2,i3,i4,i5,i6,i7,i8,za,zb,amp)
       implicit none
+      include 'types.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
       include 'cmplxmass.f'
       include 'zprods_decl.f'
       include 'sprods_com.f'
       include 'ewcharge.f'
       include 'zcouple.f'
-      integer jdu1,jdu2,h17,h28,i1,i2,i3,i4,i5,i6,i7,i8,
+      integer:: jdu1,jdu2,h17,h28,i1,i2,i3,i4,i5,i6,i7,i8,
      & p1,p2,p3,p4,p5,p6,p7,p8
-      double complex amp(2,2,2,2),propZ17,propZ28,propW1347,
+      complex(dp):: amp(2,2,2,2),propZ17,propZ28,propW1347,
      & gamZ17lept3(2,2),gamZ17anti4(2,2),
      & gamZ28lept5(2,2),gamZ28anti6(2,2)
-      double precision qn,t3,t4,s17,s28,s137,s147,s258,s268,
+      real(dp):: qn,t3,t4,s17,s28,s137,s147,s258,s268,
      & q3,l3,q4,l4,q5,l5,q6,l6
 C     amp(jdu1,jdu2,h17,h28)
       parameter(qn=0d0)
@@ -29,7 +32,7 @@ C-----end statement functions
       s268=t3(i2,i6,i8)
 
 c--- set up lepton couplings according to call
-      if (i3 .eq. 3) then
+      if (i3 == 3) then
         q3=qe
         l3=le
         q4=qn

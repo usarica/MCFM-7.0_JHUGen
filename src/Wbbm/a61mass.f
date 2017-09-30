@@ -1,5 +1,7 @@
       subroutine a61mass(k1,k2,k3,k4,k5,k6,mqsq,a61mm,a61mp,a61pm,a61pp,
      &                   a6treemm,a6treemp,a6treepm,a6treepp)
+      implicit none
+      include 'types.f'
 c--- Routine to compute the 1-loop primitive amplitude A6;1 for the Wbb
 c--- process, where the mass of the b-quark is kept non-zero.
 c--- The labels on this routine refer to the momenta in "mom" (passed
@@ -8,8 +10,11 @@ c--- a la Rodrigo and appear in positions 5 and 6.
 c--- The tree-level amplitudes are also returned
 c---
 c---     0 -> q(k1) + qb(k4) + W(->e(k6)+nubar(k5)) + Q(k3) + Qbar(k2)
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'epinv.f'
       include 'masses.f'
       include 'momwbbm.f'
@@ -18,21 +23,21 @@ c---     0 -> q(k1) + qb(k4) + W(->e(k6)+nubar(k5)) + Q(k3) + Qbar(k2)
       include 'Wbbmlabels.f'
       include 'zprods_com.f'
       include 'swapxz.f'
-      integer k1,k2,k3,k4,k5,k6,iep,nu
-      logical checkcoeffs,numcheck,writescalars
-      double precision mqsq,ren,p2(4),p3(4),p1Dp2,p3Dp4,p1Dp3,p2Dp4,
+      integer:: k1,k2,k3,k4,k5,k6,iep,nu
+      logical:: checkcoeffs,numcheck,writescalars
+      real(dp):: mqsq,ren,p2(4),p3(4),p1Dp2,p3Dp4,p1Dp3,p2Dp4,
      & pole(-2:-1),mhloopsq,mq
-      double complex a61mm,a61mp,a61pm,a61pp
-      double complex a6treemm,a6treemp,a6treepm,a6treepp
-      double complex a61mmep(-2:0),a61mpep(-2:0),
+      complex(dp):: a61mm,a61mp,a61pm,a61pp
+      complex(dp):: a6treemm,a6treemp,a6treepm,a6treepp
+      complex(dp):: a61mmep(-2:0),a61mpep(-2:0),
      & a61pmep(-2:0),a61ppep(-2:0)
-      double complex ampALC(2,2),ampBLC(2,2)
-      double complex ALCmm(-2:0),ALCmp(-2:0),ALCpm(-2:0),ALCpp(-2:0)
-      double complex BLCmm(-2:0),BLCmp(-2:0),BLCpm(-2:0),BLCpp(-2:0)
-      double complex ASLmp(-2:0),ASLmm(-2:0),ASLpm(-2:0),ASLpp(-2:0)
-      double complex Afmm(-2:0),Afmp(-2:0),Afpm(-2:0),Afpp(-2:0)
-      double complex Ahmm(-2:0),Ahmp(-2:0),Ahpm(-2:0),Ahpp(-2:0)
-      double complex coeff2,coeff1,atree,atreesl,
+      complex(dp):: ampALC(2,2),ampBLC(2,2)
+      complex(dp):: ALCmm(-2:0),ALCmp(-2:0),ALCpm(-2:0),ALCpp(-2:0)
+      complex(dp):: BLCmm(-2:0),BLCmp(-2:0),BLCpm(-2:0),BLCpp(-2:0)
+      complex(dp):: ASLmp(-2:0),ASLmm(-2:0),ASLpm(-2:0),ASLpp(-2:0)
+      complex(dp):: Afmm(-2:0),Afmp(-2:0),Afpm(-2:0),Afpp(-2:0)
+      complex(dp):: Ahmm(-2:0),Ahmp(-2:0),Ahpm(-2:0),Ahpp(-2:0)
+      complex(dp):: coeff2,coeff1,atree,atreesl,
      & Lnrat,xl12,xl34,xl13,xl24
       parameter (checkcoeffs=.false.)
       common/numcheck/numcheck
@@ -42,7 +47,7 @@ c---     0 -> q(k1) + qb(k4) + W(->e(k6)+nubar(k5)) + Q(k3) + Qbar(k2)
       writescalars=.false.
       swapxz=.true.
       
-      mq=dsqrt(mqsq)
+      mq=sqrt(mqsq)
       
 c--- first calculate the tree-level amplitudes
       call a6treemass(k1,k2,k3,k4,k5,k6,mq,
@@ -61,10 +66,10 @@ c--- compute logarithms appearing in pole contributions
      &     -mom(k4,2)*p2(2)-mom(k4,3)*p2(3)
       p3Dp4=mom(k4,4)*p3(4)-mom(k4,1)*p3(1)
      &     -mom(k4,2)*p3(2)-mom(k4,3)*p3(3)
-      xl12=lnrat(-2d0*p1Dp2,musq)
-      xl13=lnrat(-2d0*p1Dp3,musq)
-      xl24=lnrat(-2d0*p2Dp4,musq)
-      xl34=lnrat(-2d0*p3Dp4,musq)
+      xl12=lnrat(-two*p1Dp2,musq)
+      xl13=lnrat(-two*p1Dp3,musq)
+      xl24=lnrat(-two*p2Dp4,musq)
+      xl34=lnrat(-two*p3Dp4,musq)
       
 c--- compute the necessary scalar integrals for leading colour A
       call computescalars(k1,k2,k3,k4,k5,k6,scints)
@@ -102,8 +107,8 @@ c--- calculate (-,-) and (+,+) amplitudes, the latter obtained by symmetry
       endif
 
 c--- explicit form for poles in ALC
-      pole(-2)=-1d0
-      pole(-1)=xl12+xl34+8d0/3d0-dlog(mqsq/musq)
+      pole(-2)=-1._dp
+      pole(-1)=xl12+xl34+8._dp/3._dp-log(mqsq/musq)
       do iep=-2,-1
       ALCmp(iep)=pole(iep)*a6treemp
       ALCpm(iep)=pole(iep)*a6treepm
@@ -167,8 +172,8 @@ c--- calculate (-,-) and (+,+) amplitudes, the latter obtained by symmetry
       endif
 
 c--- explicit form for poles in BLC
-      pole(-2)=-1d0
-      pole(-1)=xl13+xl24+8d0/3d0-dlog(mqsq/musq)
+      pole(-2)=-1._dp
+      pole(-1)=xl13+xl24+8._dp/3._dp-log(mqsq/musq)
       do iep=-2,-1
       BLCmp(iep)=-pole(iep)*a6treemp
       BLCpm(iep)=-pole(iep)*a6treepm
@@ -314,24 +319,24 @@ c--- so now add up according to the color sum
 c--- Note: no heavy quark contribution included for now
       do iep=-2,0
       a61mmep(iep)=
-     & ALCmm(iep)-2d0/xn**2*(BLCmm(iep)+ALCmm(iep))
-     &  -1d0/xn**2*ASLmm(iep)-dfloat(nflav)/xn*Afmm(iep)
-     &  -1d0/xn*Ahmm(iep)
+     & ALCmm(iep)-two/xn**2*(BLCmm(iep)+ALCmm(iep))
+     &  -1._dp/xn**2*ASLmm(iep)-real(nflav,dp)/xn*Afmm(iep)
+     &  -1._dp/xn*Ahmm(iep)
 
       a61mpep(iep)=
-     & ALCmp(iep)-2d0/xn**2*(BLCmp(iep)+ALCmp(iep))
-     &  -1d0/xn**2*ASLmp(iep)-dfloat(nflav)/xn*Afmp(iep)
-     &  -1d0/xn*Ahmp(iep)
+     & ALCmp(iep)-two/xn**2*(BLCmp(iep)+ALCmp(iep))
+     &  -1._dp/xn**2*ASLmp(iep)-real(nflav,dp)/xn*Afmp(iep)
+     &  -1._dp/xn*Ahmp(iep)
 
       a61pmep(iep)=
-     & ALCpm(iep)-2d0/xn**2*(BLCpm(iep)+ALCpm(iep))
-     &  -1d0/xn**2*ASLpm(iep)-dfloat(nflav)/xn*Afpm(iep)
-     &  -1d0/xn*Ahpm(iep)
+     & ALCpm(iep)-two/xn**2*(BLCpm(iep)+ALCpm(iep))
+     &  -1._dp/xn**2*ASLpm(iep)-real(nflav,dp)/xn*Afpm(iep)
+     &  -1._dp/xn*Ahpm(iep)
 
       a61ppep(iep)=
-     & ALCpp(iep)-2d0/xn**2*(BLCpp(iep)+ALCpp(iep))
-     &  -1d0/xn**2*ASLpp(iep)-dfloat(nflav)/xn*Afpp(iep)
-     &  -1d0/xn*Ahpp(iep)
+     & ALCpp(iep)-two/xn**2*(BLCpp(iep)+ALCpp(iep))
+     &  -1._dp/xn**2*ASLpp(iep)-real(nflav,dp)/xn*Afpp(iep)
+     &  -1._dp/xn*Ahpp(iep)
       enddo
 
 c--- add up coefficients with appropriate powers of epinv      
@@ -342,9 +347,9 @@ c--- add up coefficients with appropriate powers of epinv
 
 c--- overall wave function and couping constant renormalization
       ren=
-     & +2d0*((dfloat(nflav)/3d0-11d0/6d0*xn)*epinv+xn/6d0)
-     & +2d0/3d0*(epinv+log(musq/mhloopsq))
-     & -(xn**2-1d0)/2d0/xn*(3d0*(epinv+log(musq/mqsq))+5d0)
+     & +two*((real(nflav,dp)/3._dp-11._dp/6._dp*xn)*epinv+xn/6._dp)
+     & +two/3._dp*(epinv+log(musq/mhloopsq))
+     & -(xn**2-1._dp)/two/xn*(3._dp*(epinv+log(musq/mqsq))+5._dp)
       
 
 c--- overall normalization of amplitude wrt. t-tbar process
@@ -355,14 +360,14 @@ c--- overall normalization of amplitude wrt. t-tbar process
       a61pm=a61pm+ren*a6treepm
       a61pp=a61pp+ren*a6treepp
 
-c      write(6,*) 'a61mmep(-1),dfloat(nflav)*2d0/3d0',
-c     & a61mmep(-1),dfloat(nflav)*2d0/3d0*a6treemm/xn
-c      write(6,*) 'a61mpep(-1),dfloat(nflav)*2d0/3d0',
-c     & a61mpep(-1),dfloat(nflav)*2d0/3d0*a6treemp/xn
-c      write(6,*) 'a61pmep(-1),dfloat(nflav)*2d0/3d0',
-c     & a61pmep(-1),dfloat(nflav)*2d0/3d0*a6treepm/xn
-c      write(6,*) 'a61ppep(-1),dfloat(nflav)*2d0/3d0',
-c     & a61ppep(-1),dfloat(nflav)*2d0/3d0*a6treepp/xn
+c      write(6,*) 'a61mmep(-1),real(nflav,dp)*two/3._dp',
+c     & a61mmep(-1),real(nflav,dp)*two/3._dp*a6treemm/xn
+c      write(6,*) 'a61mpep(-1),real(nflav,dp)*two/3._dp',
+c     & a61mpep(-1),real(nflav,dp)*two/3._dp*a6treemp/xn
+c      write(6,*) 'a61pmep(-1),real(nflav,dp)*two/3._dp',
+c     & a61pmep(-1),real(nflav,dp)*two/3._dp*a6treepm/xn
+c      write(6,*) 'a61ppep(-1),real(nflav,dp)*two/3._dp',
+c     & a61ppep(-1),real(nflav,dp)*two/3._dp*a6treepp/xn
 c      pause
 
       return

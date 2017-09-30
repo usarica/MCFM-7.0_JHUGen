@@ -1,15 +1,21 @@
-      double precision function hzgamwidth(mh)
+      function hzgamwidth(mh)
       implicit none
+      include 'types.f'
+      real(dp):: hzgamwidth
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'ewcouple.f'
-      double precision mh,mhsq
-      double complex f0DDHK
+      real(dp):: mh,mhsq
+      complex(dp):: f0DDHK
       
       mhsq=mh**2
       
-      hzgamwidth=esq*Gf**2*wmass**2*xw/256d0/pi**5
-     & *mh**3*(1d0-zmass**2/mhsq)**3*abs(f0DDHK(mhsq,zmass**2))**2
+      hzgamwidth=esq*Gf**2*wmass**2*xw/256._dp/pi**5
+     & *mh**3*(1._dp-zmass**2/mhsq)**3*abs(f0DDHK(mhsq,zmass**2))**2
       
       return
       end

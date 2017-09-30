@@ -1,5 +1,7 @@
       subroutine qqb_wbjet(p,msq)
       implicit none
+      include 'types.f'
+
 c--- R.K. Ellis,  8/3/04
 c--- matrix element squared and averaged over initial colours and spins
 c     q(-p1) + b(-p2) --> W^+ + b(p5) + f(p6)
@@ -15,6 +17,9 @@ c--- Extended to include charm quark production via the variable
 c--- "flav". Note that NLO corrections are not yet extended this way.
 
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'ewcouple.f'
       include 'qcdcouple.f'
@@ -23,10 +28,10 @@ c--- "flav". Note that NLO corrections are not yet extended this way.
       include 'sprods_com.f'
       include 'zprods_com.f'
       include 'msq_cs.f'
-      double precision msq(-nf:nf,-nf:nf),p(mxpart,4),
-     . facqq,prop,Vsm(-nf:nf),qQ_jkki,Qq_jkji,qbQb_jkki,Qbqb_jkji
-      double complex aLLL
-      integer j,k,i1,i2,i3,i4,i5,i6
+      real(dp):: msq(-nf:nf,-nf:nf),p(mxpart,4),
+     & facqq,prop,Vsm(-nf:nf),qQ_jkki,Qq_jkji,qbQb_jkki,Qbqb_jkji
+      complex(dp):: aLLL
+      integer:: j,k,i1,i2,i3,i4,i5,i6
 
 C Statement function defines the sum of the following two diagrams
 
@@ -41,22 +46,22 @@ c             )                                         )
 c     l3(L)-------<-------l4            l3(L)-------<-------l4
 
       aLLL(i1,i2,i3,i4,i5,i6)=-cone/(s(i3,i4)*s(i2,i5))*
-     . (+za(i6,i3)*zb(i2,i1)/(s(i3,i4)+s(i4,i6)+s(i3,i6))
-     . *(+zb(i4,i3)*za(i3,i5)+zb(i4,i6)*za(i6,i5))
-     . +za(i6,i5)*zb(i4,i1)/(s(i2,i6)+s(i5,i6)+s(i2,i5))
-     . *(+zb(i2,i6)*za(i6,i3)+zb(i2,i5)*za(i5,i3)))
+     & (+za(i6,i3)*zb(i2,i1)/(s(i3,i4)+s(i4,i6)+s(i3,i6))
+     & *(+zb(i4,i3)*za(i3,i5)+zb(i4,i6)*za(i6,i5))
+     & +za(i6,i5)*zb(i4,i1)/(s(i2,i6)+s(i5,i6)+s(i2,i5))
+     & *(+zb(i2,i6)*za(i6,i3)+zb(i2,i5)*za(i5,i3)))
 
 c--- initialize matrix elements
       do j=-nf,nf
       do k=-nf,nf
-      msq(j,k)=0d0
+      msq(j,k)=0._dp
       enddo
       enddo
 
 c--- set up spinors (and dotproducts)
       call spinoru(6,p,za,zb)
       prop=s(3,4)**2/((s(3,4)-wmass**2)**2+wmass**2*wwidth**2)
-      facqq=4d0*V*gsq**2*(gwsq/2d0)**2*aveqq*prop
+      facqq=4._dp*V*gsq**2*(gwsq/2._dp)**2*aveqq*prop
 
 c--- now square these amplitudes separating into color structures
 c   1) Amplitude
@@ -86,20 +91,20 @@ c--- set up auxiliary array
 
       do j=-nf,nf
         Vsm(j)=Vsum(j)
-        if (abs(j) .ge. flav) Vsm(j)=0d0
+        if (abs(j) >= flav) Vsm(j)=0._dp
 c--- make sure that elements are either one or zero
-        if (Vsm(j) .gt. 0d0) Vsm(j)=1d0
+        if (Vsm(j) > 0._dp) Vsm(j)=1._dp
       enddo
 
       do j=-nf,nf
       do k=-nf,nf
 
-      msq_cs(0,j,k)=0d0
-      msq_cs(1,j,k)=0d0
-      msq_cs(2,j,k)=0d0
+      msq_cs(0,j,k)=0._dp
+      msq_cs(1,j,k)=0._dp
+      msq_cs(2,j,k)=0._dp
 
       if ((abs(j) .ne. flav) .and. (abs(k) .ne. flav)) goto 99
-      if ((abs(j) .eq. flav) .and. (abs(k) .eq. flav)) goto 99
+      if ((abs(j) == flav) .and. (abs(k) == flav)) goto 99
 c--- so that either abs(j) or abs(k) = flav (but not both).
 
 c--- note that, for (q,qb) and (qb,q) contribution (2) refers to the
@@ -111,25 +116,25 @@ C--- in order to get the poles to cancel
 C--- There is presumably some interplay with the definition
 C--- of the various color terms in qqb_wbjet_z.f,
 
-      if ((j .gt. 0) .and. (k .lt. 0)) then
+      if ((j > 0) .and. (k < 0)) then
 c--- e.g.  b d~ -> b u~
            msq_cs(2,j,k)=facqq*Vsm(k)*Qbqb_jkji
 c--- e.g.  u b~ -> b~ d
            msq_cs(1,j,k)=facqq*Vsm(j)*qQ_jkki
 
-      elseif ((j .lt. 0) .and. (k .gt. 0)) then
+      elseif ((j < 0) .and. (k > 0)) then
 c--- e.g.  b~ u -> b~ d
            msq_cs(2,j,k)=facqq*Vsm(k)*Qq_jkji
 c--- e.g.  d~ b -> b u~
            msq_cs(1,j,k)=facqq*Vsm(j)*qbQb_jkki
 
-      elseif ((j .gt. 0) .and. (k .gt. 0)) then
+      elseif ((j > 0) .and. (k > 0)) then
 c--- e.g.  b u -> b d
            msq_cs(1,j,k)=facqq*Vsm(k)*Qq_jkji
 c--- e.g.  u b -> b d
            msq_cs(2,j,k)=facqq*Vsm(j)*qQ_jkki
 
-      elseif ((j .lt. 0) .and. (k .lt. 0)) then
+      elseif ((j < 0) .and. (k < 0)) then
 c--- e.g.  b~ d~ -> b~ u~
            msq_cs(1,j,k)=facqq*Vsm(k)*Qbqb_jkji
 c--- e.g.  d~ b~ -> b~ u~

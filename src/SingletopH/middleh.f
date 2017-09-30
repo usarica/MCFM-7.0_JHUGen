@@ -1,22 +1,27 @@
       subroutine middleh(p,first,middlebit)
       implicit none
+      include 'types.f'
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'metric0.f'
       include 'alpha1.f'
       include 'masses.f'
       include 'TRydef.f'
       include 'currentdecl.f'
       include 'tensordecl.f'
-      integer fi,nu,ro,ep
-      double complex prW,string,middlebit(-2:0),part3,part1,bit
-      double precision p(mxpart,4),vec,mtsq
-      double precision p1(4),p16(4),p2(4),p5(4),p6(4),p25(4),p34(4),
+      integer:: fi,nu,ro,ep
+      complex(dp):: prW,string,middlebit(-2:0),part3,part1,bit
+      real(dp):: p(mxpart,4),vec,mtsq
+      real(dp):: p1(4),p16(4),p2(4),p5(4),p6(4),p25(4),p34(4),
      & s16,s25,epbit,omal
-      integer epmin
-      logical first
+      integer:: epmin
+      logical:: first
 c
 c     statement function
-      prW(s16)=cone/dcmplx(s16-wmass**2,zip)
+      prW(s16)=cone/cplx2(s16-wmass**2,zip)
 c     end statement function
 
       omal=1d0-alpha1
@@ -48,9 +53,11 @@ c--- only compute poles for checking on first call
       endif
 c      write(*,*) 'epmin in middleh', epmin
 
+      middlebit(:)=czip
+
       do ep=epmin,0
       epbit=0d0
-      if (ep .eq. 0) epbit=1d0
+      if (ep == 0) epbit=1d0
 
       part3=czip
       do fi=1,4

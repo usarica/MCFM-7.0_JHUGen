@@ -1,3 +1,3 @@
-      logical VVstrong
+      logical:: VVstrong
       common/VVstrong/VVstrong
 

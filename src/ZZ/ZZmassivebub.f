@@ -1,17 +1,22 @@
       subroutine ZZmassivebub(j1,j2,j3,j4,j5,j6,za,zb,mt,bub,totrat)
       implicit none
+      include 'types.f'
+      
 c----Bubble coefficients extracted from BDK 11.5, 11.8
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'ggZZintegrals.f'
       include 'blabels.f'
       include 'docheck.f'
-c      logical ggZZunstable
+c      logical:: ggZZunstable
       character*9 st,st1
-      integer j,j1,j3,j4,j2,j5,j6,k1,k3,k4,k2,k5,k6,h1,h2,h3,h4
-      double complex b(2,2,2,2,7),bcoeff(8),bub(2,2,2,2,-2:0),
+      integer:: j,j1,j3,j4,j2,j5,j6,k1,k3,k4,k2,k5,k6,h1,h2,h3,h4
+      complex(dp):: b(2,2,2,2,7),bcoeff(8),bub(2,2,2,2,-2:0),
      & totrat(2,2,2,2),tmp
-      double precision mt
+      real(dp):: mt
 c      common/ggZZunstable/ggZZunstable
 
 
@@ -42,27 +47,27 @@ c--- only compute h2=1: will obtain others by c.c.
       do h3=1,2
       do h4=1,2
       
-      if (h3 .eq.1) then
+      if (h3 ==1) then
           k3=j3
           k4=j4
-      elseif (h3 .eq.2) then
+      elseif (h3 ==2) then
           k3=j4
           k4=j3
       endif 
-      if (h4 .eq.1) then
+      if (h4 ==1) then
           k5=j5
           k6=j6
-      elseif (h4 .eq.2) then
+      elseif (h4 ==2) then
           k5=j6
           k6=j5
       endif 
 
-      if ((h1.eq.1) .and. (h2.eq.1)) st='q+qb-g-g-' 
-      if ((h1.eq.1) .and. (h2.eq.2)) st='q+qb-g-g+' 
-      if ((h1.eq.2) .and. (h2.eq.1)) st='q+qb-g+g-' 
-      if ((h1.eq.2) .and. (h2.eq.2)) st='q+qb-g+g+' 
+      if ((h1==1) .and. (h2==1)) st='q+qb-g-g-' 
+      if ((h1==1) .and. (h2==2)) st='q+qb-g-g+' 
+      if ((h1==2) .and. (h2==1)) st='q+qb-g+g-' 
+      if ((h1==2) .and. (h2==2)) st='q+qb-g+g+' 
 
-      if (st .eq. 'q+qb-g-g-') then
+      if (st == 'q+qb-g-g-') then
           st1='q+qb-g+g+'
           call ZZmbc(st1,k2,k1,k4,k3,k6,k5,zb,za,bcoeff)
 c--- this call interchanges roles of 1,2 so change coeffs. accordingly
@@ -72,96 +77,96 @@ c--- this call interchanges roles of 1,2 so change coeffs. accordingly
 c--- (-,-) amplitudes
 c      write(6,*) '--'
 c      write(6,*) 'bcoeff(b34)',
-c     & bcoeff(b34),cdabs(bcoeff(b34))
+c     & bcoeff(b34),abs(bcoeff(b34))
 c      write(6,*) 'bcoeff(b134)',
-c     & bcoeff(b134),cdabs(bcoeff(b134))
+c     & bcoeff(b134),abs(bcoeff(b134))
 c      write(6,*) 'bcoeff(b56)',
-c     & bcoeff(b56),cdabs(bcoeff(b56))
+c     & bcoeff(b56),abs(bcoeff(b56))
 c      write(6,*) 'bcoeff(b234)',
-c     & bcoeff(b234),cdabs(bcoeff(b234))
+c     & bcoeff(b234),abs(bcoeff(b234))
 c      write(6,*) 'bcoeff(b12)',
-c     & bcoeff(b12),cdabs(bcoeff(b12))
+c     & bcoeff(b12),abs(bcoeff(b12))
 c      write(6,*) 'bcoeff(b1)',
-c     & bcoeff(b1),cdabs(bcoeff(b1))
+c     & bcoeff(b1),abs(bcoeff(b1))
 c      write(6,*) 'sum',
 c     & +bcoeff(b12)+bcoeff(b34)+bcoeff(b56)+bcoeff(b134)
 c     & +bcoeff(b234)+bcoeff(b1)
 c      write(6,*) 'bcoeff(rat)',
-c     & bcoeff(rat),cdabs(bcoeff(rat))
+c     & bcoeff(rat),abs(bcoeff(rat))
 c      write(6,*)
 c      stop
         
-      elseif (st.eq.'q+qb-g-g+') then
+      elseif (st=='q+qb-g-g+') then
           call ZZmbc(st,k1,k2,k3,k4,k5,k6,za,zb,bcoeff)
           
 c--- new:(-,+) amplitudes
 c      write(6,*) '-+'
 c      write(6,*) 'bcoeff(b34)',
-c     & bcoeff(b34),cdabs(bcoeff(b34))
+c     & bcoeff(b34),abs(bcoeff(b34))
 c      write(6,*) 'bcoeff(b134)',
-c     & bcoeff(b134),cdabs(bcoeff(b134))
+c     & bcoeff(b134),abs(bcoeff(b134))
 c      write(6,*) 'bcoeff(b56)',
-c     & bcoeff(b56),cdabs(bcoeff(b56))
+c     & bcoeff(b56),abs(bcoeff(b56))
 c      write(6,*) 'bcoeff(b234)',
-c     & bcoeff(b234),cdabs(bcoeff(b234))
+c     & bcoeff(b234),abs(bcoeff(b234))
 c      write(6,*) 'bcoeff(b12)',
-c     & bcoeff(b12),cdabs(bcoeff(b12))
+c     & bcoeff(b12),abs(bcoeff(b12))
 c      write(6,*) 'bcoeff(b1)',
-c     & bcoeff(b1),cdabs(bcoeff(b1))
+c     & bcoeff(b1),abs(bcoeff(b1))
 c      write(6,*) 'sum',
 c     & +bcoeff(b12)+bcoeff(b34)+bcoeff(b56)+bcoeff(b134)
 c     & +bcoeff(b234)+bcoeff(b1)
 c      write(6,*) 'bcoeff(rat)',
-c     & bcoeff(rat),cdabs(bcoeff(rat))
+c     & bcoeff(rat),abs(bcoeff(rat))
 c      write(6,*)
 c      stop
         
-      elseif (st.eq.'q+qb-g+g+') then
+      elseif (st=='q+qb-g+g+') then
           call ZZmbc(st,k1,k2,k3,k4,k5,k6,za,zb,bcoeff)
 c--- (+,+) amplitudes
 c      write(6,*) '++'
 c      write(6,*) 'bcoeff(b34)',
-c     & bcoeff(b34),cdabs(bcoeff(b34))
+c     & bcoeff(b34),abs(bcoeff(b34))
 c      write(6,*) 'bcoeff(b134)',
-c     & bcoeff(b134),cdabs(bcoeff(b134))
+c     & bcoeff(b134),abs(bcoeff(b134))
 c      write(6,*) 'bcoeff(b56)',
-c     & bcoeff(b56),cdabs(bcoeff(b56))
+c     & bcoeff(b56),abs(bcoeff(b56))
 c      write(6,*) 'bcoeff(b234)',
-c     & bcoeff(b234),cdabs(bcoeff(b234))
+c     & bcoeff(b234),abs(bcoeff(b234))
 c      write(6,*) 'bcoeff(b12)',
-c     & bcoeff(b12),cdabs(bcoeff(b12))
+c     & bcoeff(b12),abs(bcoeff(b12))
 c      write(6,*) 'bcoeff(b1)',
-c     & bcoeff(b1),cdabs(bcoeff(b1))
+c     & bcoeff(b1),abs(bcoeff(b1))
 c      write(6,*) 'sum',
 c     & +bcoeff(b12)+bcoeff(b34)+bcoeff(b56)+bcoeff(b134)
 c     & +bcoeff(b234)+bcoeff(b1)
 c      write(6,*) 'bcoeff(rat)',
-c     & bcoeff(rat),cdabs(bcoeff(rat))
+c     & bcoeff(rat),abs(bcoeff(rat))
 c      write(6,*)
 c      stop
         
-      elseif (st.eq.'q+qb-g+g-') then
+      elseif (st=='q+qb-g+g-') then
           st1='q+qb-g+g-'
           call ZZmbc(st1,k1,k2,k4,k3,k6,k5,zb,za,bcoeff)
 c--- (+,-) amplitudes
 c      write(6,*) 'old:+-'
 c      write(6,*) 'bcoeff(b34)',
-c     & bcoeff(b34),cdabs(bcoeff(b34))
+c     & bcoeff(b34),abs(bcoeff(b34))
 c      write(6,*) 'bcoeff(b134)',
-c     & bcoeff(b134),cdabs(bcoeff(b134))
+c     & bcoeff(b134),abs(bcoeff(b134))
 c      write(6,*) 'bcoeff(b56)',
-c     & bcoeff(b56),cdabs(bcoeff(b56))
+c     & bcoeff(b56),abs(bcoeff(b56))
 c      write(6,*) 'bcoeff(b234)',
-c     & bcoeff(b234),cdabs(bcoeff(b234))
+c     & bcoeff(b234),abs(bcoeff(b234))
 c      write(6,*) 'bcoeff(b12)',
-c     & bcoeff(b12),cdabs(bcoeff(b12))
+c     & bcoeff(b12),abs(bcoeff(b12))
 c      write(6,*) 'bcoeff(b1)',
-c     & bcoeff(b1),cdabs(bcoeff(b1))
+c     & bcoeff(b1),abs(bcoeff(b1))
 c      write(6,*) 'sum',
 c     & +bcoeff(b12)+bcoeff(b34)+bcoeff(b56)+bcoeff(b134)
 c     & +bcoeff(b234)+bcoeff(b1)
 c      write(6,*) 'bcoeff(rat)',
-c     & bcoeff(rat),cdabs(bcoeff(rat))
+c     & bcoeff(rat),abs(bcoeff(rat))
 c      write(6,*)
 c      pause
         
@@ -180,8 +185,8 @@ c      enddo
 c--- obtain h2=1 results by c.c.
       do h3=1,2
       do h4=1,2
-      b(2,1,h3,h4,:)=dconjg(b(1,2,3-h3,3-h4,:))
-      b(1,1,h3,h4,:)=dconjg(b(2,2,3-h3,3-h4,:))
+      b(2,1,h3,h4,:)=conjg(b(1,2,3-h3,3-h4,:))
+      b(1,1,h3,h4,:)=conjg(b(2,2,3-h3,3-h4,:))
       enddo
       enddo
 
@@ -227,7 +232,7 @@ c      testmm=(b(1,1,1,1,1)+b(1,1,1,1,2)+b(1,1,1,1,3)
 c     &       +b(1,1,1,1,4)+b(1,1,1,1,5))*s12
 c      testmp=(b(1,2,1,1,1)+b(1,2,1,1,2)+b(1,2,1,1,3)
 c     &       +b(1,2,1,1,4)+b(1,2,1,1,5))*s12
-c      if ((abs(testmm) .gt. 1d-4) .or. (abs(testmp) .gt. 1d-4)) then
+c      if ((abs(testmm) > 1d-4) .or. (abs(testmp) > 1d-4)) then
 c        write(6,*) 'testmm=',testmm
 c        write(6,*) 'testmp=',testmp
 c        ggZZunstable=.true.

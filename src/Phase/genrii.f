@@ -1,22 +1,25 @@
       subroutine genrii(p,i1,i2,i7,r1,r2,phit,wt5_4,*)
+      implicit none
+      include 'types.f'
 c----i1,i2 initial state vectors.
 c----i7 label of generated vector
-      implicit none
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
       include 'debug.f'
       include 'impsample.f'
       include 'x1x2.f'
-      integer i1,i2,i7,j,k
-      double precision p(mxpart,4),rtalbe,c(4),d(4),phi,phit,jacbit
-      double precision qtDp(mxpart),qsDp(mxpart),dot,r1,r2
-      double precision q(4),qs(4),qt(4),beta,alpha,qsDqs,qtDqt
-      double precision a,oma,x,omx,omxmin,wt0,wt5_4
-      parameter(wt0=1d0/8d0/pisq)
+      integer:: i1,i2,i7,j,k
+      real(dp):: p(mxpart,4),rtalbe,c(4),d(4),phi,phit,jacbit
+      real(dp):: qtDp(mxpart),qsDp(mxpart),dot,r1,r2
+      real(dp):: q(4),qs(4),qt(4),beta,alpha,qsDqs,qtDqt
+      real(dp):: a,oma,x,omx,omxmin,wt0,wt5_4
+      parameter(wt0=1._dp/8._dp/pisq)
 
       phi=twopi*phit
 c      omxmin=one-xmin
       omxmin=one-xx(i1)
-      r1=0.5d0
+      r1=0.5_dp
 c      write(6,*) 'Enter r1'
 c      read(5,*) r1
       write(6,*) 'Enter r2'
@@ -24,8 +27,8 @@ c      read(5,*) r1
       if (impsample) then
         omx=omxmin*r1**2
         x=one-omx
-        if (r2 .lt. 0.5d0) oma=(two*r2)**2
-        if (r2 .ge. 0.5d0) oma=one-(two*r2-one)**2
+        if (r2 < 0.5_dp) oma=(two*r2)**2
+        if (r2 >= 0.5_dp) oma=one-(two*r2-one)**2
         a=one-oma
         jacbit=four*sqrt(omx*omxmin)/(half/sqrt(oma)+half/sqrt(a))
       else

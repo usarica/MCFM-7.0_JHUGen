@@ -1,10 +1,14 @@
       subroutine coupling
+      implicit none
+      include 'types.f'
 c--- initialize electroweak couplings and calculate alpha-s; this
 c--- must be called at the beginning of "chooser" to enable it to
 c--- set up all the variables (e.g. twidth). Once nflav is set,
 c--- alpha-s will be determined again (in coupling2).
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
       include 'masses.f'
       include 'ewcouple.f'
       include 'qcdcouple.f'
@@ -14,10 +18,11 @@ c--- alpha-s will be determined again (in coupling2).
       include 'ewinput.f'
       include 'nflav.f'
       include 'b0.f'
-      include 'part.f'
+      include 'kpart.f'
       include 'verbose.f'
-      integer i
-      double precision aemmz,alphas,cmass,bmass,lotopdecaywidth
+      include 'mpicommon.f'
+      integer:: i
+      real(dp):: aemmz,alphas,cmass,bmass,lotopdecaywidth
       character*3 inlabel(10)
       character*5 tworder
       common/qmass/cmass,bmass
@@ -31,7 +36,7 @@ c--- blank out labels that indicate input parameters
       inlabel(4)='(+)'
       inlabel(8)='(+)'
 
-      if (ewscheme .eq. -1) then
+      if (ewscheme == -1) then
 c--- This is the MCFM default, corresponding to an effective
 c--- field theory approach valid for scales below the top-mass
 C--- (see Georgi, Nucl. Phys. B 363 (1991) 301).
@@ -46,13 +51,13 @@ c--- There are 4 inputs here instead of the usual 3 ...
          inlabel(2)='(+)'
          inlabel(8)='   '
 c--- ... and as result, both xw and mtop are derived
-c--- (using wmass=zmass*dsqrt(rho)*cos(theta_w)
-c---    and rho=1+3d0*aemmz/16d0/pi/xw*(mt/wmass)**2 )
-         xw  = fourpi*aemmz/(8d0*wmass**2*Gf/rt2)
-         mt  = dsqrt(16d0*pisq/3d0/rt2/Gf*(
-     .          wmass**2/zmass**2/(1d0-xw)-1d0))
+c--- (using wmass=zmass*sqrt(rho)*cos(theta_w)
+c---    and rho=1+3._dp*aemmz/16._dp/pi/xw*(mt/wmass)**2 )
+         xw  = fourpi*aemmz/(8._dp*wmass**2*Gf/rt2)
+         mt  = sqrt(16._dp*pisq/3._dp/rt2/Gf*(
+     &          wmass**2/zmass**2/(1._dp-xw)-1._dp))
 
-      elseif (ewscheme .eq. 0) then
+      elseif (ewscheme == 0) then
 c------------------------------------------------------------
 c     option=0 : MadEvent default (= AlpGen with iewopt=2)
 c------------------------------------------------------------
@@ -65,10 +70,10 @@ c-- equal to the input values
          inlabel(6)='(+)'
          inlabel(1)='(+)'
 c-- derived
-         wmass  = zmass * dsqrt( One - xw )
-         Gf = aemmz * Fourpi/xw/(8d0*wmass**2/Rt2)
+         wmass  = zmass * sqrt( One - xw )
+         Gf = aemmz * Fourpi/xw/(8._dp*wmass**2/Rt2)
 
-      elseif (ewscheme .eq. 1) then
+      elseif (ewscheme == 1) then
 c-----------------------------------------------------
 c     option=1 : LUSIFER and AlpGen (iewopt=3) default
 c-----------------------------------------------------
@@ -84,7 +89,7 @@ c-- derived
          xw  = One-(wmass/zmass)**2
          aemmz  = Rt2*Gf*wmass**2*xw/pi
 
-      elseif (ewscheme .eq. 2) then
+      elseif (ewscheme == 2) then
 c-------------------------------------------------------------------
 c     option=2 : W and Z mass are derived from couplings
 c-------------------------------------------------------------------
@@ -97,10 +102,10 @@ c-- equal to the input values
          inlabel(6)='(+)'
          inlabel(7)='(+)'
 c-- derived
-         wmass  = dsqrt(aemmz*pi/xw/Gf/Rt2)
-         zmass  = wmass/dsqrt(One-xw)
+         wmass  = sqrt(aemmz*pi/xw/Gf/Rt2)
+         zmass  = wmass/sqrt(One-xw)
 
-      elseif (ewscheme .eq. 3) then
+      elseif (ewscheme == 3) then
 c-----------------------------------------------------------------
 c     option=3 : USER choice : you should know what you're doing!!
 c-----------------------------------------------------------------
@@ -123,29 +128,29 @@ c-----------------------------------------------------------------
 c--- Now set up the other derived parameters
       gwsq=fourpi*aemmz/xw
       esq=gwsq*xw
-      gw=dsqrt(gwsq)
+      gw=sqrt(gwsq)
       call couplz(xw)
 
 c--- Calculate the appropriate Higgs vacuum expectation value.
 c--- This vevsq is defined so that gwsq/(4*wmass**2)=Gf*rt2=1/vevsq
 c--- (ie differs from definition in ESW)
-      vevsq=1d0/rt2/Gf
+      vevsq=1._dp/rt2/Gf
 
 c--- set up the beta-function
-      b0=(xn*11d0-2d0*nflav)/6d0
+      b0=(xn*11._dp-2._dp*nflav)/6._dp
 
 c--- initialize the pdf set
       nlooprun=0
       call pdfwrap      
 
-      cmass=dsqrt(mcsq)
-      bmass=dsqrt(mbsq)
+      cmass=sqrt(mcsq)
+      bmass=sqrt(mbsq)
       musq=scale**2
  
 c--- set the number of loops to use in the running of alpha_s
 c--- if it hasn't been set by pdfwrap already
-      if (nlooprun .eq. 0) then
-        if (part .eq. 'lord') then
+      if (nlooprun == 0) then
+        if (kpart==klord) then
           nlooprun=1
         else
           nlooprun=2
@@ -162,20 +167,21 @@ c--- initialize alpha_s
 c--- Set-up twidth, using LO formula everywhere
       twidth=lotopdecaywidth(mt,mb,wmass,wwidth)     
       tworder='(LO) '
-c      if ( (part .eq. 'todk') .or. (mypart .eq. 'todk') ) then
+c      if ( (kpart==ktodk) .or. (mykpart==ktodk) ) then
 c        twidth=twidth*nlotopdecaywidth(mt,mb,wmass)
 c        tworder='(NLO) '
 c      endif
 c      write(6,*) 'twidth LO',twidth
 c      write(6,*) 'twidth NLO',twidth*topwidth(mt,wmass)
-c      write(6,*) 'twidth (NLO-LO)/LO = ',topwidth(mt,wmass)-1d0
+c      write(6,*) 'twidth (NLO-LO)/LO = ',topwidth(mt,wmass)-1._dp
 
+      if (rank.eq.0) then
       if (verbose) then
       write(6,*) '************** Electroweak parameters **************'
       write(6,*) '*                                                  *'
       write(6,75) 'zmass',inlabel(1),zmass,'wmass',inlabel(2),wmass
       write(6,75) 'zwidth',inlabel(3),zwidth,'wwidth',inlabel(4),wwidth
-      write(6,76) 'Gf',inlabel(5),gf,'1/aemmz',inlabel(6),1d0/aemmz
+      write(6,76) 'Gf',inlabel(5),gf,'1/aemmz',inlabel(6),1._dp/aemmz
       write(6,75) 'xw',inlabel(7),xw,'mtop',inlabel(8),mt
       write(6,75) 'gwsq',inlabel(9),gwsq,'esq',inlabel(10),esq
       write(6,77) 'top width',twidth,tworder
@@ -184,7 +190,8 @@ c      write(6,*) 'twidth (NLO-LO)/LO = ',topwidth(mt,wmass)-1d0
       write(6,*) '* Parameters marked (+) are input, others derived  *'
       write(6,*) '****************************************************'
       endif
-      
+      endif
+
    75 format(' * ',a6,a3,f13.7,3x,a7,a3,f12.7,'  *')
    76 format(' * ',a6,a3,d13.6,3x,a7,a3,f12.7,'  *')
    77 format(' * ',a9,f13.7,1x,a5,19x,'  *')
@@ -196,20 +203,23 @@ c      write(6,*) 'twidth (NLO-LO)/LO = ',topwidth(mt,wmass)-1d0
 
       block data wsalam1
       implicit none
+      include 'types.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
       include 'ewcharge.f'
-      data Q(-5)/+0.333333333333333d0/
-      data Q(-4)/-0.666666666666667d0/
-      data Q(-3)/+0.333333333333333d0/
-      data Q(-2)/-0.666666666666667d0/
-      data Q(-1)/+0.333333333333333d0/
-      data Q(0)/+0d0/
-      data Q(+1)/-0.333333333333333d0/
-      data Q(+2)/+0.666666666666667d0/
-      data Q(+3)/-0.333333333333333d0/
-      data Q(+4)/+0.666666666666667d0/
-      data Q(+5)/-0.333333333333333d0/
-      data tau/1d0,-1d0,1d0,-1d0,1d0,0d0,-1d0,1d0,-1d0,1d0,-1d0/
+      data Q(-5)/+0.333333333333333_dp/
+      data Q(-4)/-0.666666666666667_dp/
+      data Q(-3)/+0.333333333333333_dp/
+      data Q(-2)/-0.666666666666667_dp/
+      data Q(-1)/+0.333333333333333_dp/
+      data Q(0)/+0._dp/
+      data Q(+1)/-0.333333333333333_dp/
+      data Q(+2)/+0.666666666666667_dp/
+      data Q(+3)/-0.333333333333333_dp/
+      data Q(+4)/+0.666666666666667_dp/
+      data Q(+5)/-0.333333333333333_dp/
+      data tau/1._dp,-1._dp,1._dp,-1._dp,1._dp,0._dp,-1._dp,1._dp,-1._dp,1._dp,-1._dp/
       end 
 
 

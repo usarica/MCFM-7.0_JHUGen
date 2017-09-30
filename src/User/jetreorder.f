@@ -1,4 +1,6 @@
       subroutine jetreorder(p,q,isub)
+      implicit none
+      include 'types.f'
 c--- Routine to inspect the entries of 'jetlabel' and compare with 'plabel'
 c--- in order to put clustered jets back in the correct positions.
 c--- This is important if one wants to identify particles in the plotting
@@ -7,18 +9,21 @@ c--- At present this routine is aimed at top processes with top decay
 c--- (i.e. putting b and anti-b jets in correct positions)
 c---
 c--- Input array of momenta is p, output re-ordered array is q
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'jetlabel.f'
       include 'plabel.f'
       include 'npart.f'
-      integer i,j,k,nu,isub,maxjet,ijet(mxpart),jetindex(mxpart)
-      double precision p(mxpart,4),q(mxpart,4)
-      logical alreadyfound,is_hadronic
+      integer:: i,j,k,nu,isub,maxjet,ijet(mxpart),jetindex(mxpart)
+      real(dp):: p(mxpart,4),q(mxpart,4)
+      logical:: alreadyfound,is_hadronic
       
 c      call writeout(p)
       
-      if (jets .eq. 0) then
+      if (jets == 0) then
         do i=1,mxpart
       do nu=1,4
         q(i,nu)=p(i,nu)
@@ -34,13 +39,13 @@ c      call writeout(p)
           maxjet=maxjet+1
           jetindex(maxjet)=i
         ijet(i)=-1 ! If no match is found, this signifies a parton is lost
-        if (jets .gt. 0) then
+        if (jets > 0) then
           do j=1,jets
-            if (plabel(i) .eq. jetlabel(j)) then
+            if (plabel(i) == jetlabel(j)) then
               alreadyfound=.false.
-              if (maxjet .gt. 0) then
+              if (maxjet > 0) then
               do k=1,maxjet      
-                if (ijet(jetindex(k)) .eq. j) then
+                if (ijet(jetindex(k)) == j) then
                   alreadyfound=.true.
                 endif
               enddo
@@ -64,14 +69,14 @@ c      write(6,*) j,jetlabel(j)
 c      enddo
       
       do i=3,npart+2-isub
-        if     (ijet(i) .eq. 0) then
+        if     (ijet(i) == 0) then
           j=i ! Not a jet, no swap required
-      elseif (ijet(i) .eq. -1) then
+      elseif (ijet(i) == -1) then
         j=-1 ! Jet lost, need to set components to zero
         else
           j=jetindex(ijet(i))
         endif
-      if (j .gt. 0) then
+      if (j > 0) then
         do nu=1,4
           q(i,nu)=p(j,nu)
           enddo

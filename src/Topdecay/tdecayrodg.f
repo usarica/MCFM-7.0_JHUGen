@@ -1,12 +1,14 @@
 c--- File written by FORM program tdecayrodg.frm on Thu May 24 10:26:49 CDT 2012
       subroutine tdecayrodg(p,pnu,peb,pb,pbb,pem,pnb,pg,m)
       implicit none
+      include 'types.f'
+      
 ************************************************************************
 *     Author: R.K. Ellis, May 2012                                     *
 *     top decay  t --> q(pnu)+qb(pb)+b(pb)+g(pg)                       *
 *     with bottom and top masses (and radiation form t-b line)         *
 *     in massless spinor notation                                      *
-*     pnu,peb,pb,pg are integers that point to                         *
+*     pnu,peb,pb,pg are integer::s that point to                         *
 *     the appropriate four-momenta in p                                *
 *     pnu=quark                                                        *
 *     peb=antiquark                                                    *
@@ -20,13 +22,16 @@ c--- File written by FORM program tdecayrodg.frm on Thu May 24 10:26:49 CDT 2012
 *     returned m(bpol,gpol,tpol)                                       *
 ************************************************************************
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'sprods_com.f'
       include 'masses.f'
-      double precision p(mxpart,4),q(mxpart,4),dot,sw,twoptDg,
+      real(dp):: p(mxpart,4),q(mxpart,4),dot,sw,twoptDg,
      & alb,a(4),t(4),tpa(4),s34,betasq,be,bp,bm,rtbp
-      double complex m(2,2,2),cprop,iza,izb
-      integer qq,qb,b,g,pb,pnu,peb,pbb,pem,pnb,pg,aa,bb,si,k5,k6
+      complex(dp):: m(2,2,2),cprop,iza,izb
+      integer:: qq,qb,b,g,pb,pnu,peb,pbb,pem,pnb,pg,aa,bb,si,k5,k6
       parameter(g=1,qq=2,qb=3,b=4,k5=5,k6=6)
       iza(aa,bb)=cone/za(aa,bb)
       izb(aa,bb)=cone/zb(aa,bb)
@@ -36,15 +41,15 @@ C construct top and antitop momenta
       a(si)=p(pem,si)+p(pnb,si)+p(pbb,si)
       tpa(si)=t(si)+a(si)
       enddo
-      twoptDg=2d0*(t(4)*p(pg,4)-t(1)*p(pg,1)-t(2)*p(pg,2)-t(3)*p(pg,3))
-      alb=mb**2/(2d0*dot(p,pb,pg))
+      twoptDg=2._dp*(t(4)*p(pg,4)-t(1)*p(pg,1)-t(2)*p(pg,2)-t(3)*p(pg,3))
+      alb=mb**2/(2._dp*dot(p,pb,pg))
 C calculate betap
       s34=tpa(4)**2-tpa(1)**2-tpa(2)**2-tpa(3)**2
-      betasq=1d0-4d0*mt**2/s34
-      if (betasq .ge. 0d0) then
-        be=dsqrt(betasq)
-        bp=0.5d0*(1d0+be)
-        bm=1d0-bp
+      betasq=1._dp-4._dp*mt**2/s34
+      if (betasq >= 0._dp) then
+        be=sqrt(betasq)
+        bp=0.5_dp*(1._dp+be)
+        bm=1._dp-bp
         rtbp=sqrt(bp)
       else
         write(6,*) 'betasq < 0 in tdecayrodg.f, betasq=',betasq
@@ -61,7 +66,7 @@ C calculate betap
       enddo
       call spinoru(6,q,za,zb)
       sw=s(qq,qb)
-      cprop=dcmplx(sw-wmass**2,wmass*wwidth)
+      cprop=cplx2(sw-wmass**2,wmass*wwidth)
 C---order of polarizations is the m(bpol,gpol,tpol)
       m(1,1,1)= + cprop**(-1)*twoptDg**(-1) * ( za(qq,b)*za(k5,g)*zb(qb
      &    ,k5)*zb(k5,b)*izb(b,g)*bp*bp*rtbp**(-1) + za(qq,b)*za(k6,g)*

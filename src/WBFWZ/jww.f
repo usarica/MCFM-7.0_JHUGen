@@ -1,15 +1,18 @@
       subroutine jww(p7,p3,p4,p1,za,zb,zab,jw)
       implicit none
+      include 'types.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
       include 'cmplxmass.f'
       include 'zprods_decl.f'
       include 'sprods_com.f'
       include 'ewcharge.f'
       include 'zcouple.f'
-      integer jdu1,p1,p2,p3,p4,p7,ro
-      double complex zab(mxpart,4,mxpart),zab2,zba2,jw(4,2,2),
+      integer:: jdu1,p1,p2,p3,p4,p7,ro
+      complex(dp):: zab(mxpart,4,mxpart),zab2,zba2,jw(4,2,2),
      & rxw,propw34,propz17,gamv(2,2),gamvl3(2,2),gamvl4(2,2)
-      double precision qn,p17(4),p34(4),t3,s134,s347,
+      real(dp):: qn,p17(4),p34(4),t3,s134,s347,
      & s34,s137,s147,s17,q3,q4,l3,l4
 C     amp(jdu1,jdu2,h17,h28)
       parameter(qn=0d0)
@@ -26,8 +29,8 @@ C-----end statement functions
       s137=t3(p1,p3,p7)
       s147=t3(p1,p4,p7)
       s347=t3(p3,p4,p7)
-      p17(:)=0.5d0*dble(zab(p1,:,p1)+zab(p7,:,p7))
-      p34(:)=0.5d0*dble(zab(p3,:,p3)+zab(p4,:,p4))
+      p17(:)=0.5d0*real(zab(p1,:,p1)+zab(p7,:,p7))
+      p34(:)=0.5d0*real(zab(p3,:,p3)+zab(p4,:,p4))
 
       propz17=s17-czmass2
       propw34=s34-cwmass2

@@ -1,4 +1,7 @@
-      logical function photoncuts(pjet)
+      function photoncuts(pjet)
+       implicit none
+      include 'types.f'
+      logical:: photoncuts
 ************************************************************************
 *   Author: J.M. Campbell, 24th January 2011                           *
 *       and C. Williams                                                *
@@ -11,30 +14,40 @@
 *   Modified March 11 to apply mass cuts to m34 for gamgam (CW)        *
 *                                                                      *
 ************************************************************************
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'limits.f'
-      include 'process.f'
+      include 'kprocess.f'
       include 'leptcuts.f'
       include 'z_dip.f'
       include 'jetlabel.f'
-      logical first,is_lepton,is_photon,is_hadronic
-      integer i,j,k,im1,im2
-      double precision ptm,ptm1,ptm2,pt3,pt4
-      integer countlept,leptindex(mxpart),countgamm,gammindex(mxpart),
+      include 'first.f'
+      include 'mpicommon.f'
+      include 'runstring.f'
+      logical:: is_lepton,is_photon,is_hadronic
+      integer:: i,j,k,im1,im2
+      real(dp):: ptm,ptm1,ptm2,pt3,pt4,aygam
+      integer:: countlept,leptindex(mxpart),countgamm,gammindex(mxpart),
      & countjet,jetindex(mxpart)
-      double precision pjet(mxpart,4),pt,etarap,R,pt1,pt2,pth,pts,s34
-      data first/.true./
-      save first,countlept,countgamm,countjet,
+      real(dp):: pjet(mxpart,4),pt,etarap,R,pt1,pt2,pth,pts,s34
+      save countlept,countgamm,countjet,
      & leptindex,gammindex,jetindex
-!$omp threadprivate(first,countlept,countgamm,countjet)
+      logical, save :: CMScrack
+!$omp threadprivate(countlept,countgamm,countjet)
 !$omp threadprivate(leptindex,gammindex,jetindex)
-      
-      photoncuts=.false.
+!$omp threadprivate(CMScrack)
 
+      photoncuts=.false.
+      
       if (first) then
-      first=.false.      
+      first=.false.   
+      CMScrack=(index(runstring,'CMScrack') > 0)
 c--- write-out the cuts we are using
+!$omp master
+      if (rank  == 0) then
       write(6,*)
       write(6,*)  '****************** Photon cuts *********************'
       write(6,*)  '*                                                  *'
@@ -42,11 +55,11 @@ c--- write-out the cuts we are using
      &                '                *'
       write(6,99) '*   pt(photon 2)         >   ',gammpt2,
      &                '                *'
-      if((case.eq.'trigam') .or. (case.eq.'fourga'))then 
+      if((kcase==ktrigam) .or. (kcase==kfourga))then 
          write(6,99) '*   pt(photon 3)         >   ',gammpt3,
      &        '                *'
       endif
-      if(case.eq.'fourga') then 
+      if(kcase==kfourga) then 
          write(6,99) '*   pt(photon 4)         >   ',gammpt3,
      &        '                *'
       endif
@@ -58,15 +71,20 @@ c--- write-out the cuts we are using
      &                '                *'
       write(6,99) '*   R(photon,jet)        >   ',Rgajetmin,
      &                '                *'
+      if(CMScrack) then
+       write(6,*) '*   excluding rapidity window 1.44 < eta < 1.57    *'
+      endif
       write(6,*)  '*                                                  *'
       write(6,*)  '****************************************************'
-      if(case.eq.'gamgam') then 
+      if((kcase==kgamgam) .or. (kcase==kgg2gam) .or. (kcase==kgmgmjt)) then 
        write(6,*)
        write(6,*) '************* M(gam,gam) mass cuts *****************'
        write(6,*) '*                                                  *'
-       write(6,98) dsqrt(wsqmin),'m34',dsqrt(wsqmax)
+       write(6,98) sqrt(wsqmin),'m34',sqrt(wsqmax)
        write(6,*) '****************************************************'
       endif
+      endif
+!$omp end master
 c--- initialize counters and arrays that will be used to perform cuts      
       countlept=0
       countgamm=0
@@ -85,49 +103,59 @@ c--- initialize counters and arrays that will be used to perform cuts
           jetindex(countjet)=j
         endif
       enddo
-      endif      
+      endif
       
+!==== option to exclude CMS crack corresponding to 1.44 < eta < 1.57
+      if (CMScrack) then
+         do i=1,countgamm
+            aygam=abs(etarap(gammindex(i),pjet))
+            if((aygam > 1.44_dp) .and. (aygam < 1.57_dp)) then 
+               photoncuts=.true.
+               return 
+            endif
+         enddo
+      endif
 C     Basic pt and rapidity cuts for photon
-      if (countgamm .eq. 1) then
-          if (     (pt(gammindex(1),pjet) .lt. gammpt) .or.
-     &    (abs(etarap(gammindex(1),pjet)) .gt. gammrap)) then
+      if (countgamm == 1) then
+          if (     (pt(gammindex(1),pjet) < gammpt) .or.
+     &    (abs(etarap(gammindex(1),pjet)) > gammrap)) then
             photoncuts=.true.
             return
           endif
       endif
-      if (countgamm .eq. 2) then
+      if (countgamm == 2) then
         pt1=pt(gammindex(1),pjet) 
         pt2=pt(gammindex(2),pjet) 
         pth=max(pt1,pt2)
         pts=min(pt1,pt2)
-        if ( ( pth .lt. gammpt) .or.
-     &       ( pts .lt. gammpt2) .or.
-     &       (abs(etarap(gammindex(1),pjet)) .gt. gammrap) .or.
-     &       (abs(etarap(gammindex(2),pjet)) .gt. gammrap) ) then
+        if ( ( pth < gammpt) .or.
+     &       ( pts < gammpt2) .or.
+     &       (abs(etarap(gammindex(1),pjet)) > gammrap) .or.
+     &       (abs(etarap(gammindex(2),pjet)) > gammrap) ) then
           photoncuts=.true.
           return
         endif
       endif
 
-      if (countgamm .eq. 3) then
+      if (countgamm == 3) then
         pt1=pt(gammindex(1),pjet) 
         pt2=pt(gammindex(2),pjet)
         pt3=pt(gammindex(3),pjet)
         pth=max(pt1,pt2,pt3)
         pts=min(pt1,pt2,pt3)
         ptm=pt1+pt2+pt3-pts-pth
-        if ( ( pth .lt. gammpt) .or.
-     &       ( ptm .lt. gammpt2) .or.
-     &       ( pts .lt. gammpt3) .or.
-     &       (abs(etarap(gammindex(1),pjet)) .gt. gammrap) .or.
-     &       (abs(etarap(gammindex(2),pjet)) .gt. gammrap) .or.
-     &       (abs(etarap(gammindex(3),pjet)) .gt. gammrap) ) then
+        if ( ( pth < gammpt) .or.
+     &       ( ptm < gammpt2) .or.
+     &       ( pts < gammpt3) .or.
+     &       (abs(etarap(gammindex(1),pjet)) > gammrap) .or.
+     &       (abs(etarap(gammindex(2),pjet)) > gammrap) .or.
+     &       (abs(etarap(gammindex(3),pjet)) > gammrap) ) then
           photoncuts=.true.
           return
         endif
       endif
 
-      if (countgamm .eq. 4) then
+      if (countgamm == 4) then
         pt1=pt(gammindex(1),pjet) 
         pt2=pt(gammindex(2),pjet)
         pt3=pt(gammindex(3),pjet)
@@ -148,14 +176,14 @@ C     Basic pt and rapidity cuts for photon
         enddo
         ptm1=max(pt(gammindex(im1),pjet),pt(gammindex(im2),pjet))
         ptm2=min(pt(gammindex(im1),pjet),pt(gammindex(im2),pjet))
-        if ( ( pth .lt. gammpt) .or.
-     &       ( ptm1 .lt. gammpt2) .or.
-     &       ( ptm2 .lt. gammpt3) .or.
-     &       ( pts .lt. gammpt3) .or.
-     &       (abs(etarap(gammindex(1),pjet)) .gt. gammrap) .or.
-     &       (abs(etarap(gammindex(2),pjet)) .gt. gammrap) .or.
-     &       (abs(etarap(gammindex(3),pjet)) .gt. gammrap) .or.
-     &       (abs(etarap(gammindex(4),pjet)) .gt. gammrap) ) then
+        if ( ( pth < gammpt) .or.
+     &       ( ptm1 < gammpt2) .or.
+     &       ( ptm2 < gammpt3) .or.
+     &       ( pts < gammpt3) .or.
+     &       (abs(etarap(gammindex(1),pjet)) > gammrap) .or.
+     &       (abs(etarap(gammindex(2),pjet)) > gammrap) .or.
+     &       (abs(etarap(gammindex(3),pjet)) > gammrap) .or.
+     &       (abs(etarap(gammindex(4),pjet)) > gammrap) ) then
           photoncuts=.true.
           return
         endif
@@ -163,10 +191,10 @@ C     Basic pt and rapidity cuts for photon
 
 
 c--- lepton-photon separation 
-      if ((countlept .ge. 1) .and. (countgamm .ge. 1)) then
+      if ((countlept >= 1) .and. (countgamm >= 1)) then
         do j=1,countgamm
         do k=1,countlept
-          if (R(pjet,gammindex(j),leptindex(k)) .lt. Rgalmin) then
+          if (R(pjet,gammindex(j),leptindex(k)) < Rgalmin) then
             photoncuts=.true.
             return
           endif
@@ -175,10 +203,10 @@ c--- lepton-photon separation
       endif
       
 c--- photon-photon separation 
-      if (countgamm .ge. 2) then
+      if (countgamm >= 2) then
         do j=1,countgamm
         do k=j+1,countgamm
-          if (R(pjet,gammindex(j),gammindex(k)) .lt. Rgagamin) then
+          if (R(pjet,gammindex(j),gammindex(k)) < Rgagamin) then
             photoncuts=.true.
             return
           endif
@@ -187,10 +215,10 @@ c--- photon-photon separation
       endif
 
 c--- jet-photon separation (if there are 1 or more jets and photons)
-      if ((jets .ge. 1) .and. (countgamm .ge. 1)) then
+      if ((jets >= 1) .and. (countgamm >= 1)) then
         do j=1,countgamm
         do k=1,jets
-          if (R(pjet,gammindex(j),jetindex(k)) .lt. Rgajetmin) then
+          if (R(pjet,gammindex(j),jetindex(k)) < Rgajetmin) then
             photoncuts=.true.
             return
           endif
@@ -199,12 +227,12 @@ c--- jet-photon separation (if there are 1 or more jets and photons)
       endif
 
 !--- Apply mass cuts here (gamgam only)
-      if(case.eq.'gamgam') then 
+      if((kcase==kgamgam) .or. (kcase==kgg2gam) .or. (kcase==kgmgmjt)) then 
          s34=+(pjet(3,4)+pjet(4,4))**2-(pjet(3,1)+pjet(4,1))**2
      &       -(pjet(3,2)+pjet(4,2))**2-(pjet(3,3)+pjet(4,3))**2
-         if ((s34 .lt. wsqmin) .or. (s34 .gt. wsqmax)) then         
+         if ((s34 < wsqmin) .or. (s34 > wsqmax)) then
             photoncuts=.true. 
-            return          
+            return
          endif
       endif
      
@@ -221,10 +249,10 @@ c---  may be restored at a later date.
        
        
 c--- jet-photon separation (if there are 1 or more jets and photons)
-c      if ((njets .gt. 0) .and. (countgamm .gt. 0)) then
+c      if ((njets > 0) .and. (countgamm > 0)) then
 c        do j=1,countgamm
 c        do k=1,njets
-c          if (R(pjet,gammindex(j),jetindex(k)) .lt. Rjlmin) then
+c          if (R(pjet,gammindex(j),jetindex(k)) < Rjlmin) then
 c            gencuts=.true.
 c            return
 c          endif
@@ -234,10 +262,10 @@ c      endif
 
 c--- DEBUG: removed all isolation      
 cc--- photon/hadron isolation     
-c      if ((njets .gt. 0) .and. (countgamm .gt. 0)) then
+c      if ((njets > 0) .and. (countgamm > 0)) then
 c        do j=1,countgamm
 cc--- Frixione cut, hep-ph/9801442
-c          if (njets .gt. 2) then
+c          if (njets > 2) then
 c            write(6,*) 'Photon-hadron isolation not coded for njets > 2'
 c            stop
 c          endif
@@ -246,16 +274,16 @@ c            delta(k)=R(pjet,gammindex(j),jetindex(k))
 c            ptjet(k)=pt(jetindex(k),pjet)
 c          enddo
 c          pntr=1
-c          if (delta(2) .lt. delta(1)) pntr=2
-c          if (njets .eq. 1) delta(2)=gammcone   
-c          discr=(1d0-dcos(delta(pntr)))/(1d0-dcos(gammcone))
-c          if (ptjet(pntr) .gt. discr*pt(gammindex(j),pjet)) then
+c          if (delta(2) < delta(1)) pntr=2
+c          if (njets == 1) delta(2)=gammcone   
+c          discr=(1._dp-cos(delta(pntr)))/(1._dp-cos(gammcone))
+c          if (ptjet(pntr) > discr*pt(gammindex(j),pjet)) then
 c            gencuts=.true.
 c            return
 c          endif 
-c          if (njets .ge. 2) then
-c            discr=(1d0-dcos(delta(3-pntr)))/(1d0-dcos(gammcone))
-c            if (ptjet(1)+ptjet(2) .gt. discr*pt(gammindex(j),pjet))then
+c          if (njets >= 2) then
+c            discr=(1._dp-cos(delta(3-pntr)))/(1._dp-cos(gammcone))
+c            if (ptjet(1)+ptjet(2) > discr*pt(gammindex(j),pjet))then
 c              gencuts=.true.
 c              return
 c            endif
@@ -263,23 +291,23 @@ c          endif
           
 c--- this block was already removed
 c--- optional jet-veto
-c          if (   (pt(4+countgamm+1,pjet) .gt. 50d0)    
-c     .     .and. (abs(etarap(4+countgamm+1,pjet)) .lt. 2.5d0)) then
+c          if (   (pt(4+countgamm+1,pjet) > 50._dp)    
+c     &     .and. (abs(etarap(4+countgamm+1,pjet)) < 2.5_dp)) then
 c            gencuts=.true.
 c          endif                     
 c--- de-Florian,Signer cut
 c          do nu=1,2
-c            sumjetpt(nu)=0d0
+c            sumjetpt(nu)=0._dp
 c          enddo
 c          do k=1,njets
-c            if (R(pjet,gammindex(j),4+countgamm+k) .lt. gammcone) then
+c            if (R(pjet,gammindex(j),4+countgamm+k) < gammcone) then
 c              do nu=1,2
 c              sumjetpt(nu)=sumjetpt(nu)+pjet(4+countgamm+k,nu)
 c              enddo
 c            endif
 c          enddo
-c          if ( dsqrt(sumjetpt(1)**2+sumjetpt(2)**2) 
-c     .    .gt. gammcut*pt(gammindex(j),pjet) ) then
+c          if ( sqrt(sumjetpt(1)**2+sumjetpt(2)**2) 
+c     &    > gammcut*pt(gammindex(j),pjet) ) then
 c            gencuts=.true.
 c          endif
 c--- this block was already removed

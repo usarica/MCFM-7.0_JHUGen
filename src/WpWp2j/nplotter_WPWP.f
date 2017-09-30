@@ -5,17 +5,19 @@
   !------------------------------------------------------------------------!
       subroutine nplotter_WpWp(p,wt,wt2,switch)
       implicit none
+      include 'types.f'
       include 'vegas_common.f'
       include 'constants.f'
+      include 'mxpart.f'
       include 'histo.f'
       include 'jetlabel.f'
       include 'npart.f'
       include 'outputflags.f'
       include 'nqcdjets.f'
       integer n,switch,i7,i8,i9,nu,nplotmax
-      character tag*4
-      double precision PT,WT,WT2,p(mxpart,4),fphi,etarap,etaraptwo
-      double precision tmp7(4),tmp8(4),tmp9(4)
+      integer tag
+      real(dp):: PT,WT,WT2,p(mxpart,4),fphi,etarap,etaraptwo
+      real(dp):: tmp7(4),tmp8(4),tmp9(4)
       integer eventpart
       logical first,jetmerge
       common/nplotmax/nplotmax
@@ -23,13 +25,13 @@
       data first/.true./
       save first,eventpart
       !------------
-      double precision tomphill, tommtww,tompt4,tompt5
-      double precision tometa4,tometa5,tometa45,tompt7
-      double precision tompt8, tometa7,tometa8,tometa78
-      double precision tompt9, tometa9, tometa79,tometa89
-      double precision tometmiss,tomHT,tomHTTOT,tomHTJET
-      double precision tomptmiss(4),tomptemu(4),tommemusq,tometemu
-      double precision rttommemusq,tomMetmiss
+      real(dp):: tomphill, tommtww,tompt4,tompt5
+      real(dp):: tometa4,tometa5,tometa45,tompt7
+      real(dp):: tompt8, tometa7,tometa8,tometa78
+      real(dp):: tompt9, tometa9, tometa79,tometa89
+      real(dp):: tometmiss,tomHT,tomHTTOT,tomHTJET
+      real(dp):: tomptmiss(4),tomptemu(4),tommemusq,tometemu
+      real(dp):: rttommemusq,tomMetmiss
       save tomphill,tommtww,tompt4,tompt5,tometa4,tometa5,tometa45
       save tompt7,tometa7,tompt8,tometa8,tometa78,tompt9,tometa9
       save tometa79,tometa89,tomHTJET,tometmiss,tomHT,tomHTTOT
@@ -43,29 +45,29 @@ ccccc!$omp threadprivate(/nplotmax/)
 
       if (first) then
 
-        tag='book'
+        tag=tagbook
 
       !TOM added
-        tomphill=0d0
-        tommtww=0d0
-        tompt4=0d0
-        tompt5=0d0
-        tometa4=0d0
-        tometa5=0d0
-        tometa45=0d0
-        tompt7=0d0
-        tometa7=0d0
-        tompt8=0d0
-        tometa8=0d0
-        tometa78=0d0
-        tompt9=0d0
-        tometa9=0d0
-        tometa79=0d0
-        tometa89=0d0
-        tomHTJET=0d0
-        tometmiss=0d0
-        tomHT=0d0
-        tomHTTOT=0d0
+        tomphill=zero
+        tommtww=zero
+        tompt4=zero
+        tompt5=zero
+        tometa4=zero
+        tometa5=zero
+        tometa45=zero
+        tompt7=zero
+        tometa7=zero
+        tompt8=zero
+        tometa8=zero
+        tometa78=zero
+        tompt9=zero
+        tometa9=zero
+        tometa79=zero
+        tometa89=zero
+        tomHTJET=zero
+        tometmiss=zero
+        tomHT=zero
+        tomHTTOT=zero
         !END TOM ADDED
 
         jetmerge=.true.
@@ -73,7 +75,7 @@ ccccc!$omp threadprivate(/nplotmax/)
         eventpart = 4+jets
         goto 99
       else
-        tag='plot'
+        tag=tagplot
       endif
 
 c--- 'eventpart' will contain the number of actual particles that have
@@ -89,8 +91,8 @@ c---  are handled with reference to nproc
         eventpart=4+jets
       endif
 
-         tompt7=0d0
-         tompt8=0d0
+         tompt7=zero
+         tompt8=zero
          i7=7
          i8=8
          i9=9
@@ -189,12 +191,12 @@ c
 c         if (jets210) then
 c
 c         if (jets.ge.2) then
-c         if ((tompt7 .gt. 30d0).and.(tompt8.gt.30d0)) jets210int30=2
-c         if ((tompt7 .gt. 30d0).and.(tompt8.lt.30d0)) jets210int30=1
-c         if ((tompt7 .lt. 30d0).and.(tompt8.lt.30d0)) jets210int30=0
+c         if ((tompt7 .gt. 30._dp).and.(tompt8.gt.30._dp)) jets210int30=2
+c         if ((tompt7 .gt. 30._dp).and.(tompt8.lt.30._dp)) jets210int30=1
+c         if ((tompt7 .lt. 30._dp).and.(tompt8.lt.30._dp)) jets210int30=0
 c         endif
 c         if (jets.eq.3) then
-c            if (tompt9.gt.30d0) jets210int30=3
+c            if (tompt9.gt.30._dp) jets210int30=3
 c         endif
 c
 c         if (jets210int30.ge.2) then
@@ -230,74 +232,74 @@ c         endif
 c--- Book and fill ntuple if that option is set, remembering to divide
 c--- by # of iterations now that is handled at end for regular histograms
       if (creatent .eqv. .true.) then
-        call bookfill(tag,p,wt/dfloat(itmx))  
+        call bookfill(tag,p,wt/real(itmx,dp))  
       endif
 
       n=1                        
 
       !these histograms are for no jet210 cuts appied to jets
       call bookplot(n,tag,'HTTOT',tomHTTOT,
-     .                      wt,wt2,0d0,4000d0,50d0,'lin')
+     .                      wt,wt2,zero,4000._dp,50._dp,'lin')
       n=n+1      
       call bookplot(n,tag,'HT',tomHT,
-     .                      wt,wt2,0d0,3000d0,30d0,'lin')
+     .                      wt,wt2,zero,3000._dp,30._dp,'lin')
       n=n+1            
       call bookplot(n,tag,'HTJET',tomHTJET,
-     .                      wt,wt2,0d0,3000d0,30d0,'lin')
+     .                      wt,wt2,zero,3000._dp,30._dp,'lin')
       n=n+1            
-      call bookplot(n,tag,'pt_l1',tompt4,wt,wt2,0d0,450d0,5d0,'log')
+      call bookplot(n,tag,'pt_l1',tompt4,wt,wt2,zero,450._dp,5._dp,'log')
       n=n+1      
-      call bookplot(n,tag,'pt_l2',tompt5,wt,wt2,0d0,450d0,5d0,'log')
+      call bookplot(n,tag,'pt_l2',tompt5,wt,wt2,zero,450._dp,5._dp,'log')
       n=n+1      
-      call bookplot(n,tag,'eta_l1',tometa4,wt,wt2,-4d0,4d0,0.1d0,'lin')
+      call bookplot(n,tag,'eta_l1',tometa4,wt,wt2,-4._dp,4._dp,0.1_dp,'lin')
       n=n+1      
-      call bookplot(n,tag,'eta_l2',tometa5,wt,wt2,-4d0,4d0,0.1d0,'lin')
+      call bookplot(n,tag,'eta_l2',tometa5,wt,wt2,-4._dp,4._dp,0.1_dp,'lin')
       n=n+1      
       call bookplot(n,tag,'eta_ll',tometa45,
-     .                       wt,wt2,-4d0,4d0,0.1d0,'lin')
+     .                       wt,wt2,-4._dp,4._dp,0.1_dp,'lin')
       n=n+1      
-      call bookplot(n,tag,'pt_j1',tompt7,wt,wt2,0d0,800d0,10d0,'log')
+      call bookplot(n,tag,'pt_j1',tompt7,wt,wt2,zero,800._dp,10._dp,'log')
       n=n+1      
-      call bookplot(n,tag,'pt_j2',tompt8,wt,wt2,0d0,450d0,5d0,'log')
+      call bookplot(n,tag,'pt_j2',tompt8,wt,wt2,zero,450._dp,5._dp,'log')
       n=n+1      
-      call bookplot(n,tag,'eta_j1',tometa7,wt,wt2,-4d0,4d0,0.1d0,'lin')
+      call bookplot(n,tag,'eta_j1',tometa7,wt,wt2,-4._dp,4._dp,0.1_dp,'lin')
       n=n+1      
-      call bookplot(n,tag,'eta_j2',tometa8,wt,wt2,-4d0,4d0,0.1d0,'lin')
+      call bookplot(n,tag,'eta_j2',tometa8,wt,wt2,-4._dp,4._dp,0.1_dp,'lin')
       n=n+1      
       call bookplot(n,tag,'eta_j1j2',tometa78,
-     .           wt,wt2,-4d0,4d0,0.1d0,'lin')
+     .           wt,wt2,-4._dp,4._dp,0.1_dp,'lin')
       n=n+1      
 
       if (eventpart .gt. 6) then
-      call bookplot(n,tag,'pt_j3',tompt9,wt,wt2,0d0,270d0,3d0,'log')
+      call bookplot(n,tag,'pt_j3',tompt9,wt,wt2,zero,270._dp,3._dp,'log')
       endif
       n=n+1      
       if (eventpart .gt. 6) then
-      call bookplot(n,tag,'eta_j3',tometa9,wt,wt2,-4d0,4d0,0.1d0,'lin')
+      call bookplot(n,tag,'eta_j3',tometa9,wt,wt2,-4._dp,4._dp,0.1_dp,'lin')
       endif
       n=n+1
       if (eventpart .gt. 6) then
       call bookplot(n,tag,'eta_j1j3',tometa79,
-     .           wt,wt2,-4d0,4d0,0.1d0,'lin')
+     .           wt,wt2,-4._dp,4._dp,0.1_dp,'lin')
       endif
       n=n+1      
       if (eventpart .gt. 6) then
       call bookplot(n,tag,'eta_j2j3',tometa89,
-     .           wt,wt2,-4d0,4d0,0.1d0,'lin')
+     .           wt,wt2,-4._dp,4._dp,0.1_dp,'lin')
       endif
       n=n+1
       call bookplot(n,tag,'Etmiss',tometmiss,
-     .            wt,wt2,0d0,800d0,10d0,'lin')
+     .            wt,wt2,zero,800._dp,10._dp,'lin')
       n=n+1         
       call bookplot(n,tag,'mtww',tommtww,
-     .                   wt,wt2,0d0,2500d0,50d0,'lin')
+     .                   wt,wt2,zero,2500._dp,50._dp,'lin')
       n=n+1      
       rttommemusq=sqrt(tommemusq)
       call bookplot(n,tag,'mll',rttommemusq,
-     .                   wt,wt2,0d0,1200d0,30d0,'lin')
+     .                   wt,wt2,zero,1200._dp,30._dp,'lin')
       n=n+1      
       call bookplot(n,tag,'Phi_ll',tomphill,
-     .                      wt,wt2,0d0,3.5d0,0.1d0,'lin')
+     .                      wt,wt2,zero,3.5_dp,0.1_dp,'lin')
       n=n+1      
 
       n=n-1

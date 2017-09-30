@@ -1,3 +1,3 @@
-      double complex cwmass2,czmass2,cxw
-      common/cmplxmass/cwmass2,czmass2,cxw
+      complex(dp):: cwmass2,czmass2,cxw
+      common/cplx2mass/cwmass2,czmass2,cxw
       

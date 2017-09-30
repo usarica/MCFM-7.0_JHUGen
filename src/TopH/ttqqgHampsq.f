@@ -1,12 +1,17 @@
       subroutine ttqqgHampsq(q,q1,q2,q3,q4,q5,eta1,eta2,ampsq)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
-      double precision q(mxpart,4),s134mmtsq,s234mmtsq,
+      real(dp):: q(mxpart,4),s134mmtsq,s234mmtsq,
      & s134,s234,s34,s35,s45,s345,s15,s25,s15mmtsq,
      & s25mmtsq,s1345mmtsq,
      & s2345mmtsq,s1345,s2345,ampsq
-      double complex spstrng0,spstrng1,spstrng2,
+      complex(dp):: spstrng0,spstrng1,spstrng2,
      & spstrng3,cdot,m(4),
      & p1(4),p2(4),p3(4),p4(4),p5(4),et1(4),et2(4),
      & e1C(4),e1Cp(4),e1Cm(4),e2(4),e2p(4),e2m(4),e5m(4),e5p(4),e5(4),
@@ -15,34 +20,34 @@
      & p234(4),p34(4),p25(4),p35(4),p45(4),p345(4),p1345(4),
      & p2345(4),p15(4),p134(4),T34x21(2,2,2,2,2),
      & T21x34(2,2,2,2,2),T24x31(2,2,2,2,2),T31x24(2,2,2,2,2)
-      integer q1,q2,q3,q4,q5,eta1,eta2,h1,h2,h3,h4,h5
-      p1(:)=dcmplx(q(q1,:))
-      p2(:)=dcmplx(q(q2,:))
-      p3(:)=dcmplx(q(q3,:))
-      p4(:)=dcmplx(q(q4,:))
-      p5(:)=dcmplx(q(q5,:))
-      et1(:)=dcmplx(q(eta1,:))
-      et2(:)=dcmplx(q(eta2,:))
-      p15(:)=dcmplx(q(q1,:)+q(q5,:))
-      p25(:)=dcmplx(q(q2,:)+q(q5,:))
-      p34(:)=dcmplx(q(q3,:)+q(q4,:))
-      p45(:)=dcmplx(q(q4,:)+q(q5,:))
-      p35(:)=dcmplx(q(q3,:)+q(q5,:))
-      p345(:)=dcmplx(q(q3,:)+q(q4,:)+q(q5,:))
-      p1345(:)=dcmplx(q(q1,:)+q(q3,:)+q(q4,:)+q(q5,:))
-      p2345(:)=dcmplx(q(q2,:)+q(q3,:)+q(q4,:)+q(q5,:))
-      p234(:)=dcmplx(q(q2,:)+q(q3,:)+q(q4,:))
-      p134(:)=dcmplx(q(q1,:)+q(q3,:)+q(q4,:))
-      s45=dble(p45(4)**2-p45(1)**2-p45(2)**2-p45(3)**2)
-      s15=dble(p15(4)**2-p15(1)**2-p15(2)**2-p15(3)**2)
-      s25=dble(p25(4)**2-p25(1)**2-p25(2)**2-p25(3)**2)
-      s34=dble(p34(4)**2-p34(1)**2-p34(2)**2-p34(3)**2)
-      s35=dble(p35(4)**2-p35(1)**2-p35(2)**2-p35(3)**2)
-      s134=dble(p134(4)**2-p134(1)**2-p134(2)**2-p134(3)**2)
-      s234=dble(p234(4)**2-p234(1)**2-p234(2)**2-p234(3)**2)
-      s345=dble(p345(4)**2-p345(1)**2-p345(2)**2-p345(3)**2)
-      s1345=dble(p1345(4)**2-p1345(1)**2-p1345(2)**2-p1345(3)**2)
-      s2345=dble(p2345(4)**2-p2345(1)**2-p2345(2)**2-p2345(3)**2)
+      integer:: q1,q2,q3,q4,q5,eta1,eta2,h1,h2,h3,h4,h5
+      p1(:)=cplx2(q(q1,:))
+      p2(:)=cplx2(q(q2,:))
+      p3(:)=cplx2(q(q3,:))
+      p4(:)=cplx2(q(q4,:))
+      p5(:)=cplx2(q(q5,:))
+      et1(:)=cplx2(q(eta1,:))
+      et2(:)=cplx2(q(eta2,:))
+      p15(:)=cplx2(q(q1,:)+q(q5,:))
+      p25(:)=cplx2(q(q2,:)+q(q5,:))
+      p34(:)=cplx2(q(q3,:)+q(q4,:))
+      p45(:)=cplx2(q(q4,:)+q(q5,:))
+      p35(:)=cplx2(q(q3,:)+q(q5,:))
+      p345(:)=cplx2(q(q3,:)+q(q4,:)+q(q5,:))
+      p1345(:)=cplx2(q(q1,:)+q(q3,:)+q(q4,:)+q(q5,:))
+      p2345(:)=cplx2(q(q2,:)+q(q3,:)+q(q4,:)+q(q5,:))
+      p234(:)=cplx2(q(q2,:)+q(q3,:)+q(q4,:))
+      p134(:)=cplx2(q(q1,:)+q(q3,:)+q(q4,:))
+      s45=real(p45(4)**2-p45(1)**2-p45(2)**2-p45(3)**2)
+      s15=real(p15(4)**2-p15(1)**2-p15(2)**2-p15(3)**2)
+      s25=real(p25(4)**2-p25(1)**2-p25(2)**2-p25(3)**2)
+      s34=real(p34(4)**2-p34(1)**2-p34(2)**2-p34(3)**2)
+      s35=real(p35(4)**2-p35(1)**2-p35(2)**2-p35(3)**2)
+      s134=real(p134(4)**2-p134(1)**2-p134(2)**2-p134(3)**2)
+      s234=real(p234(4)**2-p234(1)**2-p234(2)**2-p234(3)**2)
+      s345=real(p345(4)**2-p345(1)**2-p345(2)**2-p345(3)**2)
+      s1345=real(p1345(4)**2-p1345(1)**2-p1345(2)**2-p1345(3)**2)
+      s2345=real(p2345(4)**2-p2345(1)**2-p2345(2)**2-p2345(3)**2)
       s15mmtsq=s15-mt**2
       s25mmtsq=s25-mt**2
       s134mmtsq=s134-mt**2
@@ -66,34 +71,34 @@
       call uspinor0(p4,-h1,e4Cp)
       call pol_real(p5,h1,e5p)
       do h3=1,2
-      if (h3 .eq. 1) then
+      if (h3 == 1) then
          e3(:)=e3m(:)
          e3C(:)=e3Cm(:)
-      elseif (h3 .eq. 2) then
+      elseif (h3 == 2) then
          e3(:)=e3p(:)
          e3C(:)=e3Cp(:)
       endif
       h4=3-h3
-      if (h4 .eq. 1) then
+      if (h4 == 1) then
          e4(:)=e4m(:)
          e4C(:)=e4Cm(:)
-      elseif (h4 .eq. 2) then
+      elseif (h4 == 2) then
          e4(:)=e4p(:)
          e4C(:)=e4Cp(:)
       endif
       do h5=1,2
-      if (h5 .eq. 1) e5(:)=e5m(:)
-      if (h5 .eq. 2) e5(:)=e5p(:)
+      if (h5 == 1) e5(:)=e5m(:)
+      if (h5 == 2) e5(:)=e5p(:)
       do h1=1,2
-      if (h1 .eq. 1) then
+      if (h1 == 1) then
           e1C(:)=e1Cm(:)
-      elseif (h1 .eq. 2) then
+      elseif (h1 == 2) then
           e1C(:)=e1Cp(:)
       endif
       do h2=1,2
-      if (h2 .eq. 1) then
+      if (h2 == 1) then
           e2(:)=e2m(:)
-      elseif (h2 .eq. 2) then
+      elseif (h2 == 2) then
           e2(:)=e2p(:)
       endif
       T34x21(h1,h2,h3,h4,h5)= + xn**(-1)*two*s345**(-1) * (  - 
@@ -395,11 +400,11 @@
       m(3)=T24x31(h1,h2,h3,h4,h5)
       m(4)=T31x24(h1,h2,h3,h4,h5)
 C     Factor of V removed from color sum
-      ampsq=ampsq+xn*dble(
-     & +m(1)*Dconjg(m(1))+m(2)*Dconjg(m(2))
-     & +m(3)*Dconjg(m(3))+m(4)*Dconjg(m(4)))
-     & +dble((m(1)+m(2))*Dconjg(m(3)+m(4))
-     &      +(m(3)+m(4))*Dconjg(m(1)+m(2)))
+      ampsq=ampsq+xn*real(
+     & +m(1)*conjg(m(1))+m(2)*conjg(m(2))
+     & +m(3)*conjg(m(3))+m(4)*conjg(m(4)))
+     & +real((m(1)+m(2))*conjg(m(3)+m(4))
+     &      +(m(3)+m(4))*conjg(m(1)+m(2)))
       enddo
       enddo
       enddo

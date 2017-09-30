@@ -1,19 +1,22 @@
 !===== T. Dennen, May 2014
 !===== Bubble coefficients for 
 !===== q(i1,-)qb(i2,+)ga(i3,-)ga(i4,-)ga(i5,+)ga(i6,+)
-      subroutine aaaa_NMHV_b_init(i1,i2,i3,i4,i5,i6,za,zb,
-     & aaaa_NMHV_b)
+      subroutine aaaa_NMHV_b_init(i1,i2,i3,i4,i5,i6,za,zb,aaaa_NMHV_b)
       implicit none
+      include 'types.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'sprods_com.f'
-      integer i1,i2,i3,i4,i5,i6,i7,i8
-      double complex aaaa_NMHV_b(25), zab2, zaa2, zbb2, zab3, t
-      double complex sqrtd
-      double complex sqrtd1325, sqrtd1326, sqrtd1425, sqrtd1426
-      double complex sqrtd1523, sqrtd1524, sqrtd1536, sqrtd1546
-      double complex sqrtd1623, sqrtd1624, sqrtd1635, sqrtd1645
-      double complex sqrtd2354, sqrtd2364, sqrtd2453, sqrtd2463
+      integer:: i1,i2,i3,i4,i5,i6,i7,i8
+      complex(dp):: aaaa_NMHV_b(25), zab2, zaa2, zbb2, zab3, t
+      complex(dp):: sqrtd
+      complex(dp):: sqrtd1325, sqrtd1326, sqrtd1425, sqrtd1426
+      complex(dp):: sqrtd1523, sqrtd1524, sqrtd1536, sqrtd1546
+      complex(dp):: sqrtd1623, sqrtd1624, sqrtd1635, sqrtd1645
+      complex(dp):: sqrtd2354, sqrtd2364, sqrtd2453, sqrtd2463
 
       zab2(i1,i2,i3,i4)=za(i1,i2)*zb(i2,i4)+za(i1,i3)*zb(i3,i4)
       zaa2(i1,i2,i3,i4,i5,i6) = zab2(i1,i2,i3,i4)*za(i4,i6) + 
@@ -24,9 +27,9 @@
      &   zaa2(i1,i2,i3,i4,i5,i7)*zb(i7,i8)
       t(i1,i2,i3) = s(i1,i2) + s(i2,i3) + s(i3,i1)
 
-      sqrtd(i1,i2,i3,i4)=Sqrt(dcmplx(
+      sqrtd(i1,i2,i3,i4)=sqrt(cplx2(
      & (s(i1,i3)+s(i1,i4)+s(i2,i3)+s(i2,i4))**2-4*s(i1,i2)*s(i3,i4),
-     & 0d0))
+     & zip))
 
       sqrtd1325 = sqrtd(i1,i3,i2,i5)
       sqrtd1326 = sqrtd(i1,i3,i2,i6)

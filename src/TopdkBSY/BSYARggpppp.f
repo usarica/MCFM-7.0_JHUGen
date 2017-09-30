@@ -1,18 +1,24 @@
-      double complex function BSYARggpppp(e1,p2,p3,e4,za,zb,zab,zba)
+      function BSYARggpppp(e1,p2,p3,e4,za,zb,zab,zba)
       implicit none
+      include 'types.f'
+      complex(dp):: BSYARggpppp
+
 C-----Authors: John Campbell and Keith Ellis, March 2012
 C---- arXiv:1101.5947 [hep-ph], Eq. (93), fully Badger-compliant
 C---- (These are twiddle functions, c.f.arXiv:1101.5947[hep-ph],Eq.(91))
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'zprods_decl.f'
       include 'sprods_com.f'
       include 'zabprods_decl.f'
       include 'qdef.f'
       include 'massiveintegrals.f'
-      double precision s12,s23,mt2,mt3
-      double complex ze1xK12xK23xe4,BSYA0ggpppp,A0ggpppp
-      integer e1,p2,p3,e4,j
+      real(dp):: s12,s23,mt2,mt3
+      complex(dp):: ze1xK12xK23xe4,BSYA0ggpppp,A0ggpppp
+      integer:: e1,p2,p3,e4,j
 
 C-----setup variable controlling integrals to be used,
 C-----depending on whether p2=2 or 3

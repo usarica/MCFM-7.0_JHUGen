@@ -1,6 +1,11 @@
       subroutine lowerdk_parttri(q,ylower,first)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'poles.f'
       include 'masses.f'
@@ -8,8 +13,8 @@
       include 'zcouple.f'
       include 'nwz.f'
       include 'decl_kininv.f'
-      integer k1,k2,ep,epmin
-      double complex prW,prt,ylower(2,-2:0),
+      integer:: k1,k2,ep,epmin
+      complex(dp):: prW,prt,ylower(2,-2:0),
      & qlI2,qlI3,izb,
      & vert16x1,vert25x5,vert25x6,
      & vert25x7,vert25x8,vert25x9,vert25x10,vert25x11,vert25x12,
@@ -17,31 +22,31 @@
      & vert25x19,vert25x20,vert25x21,vert25x22,vert25x23,
      & vert25x24,vert25x25,vert25x26,vert25x27,vert25x28,
      & vert25x29,vert25x30,vert25x31,vert25x32,vert25x16a
-      double complex facuLl,facuRl,facdLl,cprop,
+      complex(dp):: facuLl,facuRl,facdLl,cprop,
      & iprZ
-      double precision q(mxpart,4),mtsq
-      logical first
-      integer j3,p1,p2,p3,p4,k5,e5,p6
+      real(dp):: q(mxpart,4),mtsq
+      logical:: first
+      integer:: j3,p1,p2,p3,p4,k5,e5,p6
       parameter(p1=1,p2=2,k5=5,p6=7,e5=6)
 
 c----statement function
-      prW(s16)=cone/dcmplx(s16-wmass**2,zip)
-      prt(s345)=cone/dcmplx(s345-mt**2,zip)
+      prW(s16)=cone/cplx2(s16-wmass**2,zip)
+      prt(s345)=cone/cplx2(s345-mt**2,zip)
       izb(k1,k2)=cone/zb(k1,k2)
 c----end statement function
 
       mtsq=mt**2
       
-      if (nwz .eq. +1) then
+      if (nwz == +1) then
       call spinoru(7,q,za,zb)
-      elseif (nwz .eq. -1) then
+      elseif (nwz == -1) then
       call spinoru(7,q,zb,za)
       endif
       
 c--- Implementation of Baur-Zeppenfeld treatment of Z width
-      cprop=dcmplx(1d0/dsqrt((s34-zmass**2)**2+(zmass*zwidth)**2))
-      cprop=cprop/dcmplx(zip,mt*twidth)
-      iprZ=dcmplx(s34-zmass**2)
+      cprop=cplx1(1d0/sqrt((s34-zmass**2)**2+(zmass*zwidth)**2))
+      cprop=cprop/cplx2(zip,mt*twidth)
+      iprZ=cplx1(s34-zmass**2)
 c--- only compute poles for checking on first call
       if (first) then
          epmin=-2
@@ -57,18 +62,18 @@ c      write(*,*) 'epmin in lowerdk_tri', epmin
      &  + 3d0*qlI2(s16,0d0,0d0,musq,ep)+fp(ep)
 
       do j3=1,2
-      if (j3 .eq. 1) then
+      if (j3 == 1) then
         p3=3
         p4=4
-        facuLl=dcmplx(Qu*q1)*iprZ/s34+dcmplx(L(2)*le)
-        facuRl=dcmplx(Qu*q1)*iprZ/s34+dcmplx(R(2)*le)
-        facdLl=dcmplx(Qd*q1)*iprZ/s34+dcmplx(L(1)*le)
-      elseif (j3 .eq. 2) then
+        facuLl=cplx1(Qu*q1)*iprZ/s34+cplx1(L(2)*le)
+        facuRl=cplx1(Qu*q1)*iprZ/s34+cplx1(R(2)*le)
+        facdLl=cplx1(Qd*q1)*iprZ/s34+cplx1(L(1)*le)
+      elseif (j3 == 2) then
         p3=4
         p4=3
-        facuLl=dcmplx(Qu*q1)*iprZ/s34+dcmplx(L(2)*re)
-        facuRl=dcmplx(Qu*q1)*iprZ/s34+dcmplx(R(2)*re)
-        facdLl=dcmplx(Qd*q1)*iprZ/s34+dcmplx(L(1)*re)
+        facuLl=cplx1(Qu*q1)*iprZ/s34+cplx1(L(2)*re)
+        facuRl=cplx1(Qu*q1)*iprZ/s34+cplx1(R(2)*re)
+        facdLl=cplx1(Qd*q1)*iprZ/s34+cplx1(L(1)*re)
       endif
       call vertices_bt1(ep,facdLl,vert25x5,vert25x6
      & ,vert25x7)

@@ -1,17 +1,22 @@
-      double complex function nAmpppp(j5,j1,j2,j3,j4)
-c--- Caclculation of the amplitudes using results of S. Badger
+      function nAmpppp(j5,j1,j2,j3,j4)
+c--- Calculation of the amplitudes using results of S. Badger
 c--- as adapted from routines written by F. Caola
+      include 'types.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      complex(dp)::nAmpppp
       include 'zprods_com.f'
       include 'sprods_com.f'
-      integer j1,j2,j3,j4,j5
-      double complex zaa_5_pH_12_5, zaa_2_pH_34_5, zaa_2_pH_pH12_5,
+      integer::j1,j2,j3,j4,j5
+      complex(dp)::zaa_5_pH_12_5, zaa_2_pH_34_5, zaa_2_pH_pH12_5,
      & zaa_3_pH_12_5,zab_5_pH_1, zab_2_pH_1, zab_5_pH_4, zab_3_pH_4,
      & zab_5_pH2_1, zab_5_pH3_4, zab_2_pH3_4, zab_3_pH2_1,
      & zab2, zab3
-      double precision sH1, sH2, sH3, sH4, s125, s145, s345
-      double precision s3, s4
-      double precision qsq
+      real(dp)::sH1, sH2, sH3, sH4, s125, s145, s345
+      real(dp)::s3, s4
+      real(dp)::qsq
 C--- begin statement functions
       zab2(j1,j2,j3,j4)=za(j1,j2)*zb(j2,j4)+za(j1,j3)*zb(j3,j4)
       zab3(j1,j2,j3,j4,j5)=

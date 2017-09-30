@@ -1,19 +1,25 @@
-      double complex function fsl(j1,j2,j3,j4,j5,j6,za,zb)
+      function fsl(j1,j2,j3,j4,j5,j6,za,zb)
       implicit none
+      include 'types.f'
+      complex(dp):: fsl
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'sprods_com.f'
       include 'zprods_decl.f'
-      integer j1,j2,j3,j4,j5,j6
-      double complex L0,L1,Lnrat,i3m,Lsm1_2mh
-      double complex t0,s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,
+      integer:: j1,j2,j3,j4,j5,j6
+      complex(dp):: L0,L1,Lnrat,i3m,Lsm1_2mh
+      complex(dp):: t0,s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,
      # s11,s12,s13,s14,s15
-      double precision t
+      real(dp):: t
       s4 = Lsm1_2mh(s(j3,j4),t(j1,j2,j3),s(j1,j2),s(j5,j6))*(za(j4,j5)**
      #2/za(j5,j6)/zb(j1,j2)*zb(j1,j3)**2/(-za(j1,j4)*zb(j1,j3)-za(j2,j4)
      #*zb(j2,j3))/t(j1,j2,j3)-1/za(j1,j2)/(-za(j1,j3)*zb(j1,j4)-za(j2,j3
      #)*zb(j2,j4))**3*(-za(j1,j3)*zb(j1,j6)-za(j2,j3)*zb(j2,j6))**2*(-za
      #(j1,j2)*zb(j1,j4)+za(j2,j3)*zb(j3,j4))**2/zb(j5,j6)/t(j1,j2,j3))-3
-     #.D0/4.D0*(Lnrat(-s(j3,j4),-s(j5,j6))+Lnrat(-t(j1,j2,j3),-s(j5,j6))
+     #._dp/4._dp*(Lnrat(-s(j3,j4),-s(j5,j6))+Lnrat(-t(j1,j2,j3),-s(j5,j6))
      #)/za(j1,j2)/(-za(j1,j3)*zb(j1,j4)-za(j2,j3)*zb(j2,j4))*(-za(j1,j2)
      #*zb(j1,j6)+za(j2,j3)*zb(j3,j6))**2/zb(j5,j6)/t(j1,j2,j3)
       s3 = s4-L0(-t(j1,j2,j3),-s(j5,j6))/s(j5,j6)/za(j1,j2)*za(j2,j3)*za
@@ -26,7 +32,7 @@
      #*(-za(j1,j2)*zb(j1,j6)+za(j2,j3)*zb(j3,j6))*zb(j4,j6)/zb(j5,j6)/2
       s2 = s4+2*L0(-t(j1,j2,j3),-s(j5,j6))/s(j5,j6)/za(j1,j2)*za(j2,j4)/
      #(-za(j1,j3)*zb(j1,j4)-za(j2,j3)*zb(j2,j4))*(-za(j1,j2)*zb(j1,j6)+z
-     #a(j2,j3)*zb(j3,j6))*zb(j4,j6)/zb(j5,j6)+3.D0/4.D0*(Lnrat(-s(j3,j4)
+     #a(j2,j3)*zb(j3,j6))*zb(j4,j6)/zb(j5,j6)+3._dp/4._dp*(Lnrat(-s(j3,j4)
      #,-s(j5,j6))+Lnrat(-t(j1,j2,j4),-s(j5,j6)))/za(j5,j6)/zb(j1,j2)*(za
      #(j2,j5)*zb(j1,j2)+za(j4,j5)*zb(j1,j4))**2/(-za(j1,j3)*zb(j1,j4)-za
      #(j2,j3)*zb(j2,j4))/t(j1,j2,j4)-(Lnrat(-s(j3,j4),-s(j5,j6))+Lnrat(-
@@ -71,7 +77,7 @@
       s13 = -1/(s(j1,j2)**2-2*s(j1,j2)*s(j3,j4)+s(j3,j4)**2-2*s(j1,j2)*s
      #(j5,j6)-2*s(j3,j4)*s(j5,j6)+s(j5,j6)**2)*za(j1,j2)*(-za(j3,j5)*zb(
      #j1,j3)+za(j4,j5)*zb(j1,j4))*zb(j1,j6)/(-za(j1,j3)*zb(j1,j4)-za(j2,
-     #j3)*zb(j2,j4))+3.D0/2.D0*(-s(j1,j2)-s(j3,j4)+s(j5,j6))/(s(j1,j2)**
+     #j3)*zb(j2,j4))+3._dp/2._dp*(-s(j1,j2)-s(j3,j4)+s(j5,j6))/(s(j1,j2)**
      #2-2*s(j1,j2)*s(j3,j4)+s(j3,j4)**2-2*s(j1,j2)*s(j5,j6)-2*s(j3,j4)*s
      #(j5,j6)+s(j5,j6)**2)**2*(-za(j2,j3)*zb(j1,j3)-za(j2,j4)*zb(j1,j4))
      #/(-za(j1,j3)*zb(j1,j4)-za(j2,j3)*zb(j2,j4))*(-za(j3,j5)*zb(j3,j6)-
@@ -104,7 +110,7 @@
      #/(-za(j1,j3)*zb(j1,j4)-za(j2,j3)*zb(j2,j4))**2*zb(j4,j6)*(-2*za(j1
      #,j2)*za(j5,j6)*zb(j1,j6)+za(j2,j5)*(t(j1,j2,j3)-t(j1,j2,j4)))
       s12 = s11
-      s14 = 3.D0/2.D0*(-s(j1,j2)-s(j3,j4)+s(j5,j6))/(s(j1,j2)**2-2*s(j1,
+      s14 = 3._dp/2._dp*(-s(j1,j2)-s(j3,j4)+s(j5,j6))/(s(j1,j2)**2-2*s(j1,
      #j2)*s(j3,j4)+s(j3,j4)**2-2*s(j1,j2)*s(j5,j6)-2*s(j3,j4)*s(j5,j6)+s
      #(j5,j6)**2)**2*(-za(j2,j3)*zb(j1,j3)-za(j2,j4)*zb(j1,j4))/(-za(j1,
      #j3)*zb(j1,j4)-za(j2,j3)*zb(j2,j4))*(-za(j3,j5)*zb(j3,j6)-za(j4,j5)
@@ -129,7 +135,7 @@
      #(j5,j6)/zb(j1,j2)*zb(j1,j4)**2/(-za(j3,j5)*zb(j4,j5)-za(j3,j6)*zb(
      #j4,j6))**2*t(j3,j5,j6)+L1(-s(j1,j2),-t(j3,j5,j6))*za(j4,j5)**2/za(
      #j5,j6)/zb(j1,j2)*zb(j1,j4)**2/(-za(j3,j5)*zb(j4,j5)-za(j3,j6)*zb(j
-     #4,j6))/t(j3,j5,j6)/2-3.D0/4.D0*(Lnrat(-s(j3,j4),-s(j1,j2))+Lnrat(-
+     #4,j6))/t(j3,j5,j6)/2-3._dp/4._dp*(Lnrat(-s(j3,j4),-s(j1,j2))+Lnrat(-
      #t(j3,j5,j6),-s(j1,j2)))/za(j5,j6)/zb(j1,j2)*(za(j3,j5)*zb(j1,j3)-z
      #a(j5,j6)*zb(j1,j6))**2/(-za(j3,j5)*zb(j4,j5)-za(j3,j6)*zb(j4,j6))/
      #t(j3,j5,j6)
@@ -144,7 +150,7 @@
      #j3,j5)*zb(j4,j5)-za(j3,j6)*zb(j4,j6))**3*(-za(j3,j5)*zb(j3,j4)-za(
      #j5,j6)*zb(j4,j6))**2/t(j3,j5,j6)+1/za(j1,j2)*za(j2,j4)**2*zb(j3,j6
      #)**2/(-za(j4,j5)*zb(j3,j5)-za(j4,j6)*zb(j3,j6))/zb(j5,j6)/t(j3,j5,
-     #j6))+3.D0/4.D0*(Lnrat(-s(j3,j4),-s(j1,j2))+Lnrat(-t(j4,j5,j6),-s(j
+     #j6))+3._dp/4._dp*(Lnrat(-s(j3,j4),-s(j1,j2))+Lnrat(-t(j4,j5,j6),-s(j
      #1,j2)))/za(j1,j2)/(-za(j3,j5)*zb(j4,j5)-za(j3,j6)*zb(j4,j6))/zb(j5
      #,j6)*(za(j2,j4)*zb(j4,j6)+za(j2,j5)*zb(j5,j6))**2/t(j4,j5,j6)
       s4 = s2-(Lnrat(-s(j3,j4),-s(j1,j2))+Lnrat(-t(j4,j5,j6),-s(j1,j2)))
@@ -163,7 +169,7 @@
       s12 = -1/(s(j1,j2)**2-2*s(j1,j2)*s(j3,j4)+s(j3,j4)**2-2*s(j1,j2)*s
      #(j5,j6)-2*s(j3,j4)*s(j5,j6)+s(j5,j6)**2)*za(j5,j6)*zb(j1,j6)*(-za(
      #j2,j3)*zb(j3,j6)+za(j2,j4)*zb(j4,j6))/(-za(j3,j5)*zb(j4,j5)-za(j3,
-     #j6)*zb(j4,j6))+3.D0/2.D0*(s(j1,j2)-s(j3,j4)-s(j5,j6))/(s(j1,j2)**2
+     #j6)*zb(j4,j6))+3._dp/2._dp*(s(j1,j2)-s(j3,j4)-s(j5,j6))/(s(j1,j2)**2
      #-2*s(j1,j2)*s(j3,j4)+s(j3,j4)**2-2*s(j1,j2)*s(j5,j6)-2*s(j3,j4)*s(
      #j5,j6)+s(j5,j6)**2)**2*(-za(j2,j3)*zb(j1,j3)-za(j2,j4)*zb(j1,j4))/
      #(-za(j3,j5)*zb(j4,j5)-za(j3,j6)*zb(j4,j6))*(-za(j3,j5)*zb(j3,j6)-z
@@ -188,7 +194,7 @@
      #/(-za(j3,j5)*zb(j4,j5)-za(j3,j6)*zb(j4,j6))**2*zb(j5,j6)*(2*za(j1,
      #j2)*za(j5,j6)*zb(j1,j6)-za(j2,j5)*(t(j3,j5,j6)-t(j4,j5,j6)))
       s12 = s11
-      s14 = 3.D0/2.D0*(s(j1,j2)-s(j3,j4)-s(j5,j6))/(s(j1,j2)**2-2*s(j1,j
+      s14 = 3._dp/2._dp*(s(j1,j2)-s(j3,j4)-s(j5,j6))/(s(j1,j2)**2-2*s(j1,j
      #2)*s(j3,j4)+s(j3,j4)**2-2*s(j1,j2)*s(j5,j6)-2*s(j3,j4)*s(j5,j6)+s(
      #j5,j6)**2)**2*(-za(j2,j3)*zb(j1,j3)-za(j2,j4)*zb(j1,j4))/(-za(j3,j
      #5)*zb(j4,j5)-za(j3,j6)*zb(j4,j6))*(-za(j3,j5)*zb(j3,j6)-za(j4,j5)*

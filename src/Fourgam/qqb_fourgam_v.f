@@ -1,4 +1,6 @@
       subroutine qqb_fourgam_v(p,msq)
+      implicit none
+      include 'types.f'
 ************************************************************************
 *    Author: C Williams  and T. Dennen                                     *
 *    Sept, 2014.                                                      *
@@ -6,8 +8,11 @@
 *    and spins (plus all crossings)                                    *
 c     q(-p1)+qbar(-p2) --> gam(p3) + gam(p4) + gam(p5) + gam(p6)         *
 ************************************************************************
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ewcharge.f'
       include 'ewcouple.f'
       include 'qcdcouple.f'
@@ -16,17 +21,17 @@ c     q(-p1)+qbar(-p2) --> gam(p3) + gam(p4) + gam(p5) + gam(p6)         *
       include 'epinv2.f'
       include 'scheme.f' 
       include 'first.f'
-      integer j
-      double precision p(mxpart,4),msq(-nf:nf,-nf:nf),
+      integer:: j
+      real(dp):: p(mxpart,4),msq(-nf:nf,-nf:nf),
      & qqb,qbq,fac,cfac
-      double precision symfac 
+      real(dp):: symfac 
       parameter (symfac=one/24d0)
-      double complex qqb_aaaa_nlo_e2(2,2,2,2,2)
+      complex(dp):: qqb_aaaa_nlo_e2(2,2,2,2,2)
      &     ,qqb_aaaa_lo(2,2,2,2,2)
-      double complex qqb_aaaa_nlo_e1(2,2,2,2,2)
-      double complex qqb_aaaa_nlo_e0(2,2,2,2,2)
-      integer i1,i2,i3,i4,i5
-      double complex qqb_aaaa_nlo(2,2,2,2,2)
+      complex(dp):: qqb_aaaa_nlo_e1(2,2,2,2,2)
+      complex(dp):: qqb_aaaa_nlo_e0(2,2,2,2,2)
+      integer:: i1,i2,i3,i4,i5
+      complex(dp):: qqb_aaaa_nlo(2,2,2,2,2)
 
       if(first) then 
          first=.false.
@@ -69,7 +74,7 @@ C------ NLO fac
       do i4=1,2
       do i5=1,2
          qqb=qqb+Dble(im*qqb_aaaa_nlo(i1,i2,i3,i4,i5)*
-     &        dconjg(qqb_aaaa_lo(i1,i2,i3,i4,i5)))
+     &        conjg(qqb_aaaa_lo(i1,i2,i3,i4,i5)))
       enddo
       enddo
       enddo

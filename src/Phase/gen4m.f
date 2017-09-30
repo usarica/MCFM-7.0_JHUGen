@@ -3,45 +3,50 @@
 
       subroutine gen4m(r,p,m3,m4,m5,m6,wt4,*)
       implicit none
+      include 'types.f'
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'mxdim.f'
       include 'masses.f'
-      include 'process.f'
+      include 'kprocess.f'
       include 'phasemin.f'
       include 'limits.f'
       include 'x1x2.f'
-      integer nu,j
-      double precision r(mxdim),wt4,wt3456,wt34,wt56
-      double precision m3,m4,m5,m6
-      double precision p(mxpart,4),
-     . p1(4),p2(4),p3(4),p4(4),p5(4),p6(4)
-      double precision p34(4),p56(4),p12(4)
-      double precision xjac,tau,y
+      integer:: nu,j
+      real(dp):: r(mxdim),wt4,wt3456,wt34,wt56
+      real(dp):: m3,m4,m5,m6
+      real(dp):: p(mxpart,4),
+     & p1(4),p2(4),p3(4),p4(4),p5(4),p6(4)
+      real(dp):: p34(4),p56(4),p12(4)
+      real(dp):: xjac,tau,y
       include 'energy.f'
-      double precision wt0
+      real(dp):: wt0
       parameter(wt0=one/twopi**2)
 
       do nu=1,4
          do j=1,mxpart
-            p(j,nu)=0d0
+            p(j,nu)=0._dp
          enddo
       enddo
 
-      taumin=max((m3+m4+m5+m6)**2/sqrts**2,1d-4)
+      taumin=max((m3+m4+m5+m6)**2/sqrts**2,1.e-4_dp)
 
-      wt4=0d0
-      tau=dexp(dlog(taumin)*r(9))
-      y=0.5d0*dlog(tau)*(one-two*r(10))
+      wt4=0._dp
+      tau=exp(log(taumin)*r(9))
+      y=0.5_dp*log(tau)*(one-two*r(10))
 
-      xjac=dlog(taumin)*tau*dlog(tau)
-      xx(1)=dsqrt(tau)*dexp(y)
-      xx(2)=dsqrt(tau)*dexp(-y)
+      xjac=log(taumin)*tau*log(tau)
+      xx(1)=sqrt(tau)*exp(y)
+      xx(2)=sqrt(tau)*exp(-y)
 
 
-      if   ((xx(1) .gt. 1d0)
-     & .or. (xx(2) .gt. 1d0)
-     & .or. (xx(1) .lt. xmin)
-     & .or. (xx(2) .lt. xmin)) return 1
+      if   ((xx(1) > 1._dp)
+     & .or. (xx(2) > 1._dp)
+     & .or. (xx(1) < xmin)
+     & .or. (xx(2) < xmin)) return 1
 
       p1(4)=-xx(1)*sqrts*half
       p1(1)=zip
@@ -76,6 +81,6 @@
 
       return
  999  continue
-      wt4=0d0
+      wt4=0._dp
       return 1
       end

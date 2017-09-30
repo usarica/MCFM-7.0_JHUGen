@@ -1,5 +1,7 @@
       subroutine qqb_wbb_v(P,msqv)
       implicit none
+      include 'types.f'
+
 ************************************************************************
 *     Author: R.K. Ellis                                               *
 *     July, 1998.                                                      *
@@ -8,6 +10,9 @@
 *     q(-p1) +Q(-p6)+ l(-p4) -->   q(p2)+Q(p5) +l(p3)                  *
 ************************************************************************
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'qcdcouple.f'
       include 'ewcouple.f'
       include 'ckm.f'
@@ -16,18 +21,18 @@
       include 'scheme.f'
       include 'masses.f'
       include 'noglue.f'
-      double precision msq(-nf:nf,-nf:nf),msqv(-nf:nf,-nf:nf),
-     . p(mxpart,4),q(mxpart,4),faclo,fac,
-     . qqb,qbq
-      double complex atrLLL,atrLRL,a61LLL,a61LRL
-      double complex tLLL,tLRL,fLLL,fLRL
-      integer nu,j,k
+      real(dp):: msq(-nf:nf,-nf:nf),msqv(-nf:nf,-nf:nf),
+     & p(mxpart,4),q(mxpart,4),faclo,fac,
+     & qqb,qbq
+      complex(dp):: atrLLL,atrLRL,a61LLL,a61LRL
+      complex(dp):: tLLL,tLRL,fLLL,fLRL
+      integer:: nu,j,k
 
       scheme='dred'
 
       do j=-nf,nf
       do k=-nf,nf
-      msqv(j,k)=0d0
+      msqv(j,k)=0._dp
       enddo
       enddo
 
@@ -38,9 +43,9 @@ c---calculate the lowest order matrix element and fill the common block
 c---twopij with s_{ij}
       call qqb_wbb(p,msq)
       if (
-     .      (s(5,6) .lt. four*mbsq)
-     . .or. (s(1,5)*s(2,5)/s(1,2) .lt. mbsq)
-     . .or. (s(1,6)*s(2,6)/s(1,2) .lt. mbsq) ) return
+     &      (s(5,6) < four*mbsq)
+     & .or. (s(1,5)*s(2,5)/s(1,2) < mbsq)
+     & .or. (s(1,6)*s(2,6)/s(1,2) < mbsq) ) return
 
 c---  Now transform momenta into a notation
 c---  suitable for calling the BDKW function with notation which is
@@ -56,7 +61,7 @@ c---  q-(-p4)+Q+(-p2)+l-(-p5) ---> q+(p1)+Q-(p3)+l+(p6)
 
       call spinoru(6,q,za,zb)
       faclo=V*aveqq*gw**4*gsq**2
-      fac=faclo*xn*0.5d0*ason2pi
+      fac=faclo*xn*0.5_dp*ason2pi
 
 c----do whatever needs to be done q-qb case
       tLLL=atrLLL(1,2,3,4,5,6,za,zb)
@@ -64,8 +69,8 @@ c----do whatever needs to be done q-qb case
       tLRL=atrLRL(1,2,3,4,5,6,za,zb)
       fLRL=a61LRL(1,2,3,4,5,6,za,zb)
 
-      qqb=fac*dble(tLLL*dconjg(fLLL)+fLLL*dconjg(tLLL)
-     .            +tLRL*dconjg(fLRL)+fLRL*dconjg(tLRL))
+      qqb=fac*real(tLLL*conjg(fLLL)+fLLL*conjg(tLLL)
+     &            +tLRL*conjg(fLRL)+fLRL*conjg(tLRL))
 
 c----now look at qb-q case, swap the momenta
       tLLL=atrLLL(4,2,3,1,5,6,za,zb)
@@ -73,18 +78,18 @@ c----now look at qb-q case, swap the momenta
       tLRL=atrLRL(4,2,3,1,5,6,za,zb)
       fLRL=a61LRL(4,2,3,1,5,6,za,zb)
 
-      qbq=fac*dble(tLLL*dconjg(fLLL)+fLLL*dconjg(tLLL)
-     .            +tLRL*dconjg(fLRL)+fLRL*dconjg(tLRL))
+      qbq=fac*real(tLLL*conjg(fLLL)+fLLL*conjg(tLLL)
+     &            +tLRL*conjg(fLRL)+fLRL*conjg(tLRL))
 
       do j=-(nf-1),(nf-1)
       do k=-(nf-1),(nf-1)
-      if (Vsq(j,k) .eq. 0d0) goto 20
-            if     ((j .gt. 0) .and. (k .lt. 0)) then
+      if (Vsq(j,k) == 0._dp) goto 20
+            if     ((j > 0) .and. (k < 0)) then
                msqv(j,k)=Vsq(j,k)*qqb
-            elseif ((j .lt. 0) .and. (k .gt. 0)) then
+            elseif ((j < 0) .and. (k > 0)) then
                msqv(j,k)=Vsq(j,k)*qbq
             else
-               msqv(j,k)=0d0
+               msqv(j,k)=0._dp
             endif
  20   continue
       enddo

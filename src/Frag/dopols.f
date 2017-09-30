@@ -1,9 +1,11 @@
       subroutine DPOLIN2(X1A,X2A,YA,M,N,X1,X2,Y,DY) 
       implicit none
-      integer nmax,mmax,j,k,M,N
+      include 'types.f'
+      
+      integer:: nmax,mmax,j,k,M,N
       parameter(nmax=20,mmax=20)
-      double precision X1A(M),X2A(N),YA(M,N),YNTMP(nmax),YMTMP(mmax) 
-      double precision Y,DY,X1,X2
+      real(dp):: X1A(M),X2A(N),YA(M,N),YNTMP(nmax),YMTMP(mmax) 
+      real(dp):: Y,DY,X1,X2
 
       do 12 j=1,M
          do 11 k=1,N
@@ -18,13 +20,15 @@
 
       subroutine DPOLINT(XA,YA,N,X,Y,DY) 
       implicit none
-      integer nmax
+      include 'types.f'
+      
+      integer:: nmax
       parameter(nmax=10)
-      integer N,M
-      double precision XA(N),YA(N),C(nmax),D(nmax) 
-      double precision X,Y,DY,W,HO,HP,den
-      integer ns,i
-      double precision dif,difT
+      integer:: N,M
+      real(dp):: XA(N),YA(N),C(nmax),D(nmax) 
+      real(dp):: X,Y,DY,W,HO,HP,den
+      integer:: ns,i
+      real(dp):: dif,difT
       
 
       ns=1
@@ -32,7 +36,7 @@
       
       do 11 i=1,N
          difT = abs(X-XA(i))
-         if (difT .lt. dif) then 
+         if (difT < dif) then 
             ns=i
             dif=difT
             endif
@@ -47,7 +51,7 @@
                HP=XA(i+m)-X
                W=C(i+1)-d(i)
                den=HO-HP
-               if (abs(den) .lt. 1d-10) then
+               if (abs(den) < 1.e-10_dp) then
                   write(6,*) ' stop in polint ',den
                   stop
                endif
@@ -55,7 +59,7 @@
                d(i)=HP*den
                c(i)=HO*den
  12            continue
-               if (2*ns .lt. n-m) then 
+               if (2*ns < n-m) then 
                   DY=C(ns+1) 
                else
                   DY=D(ns) 

@@ -1,5 +1,7 @@
       subroutine qqb_zbjet_v(p,msqv)
       implicit none
+      include 'types.f'
+
 ************************************************************************
 *     Author: J. Campbell                                              *
 *     August 2005.                                                     *
@@ -17,6 +19,9 @@
 *                                                                      *
 ************************************************************************
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'qcdcouple.f'
       include 'ewcouple.f'
       include 'ewcharge.f'
@@ -30,35 +35,35 @@
       include 'b0.f'
       include 'nflav.f'
       include 'heavyflav.f'
-      double precision msq(-nf:nf,-nf:nf),msqv(-nf:nf,-nf:nf),
-     . mmsq_gq(2,2),mmsq_qg(2,2),mmsq_qbg(2,2),mmsq_gqb(2,2),
-     . p(mxpart,4),pswap(mxpart,4),fac
-      double complex atreez,a61z,a63z,prop,vcouple(2),tamp,lamp,
-     . mmsq_gq_vec(2,2),mmsq_gq_ax(2,2),
-     . mmsq_qg_vec(2,2),mmsq_qg_ax(2,2),
-     . mmsq_qbg_vec(2,2),mmsq_qbg_ax(2,2),
-     . mmsq_gqb_vec(2,2),mmsq_gqb_ax(2,2)
-      integer nu,j,k,cs,polq,polb,polz
-      double precision subuv(0:2)
-      double precision faclo,v2(2),vQ(nf,2)
-      double complex atreez_526143(2,2,2),atreez_251643(2,2,2),
-     .               atreez_625143(2,2,2),atreez_261543(2,2,2),
-     .               atreez_162543(2,2,2),atreez_615243(2,2,2),
-     .               atreez_152643(2,2,2),atreez_516243(2,2,2),
-     .               atreez_562143(2,2,2),atreez_651243(2,2,2),
-     .               atreez_561243(2,2,2),atreez_652143(2,2,2),
-     .               a61z_526143(2,2,2),a61z_251643(2,2,2),
-     .               a61z_625143(2,2,2),a61z_261543(2,2,2),
-     .               a61z_162543(2,2,2),a61z_615243(2,2,2),
-     .               a61z_152643(2,2,2),a61z_516243(2,2,2),
-     .               a61z_562143(2,2,2),a61z_651243(2,2,2),
-     .               a61z_561243(2,2,2),a61z_652143(2,2,2),
-     .               a63z_526143(2,2,2),a63z_625143(2,2,2),
-     .               a63z_162543(2,2,2),a63z_152643(2,2,2),
-     .               a63z_562143(2,2,2),a63z_561243(2,2,2),
-     .               a63z_652143(2,2,2),a63z_651243(2,2,2)
+      real(dp):: msq(-nf:nf,-nf:nf),msqv(-nf:nf,-nf:nf),
+     & mmsq_gq(2,2),mmsq_qg(2,2),mmsq_qbg(2,2),mmsq_gqb(2,2),
+     & p(mxpart,4),pswap(mxpart,4),fac
+      complex(dp):: atreez,a61z,a63z,prop,vcouple(2),tamp,lamp,
+     & mmsq_gq_vec(2,2),mmsq_gq_ax(2,2),
+     & mmsq_qg_vec(2,2),mmsq_qg_ax(2,2),
+     & mmsq_qbg_vec(2,2),mmsq_qbg_ax(2,2),
+     & mmsq_gqb_vec(2,2),mmsq_gqb_ax(2,2)
+      integer:: nu,j,k,cs,polq,polb,polz
+      real(dp):: subuv(0:2)
+      real(dp):: faclo,v2(2),vQ(nf,2)
+      complex(dp):: atreez_526143(2,2,2),atreez_251643(2,2,2),
+     &               atreez_625143(2,2,2),atreez_261543(2,2,2),
+     &               atreez_162543(2,2,2),atreez_615243(2,2,2),
+     &               atreez_152643(2,2,2),atreez_516243(2,2,2),
+     &               atreez_562143(2,2,2),atreez_651243(2,2,2),
+     &               atreez_561243(2,2,2),atreez_652143(2,2,2),
+     &               a61z_526143(2,2,2),a61z_251643(2,2,2),
+     &               a61z_625143(2,2,2),a61z_261543(2,2,2),
+     &               a61z_162543(2,2,2),a61z_615243(2,2,2),
+     &               a61z_152643(2,2,2),a61z_516243(2,2,2),
+     &               a61z_562143(2,2,2),a61z_651243(2,2,2),
+     &               a61z_561243(2,2,2),a61z_652143(2,2,2),
+     &               a63z_526143(2,2,2),a63z_625143(2,2,2),
+     &               a63z_162543(2,2,2),a63z_152643(2,2,2),
+     &               a63z_562143(2,2,2),a63z_561243(2,2,2),
+     &               a63z_652143(2,2,2),a63z_651243(2,2,2)
 
-      logical compare
+      logical:: compare
       parameter (compare=.false.)
 
       scheme='dred'
@@ -69,11 +74,11 @@ c--- common block twopij with s_{ij}
 c--- initialize the matrix element squared
       do j=-nf,nf
       do k=-nf,nf
-      msqv(j,k)=0d0
+      msqv(j,k)=0._dp
       enddo
       enddo
 
-      prop=s(3,4)/dcmplx(s(3,4)-zmass**2,zmass*zwidth)
+      prop=s(3,4)/cplx2(s(3,4)-zmass**2,zmass*zwidth)
 
       v2(1)=l1
       v2(2)=r1
@@ -89,7 +94,7 @@ c--- compute correct vector-like coupling for diagrams with Z coupled to a loop
       do j=1,nf
       do polz=1,2
       vcouple(polz)=vcouple(polz)
-     & +Q(j)*q1+0.5d0*(vQ(j,1)+vQ(j,2))*v2(polz)*prop
+     & +Q(j)*q1+0.5_dp*(vQ(j,1)+vQ(j,2))*v2(polz)*prop
       enddo
       enddo
 
@@ -99,9 +104,9 @@ c--- compute correct vector-like coupling for diagrams with Z coupled to a loop
 ************************************************************************
 c----UV counterterm contains the finite renormalization to arrive
 c----at the MS bar scheme.
-c      subuv(1)=2d0*xn*(epinv*(11d0-2d0*dble(nf)/xn)-1d0)/6d0
+c      subuv(1)=2._dp*xn*(epinv*(11._dp-2._dp*real(nf,dp)/xn)-1._dp)/6._dp
 c--- This version should be more robust wrt nflav. (8/11/05, JMC)
-      subuv(1)=2d0*xn*(epinv*b0/xn-1d0/6d0)
+      subuv(1)=2._dp*xn*(epinv*b0/xn-1._dp/6._dp)
       subuv(2)=subuv(1)
       subuv(0)=subuv(1)
 
@@ -165,40 +170,40 @@ c--- UV counter-term is already included in a6routine.f
 
       do polq=1,2
       do polz=1,2
-      if     ((j .eq.  +flav) .and. (k .eq. 0)) then
+      if     ((j ==  +flav) .and. (k == 0)) then
         msqv(j,k)=msqv(j,k)+(aveqg/avegg)*(mmsq_qg(polq,polz)*(
-     .             cdabs(Q(j)*q1+vQ(j,polq)*v2(polz)*prop)**2)
-     .                     +dble(mmsq_qg_vec(polq,polz)
-     .          *dconjg(Q(j)*q1+vQ(j,polq)*v2(polz)*prop)*vcouple(polz))
-     .                     +dble(mmsq_qg_ax(polq,polz)
-     .          *dconjg(Q(j)*q1+vQ(j,polq)*v2(polz)*prop)
-     .          *(v2(polz)*prop)/sin2w))
+     &             abs(Q(j)*q1+vQ(j,polq)*v2(polz)*prop)**2)
+     &                     +real(mmsq_qg_vec(polq,polz)
+     &          *conjg(Q(j)*q1+vQ(j,polq)*v2(polz)*prop)*vcouple(polz))
+     &                     +real(mmsq_qg_ax(polq,polz)
+     &          *conjg(Q(j)*q1+vQ(j,polq)*v2(polz)*prop)
+     &          *(v2(polz)*prop)/sin2w))
 
-      elseif ((j .eq. -flav) .and. (k .eq. 0)) then
+      elseif ((j == -flav) .and. (k == 0)) then
         msqv(j,k)=msqv(j,k)+(aveqg/avegg)*(mmsq_qbg(polq,polz)*(
-     .             cdabs(Q(-j)*q1+vQ(-j,polq)*v2(polz)*prop)**2)
-     .                     +dble(mmsq_qbg_vec(polq,polz)
-     .        *dconjg(Q(-j)*q1+vQ(-j,polq)*v2(polz)*prop)*vcouple(polz))
-     .                     +dble(mmsq_qbg_ax(polq,polz)
-     .        *dconjg(Q(-j)*q1+vQ(-j,polq)*v2(polz)*prop)
-     .        *(v2(polz)*prop)/sin2w))
+     &             abs(Q(-j)*q1+vQ(-j,polq)*v2(polz)*prop)**2)
+     &                     +real(mmsq_qbg_vec(polq,polz)
+     &        *conjg(Q(-j)*q1+vQ(-j,polq)*v2(polz)*prop)*vcouple(polz))
+     &                     +real(mmsq_qbg_ax(polq,polz)
+     &        *conjg(Q(-j)*q1+vQ(-j,polq)*v2(polz)*prop)
+     &        *(v2(polz)*prop)/sin2w))
 
-      elseif ((j .eq. 0) .and. (k .eq. +flav)) then
+      elseif ((j == 0) .and. (k == +flav)) then
         msqv(j,k)=msqv(j,k)+(aveqg/avegg)*(mmsq_gq(polq,polz)*(
-     .             cdabs(Q(k)*q1+vQ(k,polq)*v2(polz)*prop)**2)
-     .                     +dble(mmsq_gq_vec(polq,polz)
-     .          *dconjg(Q(k)*q1+vQ(k,polq)*v2(polz)*prop)*vcouple(polz))
-     .                     +dble(mmsq_gq_ax(polq,polz)
-     .          *dconjg(Q(k)*q1+vQ(k,polq)*v2(polz)*prop)
-     .          *(v2(polz)*prop)/sin2w))
-      elseif ((j .eq. 0) .and. (k .eq. -flav)) then
+     &             abs(Q(k)*q1+vQ(k,polq)*v2(polz)*prop)**2)
+     &                     +real(mmsq_gq_vec(polq,polz)
+     &          *conjg(Q(k)*q1+vQ(k,polq)*v2(polz)*prop)*vcouple(polz))
+     &                     +real(mmsq_gq_ax(polq,polz)
+     &          *conjg(Q(k)*q1+vQ(k,polq)*v2(polz)*prop)
+     &          *(v2(polz)*prop)/sin2w))
+      elseif ((j == 0) .and. (k == -flav)) then
         msqv(j,k)=msqv(j,k)+(aveqg/avegg)*(mmsq_gqb(polq,polz)*(
-     .             cdabs(Q(-k)*q1+vQ(-k,polq)*v2(polz)*prop)**2)
-     .                     +dble(mmsq_gqb_vec(polq,polz)
-     .        *dconjg(Q(-k)*q1+vQ(-k,polq)*v2(polz)*prop)*vcouple(polz))
-     .                     +dble(mmsq_gqb_ax(polq,polz)
-     .        *dconjg(Q(-k)*q1+vQ(-k,polq)*v2(polz)*prop)
-     .        *(v2(polz)*prop)/sin2w))
+     &             abs(Q(-k)*q1+vQ(-k,polq)*v2(polz)*prop)**2)
+     &                     +real(mmsq_gqb_vec(polq,polz)
+     &        *conjg(Q(-k)*q1+vQ(-k,polq)*v2(polz)*prop)*vcouple(polz))
+     &                     +real(mmsq_gqb_ax(polq,polz)
+     &        *conjg(Q(-k)*q1+vQ(-k,polq)*v2(polz)*prop)
+     &        *(v2(polz)*prop)/sin2w))
       endif
 
       enddo
@@ -209,7 +214,7 @@ c--- UV counter-term is already included in a6routine.f
 ************************************************************************
       do cs=0,2
       msqv(j,k)=msqv(j,k)+
-     .  ason2pi*(-subuv(cs))*msq_cs(cs,j,k)
+     &  ason2pi*(-subuv(cs))*msq_cs(cs,j,k)
       enddo
 
       enddo
@@ -221,8 +226,8 @@ c--- UV counter-term is already included in a6routine.f
 
       call spinoru(6,p,za,zb)
 
-      faclo=4d0*V*aveqq*esq**2*gsq**2
-      fac=faclo*xn*0.5d0*ason2pi
+      faclo=4._dp*V*aveqq*esq**2*gsq**2
+      fac=faclo*xn*0.5_dp*ason2pi
 
 c--- Set-up the desired amplitudes, in order to minimize number of calls
       do polq=1,2
@@ -230,29 +235,29 @@ c--- Set-up the desired amplitudes, in order to minimize number of calls
       do polb=1,2
 c--- atreez
       atreez_526143(polq,polb,polz)=
-     .       atreez(polq,polb,polz,5,2,6,1,4,3,za,zb)
+     &       atreez(polq,polb,polz,5,2,6,1,4,3,za,zb)
       atreez_251643(polq,polb,polz)=
-     .       atreez(polq,polb,polz,2,5,1,6,4,3,za,zb)
+     &       atreez(polq,polb,polz,2,5,1,6,4,3,za,zb)
       atreez_625143(polq,polb,polz)=
-     .       atreez(polq,polb,polz,6,2,5,1,4,3,za,zb)
+     &       atreez(polq,polb,polz,6,2,5,1,4,3,za,zb)
       atreez_261543(polq,polb,polz)=
-     .       atreez(polq,polb,polz,2,6,1,5,4,3,za,zb)
+     &       atreez(polq,polb,polz,2,6,1,5,4,3,za,zb)
       atreez_162543(polq,polb,polz)=
-     .       atreez(polq,polb,polz,1,6,2,5,4,3,za,zb)
+     &       atreez(polq,polb,polz,1,6,2,5,4,3,za,zb)
       atreez_615243(polq,polb,polz)=
-     .       atreez(polq,polb,polz,6,1,5,2,4,3,za,zb)
+     &       atreez(polq,polb,polz,6,1,5,2,4,3,za,zb)
       atreez_152643(polq,polb,polz)=
-     .       atreez(polq,polb,polz,1,5,2,6,4,3,za,zb)
+     &       atreez(polq,polb,polz,1,5,2,6,4,3,za,zb)
       atreez_516243(polq,polb,polz)=
-     .       atreez(polq,polb,polz,5,1,6,2,4,3,za,zb)
+     &       atreez(polq,polb,polz,5,1,6,2,4,3,za,zb)
       atreez_562143(polq,polb,polz)=
-     .       atreez(polq,polb,polz,5,6,2,1,4,3,za,zb)
+     &       atreez(polq,polb,polz,5,6,2,1,4,3,za,zb)
       atreez_651243(polq,polb,polz)=
-     .       atreez(polq,polb,polz,6,5,1,2,4,3,za,zb)
+     &       atreez(polq,polb,polz,6,5,1,2,4,3,za,zb)
       atreez_561243(polq,polb,polz)=
-     .       atreez(polq,polb,polz,5,6,1,2,4,3,za,zb)
+     &       atreez(polq,polb,polz,5,6,1,2,4,3,za,zb)
       atreez_652143(polq,polb,polz)=
-     .       atreez(polq,polb,polz,6,5,2,1,4,3,za,zb)
+     &       atreez(polq,polb,polz,6,5,2,1,4,3,za,zb)
 c--- a61z
       a61z_526143(polq,polb,polz)=a61z(polq,polb,polz,5,2,6,1,4,3,za,zb)
       a61z_251643(polq,polb,polz)=a61z(polq,polb,polz,2,5,1,6,4,3,za,zb)
@@ -283,7 +288,7 @@ c--- a63z
       do k=-nflav,nflav
 
       if ((abs(j) .ne. flav) .and. (abs(k) .ne. flav)) goto 99
-      if ((abs(j) .eq. flav) .and. (abs(k) .eq. flav)) goto 99
+      if ((abs(j) == flav) .and. (abs(k) == flav)) goto 99
 c--- so that either abs(j) or abs(k) = flav (but not both).
 
 c---Desired formula =(Att*(A61+A61o+(A63-A63s/n+A62s+A62os)/n)
@@ -298,132 +303,132 @@ c     and lamps,lampx are the pieces that have the "s"
         tamp=czip
         lamp=czip
 c--- Q-Q
-        if      ((j .gt. 0) .and. (k .gt. 0)) then
-          if     (j .eq. +flav) then
+        if      ((j > 0) .and. (k > 0)) then
+          if     (j == +flav) then
             tamp=atreez_526143(polq,polb,polz)
-     .           *(Q(j)*q1+vQ(j,polq)*v2(polz)*prop)
-     .          -atreez_251643(3-polb,3-polq,polz)
-     .           *(Q(k)*q1+vQ(k,polb)*v2(polz)*prop)
+     &           *(Q(j)*q1+vQ(j,polq)*v2(polz)*prop)
+     &          -atreez_251643(3-polb,3-polq,polz)
+     &           *(Q(k)*q1+vQ(k,polb)*v2(polz)*prop)
             lamp=a61z_526143(polq,polb,polz)
-     .           *(Q(j)*q1+vQ(j,polq)*v2(polz)*prop)
-     .          -a61z_251643(3-polb,3-polq,polz)
-     .           *(Q(k)*q1+vQ(k,polb)*v2(polz)*prop)
-     .          +a63z_526143(polq,polb,polz)/xn
-     .           *v2(polz)/sin2w*prop
-          elseif (k .eq. +flav) then
+     &           *(Q(j)*q1+vQ(j,polq)*v2(polz)*prop)
+     &          -a61z_251643(3-polb,3-polq,polz)
+     &           *(Q(k)*q1+vQ(k,polb)*v2(polz)*prop)
+     &          +a63z_526143(polq,polb,polz)/xn
+     &           *v2(polz)/sin2w*prop
+          elseif (k == +flav) then
             tamp=atreez_625143(polq,polb,polz)
-     .           *(Q(j)*q1+vQ(j,polq)*v2(polz)*prop)
-     .          -atreez_261543(3-polb,3-polq,polz)
-     .           *(Q(k)*q1+vQ(k,polb)*v2(polz)*prop)
+     &           *(Q(j)*q1+vQ(j,polq)*v2(polz)*prop)
+     &          -atreez_261543(3-polb,3-polq,polz)
+     &           *(Q(k)*q1+vQ(k,polb)*v2(polz)*prop)
             lamp=a61z_625143(polq,polb,polz)
-     .           *(Q(j)*q1+vQ(j,polq)*v2(polz)*prop)
-     .          -a61z_261543(3-polb,3-polq,polz)
-     .           *(Q(k)*q1+vQ(k,polb)*v2(polz)*prop)
-     .          +a63z_625143(polq,polb,polz)/xn
-     .           *v2(polz)/sin2w*prop
+     &           *(Q(j)*q1+vQ(j,polq)*v2(polz)*prop)
+     &          -a61z_261543(3-polb,3-polq,polz)
+     &           *(Q(k)*q1+vQ(k,polb)*v2(polz)*prop)
+     &          +a63z_625143(polq,polb,polz)/xn
+     &           *v2(polz)/sin2w*prop
           endif
           if (compare) then
             msqv(j,k)=msqv(j,k)
-     .      +faclo*dble(tamp*dconjg(tamp))
+     &      +faclo*real(tamp*conjg(tamp))
           else
             msqv(j,k)=msqv(j,k)
-     .      +fac*2d0*dble(tamp*dconjg(lamp))
+     &      +fac*2._dp*real(tamp*conjg(lamp))
           endif
 c--- Qbar-Qbar
-        elseif ((j .lt. 0) .and. (k .lt. 0)) then
-          if     (j .eq. -flav) then
+        elseif ((j < 0) .and. (k < 0)) then
+          if     (j == -flav) then
             tamp=atreez_162543(polq,polb,polz)
-     .           *(Q(-j)*q1+vQ(-j,polq)*v2(polz)*prop)
-     .          -atreez_615243(3-polb,3-polq,polz)
-     .           *(Q(-k)*q1+vQ(-k,polb)*v2(polz)*prop)
+     &           *(Q(-j)*q1+vQ(-j,polq)*v2(polz)*prop)
+     &          -atreez_615243(3-polb,3-polq,polz)
+     &           *(Q(-k)*q1+vQ(-k,polb)*v2(polz)*prop)
             lamp=a61z_162543(polq,polb,polz)
-     .           *(Q(-j)*q1+vQ(-j,polq)*v2(polz)*prop)
-     .          -a61z_615243(3-polb,3-polq,polz)
-     .           *(Q(-k)*q1+vQ(-k,polb)*v2(polz)*prop)
-     .          +a63z_162543(polq,polb,polz)/xn
-     .           *v2(polz)/sin2w*prop
-          elseif (k .eq. -flav) then
+     &           *(Q(-j)*q1+vQ(-j,polq)*v2(polz)*prop)
+     &          -a61z_615243(3-polb,3-polq,polz)
+     &           *(Q(-k)*q1+vQ(-k,polb)*v2(polz)*prop)
+     &          +a63z_162543(polq,polb,polz)/xn
+     &           *v2(polz)/sin2w*prop
+          elseif (k == -flav) then
             tamp=atreez_152643(polq,polb,polz)
-     .           *(Q(-j)*q1+vQ(-j,polq)*v2(polz)*prop)
-     .          -atreez_516243(3-polb,3-polq,polz)
-     .           *(Q(-k)*q1+vQ(-k,polb)*v2(polz)*prop)
+     &           *(Q(-j)*q1+vQ(-j,polq)*v2(polz)*prop)
+     &          -atreez_516243(3-polb,3-polq,polz)
+     &           *(Q(-k)*q1+vQ(-k,polb)*v2(polz)*prop)
             lamp=a61z_152643(polq,polb,polz)
-     .           *(Q(-j)*q1+vQ(-j,polq)*v2(polz)*prop)
-     .          -a61z_516243(3-polb,3-polq,polz)
-     .           *(Q(-k)*q1+vQ(-k,polb)*v2(polz)*prop)
-     .          +a63z_152643(polq,polb,polz)/xn
-     .           *v2(polz)/sin2w*prop
+     &           *(Q(-j)*q1+vQ(-j,polq)*v2(polz)*prop)
+     &          -a61z_516243(3-polb,3-polq,polz)
+     &           *(Q(-k)*q1+vQ(-k,polb)*v2(polz)*prop)
+     &          +a63z_152643(polq,polb,polz)/xn
+     &           *v2(polz)/sin2w*prop
           endif
           if (compare) then
             msqv(j,k)=msqv(j,k)
-     .      +faclo*dble(tamp*dconjg(tamp))
+     &      +faclo*real(tamp*conjg(tamp))
           else
             msqv(j,k)=msqv(j,k)
-     .      +fac*2d0*dble(tamp*dconjg(lamp))
+     &      +fac*2._dp*real(tamp*conjg(lamp))
           endif
 c--- Q-Qbar
-        elseif ((j .gt. 0) .and. (k .lt. 0)) then
-          if     (j .eq. +flav) then
+        elseif ((j > 0) .and. (k < 0)) then
+          if     (j == +flav) then
             tamp=atreez_562143(polq,polb,polz)
-     .           *(Q(j)*q1+vQ(j,polq)*v2(polz)*prop)
-     .          -atreez_651243(3-polb,3-polq,polz)
-     .           *(Q(-k)*q1+vQ(-k,polb)*v2(polz)*prop)
+     &           *(Q(j)*q1+vQ(j,polq)*v2(polz)*prop)
+     &          -atreez_651243(3-polb,3-polq,polz)
+     &           *(Q(-k)*q1+vQ(-k,polb)*v2(polz)*prop)
             lamp=a61z_562143(polq,polb,polz)
-     .           *(Q(j)*q1+vQ(j,polq)*v2(polz)*prop)
-     .          -a61z_651243(3-polb,3-polq,polz)
-     .           *(Q(-k)*q1+vQ(-k,polb)*v2(polz)*prop)
-     .          +a63z_562143(polq,polb,polz)/xn
-     .           *v2(polz)/sin2w*prop
-          elseif (k .eq. -flav) then
+     &           *(Q(j)*q1+vQ(j,polq)*v2(polz)*prop)
+     &          -a61z_651243(3-polb,3-polq,polz)
+     &           *(Q(-k)*q1+vQ(-k,polb)*v2(polz)*prop)
+     &          +a63z_562143(polq,polb,polz)/xn
+     &           *v2(polz)/sin2w*prop
+          elseif (k == -flav) then
             tamp=atreez_652143(polq,polb,polz)
-     .           *(Q(j)*q1+vQ(j,polq)*v2(polz)*prop)
-     .          -atreez_561243(3-polb,3-polq,polz)
-     .           *(Q(-k)*q1+vQ(-k,polb)*v2(polz)*prop)
+     &           *(Q(j)*q1+vQ(j,polq)*v2(polz)*prop)
+     &          -atreez_561243(3-polb,3-polq,polz)
+     &           *(Q(-k)*q1+vQ(-k,polb)*v2(polz)*prop)
             lamp=a61z_652143(polq,polb,polz)
-     .           *(Q(j)*q1+vQ(j,polq)*v2(polz)*prop)
-     .          -a61z_561243(3-polb,3-polq,polz)
-     .           *(Q(-k)*q1+vQ(-k,polb)*v2(polz)*prop)
-     .          +a63z_652143(polq,polb,polz)/xn
-     .           *v2(polz)/sin2w*prop
+     &           *(Q(j)*q1+vQ(j,polq)*v2(polz)*prop)
+     &          -a61z_561243(3-polb,3-polq,polz)
+     &           *(Q(-k)*q1+vQ(-k,polb)*v2(polz)*prop)
+     &          +a63z_652143(polq,polb,polz)/xn
+     &           *v2(polz)/sin2w*prop
           endif
           if (compare) then
             msqv(j,k)=msqv(j,k)
-     .      +faclo*dble(tamp*dconjg(tamp))
+     &      +faclo*real(tamp*conjg(tamp))
           else
-            msqv(j,k)=msqv(j,k)+fac*2d0*(
-     .        +dble(tamp*dconjg(lamp)))
+            msqv(j,k)=msqv(j,k)+fac*2._dp*(
+     &        +real(tamp*conjg(lamp)))
           endif
 c--- Qbar-Q
-        elseif ((j .lt. 0) .and. (k .gt. 0)) then
-          if     (j .eq. -flav) then
+        elseif ((j < 0) .and. (k > 0)) then
+          if     (j == -flav) then
             tamp=atreez_651243(polq,polb,polz)
-     .           *(Q(k)*q1+vQ(k,polq)*v2(polz)*prop)
-     .          -atreez_562143(3-polb,3-polq,polz)
-     .           *(Q(-j)*q1+vQ(-j,polb)*v2(polz)*prop)
+     &           *(Q(k)*q1+vQ(k,polq)*v2(polz)*prop)
+     &          -atreez_562143(3-polb,3-polq,polz)
+     &           *(Q(-j)*q1+vQ(-j,polb)*v2(polz)*prop)
             lamp=a61z_651243(polq,polb,polz)
-     .           *(Q(k)*q1+vQ(k,polq)*v2(polz)*prop)
-     .          -a61z_562143(3-polb,3-polq,polz)
-     .           *(Q(-j)*q1+vQ(-j,polb)*v2(polz)*prop)
-     .          +a63z_651243(polq,polb,polz)/xn
-     .           *v2(polz)/sin2w*prop
-          elseif (k .eq. +flav) then
+     &           *(Q(k)*q1+vQ(k,polq)*v2(polz)*prop)
+     &          -a61z_562143(3-polb,3-polq,polz)
+     &           *(Q(-j)*q1+vQ(-j,polb)*v2(polz)*prop)
+     &          +a63z_651243(polq,polb,polz)/xn
+     &           *v2(polz)/sin2w*prop
+          elseif (k == +flav) then
             tamp=atreez_561243(polq,polb,polz)
-     .           *(Q(k)*q1+vQ(k,polq)*v2(polz)*prop)
-     .          -atreez_652143(3-polb,3-polq,polz)
-     .           *(Q(-j)*q1+vQ(-j,polb)*v2(polz)*prop)
+     &           *(Q(k)*q1+vQ(k,polq)*v2(polz)*prop)
+     &          -atreez_652143(3-polb,3-polq,polz)
+     &           *(Q(-j)*q1+vQ(-j,polb)*v2(polz)*prop)
             lamp=a61z_561243(polq,polb,polz)
-     .           *(Q(k)*q1+vQ(k,polq)*v2(polz)*prop)
-     .          -a61z_652143(3-polb,3-polq,polz)
-     .           *(Q(-j)*q1+vQ(-j,polb)*v2(polz)*prop)
-     .          +a63z_561243(polq,polb,polz)/xn
-     .           *v2(polz)/sin2w*prop
+     &           *(Q(k)*q1+vQ(k,polq)*v2(polz)*prop)
+     &          -a61z_652143(3-polb,3-polq,polz)
+     &           *(Q(-j)*q1+vQ(-j,polb)*v2(polz)*prop)
+     &          +a63z_561243(polq,polb,polz)/xn
+     &           *v2(polz)/sin2w*prop
           endif
           if (compare) then
             msqv(j,k)=msqv(j,k)
-     .      +faclo*dble(tamp*dconjg(tamp))
+     &      +faclo*real(tamp*conjg(tamp))
           else
-            msqv(j,k)=msqv(j,k)+fac*2d0*(
-     .        +dble(tamp*dconjg(lamp)))
+            msqv(j,k)=msqv(j,k)+fac*2._dp*(
+     &        +real(tamp*conjg(lamp)))
           endif
         endif
       enddo

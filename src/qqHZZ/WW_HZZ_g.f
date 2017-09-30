@@ -1,5 +1,7 @@
       subroutine WW_HZZ_g(p,msq)
       implicit none
+      include 'types.f'
+
 c--- Weak Boson Fusion by W-W exchange only
 c---Matrix element squared averaged over initial colors and spins
 c
@@ -9,34 +11,37 @@ c                           |
 c                           |
 c                           ---> W+(nu(p3)+e+(p4))+W-(e-(p5)+nub(p6))
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'qcdcouple.f'
       include 'ewcouple.f'
       include 'zcouple.f'
       include 'sprods_com.f'
-      integer j,k
-      double precision p(mxpart,4),facqq,facqg,s3456
-      double precision msq(-nf:nf,-nf:nf),hdecay,
-     . ud_dug,uub_ddbg,ug_dudb,gu_uddb
+      integer:: j,k
+      real(dp):: p(mxpart,4),facqq,facqg,s3456
+      real(dp):: msq(-nf:nf,-nf:nf),hdecay,
+     & ud_dug,uub_ddbg,ug_dudb,gu_uddb
 
       integer,parameter::pn(-nf:nf)=(/-1,-2,-1,-2,-1,0,1,2,1,2,1/)
 
       do j=-nf,nf
       do k=-nf,nf
-      msq(j,k)=0d0
+      msq(j,k)=0._dp
       enddo
       enddo
 
       call dotem(9,p,s)
 
       s3456=s(3,4)+s(3,5)+s(3,6)+s(4,5)+s(4,6)+s(5,6)
-      hdecay=gwsq**3*zmass**2*4d0*xw**2/(one-xw)*
+      hdecay=gwsq**3*zmass**2*4._dp*xw**2/(one-xw)*
      &  (((l1*l2)**2+(r1*r2)**2)*s(3,5)*s(4,6)
      & + ((r1*l2)**2+(r2*l1)**2)*s(3,6)*s(4,5))
       hdecay=hdecay/((s(3,4)-zmass**2)**2+(zmass*zwidth)**2)
       hdecay=hdecay/((s(5,6)-zmass**2)**2+(zmass*zwidth)**2)
       hdecay=hdecay/((s3456-hmass**2)**2+(hmass*hwidth)**2)
-      facqq=0.25d0*gsq*Cf*gwsq**3*hdecay
+      facqq=0.25_dp*gsq*Cf*gwsq**3*hdecay
       facqg=-facqq*(aveqg/aveqq)
 C Extra factor of gsq*Cf compared to lowest order
 
@@ -63,18 +68,18 @@ c--- g(1)+ub(2) -> [ub/cb](7)+[d/s](8)+db(9)
 c--- Only loop up to (nf-1) to avoid b->t transitions
       do j=-(nf-1),nf-1
       do k=-(nf-1),nf-1
-        if     ((j .gt. 0) .and. (k .lt. 0)) then
-          if (pn(j) .eq. -pn(k)) msq(j,k)=facqq*uub_ddbg
-        elseif ((j .lt. 0) .and. (k .gt. 0)) then
-          if (pn(j) .eq. -pn(k)) msq(j,k)=facqq*uub_ddbg
-        elseif ((j .gt. 0) .and. (k .gt. 0)) then
-          if (pn(j)+pn(k) .eq. +3) msq(j,k)=facqq*ud_dug
-        elseif ((j .lt. 0) .and. (k .lt. 0)) then
-          if (pn(j)+pn(k) .eq. -3) msq(j,k)=facqq*ud_dug
-        elseif ((j .ne. 0) .and. (k .eq. 0)) then
-          msq(j,k)=facqg*2d0*ug_dudb
-        elseif ((j .eq. 0) .and. (k .ne. 0)) then
-          msq(j,k)=facqg*2d0*gu_uddb
+        if     ((j > 0) .and. (k < 0)) then
+          if (pn(j) == -pn(k)) msq(j,k)=facqq*uub_ddbg
+        elseif ((j < 0) .and. (k > 0)) then
+          if (pn(j) == -pn(k)) msq(j,k)=facqq*uub_ddbg
+        elseif ((j > 0) .and. (k > 0)) then
+          if (pn(j)+pn(k) == +3) msq(j,k)=facqq*ud_dug
+        elseif ((j < 0) .and. (k < 0)) then
+          if (pn(j)+pn(k) == -3) msq(j,k)=facqq*ud_dug
+        elseif ((j .ne. 0) .and. (k == 0)) then
+          msq(j,k)=facqg*2._dp*ug_dudb
+        elseif ((j == 0) .and. (k .ne. 0)) then
+          msq(j,k)=facqg*2._dp*gu_uddb
         endif
       enddo
       enddo

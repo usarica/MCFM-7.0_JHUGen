@@ -1,16 +1,21 @@
       subroutine massivetri6(k1,k2,k3,k4,k5,k6,za,zb,triang)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'scale.f'
       include 'masses.f'
       include 'sprods_com.f'
       include 'zprods_decl.f'
       include 'docheck.f'
-      double complex c(2,2,12),d(2,2,6),Cint(12,-2:0),triang(2,2,-2:0),
-     & qlI3,tmp
-      double precision s12,s34,s56,s134,s156,mtsq,Delta,shift,
+      complex(dp):: c(2,2,12),d(2,2,6),Cint(12,-2:0),
+     & triang(2,2,-2:0),qlI3,tmp
+      real(dp):: s12,s34,s56,s134,s156,mtsq,Delta,shift,
      & cred13,cred23
-      integer j,k1,k2,k3,k4,k5,k6,e,h1,h2
+      integer:: j,k1,k2,k3,k4,k5,k6,e,h1,h2
       common/transferbox/d
 !$omp threadprivate(/transferbox/)
 
@@ -93,21 +98,21 @@ c      call triangle12new(1,2,6,5,4,3,zb,za,c(1,1,12),c(1,2,12))
 
 c--- Perform shifting of triangle coefficients 
       Delta=(mtsq-s134)*(mtsq-s156)-(mtsq-s34)*(mtsq-s56)
-      shift=(2d0*s12*mtsq-Delta)/Delta**2
-c      cred31=2d0*(s134-s34)*shift
-c      cred34=2d0*(s156-s56)*shift
-c      cred42=2d0*(s156-s34)*shift
-c      cred43=2d0*(s134-s56)*shift
-       cred13=2d0*((s134+mtsq)*(s56+s34-s12)-2d0*s134*mtsq-2d0*s34*s56)
+      shift=(2._dp*s12*mtsq-Delta)/Delta**2
+c      cred31=2._dp*(s134-s34)*shift
+c      cred34=2._dp*(s156-s56)*shift
+c      cred42=2._dp*(s156-s34)*shift
+c      cred43=2._dp*(s134-s56)*shift
+       cred13=2._dp*((s134+mtsq)*(s56+s34-s12)-2._dp*s134*mtsq-2._dp*s34*s56)
      & /(s12*(s134-mtsq)**2)
-       cred23=2d0*((s156+mtsq)*(s56+s34-s12)-2d0*s156*mtsq-2d0*s34*s56)
+       cred23=2._dp*((s156+mtsq)*(s56+s34-s12)-2._dp*s156*mtsq-2._dp*s34*s56)
      & /(s12*(s156-mtsq)**2)
 
 
       do h1=1,2
       do h2=1,2
       c(h1,h2,6)=c(h1,h2,6)
-     & -0.5d0*cred13*d(h1,h2,1)-0.5d0*cred23*d(h1,h2,2)
+     & -0.5_dp*cred13*d(h1,h2,1)-0.5_dp*cred23*d(h1,h2,2)
       c(h1,h2,7) = c(h1,h2,7)-(s134-s34)*shift*d(h1,h2,3)
       c(h1,h2,8) = c(h1,h2,8)-(s134-s56)*shift*d(h1,h2,4)
       c(h1,h2,9) = c(h1,h2,9)-(s156-s56)*shift*d(h1,h2,3)
@@ -121,40 +126,40 @@ c--- compare with numerical code
       endif
 
 c      do e=-2,0
-c      Cint(1,e)=qlI3(0d0,0d0,s12,0d0,0d0,0d0,musq,e)
+c      Cint(1,e)=qlI3(0._dp,0._dp,s12,0._dp,0._dp,0._dp,musq,e)
 c      enddo
 c      do e=-2,0
-c      Cint(2,e)=qlI3(0d0,s134,s34,0d0,0d0,mtsq,musq,e)
+c      Cint(2,e)=qlI3(0._dp,s134,s34,0._dp,0._dp,mtsq,musq,e)
 c      enddo
 c      do e=-2,0
-c      Cint(3,e)=qlI3(0d0,s56,s134,0d0,0d0,mtsq,musq,e)
+c      Cint(3,e)=qlI3(0._dp,s56,s134,0._dp,0._dp,mtsq,musq,e)
 c      enddo
 c      do e=-2,0
-c      Cint(4,e)=qlI3(0d0,s156,s56,0d0,0d0,mtsq,musq,e)
+c      Cint(4,e)=qlI3(0._dp,s156,s56,0._dp,0._dp,mtsq,musq,e)
 c      enddo
 c      do e=-2,0
-c      Cint(5,e)=qlI3(0d0,s34,s156,0d0,0d0,mtsq,musq,e)
+c      Cint(5,e)=qlI3(0._dp,s34,s156,0._dp,0._dp,mtsq,musq,e)
 c      enddo
       do e=-2,0
-      Cint(6,e)=qlI3(s12,s56,s34,0d0,0d0,mtsq,musq,e)
+      Cint(6,e)=qlI3(s12,s56,s34,0._dp,0._dp,mtsq,musq,e)
       enddo
       do e=-2,0
-      Cint(7,e)=qlI3(s134,0d0,s34,0d0,mtsq,mtsq,musq,e)
+      Cint(7,e)=qlI3(s134,0._dp,s34,0._dp,mtsq,mtsq,musq,e)
       enddo
       do e=-2,0
-      Cint(8,e)=qlI3(s56,0d0,s134,0d0,mtsq,mtsq,musq,e)
+      Cint(8,e)=qlI3(s56,0._dp,s134,0._dp,mtsq,mtsq,musq,e)
       enddo
       do e=-2,0
-      Cint(9,e)=qlI3(s156,0d0,s56,0d0,mtsq,mtsq,musq,e)
+      Cint(9,e)=qlI3(s156,0._dp,s56,0._dp,mtsq,mtsq,musq,e)
       enddo
       do e=-2,0
-      Cint(10,e)=qlI3(s34,0d0,s156,0d0,mtsq,mtsq,musq,e)
+      Cint(10,e)=qlI3(s34,0._dp,s156,0._dp,mtsq,mtsq,musq,e)
       enddo
       do e=-2,0
-         Cint(11,e)=qlI3(s56,s12,s34,0d0,mtsq,mtsq,musq,e)
+         Cint(11,e)=qlI3(s56,s12,s34,0._dp,mtsq,mtsq,musq,e)
       enddo
       do e=-2,0
-      Cint(12,e)=qlI3(s12,0d0,0d0,mtsq,mtsq,mtsq,musq,e)
+      Cint(12,e)=qlI3(s12,0._dp,0._dp,mtsq,mtsq,mtsq,musq,e)
       enddo
 
       do h1=1,2

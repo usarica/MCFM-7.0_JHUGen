@@ -1,5 +1,7 @@
       subroutine qq_Hqq_g(p,msq)
       implicit none
+      include 'types.f'
+
 c---Matrix element squared averaged over initial colors and spins
 c
 c     q(-p1)+q(-p2) -->  H(p3,p4)+q(p5)+q(p6)+g(p7)
@@ -8,6 +10,9 @@ c                           |
 c                           |
 c                           ---> b(p3)+bbar(p4)
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'ewcouple.f'
       include 'zcouple.f'
@@ -15,14 +20,14 @@ c                           ---> b(p3)+bbar(p4)
       include 'ckm.f'
       include 'sprods_com.f'
       include 'hdecaymode.f'
-      integer j,k,m,n
-      double precision p(mxpart,4),facqq,facqg,s34
-      double precision msq(-nf:nf,-nf:nf),hdecay,
-     . msqll,msqlr,msqzzin,msqwzin,msqwl,
-     . msxll,msxlr,msxzzin,msxwzin,msxwl,msqgamgam
-      double precision msqx(fn:nf,fn:nf,fn:nf,fn:nf)
+      integer:: j,k,m,n
+      real(dp):: p(mxpart,4),facqq,facqg,s34
+      real(dp):: msq(-nf:nf,-nf:nf),hdecay,
+     & msqll,msqlr,msqzzin,msqwzin,msqwl,
+     & msxll,msxlr,msxzzin,msxwzin,msxwl,msqgamgam
+      real(dp):: msqx(fn:nf,fn:nf,fn:nf,fn:nf)
       common/msq_all/msqx
-      logical includeall
+      logical:: includeall
 
       integer,parameter::pn(-nf:nf)=(/-1,-2,-1,-2,-1,0,1,2,1,2,1/)
 
@@ -38,10 +43,10 @@ c---    TRUE ---> untested, no point in including
 
       do j=-nf,nf
       do k=-nf,nf
-      msq(j,k)=0d0
+      msq(j,k)=0._dp
       do m=-nf,nf
       do n=-nf,nf
-      msqx(j,k,m,n)=0d0
+      msqx(j,k,m,n)=0._dp
       enddo
       enddo
       enddo
@@ -63,7 +68,7 @@ C   Deal with Higgs decay
       endif
       hdecay=hdecay/((s34-hmass**2)**2+(hmass*hwidth)**2)
 
-      facqq=0.25d0*gsq*Cf*gwsq**3*hdecay
+      facqq=0.25_dp*gsq*Cf*gwsq**3*hdecay
       facqg=-facqq*(aveqg/aveqq)
 C Extra factor of gsq*Cf compared to lowest order
 
@@ -76,32 +81,32 @@ C q-q and qbar-qbar
       do m=1,nf
       do n=1,nf
 
-      if ((j.eq.m) .and. (k.eq.n)) then
+      if ((j==m) .and. (k==n)) then
       msqx(j,k,m,n)=msqx(j,k,m,n)+facqq*(
-     . +msqll*((L(j)*L(k))**2+(R(j)*R(k))**2)
-     . +msqlr*((L(j)*R(k))**2+(R(j)*L(k))**2))
+     & +msqll*((L(j)*L(k))**2+(R(j)*R(k))**2)
+     & +msqlr*((L(j)*R(k))**2+(R(j)*L(k))**2))
       endif
-      if ((j.eq.n) .and. (k.eq.m)) then
+      if ((j==n) .and. (k==m)) then
       msqx(j,k,m,n)=msqx(j,k,m,n)+facqq*(
-     . +msxll*((L(j)*L(k))**2+(R(j)*R(k))**2)
-     . +msxlr*((L(j)*R(k))**2+(R(j)*L(k))**2))
+     & +msxll*((L(j)*L(k))**2+(R(j)*R(k))**2)
+     & +msxlr*((L(j)*R(k))**2+(R(j)*L(k))**2))
       endif
-      if ((j.eq.k) .and. (j.eq.m) .and. (j.eq.n)) then
+      if ((j==k) .and. (j==m) .and. (j==n)) then
       msqx(j,k,m,n)=msqx(j,k,m,n)+facqq*(
-     . +msqzzin*((L(j)*L(k))**2+(R(j)*R(k))**2))
+     & +msqzzin*((L(j)*L(k))**2+(R(j)*R(k))**2))
       endif
-      if (  (pn(j)+pn(m) .eq. +3) .and. (pn(k)+pn(n) .eq. +3)
-     ..and. (pn(j)+pn(k) .eq. +3) ) then
+      if (  (pn(j)+pn(m) == +3) .and. (pn(k)+pn(n) == +3)
+     ..and. (pn(j)+pn(k) == +3) ) then
       msqx(j,k,m,n)=msqx(j,k,m,n)+facqq*Vsq(j,-m)*Vsq(k,-n)*(
-     . +msxwzin*L(j)*L(k)+msxwl)
+     & +msxwzin*L(j)*L(k)+msxwl)
       endif
-      if (  (pn(j)+pn(n) .eq. +3) .and. (pn(k)+pn(m) .eq. +3)
-     ..and. (pn(j)+pn(k) .eq. +3) ) then
+      if (  (pn(j)+pn(n) == +3) .and. (pn(k)+pn(m) == +3)
+     ..and. (pn(j)+pn(k) == +3) ) then
       msqx(j,k,m,n)=msqx(j,k,m,n)+facqq*Vsq(j,-n)*Vsq(k,-m)*(
-     . +msqwzin*L(j)*L(k)+msqwl)
+     & +msqwzin*L(j)*L(k)+msqwl)
       endif
-      if (j .eq. k) then
-        msqx(j,k,m,n)=msqx(j,k,m,n)/2d0
+      if (j == k) then
+        msqx(j,k,m,n)=msqx(j,k,m,n)/2._dp
       endif
 
       msqx(-j,-k,-m,-n)=msqx(j,k,m,n)
@@ -120,32 +125,32 @@ C q-qb
       do m=1,nf
       do n=-nf,-1
 
-      if ((j.eq.m) .and. (k.eq.n)) then
+      if ((j==m) .and. (k==n)) then
       msqx(j,k,m,n)=msqx(j,k,m,n)+facqq*(
-     . +msqll*((L(j)*L(-k))**2+(R(j)*R(-k))**2)
-     . +msqlr*((L(j)*R(-k))**2+(R(j)*L(-k))**2))
+     & +msqll*((L(j)*L(-k))**2+(R(j)*R(-k))**2)
+     & +msqlr*((L(j)*R(-k))**2+(R(j)*L(-k))**2))
        if (includeall) then
       msqx(j,k,m,n)=msqx(j,k,m,n)+facqq*Vsq(j,k)*Vsq(m,n)*(
-     . +msqwzin*L(j)*L(-k)+msqwl)
-         if (j .eq. -k) then
+     & +msqwzin*L(j)*L(-k)+msqwl)
+         if (j == -k) then
       msqx(j,k,m,n)=msqx(j,k,m,n)+facqq*(
-     . +msxll*((L(j)*L(j))**2+(R(j)*R(j))**2)
-     . +msxlr*((L(j)*R(j))**2+(R(j)*L(j))**2)
-     . +msqzzin*((L(j)*L(j))**2+(R(j)*R(j))**2))
+     & +msxll*((L(j)*L(j))**2+(R(j)*R(j))**2)
+     & +msxlr*((L(j)*R(j))**2+(R(j)*L(j))**2)
+     & +msqzzin*((L(j)*L(j))**2+(R(j)*R(j))**2))
          endif
        endif
       endif
 
-      if (   (pn(j)+pn(m) .eq. +3) .and. (pn(k)+pn(n) .eq. -3)
-     . .and. (pn(j)+pn(k) .eq. pn(m)+pn(n)) ) then
+      if (   (pn(j)+pn(m) == +3) .and. (pn(k)+pn(n) == -3)
+     & .and. (pn(j)+pn(k) == pn(m)+pn(n)) ) then
       msqx(j,k,m,n)=msqx(j,k,m,n)+facqq*Vsq(j,-m)*Vsq(k,-n)*msxwl
        if (includeall) then
-         if ((j .eq. -k) .and. (m .eq. -n)) then
+         if ((j == -k) .and. (m == -n)) then
       msqx(j,k,m,n)=msqx(j,k,m,n)+facqq*(
-     . +msxll*((L(j)*L(m))**2+(R(j)*R(m))**2)
-     . +msxlr*((L(j)*R(m))**2+(R(j)*L(m))**2)
-     . +msxwzin*L(j)*L(m)*Vsq(j,-m)*Vsq(k,-n)
-     . )
+     & +msxll*((L(j)*L(m))**2+(R(j)*R(m))**2)
+     & +msxlr*((L(j)*R(m))**2+(R(j)*L(m))**2)
+     & +msxwzin*L(j)*L(m)*Vsq(j,-m)*Vsq(k,-n)
+     & )
          endif
        endif
       endif
@@ -166,32 +171,32 @@ C qb-q
       do m=1,nf
       do n=-nf,-1
 
-      if ((j.eq.n) .and. (k.eq.m)) then
+      if ((j==n) .and. (k==m)) then
       msqx(j,k,m,n)=msqx(j,k,m,n)+facqq*(
-     . +msqll*((L(-j)*L(k))**2+(R(-j)*R(k))**2)
-     . +msqlr*((L(-j)*R(k))**2+(R(-j)*L(k))**2))
+     & +msqll*((L(-j)*L(k))**2+(R(-j)*R(k))**2)
+     & +msqlr*((L(-j)*R(k))**2+(R(-j)*L(k))**2))
        if (includeall) then
       msqx(j,k,m,n)=msqx(j,k,m,n)+facqq*Vsq(j,k)*Vsq(m,n)*(
-     . +msqwzin*L(-j)*L(k)+msqwl)
-         if (j .eq. -k) then
+     & +msqwzin*L(-j)*L(k)+msqwl)
+         if (j == -k) then
       msqx(j,k,m,n)=msqx(j,k,m,n)+facqq*(
-     . +msxll*((L(-j)*L(-j))**2+(R(-j)*R(-j))**2)
-     . +msxlr*((L(-j)*R(-j))**2+(R(-j)*L(-j))**2)
-     . +msqzzin*((L(-j)*L(-j))**2+(R(-j)*R(-j))**2))
+     & +msxll*((L(-j)*L(-j))**2+(R(-j)*R(-j))**2)
+     & +msxlr*((L(-j)*R(-j))**2+(R(-j)*L(-j))**2)
+     & +msqzzin*((L(-j)*L(-j))**2+(R(-j)*R(-j))**2))
          endif
        endif
       endif
 
-      if (   (pn(j)+pn(n) .eq. -3) .and. (pn(k)+pn(m) .eq. +3)
-     . .and. (pn(j)+pn(k) .eq. pn(m)+pn(n)) ) then
+      if (   (pn(j)+pn(n) == -3) .and. (pn(k)+pn(m) == +3)
+     & .and. (pn(j)+pn(k) == pn(m)+pn(n)) ) then
       msqx(j,k,m,n)=msqx(j,k,m,n)+facqq*Vsq(j,-n)*Vsq(k,-m)*msxwl
        if (includeall) then
-         if ((j .eq. -k) .and. (m .eq. -n)) then
+         if ((j == -k) .and. (m == -n)) then
       msqx(j,k,m,n)=msqx(j,k,m,n)+facqq*(
-     . +msxll*((L(-j)*L(m))**2+(R(-j)*R(m))**2)
-     . +msxlr*((L(-j)*R(m))**2+(R(-j)*L(m))**2)
-     . +msxwzin*L(-j)*L(m)*Vsq(j,-n)*Vsq(k,-m)
-     . )
+     & +msxll*((L(-j)*L(m))**2+(R(-j)*R(m))**2)
+     & +msxlr*((L(-j)*R(m))**2+(R(-j)*L(m))**2)
+     & +msxwzin*L(-j)*L(m)*Vsq(j,-n)*Vsq(k,-m)
+     & )
          endif
        endif
       endif
@@ -212,30 +217,30 @@ C q-g and qbar-g
       do m=1,nf
       do n=1,nf
 
-      if ((j.eq.m) .and. (n.gt.0)) then
+      if ((j==m) .and. (n>0)) then
       msqx(j,k,m,n)=msqx(j,k,m,n)+facqg*(
-     . +msqll*((L(j)*L(n))**2+(R(j)*R(n))**2)
-     . +msqlr*((L(j)*R(n))**2+(R(j)*L(n))**2))
+     & +msqll*((L(j)*L(n))**2+(R(j)*R(n))**2)
+     & +msqlr*((L(j)*R(n))**2+(R(j)*L(n))**2))
       endif
-      if ((j.eq.n) .and. (m.gt.0)) then
+      if ((j==n) .and. (m>0)) then
       msqx(j,k,m,n)=msqx(j,k,m,n)+facqg*(
-     . +msxll*((L(j)*L(m))**2+(R(j)*R(m))**2)
-     . +msxlr*((L(j)*R(m))**2+(R(j)*L(m))**2))
+     & +msxll*((L(j)*L(m))**2+(R(j)*R(m))**2)
+     & +msxlr*((L(j)*R(m))**2+(R(j)*L(m))**2))
       endif
-      if ((j.eq.m) .and. (j.eq.n) .and. (m.gt.0)) then
+      if ((j==m) .and. (j==n) .and. (m>0)) then
       msqx(j,k,m,n)=msqx(j,k,m,n)+facqg*(
-     . +msqzzin*((L(j)*L(m))**2+(R(j)*R(m))**2))
+     & +msqzzin*((L(j)*L(m))**2+(R(j)*R(m))**2))
       endif
-      if (  (pn(j)+pn(m) .eq. +3) .and. (pn(m)+pn(n) .eq. +3)) then
+      if (  (pn(j)+pn(m) == +3) .and. (pn(m)+pn(n) == +3)) then
       msqx(j,k,m,n)=msqx(j,k,m,n)+facqg*Vsq(j,-m)*Vsum(n)*(
-     . +msxwzin*L(j)*L(m)+msxwl)
+     & +msxwzin*L(j)*L(m)+msxwl)
       endif
-      if (  (pn(j)+pn(n) .eq. +3) .and. (pn(m)+pn(n) .eq. +3)) then
+      if (  (pn(j)+pn(n) == +3) .and. (pn(m)+pn(n) == +3)) then
       msqx(j,k,m,n)=msqx(j,k,m,n)+facqg*Vsq(j,-n)*Vsum(m)*(
-     . +msqwzin*L(j)*L(n)+msqwl)
+     & +msqwzin*L(j)*L(n)+msqwl)
       endif
-      if (m .eq. n) then
-        msqx(j,k,m,n)=msqx(j,k,m,n)/2d0
+      if (m == n) then
+        msqx(j,k,m,n)=msqx(j,k,m,n)/2._dp
       endif
 
       msqx(-j,-k,-m,-n)=msqx(j,k,m,n)
@@ -253,30 +258,30 @@ C g-q and g-qbar
       do m=1,nf
       do n=1,nf
 
-      if ((k.eq.n) .and. (m.gt.0)) then
+      if ((k==n) .and. (m>0)) then
       msqx(j,k,m,n)=msqx(j,k,m,n)+facqg*(
-     . +msqll*((L(k)*L(m))**2+(R(k)*R(m))**2)
-     . +msqlr*((L(k)*R(m))**2+(R(k)*L(m))**2))
+     & +msqll*((L(k)*L(m))**2+(R(k)*R(m))**2)
+     & +msqlr*((L(k)*R(m))**2+(R(k)*L(m))**2))
       endif
-      if ((k.eq.m) .and. (n.gt.0)) then
+      if ((k==m) .and. (n>0)) then
       msqx(j,k,m,n)=msqx(j,k,m,n)+facqg*(
-     . +msxll*((L(k)*L(n))**2+(R(k)*R(n))**2)
-     . +msxlr*((L(k)*R(n))**2+(R(k)*L(n))**2))
+     & +msxll*((L(k)*L(n))**2+(R(k)*R(n))**2)
+     & +msxlr*((L(k)*R(n))**2+(R(k)*L(n))**2))
       endif
-      if ((k.eq.m) .and. (k.eq.n) .and. (m.gt.0)) then
+      if ((k==m) .and. (k==n) .and. (m>0)) then
       msqx(j,k,m,n)=msqx(j,k,m,n)+facqg*(
-     . +msqzzin*((L(k)*L(m))**2+(R(k)*R(m))**2))
+     & +msqzzin*((L(k)*L(m))**2+(R(k)*R(m))**2))
       endif
-      if (  (pn(k)+pn(n) .eq. +3) .and. (pn(m)+pn(n) .eq. +3)) then
+      if (  (pn(k)+pn(n) == +3) .and. (pn(m)+pn(n) == +3)) then
       msqx(j,k,m,n)=msqx(j,k,m,n)+facqg*Vsq(k,-n)*Vsum(m)*(
-     . +msxwzin*L(k)*L(n)+msxwl)
+     & +msxwzin*L(k)*L(n)+msxwl)
       endif
-      if (  (pn(k)+pn(m) .eq. +3) .and. (pn(m)+pn(n) .eq. +3)) then
+      if (  (pn(k)+pn(m) == +3) .and. (pn(m)+pn(n) == +3)) then
       msqx(j,k,m,n)=msqx(j,k,m,n)+facqg*Vsq(k,-m)*Vsum(n)*(
-     . +msqwzin*L(k)*L(m)+msqwl)
+     & +msqwzin*L(k)*L(m)+msqwl)
       endif
-      if (m .eq. n) then
-        msqx(j,k,m,n)=msqx(j,k,m,n)/2d0
+      if (m == n) then
+        msqx(j,k,m,n)=msqx(j,k,m,n)/2._dp
       endif
 
       msqx(-j,-k,-m,-n)=msqx(j,k,m,n)
@@ -290,29 +295,29 @@ C g-q and g-qbar
       do m=-nf,nf
       do n=-nf,nf
 c--- add in to total for msq(j,k)
-c        if (m.ge.n) then
+c        if (m>=n) then
 c          msq(j,k) = msq(j,k)+msqx(j,k,m,n)
 c        endif
-c        if     ((j .gt. 0) .and. (k .lt. 0)) then
-c          if (m.ge.n) msq(j,k) = msq(j,k)+msqx(j,k,m,n)
-c        elseif ((j .lt. 0) .and. (k .gt. 0)) then
-c          if (m.le.n) msq(j,k) = msq(j,k)+msqx(j,k,m,n)
-c        elseif ((j .gt. 0) .and. (k .gt. 0)) then
-c          if ((pn(j).eq.pn(n)) .and. (pn(k).eq.pn(m)))
-c     .                msq(j,k) = msq(j,k)+msqx(j,k,m,n)
-c        elseif ((j .lt. 0) .and. (k .lt. 0)) then
-c          if ((pn(j).eq.pn(n)) .and. (pn(k).eq.pn(m)))
-c     .                msq(j,k) = msq(j,k)+msqx(j,k,m,n)
+c        if     ((j > 0) .and. (k < 0)) then
+c          if (m>=n) msq(j,k) = msq(j,k)+msqx(j,k,m,n)
+c        elseif ((j < 0) .and. (k > 0)) then
+c          if (m<=n) msq(j,k) = msq(j,k)+msqx(j,k,m,n)
+c        elseif ((j > 0) .and. (k > 0)) then
+c          if ((pn(j)==pn(n)) .and. (pn(k)==pn(m)))
+c     &                msq(j,k) = msq(j,k)+msqx(j,k,m,n)
+c        elseif ((j < 0) .and. (k < 0)) then
+c          if ((pn(j)==pn(n)) .and. (pn(k)==pn(m)))
+c     &                msq(j,k) = msq(j,k)+msqx(j,k,m,n)
 c        else
-c          if (m.ge.n) msq(j,k) = msq(j,k)+msqx(j,k,m,n)
+c          if (m>=n) msq(j,k) = msq(j,k)+msqx(j,k,m,n)
 c        endif
-        if ((j.eq.m) .and. (k .eq. n)) then
+        if ((j==m) .and. (k == n)) then
           msq(j,k) = msq(j,k)+msqx(j,k,m,n)
         endif
-        if ((j.eq.0) .and. (m*k .gt. 0) .and. (n*k .lt. 0)) then
+        if ((j==0) .and. (m*k > 0) .and. (n*k < 0)) then
           msq(j,k) = msq(j,k)+msqx(j,k,m,n)
         endif
-        if ((k.eq.0) .and. (m*j .gt. 0) .and. (n*j .gt. 0)) then
+        if ((k==0) .and. (m*j > 0) .and. (n*j > 0)) then
           msq(j,k) = msq(j,k)+msqx(j,k,m,n)
         endif
       enddo
@@ -326,25 +331,30 @@ c        endif
 
       subroutine msq_gpieces(i1,i2,i5,i6,i7,zll,zLR,zzLL,wzLL,wll)
       implicit none
+      include 'types.f'
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'sprods_com.f'
       include 'ewcouple.f'
-      double precision zll,zLR,zzLL,wzll,wll,htheta
-      double precision msqll_a,msqlr_a,msqinterf_a
-      double precision msqll_b,msqlr_b,msqinterf_b,msqll_c,msqll_d
-      double precision msqinterfx_a,msqinterfx_b
-      double precision propw,propz,x
-      double precision msq_gsamehel,msq_gopphel,msq_ginterf,msq_ginterfx
-      double precision s15,s16,s25,s26,s157,s167,s257,s267
-      integer i1,i2,i5,i6,i7
+      real(dp):: zll,zLR,zzLL,wzll,wll,htheta
+      real(dp):: msqll_a,msqlr_a,msqinterf_a
+      real(dp):: msqll_b,msqlr_b,msqinterf_b,msqll_c,msqll_d
+      real(dp):: msqinterfx_a,msqinterfx_b
+      real(dp):: propw,propz,x
+      real(dp):: msq_gsamehel,msq_gopphel,msq_ginterf,msq_ginterfx
+      real(dp):: s15,s16,s25,s26,s157,s167,s257,s267
+      integer:: i1,i2,i5,i6,i7
 C--- define Heaviside theta function (=1 for x>0) and (0 for x < 0)
       htheta(x)=half+sign(half,x)
-      propw(s15)=sign(one,(s15-wmass**2))*dsqrt(
+      propw(s15)=sign(one,(s15-wmass**2))*sqrt(
      .((s15-wmass**2)**2+htheta(s15)*(wmass*wwidth)**2)/wmass)
       propz(s15)=sign(one,(s15-zmass**2))
-     . *dsqrt(dsqrt(1d0-xw)/xw/2d0/zmass
-     . *((s15-zmass**2)**2+htheta(s15)*(zmass*zwidth)**2))
+     & *sqrt(sqrt(1._dp-xw)/xw/2._dp/zmass
+     & *((s15-zmass**2)**2+htheta(s15)*(zmass*zwidth)**2))
 
 c--- Calculate some invariants
       s15=s(i1,i5)
@@ -372,143 +382,167 @@ c--- Obtain (26) radiation from (15) by 1<->2, 5<->6.
       msqinterfx_b=msq_ginterfx(i2,i1,i6,i5,i7)
 
 c--- catch the unwanted diagrams for the gluon-quark processes
-      if (i7 .eq. 1) then
-        msqll_b=0d0
-        msqlr_b=0d0
-        msqinterf_b=0d0
-        msqinterfx_b=0d0
-        msqinterfx_a=0d0
-        msqll_d=0d0
+      if (i7 == 1) then
+        msqll_b=0._dp
+        msqlr_b=0._dp
+        msqinterf_b=0._dp
+        msqinterfx_b=0._dp
+        msqinterfx_a=0._dp
+        msqll_d=0._dp
       endif
-      if (i7 .eq. 2) then
-        msqll_a=0d0
-        msqlr_a=0d0
-        msqinterf_a=0d0
-        msqinterfx_a=0d0
-        msqinterfx_b=0d0
-        msqll_c=0d0
+      if (i7 == 2) then
+        msqll_a=0._dp
+        msqlr_a=0._dp
+        msqinterf_a=0._dp
+        msqinterfx_a=0._dp
+        msqinterfx_b=0._dp
+        msqll_c=0._dp
       endif
 
       zll=msqll_a/(propz(s157)*propz(s26))**2
-     .   +msqll_b/(propz(s267)*propz(s15))**2
+     &   +msqll_b/(propz(s267)*propz(s15))**2
 
       zlr=msqlr_a/(propz(s157)*propz(s26))**2
-     .   +msqlr_b/(propz(s267)*propz(s15))**2
+     &   +msqlr_b/(propz(s267)*propz(s15))**2
 
-      zzll=-2d0/xn*msqinterf_a/(propz(s157)*propz(s26))
-     .                        /(propz(s167)*propz(s25))
-     .     -2d0/xn*msqinterf_b/(propz(s267)*propz(s15))
-     .                        /(propz(s257)*propz(s16))
-     .     -2d0/xn*msqinterfx_a/(propz(s167)*propz(s25))
-     .                         /(propz(s267)*propz(s15))
-     .     -2d0/xn*msqinterfx_b/(propz(s157)*propz(s26))
-     .                         /(propz(s257)*propz(s16))
+      zzll=-2._dp/xn*msqinterf_a/(propz(s157)*propz(s26))
+     &                        /(propz(s167)*propz(s25))
+     &     -2._dp/xn*msqinterf_b/(propz(s267)*propz(s15))
+     &                        /(propz(s257)*propz(s16))
+     &     -2._dp/xn*msqinterfx_a/(propz(s167)*propz(s25))
+     &                         /(propz(s267)*propz(s15))
+     &     -2._dp/xn*msqinterfx_b/(propz(s157)*propz(s26))
+     &                         /(propz(s257)*propz(s16))
 
-      wzll=-2d0/xn*msqinterf_a/(propz(s157)*propz(s26))
-     .                        /(propw(s167)*propw(s25))
-     .     -2d0/xn*msqinterf_b/(propz(s267)*propz(s15))
-     .                        /(propw(s257)*propw(s16))
-     .     -2d0/xn*msqinterfx_a/(propw(s167)*propw(s25))
-     .                         /(propz(s267)*propz(s15))
-     .     -2d0/xn*msqinterfx_b/(propz(s157)*propz(s26))
-     .                         /(propw(s257)*propw(s16))
+      wzll=-2._dp/xn*msqinterf_a/(propz(s157)*propz(s26))
+     &                        /(propw(s167)*propw(s25))
+     &     -2._dp/xn*msqinterf_b/(propz(s267)*propz(s15))
+     &                        /(propw(s257)*propw(s16))
+     &     -2._dp/xn*msqinterfx_a/(propw(s167)*propw(s25))
+     &                         /(propz(s267)*propz(s15))
+     &     -2._dp/xn*msqinterfx_b/(propz(s157)*propz(s26))
+     &                         /(propw(s257)*propw(s16))
 
       wll=msqll_c/(propw(s167)*propw(s25))**2
-     .   +msqll_d/(propw(s257)*propw(s16))**2
+     &   +msqll_d/(propw(s257)*propw(s16))**2
 
       return
       end
 
-      double precision function msq_gsamehel(j1,j2,j5,j6,j7)
+      function msq_gsamehel(j1,j2,j5,j6,j7)
       implicit none
-      integer j1,j2,j5,j6,j7
+      include 'types.f'
+      real(dp):: msq_gsamehel
+
+      integer:: j1,j2,j5,j6,j7
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'sprods_com.f'
 
       msq_gsamehel=
-     .    + 4d0*s(j1,j2)*s(j1,j5)/s(j1,j7)*s(j5,j6)/s(j5,j7)
-     .    + 2d0*s(j1,j2)*s(j1,j5)/s(j1,j7)/s(j5,j7)*s(j6,j7)
-     .    - 2d0*s(j1,j2)*s(j1,j6)/s(j1,j7)
-     .    + 2d0*s(j1,j2)/s(j1,j7)*s(j5,j6)
-     .    + 2d0*s(j1,j2)*s(j5,j6)/s(j5,j7)
-     .    + 2d0*s(j1,j2)/s(j5,j7)*s(j6,j7)
-     .    + 2d0*s(j1,j5)/s(j1,j7)*s(j2,j7)*s(j5,j6)/s(j5,j7)
-     .    + 2d0/s(j1,j7)*s(j2,j7)*s(j5,j6)
-     .    - 2d0*s(j2,j5)*s(j5,j6)/s(j5,j7)
+     &    + 4._dp*s(j1,j2)*s(j1,j5)/s(j1,j7)*s(j5,j6)/s(j5,j7)
+     &    + 2._dp*s(j1,j2)*s(j1,j5)/s(j1,j7)/s(j5,j7)*s(j6,j7)
+     &    - 2._dp*s(j1,j2)*s(j1,j6)/s(j1,j7)
+     &    + 2._dp*s(j1,j2)/s(j1,j7)*s(j5,j6)
+     &    + 2._dp*s(j1,j2)*s(j5,j6)/s(j5,j7)
+     &    + 2._dp*s(j1,j2)/s(j5,j7)*s(j6,j7)
+     &    + 2._dp*s(j1,j5)/s(j1,j7)*s(j2,j7)*s(j5,j6)/s(j5,j7)
+     &    + 2._dp/s(j1,j7)*s(j2,j7)*s(j5,j6)
+     &    - 2._dp*s(j2,j5)*s(j5,j6)/s(j5,j7)
 
       return
       end
 
-      double precision function msq_gopphel(j1,j2,j5,j6,j7)
+      function msq_gopphel(j1,j2,j5,j6,j7)
       implicit none
-      integer j1,j2,j5,j6,j7
+      include 'types.f'
+      real(dp):: msq_gopphel
+
+      integer:: j1,j2,j5,j6,j7
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'sprods_com.f'
 
       msq_gopphel=
-     .    - 2d0*s(j1,j2)*s(j1,j6)/s(j1,j7)
-     .    + 4d0*s(j1,j5)*s(j1,j6)/s(j1,j7)*s(j2,j5)/s(j5,j7)
-     .    + 2d0*s(j1,j5)*s(j1,j6)/s(j1,j7)*s(j2,j7)/s(j5,j7)
-     .    + 2d0*s(j1,j5)/s(j1,j7)*s(j2,j5)/s(j5,j7)*s(j6,j7)
-     .    + 2d0*s(j1,j6)/s(j1,j7)*s(j2,j5)
-     .    + 2d0*s(j1,j6)*s(j2,j5)/s(j5,j7)
-     .    + 2d0*s(j1,j6)*s(j2,j7)/s(j5,j7)
-     .    + 2d0/s(j1,j7)*s(j2,j5)*s(j6,j7)
-     .    - 2d0*s(j2,j5)*s(j5,j6)/s(j5,j7)
+     &    - 2._dp*s(j1,j2)*s(j1,j6)/s(j1,j7)
+     &    + 4._dp*s(j1,j5)*s(j1,j6)/s(j1,j7)*s(j2,j5)/s(j5,j7)
+     &    + 2._dp*s(j1,j5)*s(j1,j6)/s(j1,j7)*s(j2,j7)/s(j5,j7)
+     &    + 2._dp*s(j1,j5)/s(j1,j7)*s(j2,j5)/s(j5,j7)*s(j6,j7)
+     &    + 2._dp*s(j1,j6)/s(j1,j7)*s(j2,j5)
+     &    + 2._dp*s(j1,j6)*s(j2,j5)/s(j5,j7)
+     &    + 2._dp*s(j1,j6)*s(j2,j7)/s(j5,j7)
+     &    + 2._dp/s(j1,j7)*s(j2,j5)*s(j6,j7)
+     &    - 2._dp*s(j2,j5)*s(j5,j6)/s(j5,j7)
 
       return
       end
 
-      double precision function msq_ginterf(j1,j2,j5,j6,j7)
+      function msq_ginterf(j1,j2,j5,j6,j7)
       implicit none
-      integer j1,j2,j5,j6,j7
+      include 'types.f'
+      real(dp):: msq_ginterf
+
+      integer:: j1,j2,j5,j6,j7
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'sprods_com.f'
 
       msq_ginterf=
-     .    - 2d0*s(j1,j2)*s(j1,j5)/s(j1,j7)*s(j5,j6)/s(j5,j7)
-     .    - s(j1,j2)*s(j1,j5)/s(j1,j7)/s(j5,j7)*s(j6,j7)
-     .    + s(j1,j2)*s(j1,j5)/s(j1,j7)
-     .    - 2d0*s(j1,j2)*s(j1,j6)/s(j1,j7)*s(j5,j6)/s(j6,j7)
-     .    - s(j1,j2)*s(j1,j6)/s(j1,j7)*s(j5,j7)/s(j6,j7)
-     .    + s(j1,j2)*s(j1,j6)/s(j1,j7)
-     .    - 2d0*s(j1,j2)/s(j1,j7)*s(j5,j6)
-     .    + s(j1,j2)*s(j5,j6)/s(j5,j7)
-     .    + s(j1,j2)*s(j5,j6)/s(j6,j7)
-     .    + 2d0*s(j1,j2)*s(j5,j6)**2/s(j5,j7)/s(j6,j7)
-     .    + 2d0*s(j1,j2)
-     .    - s(j1,j5)/s(j1,j7)*s(j2,j7)*s(j5,j6)/s(j5,j7)
-     .    - s(j1,j6)/s(j1,j7)*s(j2,j7)*s(j5,j6)/s(j6,j7)
-     .    - 2d0/s(j1,j7)*s(j2,j7)*s(j5,j6)
-     .    + s(j2,j5)*s(j5,j6)/s(j5,j7)
-     .    + s(j2,j6)*s(j5,j6)/s(j6,j7)
+     &    - 2._dp*s(j1,j2)*s(j1,j5)/s(j1,j7)*s(j5,j6)/s(j5,j7)
+     &    - s(j1,j2)*s(j1,j5)/s(j1,j7)/s(j5,j7)*s(j6,j7)
+     &    + s(j1,j2)*s(j1,j5)/s(j1,j7)
+     &    - 2._dp*s(j1,j2)*s(j1,j6)/s(j1,j7)*s(j5,j6)/s(j6,j7)
+     &    - s(j1,j2)*s(j1,j6)/s(j1,j7)*s(j5,j7)/s(j6,j7)
+     &    + s(j1,j2)*s(j1,j6)/s(j1,j7)
+     &    - 2._dp*s(j1,j2)/s(j1,j7)*s(j5,j6)
+     &    + s(j1,j2)*s(j5,j6)/s(j5,j7)
+     &    + s(j1,j2)*s(j5,j6)/s(j6,j7)
+     &    + 2._dp*s(j1,j2)*s(j5,j6)**2/s(j5,j7)/s(j6,j7)
+     &    + 2._dp*s(j1,j2)
+     &    - s(j1,j5)/s(j1,j7)*s(j2,j7)*s(j5,j6)/s(j5,j7)
+     &    - s(j1,j6)/s(j1,j7)*s(j2,j7)*s(j5,j6)/s(j6,j7)
+     &    - 2._dp/s(j1,j7)*s(j2,j7)*s(j5,j6)
+     &    + s(j2,j5)*s(j5,j6)/s(j5,j7)
+     &    + s(j2,j6)*s(j5,j6)/s(j6,j7)
 
       return
       end
 
-      double precision function msq_ginterfx(j1,j2,j5,j6,j7)
+      function msq_ginterfx(j1,j2,j5,j6,j7)
       implicit none
-      integer j1,j2,j5,j6,j7
+      include 'types.f'
+      real(dp):: msq_ginterfx
+
+      integer:: j1,j2,j5,j6,j7
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'sprods_com.f'
 
       msq_ginterfx=
-     .    + s(j1,j2)*s(j1,j5)/s(j1,j7)
-     .    - 2d0*s(j1,j2)*s(j1,j6)/s(j1,j7)*s(j5,j6)/s(j6,j7)
-     .    - s(j1,j2)*s(j1,j6)/s(j1,j7)*s(j5,j7)/s(j6,j7)
-     .    + s(j1,j2)/s(j1,j7)*s(j5,j6)
-     .    + s(j1,j2)*s(j2,j5)/s(j2,j7)
-     .    - 2d0*s(j1,j2)*s(j2,j6)/s(j2,j7)*s(j5,j6)/s(j6,j7)
-     .    - s(j1,j2)*s(j2,j6)/s(j2,j7)*s(j5,j7)/s(j6,j7)
-     .    + s(j1,j2)/s(j2,j7)*s(j5,j6)
-     .    - 2d0*s(j1,j2)*s(j5,j6)/s(j6,j7)
-     .    - 2d0*s(j1,j2)*s(j5,j7)/s(j6,j7)
-     .    + 2d0*s(j1,j2)**2/s(j1,j7)/s(j2,j7)*s(j5,j6)
-     .    - s(j1,j6)/s(j1,j7)*s(j2,j7)*s(j5,j6)/s(j6,j7)
-     .    + s(j1,j6)*s(j5,j6)/s(j6,j7)
-     .    - s(j1,j7)*s(j2,j6)/s(j2,j7)*s(j5,j6)/s(j6,j7)
-     .    + s(j2,j6)*s(j5,j6)/s(j6,j7)
-     .    + 2d0*s(j5,j6)
+     &    + s(j1,j2)*s(j1,j5)/s(j1,j7)
+     &    - 2._dp*s(j1,j2)*s(j1,j6)/s(j1,j7)*s(j5,j6)/s(j6,j7)
+     &    - s(j1,j2)*s(j1,j6)/s(j1,j7)*s(j5,j7)/s(j6,j7)
+     &    + s(j1,j2)/s(j1,j7)*s(j5,j6)
+     &    + s(j1,j2)*s(j2,j5)/s(j2,j7)
+     &    - 2._dp*s(j1,j2)*s(j2,j6)/s(j2,j7)*s(j5,j6)/s(j6,j7)
+     &    - s(j1,j2)*s(j2,j6)/s(j2,j7)*s(j5,j7)/s(j6,j7)
+     &    + s(j1,j2)/s(j2,j7)*s(j5,j6)
+     &    - 2._dp*s(j1,j2)*s(j5,j6)/s(j6,j7)
+     &    - 2._dp*s(j1,j2)*s(j5,j7)/s(j6,j7)
+     &    + 2._dp*s(j1,j2)**2/s(j1,j7)/s(j2,j7)*s(j5,j6)
+     &    - s(j1,j6)/s(j1,j7)*s(j2,j7)*s(j5,j6)/s(j6,j7)
+     &    + s(j1,j6)*s(j5,j6)/s(j6,j7)
+     &    - s(j1,j7)*s(j2,j6)/s(j2,j7)*s(j5,j6)/s(j6,j7)
+     &    + s(j2,j6)*s(j5,j6)/s(j6,j7)
+     &    + 2._dp*s(j5,j6)
 
       return
       end

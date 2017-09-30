@@ -1,8 +1,11 @@
       subroutine qq_WWss(p,msq)
-      implicit none
 c--- Author: J.M.Campbell, December 2014
 c--- q(-p1)+q(-p2)->W(p3,p4)+W(p5,p6)+q(p7)+q(p8);
+      implicit none
+      include 'types.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
       include 'cmplxmass.f'
       include 'ewcouple.f'
       include 'masses.f'
@@ -11,42 +14,43 @@ c--- q(-p1)+q(-p2)->W(p3,p4)+W(p5,p6)+q(p7)+q(p8);
       include 'nwz.f'
       include 'anom_higgs.f'
       include 'WWbits.f'
-      integer nmax,jmax
+      integer:: nmax,jmax
       parameter(jmax=8,nmax=2)
-      integer j,k,l,iq,uqcq_uqcq,uquq_uquq,
+      integer:: j,k,l,iq,uqcq_uqcq,uquq_uquq,
      & j1(jmax),j2(jmax),j7(jmax),j8(jmax),i3,i4,i5,i6,nfinc
       parameter(uqcq_uqcq=1,uquq_uquq=2)
-      double precision p(mxpart,4),msq(fn:nf,fn:nf),temp(fn:nf,fn:nf),
+      real(dp):: p(mxpart,4),msq(fn:nf,fn:nf),temp(fn:nf,fn:nf),
      & stat,spinavge,mult
-      double complex zab(mxpart,4,mxpart),zba(mxpart,4,mxpart),cdotpr,
-     & amp(nmax,2,2),ampa(nmax,2,2),ampb(nmax,2,2),
+      complex(dp)::zab(mxpart,4,mxpart),zba(mxpart,4,mxpart),
+     & amp(nmax,2,2),ampa(nmax,2,2),ampb(nmax,2,2),cdotpr,
      & k7341(4),k8341(4),k8342(4),k7342(4),
      & s7341,s7342,s8341,s8342
-      double complex
+      complex(dp)::
      & jB17,jtwodiagsWpWp17,jmidWpWp17,
      & jB18,jtwodiagsWpWp18,jmidWpWp18,
      & j7_34_1z(2,4),j7_34_1g(2,4),j8_56_2z(2,4),j8_56_2g(2,4),
      & j8_34_1z(2,4),j8_34_1g(2,4),j7_56_2z(2,4),j7_56_2g(2,4),
      & j8_34_2z(2,4),j8_34_2g(2,4),j7_56_1z(2,4),j7_56_1g(2,4),
      & j8_56_1z(2,4),j8_56_1g(2,4),j7_34_2z(2,4),j7_34_2g(2,4)
-      logical first,doHO,doBO
-      parameter(spinavge=0.25d0,stat=0.5d0,nfinc=4)
+      logical:: first,doHO,doBO
+      parameter(spinavge=0.25_dp,stat=0.5_dp,nfinc=4)
       data j1/1,2,8,8,7,7,1,2/
       data j2/2,1,7,7,2,1,7,7/
       data j7/7,7,2,1,1,2,2,1/
       data j8/8,8,1,2,8,8,8,8/
       data first/.true./
       save j1,j2,j7,j8,first,doHO,doBO,mult
+      include 'cplx.h'
 
-      msq(:,:)=0d0
+      msq(:,:)=0._dp
 
 c--- This calculation uses the complex-mass scheme (c.f. arXiv:hep-ph/0605312)
 c--- and the following lines set up the appropriate masses and sin^2(theta_w)
       if (first) then
-       cwmass2=dcmplx(wmass**2,-wmass*wwidth)
-       czmass2=dcmplx(zmass**2,-zmass*zwidth)
+       cwmass2=cplx2(wmass**2,-wmass*wwidth)
+       czmass2=cplx2(zmass**2,-zmass*zwidth)
        cxw=cone-cwmass2/czmass2
-c       cxw=dcmplx(xw,0d0) ! DEBUG: Madgraph comparison
+c       cxw=cplx2(xw,0._dp) ! DEBUG: Madgraph comparison
        write(6,*)
        write(6,*) '**************** Complex-mass scheme ***************'
        write(6,*) '*                                                  *'
@@ -58,17 +62,17 @@ c       cxw=dcmplx(xw,0d0) ! DEBUG: Madgraph comparison
        write(6,*)
        doHO=.false.
        doBO=.false.
-       if     (runstring(4:5) .eq. 'HO') then
+       if     (runstring(4:5) == 'HO') then
          doHO=.true.
        write(6,*) '>>>>>>>>>>>>>> Higgs contribution only <<<<<<<<<<<<<'
        write(6,*)
-       elseif (runstring(4:5) .eq. 'BO') then
+       elseif (runstring(4:5) == 'BO') then
          doBO=.true.
        write(6,*)
        write(6,*) '>>>>>>>>>>> Background contribution only <<<<<<<<<<<'
        write(6,*)
        endif
-       mult=1d0
+       mult=1._dp
 c--- rescaling factor for Higgs amplitudes, if anomalous Higgs width
        if (anom_Higgs) then
          mult=chi_higgs**2
@@ -95,9 +99,9 @@ c--- this is the MCFM ordering in process.DAT
       i6=6
 
 c--- set identity of quark line based on nwz
-      if (nwz .eq. +1) then
+      if (nwz == +1) then
         iq=2
-      elseif (nwz .eq. -1) then
+      elseif (nwz == -1) then
         iq=1
       else
         write(6,*) 'Unexpected value of nwz in qq_WWss.f: ',nwz
@@ -105,7 +109,7 @@ c--- set identity of quark line based on nwz
       endif
 
       do j=1,jmax
-      temp(:,:)=0d0
+      temp(:,:)=0._dp
       amp(:,:,:)=czip
       ampa(:,:,:)=czip
       ampb(:,:,:)=czip
@@ -113,13 +117,13 @@ c--- set identity of quark line based on nwz
 C---setup spinors and spinorvector products
       call spinorcurr(8,p,za,zb,zab,zba)
 
-      k7341(:)=0.5d0*(zab(j1(j),:,j1(j))+zab(i3,:,i3)
+      k7341(:)=0.5_dp*(zab(j1(j),:,j1(j))+zab(i3,:,i3)
      & +zab(i4,:,i4)+zab(j7(j),:,j7(j)))
-      k7342(:)=0.5d0*(zab(j2(j),:,j2(j))+zab(i3,:,i3)
+      k7342(:)=0.5_dp*(zab(j2(j),:,j2(j))+zab(i3,:,i3)
      & +zab(i4,:,i4)+zab(j7(j),:,j7(j)))
-      k8341(:)=0.5d0*(zab(j1(j),:,j1(j))+zab(i3,:,i3)
+      k8341(:)=0.5_dp*(zab(j1(j),:,j1(j))+zab(i3,:,i3)
      & +zab(i4,:,i4)+zab(j8(j),:,j8(j)))
-      k8342(:)=0.5d0*(zab(j2(j),:,j2(j))+zab(i3,:,i3)
+      k8342(:)=0.5_dp*(zab(j2(j),:,j2(j))+zab(i3,:,i3)
      & +zab(i4,:,i4)+zab(j8(j),:,j8(j)))
       s7341=cdotpr(k7341,k7341)
       s7342=cdotpr(k7342,k7342)
@@ -197,8 +201,8 @@ C-----setup for (uqcq_uqcq)
      &  *cdotpr(k8342(:),j8_34_2z(iq,:))/czmass2)/(s8342-czmass2)
 
       temp(2,4)=temp(2,4)+esq**6*spinavge
-     &   *dble(amp(uqcq_uqcq,1,1)
-     & *dconjg(amp(uqcq_uqcq,1,1)))
+     &   *real(amp(uqcq_uqcq,1,1)
+     & *conjg(amp(uqcq_uqcq,1,1)))
 
 C-----setup for (uquq_uquq)
 c-------- ampa
@@ -219,19 +223,19 @@ c-------- ampb
      &  *cdotpr(k7342(:),j7_34_2z(iq,:))/czmass2)/(s7342-czmass2)
 
       temp(2,2)=temp(2,2)+esq**6*spinavge
-     &   *dble(ampa(uquq_uquq,1,1)
-     & *dconjg(ampa(uquq_uquq,1,1)))
+     &   *real(ampa(uquq_uquq,1,1)
+     & *conjg(ampa(uquq_uquq,1,1)))
       temp(2,2)=temp(2,2)+esq**6*spinavge
-     &   *dble(ampb(uquq_uquq,1,1)
-     & *dconjg(ampb(uquq_uquq,1,1)))
-      temp(2,2)=temp(2,2)-2d0/xn*esq**6*spinavge
-     &   *dble(ampa(uquq_uquq,1,1)
-     & *dconjg(ampb(uquq_uquq,1,1)))
+     &   *real(ampb(uquq_uquq,1,1)
+     & *conjg(ampb(uquq_uquq,1,1)))
+      temp(2,2)=temp(2,2)-2._dp/xn*esq**6*spinavge
+     &   *real(ampa(uquq_uquq,1,1)
+     & *conjg(ampb(uquq_uquq,1,1)))
 
       temp(4,4)=temp(2,2)
 
 c--- fill matrix elements
-      if (j .eq. 1) then
+      if (j == 1) then
 
       do k=1,nfinc
       msq(k,k)=temp(k,k)*stat
@@ -240,40 +244,40 @@ c--- fill matrix elements
       enddo
       enddo
 
-      elseif (j.eq.2) then
+      elseif (j==2) then
       do k=1,nfinc
       do l=k+1,nfinc
       msq(l,k)=temp(k,l)
       enddo
       enddo
 
-      elseif (j.eq.3) then
+      elseif (j==3) then
       msq(-3,-1)=temp(2,4)
       msq(-1,-1)=temp(2,2)*stat
       msq(-3,-3)=temp(4,4)*stat
 
-      elseif (j.eq.4) then
+      elseif (j==4) then
       msq(-1,-3)=temp(2,4)
 
 c--- qbar-q
-      elseif (j.eq.5) then
+      elseif (j==5) then
       msq(-1,4)=temp(2,4)
       msq(-3,2)=temp(2,4)
       msq(-1,2)=temp(2,2) ! d~u -> u~d
 
 c--- q-qbar
-      elseif (j.eq.6) then
+      elseif (j==6) then
       msq(2,-1)=temp(2,2) ! ud~ -> u~d
       msq(4,-1)=temp(2,4)
       msq(2,-3)=temp(2,4)
 
 c--- q-qbar extra pieces
-      elseif (j.eq.7) then
+      elseif (j==7) then
       msq(2,-1)=msq(2,-1)+temp(2,4) ! ud~ -> c~s
       msq(4,-3)=msq(2,-1)
 
 c--- qbar-q extra pieces
-      elseif (j.eq.8) then
+      elseif (j==8) then
       msq(-1,2)=msq(-1,2)+temp(2,4) ! d~u -> c~s
       msq(-3,4)=msq(-1,2)
 
@@ -282,9 +286,9 @@ c--- qbar-q extra pieces
       enddo
 
 c--- above assignments assume W+W-; re-assign for W-W-
-      if (nwz .eq. -1) then
+      if (nwz == -1) then
         temp(:,:)=msq(:,:)
-        msq(:,:)=0d0
+        msq(:,:)=0._dp
         msq(-4,-4)=temp(-3,-3)
         msq(-4,-2)=temp(-3,-1)
         msq(-4,1)=temp(-3,2)

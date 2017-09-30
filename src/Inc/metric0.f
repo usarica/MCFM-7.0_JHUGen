@@ -1,1 +1,1 @@
-      double precision,parameter::g0(4)=(/-1d0,-1d0,-1d0,+1d0/)
+      real(dp),parameter::g0(4)=(/-one,-one,-one,+one/)

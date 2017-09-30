@@ -1,11 +1,11 @@
-      integer Nbub,NTri,NBox
+      integer:: Nbub,NTri,NBox
       parameter(Nbub=13,NTri=3,NBox=28)
-      integer b15,b25,b16,b26,b125,b126,b12,b34,b56,b156,b256,
+      integer:: b15,b25,b16,b26,b125,b126,b12,b34,b56,b156,b256,
      & b234,b134,b345,b346,b12a,b12b
       parameter(b15=1,b25=2,b16=3,b26=4,b125=5,b126=6,
      & b12=7,b34=8,b56=9,b156=10,b256=11,b12a=12,b12b=13) 
       parameter(b234=b156,b134=b256,b345=b126,b346=b125)
-      integer 
+      integer:: 
      & c34_15_26,
      & c16_25_34,
      & c34_56_12
@@ -14,7 +14,7 @@
      & c16_25_34=2,
      & c34_56_12=3
      & )
-      integer 
+      integer:: 
      & d125x15_12,
      & d125x25_12,
      & d125x12_25,

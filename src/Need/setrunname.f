@@ -1,76 +1,96 @@
       subroutine setrunname(scalestart,fscalestart) 
       implicit none
+      include 'types.f'
       include 'flags.f'
       include 'masses.f'
-      include 'process.f'
+      include 'kprocess.f'
       include 'jetcuts.f'
       include 'werkdir.f'
       include 'pdlabel.f'
-      include 'part.f'
+      include 'kpart.f'
       include 'vdecayid.f'
       include 'runstring.f'
-      double precision scalestart,fscalestart
-      integer nlength,lenocc
+      include 'dynamicscale.f'
+      include 'taucut.f'
+      real(dp):: scalestart,fscalestart
+      integer:: nlength,lenocc
       character*255 outlabel1,runname,outlabeltmp
       character*3 strmh,getstr,strpt
-      character*7 strscale
+      character*5 strtaucut
+      character*9 strscale
+      character*15 part,kpartstring
+      character*6 case,kcasestring
       common/runname/runname
       common/nlength/nlength
 
-c      if (abs(scalestart-fscalestart) .lt. 1d0) then
+c      if (abs(scalestart-fscalestart) < 1._dp) then
 c--- if the scales are the same, use this scale as the label
 c        strscale=getstr(int(scalestart))
 c       else
 c--- .... otherwise, use the percentage of (muR/muF)
-c        strscale=getstr(int(scalestart/fscalestart*100d0))
+c        strscale=getstr(int(scalestart/fscalestart*100._dp))
 c      endif
-      strscale=getstr(int(scalestart))//'_'//getstr(int(fscalestart))
+      strscale=getstr(int(scalestart))//'__'
+     &       //getstr(int(fscalestart))//'_'
 
-      if     ( (case .eq. 'WHbbar')
-     .    .or. (case .eq. 'ZHbbar')
-     .    .or. (case .eq. 'qq_tth')
-     .    .or. (case .eq. 'tottth')
-     .    .or. (case .eq. 'HWW_4l')
-     .    .or. (case .eq. 'HWW_tb')
-     .    .or. (case .eq. 'HWWint')
-     .    .or. (case .eq. 'HWWH+i')
-     .    .or. (case .eq. 'ggWW4l')
-     .    .or. (case .eq. 'ggVV4l')
-     .    .or. (case .eq. 'HZZ_4l')
-     .    .or. (case .eq. 'HZZ_tb')
-     .    .or. (case .eq. 'HZZint')
-     .    .or. (case .eq. 'HZZH+i')
-     .    .or. (case .eq. 'ggZZ4l')
-     .    .or. (case .eq. 'ggfus0')
-     .    .or. (case .eq. 'ggfus1')
-     .    .or. (case .eq. 'ggfus2')
-     .    .or. (case .eq. 'ggfus3') ) then
+      if (dynamicscale) then
+        write(strscale,'(F4.2,"_",F4.2)') scalestart,fscalestart
+      endif
+
+c--- convert kpart and kcase to strings
+      part=kpartstring(kpart)
+      case=kcasestring(kcase)
+
+      if     ( (kcase==kWHbbar)
+     &    .or. (kcase==kZHbbar)
+     &    .or. (kcase==kqq_tth)
+     &    .or. (kcase==ktottth)
+     &    .or. (kcase==kHWW_4l)
+     &    .or. (kcase==kHWW_tb)
+     &    .or. (kcase==kHWWint)
+     &    .or. (kcase==kHWWHpi)
+     &    .or. (kcase==kggWW4l)
+     &    .or. (kcase==kggVV4l)
+     &    .or. (kcase==kHZZ_4l)
+     &    .or. (kcase==kHZZ_tb)
+     &    .or. (kcase==kHZZint)
+     &    .or. (kcase==kHZZHpi)
+     &    .or. (kcase==kggZZ4l)
+     &    .or. (kcase==kggfus0)
+     &    .or. (kcase==kggfus1)
+     &    .or. (kcase==kggfus2)
+     &    .or. (kcase==kggfus3) ) then
         strmh=getstr(int(hmass))
-        outlabel1=case//'_'//part//'_'//pdlabel//'_'//strscale//
-     .   '_'//strmh
-      elseif (  (case .eq. 'H_1jet') ) then
+        outlabel1=case//'_'//trim(part)//'_'//pdlabel//'_'//strscale//
+     &   '_'//strmh
+      elseif (  (kcase==kH_1jet) ) then
         strmh=getstr(int(hmass))
         strpt=getstr(int(ptjetmin))
-        outlabel1=case//'_'//part//'_'//pdlabel//'_'//strscale//
-     .   '_'//strmh//'_pt'//strpt(1:2)      
-      elseif ( (case .eq. 'W_2jet')
-     .    .or. (case .eq. 'Z_2jet') ) then
+        outlabel1=case//'_'//trim(part)//'_'//pdlabel//'_'//strscale//
+     &   '_'//strmh//'_pt'//strpt(1:2)      
+      elseif ( (kcase==kW_2jet)
+     &    .or. (kcase==kZ_2jet) ) then
         if     (Gflag .eqv. .false.) then
-          outlabel1=case//'_'//part//'_'//pdlabel//'_'//strscale//'_qrk'
+          outlabel1=case//'_'//trim(part)//'_'//pdlabel//'_'//strscale//'_qrk'
         elseif (Qflag .eqv. .false.) then
-          outlabel1=case//'_'//part//'_'//pdlabel//'_'//strscale//'_glu'
+          outlabel1=case//'_'//trim(part)//'_'//pdlabel//'_'//strscale//'_glu'
         else
-          outlabel1=case//'_'//part//'_'//pdlabel//'_'//strscale
+          outlabel1=case//'_'//trim(part)//'_'//pdlabel//'_'//strscale
         endif
       else
-        outlabel1=case//'_'//part//'_'//pdlabel//'_'//strscale
+        outlabel1=case//'_'//trim(part)//'_'//pdlabel//'_'//strscale
       endif
       
       nlength=lenocc(outlabel1)
-      if (vdecayid) then
-        runname=outlabel1(1:nlength)//'_'//v34id//v56id//'_'//runstring
+      if (usescet) then
+        write(strtaucut,'(ES5.0E1)') taucut
+        runname=outlabel1(1:nlength)//'_'//strtaucut//'_'//runstring
       else
-        runname=outlabel1(1:nlength)//'_'//runstring
+        if (vdecayid) then
+         runname=outlabel1(1:nlength)//'_'//v34id//v56id//'_'//runstring
+        else
+         runname=outlabel1(1:nlength)//'_'//runstring
+        endif
       endif
       nlength=lenocc(runname)
 
@@ -86,25 +106,25 @@ c--- add working directory, if necessary
 
 
       character*3 function getstr(no)
-c returns a string of length 3 from an integer
-      integer no,i1,i2,i3,zero
+c returns a string of length 3 from an integer::
+      integer:: no,i1,i2,i3,izero
       
-      zero=ichar('0')
+      izero=ichar('0')
 
       i1=abs(no)/100
       i2=(abs(no)-i1*100)/10
       i3=abs(no)-i1*100-i2*10
 
-      if    (i1.eq.0.and.i2.eq.0) then
-        if (no .lt. 0) then
-        getstr='-'//char(i3+zero)//'_'
+      if    (i1==0.and.i2==0) then
+        if (no < 0) then
+        getstr='-'//char(i3+izero)//'_'
         else
-        getstr=char(i3+zero)//'__'
+        getstr=char(i3+izero)//'__'
         endif
-      elseif(i1.eq.0) then
-        getstr=char(i2+zero)//char(i3+zero)//'_'
+      elseif(i1==0) then
+        getstr=char(i2+izero)//char(i3+izero)//'_'
       else
-        getstr=char(i1+zero)//char(i2+zero)//char(i3+zero)
+        getstr=char(i1+izero)//char(i2+izero)//char(i3+izero)
       endif
       
       return

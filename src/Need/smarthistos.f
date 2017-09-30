@@ -1,13 +1,15 @@
       subroutine smartzero
+      implicit none
+      include 'types.f'
 c--- zero out all entries in the temporary histograms used for
 c--- binning the weights in the real contribution
-      implicit none
-      integer maxd,maxhisto
+      
+      integer:: maxd,maxhisto
       parameter(maxd=40,maxhisto=100) ! maximum number of dipoles and histograms
       include 'incsmarthisto.f'
             
       ibin(:,:)=0             ! which bin entry should be filled
-      xbinwgt(:,:)=0d0        ! ... with this weight
+      xbinwgt(:,:)=0._dp        ! ... with this weight
       icont(:)=0              ! counter for number of entries in ibin
       
       return
@@ -16,10 +18,12 @@ c--- binning the weights in the real contribution
       
       subroutine smartbook(N,TIT,DEL,XMIN,XMAX)
       implicit none
-      integer N
-      double precision DEL,XMIN,XMAX
+      include 'types.f'
+      
+      integer:: N
+      real(dp):: DEL,XMIN,XMAX
       character*(*) TIT
-      integer maxd,maxhisto
+      integer:: maxd,maxhisto
       parameter(maxd=40,maxhisto=100) ! maximum number of dipoles and histograms
       include 'incsmarthisto.f'
       
@@ -32,9 +36,11 @@ c--- binning the weights in the real contribution
       
       subroutine smartfill(N,X,Y)
       implicit none
-      integer N,I
-      double precision X,Y
-      integer maxd,maxhisto
+      include 'types.f'
+      
+      integer:: N,I
+      real(dp):: X,Y
+      integer:: maxd,maxhisto
       parameter(maxd=40,maxhisto=100) ! maximum number of dipoles and histograms
       include 'incsmarthisto.f'
       
@@ -49,28 +55,30 @@ c--- binning the weights in the real contribution
       
       
       subroutine smartadd(wgt)
-c--- add temporary histograms to the cumulative ones
       implicit none
-      integer I,L,M
+      include 'types.f'
+c--- add temporary histograms to the cumulative ones
+      
+      integer:: I,L,M
       include 'histo.f'
-      double precision wgt,tmpvar
-      integer nplotmax
+      real(dp):: wgt,tmpvar
+      integer:: nplotmax
       common/nplotmax/nplotmax
-      integer maxd
+      integer:: maxd
       parameter(maxd=40) ! maximum number of dipoles
       include 'incsmarthisto.f'
 ccccc!$omp threadprivate(/nplotmax/)
       do I=1,nplotmax
       
-      if (icont(I) .eq. 0) cycle ! skip histogram if no entries
+      if (icont(I) == 0) cycle ! skip histogram if no entries
 !$omp atomic
         IENT(I)=IENT(I)+1
         do L=1,icont(I)
 c--- skip if out of bounds
-          if ((ibin(L,I) .lt. 1) .or. (ibin(L,I) .gt. NBIN(I))) cycle
+          if ((ibin(L,I) < 1) .or. (ibin(L,I) > NBIN(I))) cycle
 c---    now look for other entries in the same bin before adding
           do M=L+1,icont(I)
-          if (ibin(M,I) .eq. ibin(L,I)) then
+          if (ibin(M,I) == ibin(L,I)) then
             ibin(M,I)=0
             xbinwgt(L,I)=xbinwgt(L,I)+xbinwgt(M,I)
           endif

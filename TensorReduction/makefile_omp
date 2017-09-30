@@ -10,8 +10,11 @@ OVDIR  = $(HERE)/ov
 QLDIR  = $(HERE)/../QCDLoop/ql
 FFDIR  = $(HERE)/../QCDLoop/ff
 RRDIR  = $(HERE)/recur
-FC = gfortran
-
+ifeq ($(origin FC),environment)
+    $(info Inheriting FC from environment: $(FC))
+else
+    FC = gfortran
+endif
 
 # -----------------------------------------------------------------------------
 # This make -f makefile_omps the libraries that we need

@@ -1,6 +1,6 @@
          block data vegas_data
-         implicit  double precision (a-h,o-z)
-         implicit integer (i-n)
+         implicit  real(dp):: (a-h,o-z)
+         implicit integer:: (i-n)
          include 'vegas_common.f'
          include 'maxwt.f'
          parameter(mprod=50*mxdim)
@@ -25,12 +25,14 @@ C        XL(I) IS LOWER INTEGRATION LIMIT ON I TH AXIS.
 C        XU(I) IS UPPER INTEGRATION LIMIT ON I THE AXIS.
 c
          subroutine vegas(fxn,avgi,sd,chi2a)
+      implicit none
+      include 'types.f'
 c
 c        routine performs n dim Monte Carlo Integration
 c        written by G. P. Lepage
 c
-         implicit double precision (a-h,o-z)
-         implicit integer (i-n)
+         implicit real(dp) (a-h,o-z)
+         implicit integer:: (i-n)
          include 'vegas_common.f' 
          include 'gridinfo.f'
          include 'maxwt.f'
@@ -41,10 +43,10 @@ c
      1   dx(mxdim),dt(mxdim),x(mxdim),kg(mxdim),ia(mxdim)
          data ndmx/50/,alph/1.5d0/,one/1d0/,mds/1/
 
-         if(ndim .gt. mxdim) then
+         if(ndim > mxdim) then
          write(6,*) 'ndim',ndim
          write(6,*) 'mxdim',mxdim
-         write(6,*) 'ndim .gt. mxdim'
+         write(6,*) 'ndim > mxdim'
          stop
          endif
 
@@ -64,21 +66,21 @@ c
 c        no initialisation
          nd=ndmx
          ng=1
-         if(mds.eq.0)go to 2
-         ng=int((dble(ncall)/2d0)**(1d0/dble(ndim)))
+         if(mds==0)go to 2
+         ng=int((real(ncall)/2d0)**(1d0/real(ndim)))
          mds=1
-         if((2*ng-ndmx).lt.0)go to 2
+         if((2*ng-ndmx)<0)go to 2
          mds=-1
          npg=ng/ndmx+1
          nd=ng/npg
          ng=npg*nd
  2       k=ng**ndim
          npg=ncall/k
-         if(npg.lt.2)npg=2
-         calls=dble(npg*k)
+         if(npg<2)npg=2
+         calls=real(npg*k)
          dxg=one/ng
-         dv2g=(calls*dxg**ndim)**2/dble(npg)/dble(npg)/dble(npg-one)
-         xnd=dble(nd)
+         dv2g=(calls*dxg**ndim)**2/real(npg)/real(npg)/real(npg-one)
+         xnd=real(nd)
          ndm=nd-1
          dxg=dxg*xnd
          xjac=one/calls
@@ -104,7 +106,7 @@ c--- read-in grid if necessary
            readin=.false.
          endif
 
-         if(nd.eq.ndo)go to 8
+         if(nd==ndo)go to 8
          rc=ndo/xnd
          do 7 j=1,ndim
          k=0
@@ -115,17 +117,17 @@ c--- read-in grid if necessary
          dr=dr+one
          xo=xn
          xn=xi(k,j)
- 5       if(rc.gt.dr)go to 4
+ 5       if(rc>dr)go to 4
          i=i+1
          dr=dr-rc
          xin(i)=xn-(xn-xo)*dr
-         if(i.lt.ndm)go to 5
+         if(i<ndm)go to 5
          do 6 i=1,ndm
  6       xi(i,j)=xin(i)
  7       xi(nd,j)=one
          ndo=nd
 c
- 8       if(nprn.ge.0)write(6,200)ndim,calls,it,itmx,acc
+ 8       if(nprn>=0)write(6,200)ndim,calls,it,itmx,acc
      1   ,mds,nd,(xl(j),xu(j),j=1,ndim)
          call flush(6)
 c
@@ -146,14 +148,14 @@ c
  12      k=k+1
          wgt=xjac
          do 15 j=1,ndim
-         xn=(dble(kg(j))-ran1(idum))*dxg+one
+         xn=(real(kg(j))-ran1(idum))*dxg+one
          ia(j)=int(xn)
-         if(ia(j).gt.1)go to 13
+         if(ia(j)>1)go to 13
          xo=xi(ia(j),j)
-         rc=(xn-dble(ia(j)))*xo
+         rc=(xn-real(ia(j)))*xo
          go to 14
 13       xO=xi(ia(j),j)-xi(ia(j)-1,j)
-         rc=xi(ia(j)-1,j)+(xn-dble(ia(j)))*xo
+         rc=xi(ia(j)-1,j)+(xn-real(ia(j)))*xo
  14      x(j)=xl(j)+rc*dx(j)
  15      wgt=wgt*xo*xnd
 c
@@ -165,8 +167,8 @@ c         write(6,FMT='(a20,2F20.16)') 'xo,xnd in dvegas: ',xo,xnd
          f2b=f2b+f2
          do 16 j=1,ndim
          di(ia(j),j)=di(ia(j),j)+f
- 16      if(mds.ge.0)d(ia(j),J)=d(ia(j),J)+f2
-         if(k.lt.npg) go to 12
+ 16      if(mds>=0)d(ia(j),J)=d(ia(j),J)+f2
+         if(k<npg) go to 12
 c
 888    FORMAT(1X,'F',G14.6,'F2',G14.6,'FB',G14.6,'F2B',G14.6)
          f2b= sqrt(f2b*      NPG)
@@ -175,14 +177,14 @@ c
          ti=ti+fb
          tsi=tsi+f2b
 33     FORMAT(1X,'TSI',G14.6,'F2B',G14.6)
-         if(mds.ge.0)go to 18
+         if(mds>=0)go to 18
          do 17 j=1,ndim
  17      d(ia(j),j)=d(ia(j),j)+f2b
  18      k=ndim
  19      kg(k)=mod(kg(k),ng)+1
          if(kg(k).ne.1)go to 11
          k=k-1
-         if(k.gt.0)go to 19
+         if(k>0)go to 19
 c
 c final results for this iteration
 c
@@ -196,16 +198,16 @@ c
         schi=schi+ti2*wgt
 995    FORMAT(1X,'SWGT',G14.6,'SI2',G14.6)
         avgi=si/swgt
-        sd=swgt*dble(it)/si2
-        chi2a=sd*(schi/swgt-avgi*avgi)/(dble(it)-.999d0)
-        sd=dsqrt(one/sd)
+        sd=swgt*real(it)/si2
+        chi2a=sd*(schi/swgt-avgi*avgi)/(real(it)-.999d0)
+        sd=sqrt(one/sd)
 c
-        if(nprn.eq.0)go to 21
-        tsi=dsqrt(tsi)
+        if(nprn==0)go to 21
+        tsi=sqrt(tsi)
 c        write(6,201)it,ti,tsi,avgi,sd,chi2a
         write(6,201)it,ti,avgi,tsi,sd,wtmax,chi2a
         call flush(6)
-        if(nprn.ge.0)go to 21
+        if(nprn>=0)go to 21
         do 20 j=1,ndim
  20     write(6,202) j,(xi(i,j),di(i,j),d(i,j),i=1,nd)
 c
@@ -229,9 +231,9 @@ c
         rc=0d0
         do 24 i=1,nd
         r(i)=0d0
-        if(d(i,j).le.0d0)go to 24
+        if(d(i,j)<=0d0)go to 24
         xo=dt(j)/d(i,j)
-        r(i)=((xo-one)/xo/dlog(xo))**alph
+        r(i)=((xo-one)/xo/log(xo))**alph
  24     rc=rc+r(i)
         rc=rc/xnd
         k=0
@@ -242,16 +244,16 @@ c
         dr=dr+r(k)
         xo=xn
         xn=xi(k,j)
- 26     if(rc.gt.dr)go to 25
+ 26     if(rc>dr)go to 25
         i=i+1
         dr=dr-rc
         xin(i)=xn-(xn-xo)*dr/r(k)
-        if(i.lt.ndm)go to 26
+        if(i<ndm)go to 26
         do 27 i=1,ndm
  27     xi(i,j)=xin(i)
  28     xi(nd,j)=one
 c
-        if(it.lt.itmx.and.acc*dabs(avgi).lt.sd)go to 9
+        if(it<itmx.and.acc*abs(avgi)<sd)go to 9
 
 c--- write-out grid if necessary
          if (writeout) then
@@ -275,14 +277,14 @@ c     1  ':  integral=',g14.8/21x,'std dev =',g14.8 /
 c     2  ' accumulated results:   integral=',g14.8/
 c     3  24x,'std dev =',g14.8 / 24x,'chi**2 per it''n =',g10.4)
  201    format(/'************* Integration by Vegas (iteration ',i3,
-     .   ') **************' / '*',63x,'*'/,
-     .   '*  integral  = ',g14.8,2x,
-     .   ' accum. integral = ',g14.8,'*'/,
-     .   '*  std. dev. = ',g14.8,2x,
-     .   ' accum. std. dev = ',g14.8,'*'/,
-     .   '*   max. wt. = ',g14.6,35x,'*'/,'*',63x,'*'/,
-     .   '**************   chi**2/iteration = ',
-     .   g10.4,'   ****************' /)     
+     &   ') **************' / '*',63x,'*'/,
+     &   '*  integral  = ',g14.8,2x,
+     &   ' accum. integral = ',g14.8,'*'/,
+     &   '*  std. dev. = ',g14.8,2x,
+     &   ' accum. std. dev = ',g14.8,'*'/,
+     &   '*   max. wt. = ',g14.6,35x,'*'/,'*',63x,'*'/,
+     &   '**************   chi**2/iteration = ',
+     &   g10.4,'   ****************' /)     
  202    format(1X,' data for axis',i2,/,' ',6x,'x',7x,'  delt i ',
      1  2x,'conv','ce   ',11x,'x',7x,'  delt i ',2x,'conv','ce  '
      2  ,11x,'x',7x,'   delt i ',2x,'conv','CE  ',/,
@@ -292,8 +294,10 @@ c     3  24x,'std dev =',g14.8 / 24x,'chi**2 per it''n =',g10.4)
         end
 
         subroutine save(ndim)
-        implicit double precision (a-h,o-z)
-        implicit integer (i-n)
+      implicit none
+      include 'types.f'
+        implicit real(dp) (a-h,o-z)
+        implicit integer:: (i-n)
         include 'mxdim.f'
         common/bveg2/xi(50,mxdim),si,si2,swgt,schi,ndo,it
 c

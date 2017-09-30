@@ -1,11 +1,17 @@
-      subroutine fdist(ih_call,x,xmu,fx)
+      subroutine fdist(ih_call,xx,xxmu,ffx)
       implicit none
+      include 'types.f'
       include 'pdlabel.f'
       include 'vanillafiles.f'
-      double precision fx(-5:5),x,xmu,xZ,xA,eks98r,xmu_safe
+      real(dp),intent(in)::xx,xxmu
+      integer,intent(in)::ih_call
+      real(dp),intent(out)::ffx(-5:5)
+      double precision fx(-5:5),xZ,xA,eks98r,xmu_safe,x,xmu
       double precision u_val,d_val,u_sea,d_sea,s_sea,c_sea,b_sea,gluon
-      double precision Ctq3df,Ctq4Fn,Ctq5Pdf,Ctq6Pdf,Ctq5L,CT10Pdf
-      integer mode,Iprtn,ih,ih_call,iZ,iA,Irt
+      double precision Ctq3df,Ctq4Fn,Ctq5Pdf,Ctq6Pdf,Ctq5L,CT10Pdf,
+     & CT14Pdf
+      double precision fxnnpdf(-6:7)
+      integer mode,Iprtn,ih,iZ,iA,Irt
       logical first,nucleon
 c--- extra variables for MSTW08 implementation
       character*72 prefix,checkpath
@@ -22,6 +28,8 @@ C---   "The scale dependent nuclear effects in parton distributions for
 C---   practical applications", Eur. Phys. J. C9 (1999) 61,
 C---   JYFL-8/98, US-FT/14-98, hep-ph/9807297.
 
+      x=dble(xx)
+      xmu=dble(xxmu)
       nucleon=.false.
       if     (ih_call .gt. 1000d0) then
 c--- nucleon distribution functions
@@ -29,8 +37,8 @@ c--- nucleon distribution functions
         nucleon=.true.
         iA=mod(ih_call,1000)
         iZ=(ih_call-iZ)/1000
-        xA=dfloat(iA)
-        xZ=dfloat(iZ)
+        xA=real(iA,dp)
+        xZ=real(iZ,dp)
         if (first) then
         write(6,*)
         write(6,*)'******************* Nucleon beam *******************'
@@ -56,16 +64,28 @@ C---set to zero if x out of range
           return
       endif
 
-      if      (pdlabel(1:5) .eq. 'mstw8') then
+      if      ((pdlabel(1:5) .eq. 'mstw8') .or.
+     &         (pdlabel(1:4) .eq. 'MMHT') ) then
             if         (pdlabel .eq. 'mstw8lo') then
             prefix = checkpath('Pdfdata/mstw2008lo') ! LO grid
             elseif     (pdlabel .eq. 'mstw8nl') then
             prefix = checkpath('Pdfdata/mstw2008nlo') ! NLO grid
             elseif     (pdlabel .eq. 'mstw8nn') then
             prefix = checkpath('Pdfdata/mstw2008nnlo') ! NNLO grid
+            elseif     (pdlabel .eq. 'MMHT_lo') then
+            prefix = checkpath('Pdfdata/mmht2014lo135') ! LO grid
+            elseif     (pdlabel .eq. 'MMHT_nl') then
+            prefix = checkpath('Pdfdata/mmht2014nlo120') ! NLO grid
+            elseif     (pdlabel .eq. 'MMHT_nn') then
+            prefix = checkpath('Pdfdata/mmht2014nnlo118') ! NNLO grid
             endif
-            call GetAllPDFs(prefix,0,x,xmu,u_val,d_val,u_sea,d_sea,
-     .                      str,sbar,chm,cbar,bot,bbar,gluon,photon)
+            if (index(prefix,'mstw2008') > 0) then
+              call GetAllPDFs(prefix,0,x,xmu,u_val,d_val,u_sea,d_sea,
+     &                        str,sbar,chm,cbar,bot,bbar,gluon,photon)
+            else
+              call MMHTGetAllPDFs(prefix,0,x,xmu,u_val,d_val,u_sea,d_sea,
+     &                        str,sbar,chm,cbar,bot,bbar,gluon,photon)
+            endif
 c-----assign MSTW to standard grid
             fx(0)=gluon/x
             if (ih.eq.1) then
@@ -477,6 +497,41 @@ C   10     CTEQ4LQ  Low Q0                  0.114        0.7      cteq4lq.tbl
                fx(-2)=CT10Pdf(+1,x,xmu)
              endif
 
+      elseif (pdlabel(1:4) .eq. 'CT14') then
+
+             fx(-5)=CT14Pdf(-5,x,xmu)
+             fx(-4)=CT14Pdf(-4,x,xmu)
+             fx(-3)=CT14Pdf(-3,x,xmu)
+
+             fx(0)=CT14Pdf(0,x,xmu)
+
+             fx(+3)=CT14Pdf(+3,x,xmu)
+             fx(+4)=CT14Pdf(+4,x,xmu)
+             fx(+5)=CT14Pdf(+5,x,xmu)
+
+             if (ih.eq.1) then
+               fx(1)=CT14Pdf(+2,x,xmu)
+               fx(2)=CT14Pdf(+1,x,xmu)
+               fx(-1)=CT14Pdf(-2,x,xmu)
+               fx(-2)=CT14Pdf(-1,x,xmu)
+             elseif(ih.eq.-1) then
+               fx(1)=CT14Pdf(-2,x,xmu)
+               fx(2)=CT14Pdf(-1,x,xmu)
+               fx(-1)=CT14Pdf(+2,x,xmu)
+               fx(-2)=CT14Pdf(+1,x,xmu)
+             endif
+
+      elseif (pdlabel(1:2) .eq. 'NN') then
+
+             call NNevolvePDF(x,xmu,fxnnpdf)
+             fx(-5:5)=fxnnpdf(-5:5)/x
+             if (ih == -1) then
+               fx(1)=fxnnpdf(-1)/x
+               fx(2)=fxnnpdf(-2)/x
+               fx(-1)=fxnnpdf(1)/x
+               fx(-2)=fxnnpdf(2)/x
+             endif
+
 c--- NEW ATTEMPT
       elseif (pdlabel(1:5) .eq. 'mtung') then
             if     (pdlabel .eq. 'mtungs1') then
@@ -553,7 +608,12 @@ c-----assign to standard grid
      . 'mtunge1,',
      . 'mtungb1,',
      . 'mtungb2,',
-     . 'mtungn1'
+     . 'mtungn1,',
+     . 'CT10.00,',
+     . 'CT14.LL,',
+     . 'CT14.NL,',
+     . 'NN2.3NL',
+     . 'NN2.3NN,'
 
          stop
       endif
@@ -601,6 +661,12 @@ c--- write new nucleon distributions
         fx(+5)=b_sea
         fx(0)=gluon
       endif
+
+        ffx(:)=real(fx(:))
+
+!        ffx(0)=0d0      ! DEBUG: remove gluon pdfs
+!        ffx(1:5)=0d0    ! DEBUG: remove quark pdfs
+!        ffx(-5:-1)=0d0  ! DEBUG: remove antiquark pdfs
 
       return
 

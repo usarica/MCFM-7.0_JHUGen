@@ -1,4 +1,6 @@
       subroutine Aamp_mmp(q,mc,ms,Ammp)
+      implicit none
+      include 'types.f'
 c--- u + g  ->  c + s + d  (t-channel single-charm)
 ************************************************************************
 *                                                                      *
@@ -6,35 +8,38 @@ c--- u + g  ->  c + s + d  (t-channel single-charm)
 * DATE  : 12/17/2008                                                    *
 *                                                                      *
 ************************************************************************
-      implicit none
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_com.f'
       include 'epinv.f'
       include 'stopf1inc.f'
-      double precision q(mxpart,4),dot,cDs,gDs,cDg,mc,ms,
-     . mc2,ms2,qsq,s,t,u,xsn,xsd,xs
-      double complex trc,trg,trs,trsgc,zmmp,Ammp
+      real(dp):: q(mxpart,4),dot,cDs,gDs,cDg,mc,ms,
+     & mc2,ms2,qsq,s,t,u,xsn,xsd,xs
+      complex(dp):: trc,trg,trs,trsgc,zmmp,Ammp
 
       mc2=mc**2
       ms2=ms**2
 
-      cDs=dot(q,3,4)+mc2*dot(q,4,2)/2d0/dot(q,3,2)
-     . +ms2*dot(q,3,2)/2d0/dot(q,4,2)
+      cDs=dot(q,3,4)+mc2*dot(q,4,2)/2._dp/dot(q,3,2)
+     & +ms2*dot(q,3,2)/2._dp/dot(q,4,2)
       cDg=dot(q,3,2)
       gDs=dot(q,4,2)
-      qsq=mc2+ms2+2d0*cDs+2d0*cDg+2d0*gDs
-      s=ms2+2d0*gDs
-      t=mc2+2d0*cDg
-      u=mc2+ms2+2d0*cDs
+      qsq=mc2+ms2+2._dp*cDs+2._dp*cDg+2._dp*gDs
+      s=ms2+2._dp*gDs
+      t=mc2+2._dp*cDg
+      u=mc2+ms2+2._dp*cDs
 
-      xsn=(1d0-dsqrt(1d0-4d0*ms*mc/(u-(ms-mc)**2)))
-      xsd=(1d0+dsqrt(1d0-4d0*ms*mc/(u-(ms-mc)**2)))
+      xsn=(1._dp-sqrt(1._dp-4._dp*ms*mc/(u-(ms-mc)**2)))
+      xsd=(1._dp+sqrt(1._dp-4._dp*ms*mc/(u-(ms-mc)**2)))
       xs=-xsn/xsd
 
-      trg=2d0*za(5,2)*zb(2,1)
-      trs=2d0*za(5,4)*zb(4,1)+ms**2*za(5,2)*zb(2,1)/gDs
-      trc=2d0*za(5,3)*zb(3,1)+mc**2*za(5,2)*zb(2,1)/cDg
-      trsgc=2d0*zb(1,4)*za(4,2)*zb(2,3)*za(3,5)
+      trg=2._dp*za(5,2)*zb(2,1)
+      trs=2._dp*za(5,4)*zb(4,1)+ms**2*za(5,2)*zb(2,1)/gDs
+      trc=2._dp*za(5,3)*zb(3,1)+mc**2*za(5,2)*zb(2,1)/cDg
+      trsgc=2._dp*zb(1,4)*za(4,2)*zb(2,3)*za(3,5)
       zmmp=za(4,3)*zb(2,3)**2
 
       Ammp = ms2*(cDg**2*(2*trs*gDs**2-ms2*trg*gDs+ms2*trsgc)+mc2*trsgc
@@ -55,7 +60,7 @@ c--- u + g  ->  c + s + d  (t-channel single-charm)
      &   rs*(2*(gDs+cDs)-mc2)-mc2*trsgc-ms2**2*(-trs+trg+trc))+4*cDg**5*
      &   ((trs+trg)*gDs-ms2*trc)+mc2*cDg**2*gDs*(4*ms2*trs*gDs+2*mc2*trg
      &   *gDs+4*trsgc*cDs+ms2*trsgc+mc2*ms2*trg)+mc2*ms2*(trs+trg+trc)*g
-     &   Ds**3*(2*gDs+2*cDs+ms2-mc2))*lVs/(mc2*cDg**2*gDs**2)/4.0d+0+Am
+     &   Ds**3*(2*gDs+2*cDs+ms2-mc2))*lVs/(mc2*cDg**2*gDs**2)/4.0_dp+Am
      &   mp
 
       Ammp = (-2*cDg**3*(4*trs*gDs**2+2*(mc2*(trs+trg)-ms2*trg)*gDs+ms2
@@ -63,17 +68,17 @@ c--- u + g  ->  c + s + d  (t-channel single-charm)
      &   *(ms2*trg-2*(3*trs+trg+2*trc)*gDs))+mc2*cDg*gDs**2*(-4*trs*(gDs
      &   +cDs)-trsgc+mc2*(2*trs+trg)+2*ms2*(-trs+trg+trc))-mc2*(trs+trg+
      &   trc)*gDs**3*(2*gDs+2*cDs+ms2-mc2)+4*trc*cDg**5)*lVc/(cDg**2*gDs
-     &   **2)/4.0d+0+Ammp
+     &   **2)/4.0_dp+Ammp
 
       Ammp = (cDg**2*(4*trs*gDs**2-2*ms2*trg*gDs+ms2*trsgc)+mc2*trsgc*g
-     &   Ds**2-2*trsgc*cDg*gDs*(gDs+cDs))*lRs2/(cDg*gDs**2)/2.0d+0+Ammp
+     &   Ds**2-2*trsgc*cDg*gDs*(gDs+cDs))*lRs2/(cDg*gDs**2)/2.0_dp+Ammp
 
       Ammp = epinv*(cDg**2*(4*trs*gDs**2-2*ms2*trg*gDs+ms2*trsgc)+mc2*t
      &   rsgc*gDs**2-2*trsgc*cDg*gDs*(gDs+cDs))*(2*lRs1+2*lRc1-1)/(cDg*g
-     &   Ds**2)/4.0d+0+Ammp
+     &   Ds**2)/4.0_dp+Ammp
 
       Ammp = (cDg**2*(4*trs*gDs**2-2*ms2*trg*gDs+ms2*trsgc)+mc2*trsgc*g
-     &   Ds**2-2*trsgc*cDg*gDs*(gDs+cDs))*lRc2/(cDg*gDs**2)/2.0d+0+Ammp
+     &   Ds**2-2*trsgc*cDg*gDs*(gDs+cDs))*lRc2/(cDg*gDs**2)/2.0_dp+Ammp
 
       Ammp = 2*LsA*(-mc2**2*trsgc*gDs**4+cDg**3*gDs*(cDs*(4*trs*gDs**2-
      &   2*ms2*trg*gDs+3*ms2*trsgc)+ms2*trsgc*gDs)+cDg**2*gDs**2*(-2*mc2
@@ -117,7 +122,7 @@ c--- u + g  ->  c + s + d  (t-channel single-charm)
      &   +8*(-trs-trg+trc)*cDs*(2*gDs+ms2)+(2*mc2*(4*(trs+trg)+trc)-ms2*
      &   (3*(trs+trg)+2*trc))*gDs+ms2*(mc2*(4*(trs+trg)+trc)-5*ms2*trc))
      &   +64*(-trs-trg+trc)*cDg**7*gDs*(2*gDs+ms2))/(mc2*cDg**2*(2*cDg+m
-     &   c2)*gDs**3*(2*gDs+ms2))/1.2d+1+Ammp
+     &   c2)*gDs**3*(2*gDs+ms2))/1.2e+1_dp+Ammp
 
       Ammp = B0cgsf*(-mc2*cDg**3*((2*gDs+ms2)*(-2*(2*trs+trg)*gDs**2+cD
      &   s*(2*(trc-trs)*gDs+ms2*trg)+(2*ms2*trs+3*ms2*trg+mc2*trg-2*ms2*
@@ -143,13 +148,13 @@ c--- u + g  ->  c + s + d  (t-channel single-charm)
      &   +trg+trc))+mc2*(trs+trg+trc)*gDs**4*(2*(gDs+cDs)+ms2)**2-mc2*cD
      &   g**4*(2*gDs+ms2)*(2*(-trs-trg+trc)*gDs+ms2*(trs+trg+trc))+4*(tr
      &   s+trg-trc)*cDg**5*gDs*(gDs+cDs+mc2)+4*(trs+trg-trc)*cDg**6*gDs)
-     &   /(mc2*cDg**2*gDs**3)/4.0d+0+Ammp
+     &   /(mc2*cDg**2*gDs**3)/4.0_dp+Ammp
 
       Ammp = 3*mc2*tr3s002ft*((trg+trc)*((2*cDg+mc2)*gDs**2+ms2*cDg**2)
      &   +2*trs*cDg*(2*cDg+mc2)*gDs)/(cDg**2*gDs)+Ammp
 
       Ammp = epinv**2*(cDg**2*(4*trs*gDs**2-2*ms2*trg*gDs+ms2*trsgc)+mc
-     &   2*trsgc*gDs**2-2*trsgc*cDg*gDs*(gDs+cDs))/(cDg*gDs**2)/2.0d+0+
+     &   2*trsgc*gDs**2-2*trsgc*cDg*gDs*(gDs+cDs))/(cDg*gDs**2)/2.0_dp+
      &   Ammp
 
       Ammp = mc2*tr3s00ft*(-cDg*(2*(trc-2*trs)*gDs**2+cDs*(2*(trc-trs)*
@@ -178,7 +183,7 @@ c--- u + g  ->  c + s + d  (t-channel single-charm)
 
       Ammp = ls*(-8*(trs+trg)*cDg**3*gDs**2+mc2*gDs*(2*gDs+ms2)*(trsgc*
      &   (4*gDs+ms2)-mc2*trg*(2*gDs+ms2))+mc2*cDg*(2*gDs+ms2)**2*(2*(-tr
-     &   s+trg+trc)*gDs-trsgc+ms2*trg))/(mc2*gDs*(2*gDs+ms2)**2)/2.0d+0+
+     &   s+trg+trc)*gDs-trsgc+ms2*trg))/(mc2*gDs*(2*gDs+ms2)**2)/2.0_dp+
      &   Ammp
 
       Ammp = 3*mc2*tr3s001ft*(mc2*trs*gDs**2+2*cDg*gDs*(trs*gDs+ms2*(tr
@@ -186,7 +191,7 @@ c--- u + g  ->  c + s + d  (t-channel single-charm)
 
       Ammp = lc*mc2*(mc2*cDg*(ms2*trg-2*(trs-trg+trc)*gDs)+2*cDg**2*(2*
      &   (trg-trs)*gDs+trsgc+ms2*trg)+trsgc*cDg*(2*gDs+mc2)+mc2*(trsgc+m
-     &   c2*trg)*gDs)/((2*cDg+mc2)**2*gDs)/2.0d+0+Ammp
+     &   c2*trg)*gDs)/((2*cDg+mc2)**2*gDs)/2.0_dp+Ammp
 
       Ammp=Ammp/zmmp
 

@@ -1,28 +1,28 @@
-c      double precision md,mu,ms,mc,mb,mt
+c      real(dp):: md,mu,ms,mc,mb,mt
 c      common/qmass1/md,mu,ms,mc,mb,mt
 
-c      double precision mel,mmu,mtau
+c      real(dp):: mel,mmu,mtau
 c      common/lmass/mel,mmu,mtau
 
-c      double precision hmass,hwidth
+c      real(dp):: hmass,hwidth
 c      common/hmass/hmass,hwidth
 
-c      double precision wmass,wwidth
+c      real(dp):: wmass,wwidth
 c      common/wmass/wmass,wwidth
 
-c      double precision zmass,zwidth
+c      real(dp):: zmass,zwidth
 c      common/zmass/zmass,zwidth
 
-c      double precision twidth
+c      real(dp):: twidth
 c      common/twidth/twidth
 
-c      double precision tauwidth
+c      real(dp):: tauwidth
 c      common/tauwidth/tauwidth
 
-c      double precision mtausq,mcsq,mbsq
+c      real(dp):: mtausq,mcsq,mbsq
 c      common/qmassq/mtausq,mcsq,mbsq
 
-      double precision 
+      real(dp):: 
      & md,mu,ms,mc,mb,mt,
      & mel,mmu,mtau,
      & hmass,hwidth,

@@ -1,5 +1,7 @@
       subroutine VV_HWW_g(p,msq)
       implicit none
+      include 'types.f'
+
 c--- Weak Bosion Fusion : sums up WW and ZZ contributions
 c---Matrix element squared averaged over initial colors and spins
 c
@@ -9,9 +11,12 @@ c                           |
 c                           |
 c                           ---> W+(nu(p3)+e+(p4))+W-(e-(p5)+nub(p6))
       include 'constants.f'
-      double precision p(mxpart,4),msq(-nf:nf,-nf:nf)
-      double precision msq_ww(-nf:nf,-nf:nf),msq_zz(-nf:nf,-nf:nf)
-      integer j,k
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      real(dp):: p(mxpart,4),msq(-nf:nf,-nf:nf)
+      real(dp):: msq_ww(-nf:nf,-nf:nf),msq_zz(-nf:nf,-nf:nf)
+      integer:: j,k
 
       call WW_HWW_g(p,msq_ww)
       call ZZ_HWW_g(p,msq_zz)

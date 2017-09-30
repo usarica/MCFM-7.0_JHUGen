@@ -1,4 +1,6 @@
       subroutine qqb_wtbwdk(p,msq)
+      implicit none
+      include 'types.f'
 ************************************************************************
 *     Author: Francesco Tramontano                                     *
 *     February, 2005.                                                  *
@@ -18,46 +20,46 @@
 *                            |                                         *
 *                            --> nu(p3) + e^+(p4)                      *
 ************************************************************************
-      implicit none
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'qcdcouple.f'
       include 'ewcouple.f'
       include 'zprods_com.f'
-      integer ia,ig,ib,j,k
-      logical nearmt,ttsubtract
-      double precision p(mxpart,4),msq(-nf:nf,-nf:nf),fac,dot,prop,
-     . msq_gg,mWb,q(mxpart,4),twotDg,propw
-      double complex ampgg_ga(2,2,2),ampgg_ag(2,2,2),
-     .               ampgg_ag_mb(2,2,2,2),ampgg_ga_mb(2,2,2,2),
-     .               ampld(2)
+      integer:: ia,ig,ib,j,k
+      logical:: nearmt,ttsubtract
+      real(dp):: p(mxpart,4),msq(-nf:nf,-nf:nf),fac,dot,prop,
+     & msq_gg,mWb,q(mxpart,4),twotDg,propw
+      complex(dp):: ampgg_ga(2,2,2),ampgg_ag(2,2,2),
+     &               ampgg_ag_mb(2,2,2,2),ampgg_ga_mb(2,2,2,2),
+     &               ampld(2)
 !      common/nearmt/nearmt
 
-      do j=-nf,nf
-      do k=-nf,nf
-      msq(j,k)=0d0
-      enddo
-      enddo
+      msq(:,:)=zip
+
 
 c--- veto this contribution if we're doing the subtraction and pt(b~)>25 GeV
-c      if (runstring(1:3) .eq. 'sub') then
-c        if (dsqrt(p(8,1)**2+p(8,2)**2) .gt. 60d0) then
+c      if (runstring(1:3) == 'sub') then
+c        if (sqrt(p(8,1)**2+p(8,2)**2) > 60._dp) then
 cc          return
 c        endif
 c      endif
 
 c--- variable to determine whether or not to subtract tt contribution
       ttsubtract=.false.
-c      if (runstring(1:3) .eq. 'sub') then
+c      if (runstring(1:3) == 'sub') then
 c        ttsubtract=.true.
 c        nearmt=.false.
 c      else
 c--- first check the invariant mass of the W and the potential b-jet,
 c--- if it's close to the top mass then the contribution from
 c--- gg and qqb initial states should be zero
-        mWb=dsqrt(two*dot(p,3,4)+two*dot(p,3,8)+two*dot(p,4,8)
-     .           +dot(p,8,8))
-        if (abs(mWb-mt) .lt. 10d0*twidth) then
+        mWb=sqrt(two*dot(p,3,4)+two*dot(p,3,8)+two*dot(p,4,8)
+     &           +dot(p,8,8))
+        if (abs(mWb-mt) < 10._dp*twidth) then
           nearmt=.true.
         else
           nearmt=.false.
@@ -69,15 +71,15 @@ c      endif
       propw=(two*dot(p,3,4)-wmass**2)**2+(wmass*wwidth)**2
       prop=propw*((two*dot(p,5,6)-wmass**2)**2+(wmass*wwidth)**2)
       prop=prop*((two*dot(p,5,6)+two*dot(p,5,7)+two*dot(p,6,7)-mt**2)**2
-     .         +(mt*twidth)**2)
+     &         +(mt*twidth)**2)
 
 c--- calculate amplitudes for g+g in initial state
       if (nearmt) then
         do ia=1,2
         do ig=1,2
         do ib=1,2
-        ampgg_ag(ia,ig,ib)=0d0
-        ampgg_ga(ia,ig,ib)=0d0
+        ampgg_ag(ia,ig,ib)=0._dp
+        ampgg_ga(ia,ig,ib)=0._dp
         enddo
         enddo
         enddo
@@ -85,13 +87,13 @@ c--- calculate amplitudes for g+g in initial state
 c---- check the massive result against the massless one
 c        call gs_wt_prog_nores(p,1,8,3,4,5,6,7,2,ampgg_ag_mb0)
 c        call gs_wt_prog_nores(p,2,8,3,4,5,6,7,1,ampgg_ga_mb0)
-c        msq_gg=0d0
+c        msq_gg=0._dp
 c--- sum over helicities of gluons
 c        do ia=1,2
 c        do ig=1,2
 c        msq_gg=msq_gg+xn*cf**2*(
-c     .  +abs(ampgg_ag_mb0(ia,ig))**2 + abs(ampgg_ga_mb0(ig,ia))**2
-c     . -one/xn/cf*dble(ampgg_ag_mb0(ia,ig)*dconjg(ampgg_ga_mb0(ig,ia))))
+c     &  +abs(ampgg_ag_mb0(ia,ig))**2 + abs(ampgg_ga_mb0(ig,ia))**2
+c     & -one/xn/cf*real(ampgg_ag_mb0(ia,ig)*conjg(ampgg_ga_mb0(ig,ia))))
 c        enddo
 c        enddo
 c        write(6,*) 'massless ',msq_gg
@@ -117,7 +119,7 @@ c        call BBamps(q,2,1,3,4,5,6,ampgg_ga_mb)
 c--- contribution from non-resonant diagrams only
         call BBamps_nores(q,1,2,3,4,5,6,ampgg_ag_mb)
         call BBamps_nores(q,2,1,3,4,5,6,ampgg_ga_mb)
-        twotDg=2d0*(dot(p,5,4)+dot(p,6,4)+dot(p,7,4))
+        twotDg=two*(dot(p,5,4)+dot(p,6,4)+dot(p,7,4))
         do k=1,4
         do j=1,8
           q(j,k)=p(j,k)
@@ -130,25 +132,25 @@ c--- contribution from non-resonant diagrams only
         do ig=1,2
         do ib=1,2
         ampgg_ag(ia,ig,ib)=
-     .   (ampgg_ag_mb(ia,ig,ib,1)*ampld(1)
-     .   +ampgg_ag_mb(ia,ig,ib,2)*ampld(2))*dsqrt(prop/propw)
+     &   (ampgg_ag_mb(ia,ig,ib,1)*ampld(1)
+     &   +ampgg_ag_mb(ia,ig,ib,2)*ampld(2))*sqrt(prop/propw)
         ampgg_ga(ia,ig,ib)=
-     .   (ampgg_ga_mb(ia,ig,ib,1)*ampld(1)
-     .   +ampgg_ga_mb(ia,ig,ib,2)*ampld(2))*dsqrt(prop/propw)
+     &   (ampgg_ga_mb(ia,ig,ib,1)*ampld(1)
+     &   +ampgg_ga_mb(ia,ig,ib,2)*ampld(2))*sqrt(prop/propw)
         enddo
         enddo
         enddo
 
       endif
 
-      msq_gg=0d0
+      msq_gg=0._dp
 c--- sum over helicities of gluons, b-quark
       do ia=1,2
       do ig=1,2
       do ib=1,2
         msq_gg=msq_gg+xn*cf**2*(
-     .  + abs(ampgg_ag(ia,ig,ib))**2 + abs(ampgg_ga(ig,ia,ib))**2
-     .  - one/xn/cf*dble(ampgg_ag(ia,ig,ib)*dconjg(ampgg_ga(ig,ia,ib))))
+     &  + abs(ampgg_ag(ia,ig,ib))**2 + abs(ampgg_ga(ig,ia,ib))**2
+     &  - one/xn/cf*real(ampgg_ag(ia,ig,ib)*conjg(ampgg_ga(ig,ia,ib))))
       enddo
       enddo
       enddo
@@ -176,15 +178,15 @@ c        msq_gg=msq_gg-msqa(0,0)/avegg/fac
 
 c--- calculate matrix elements for q+q~ initial state
 c      if (nearmt) then
-c        msq_qqb=0d0
+c        msq_qqb=0._dp
 c      else
 c        call qb_wtq(p,1,8,3,4,5,6,7,2,msq_qqb)
 c      endif
 
       do j=-nf,nf,nf
       do k=-nf,nf,nf
-      msq(j,k)=0d0
-      if ((j .eq. 0) .and. (k .eq. 0)) then
+      msq(j,k)=0._dp
+      if ((j == 0) .and. (k == 0)) then
           msq(j,k)=avegg*fac*msq_gg
       endif
       enddo

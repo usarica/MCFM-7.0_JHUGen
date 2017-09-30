@@ -1,2 +1,2 @@
-      logical nores
+      logical:: nores
       common/nores/nores

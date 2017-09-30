@@ -1,2 +1,2 @@
-      integer nproc
+      integer:: nproc
       common/nproc/nproc

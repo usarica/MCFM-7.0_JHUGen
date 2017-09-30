@@ -1,19 +1,24 @@
       subroutine VV_Hgaga_z(p,z)
-*     Weak Boson Fusion by V-V exchange                                *
       implicit none
+      include 'types.f'
+*     Weak Boson Fusion by V-V exchange                                *
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'qcdcouple.f'
       include 'scale.f'
       include 'PR_new.f'
       include 'agq.f'
-      integer is
-      double precision z,xl12,xl15,xl26,
-     . tempqq1,tempqq2,tempgq,tempqg,
-     . p(mxpart,4),dot,if_qq,fi_qq,ii_qg
+      integer:: is
+      real(dp):: z,xl12,xl15,xl26,
+     & tempqq1,tempqq2,tempgq,tempqg,
+     & p(mxpart,4),dot,if_qq,fi_qq,ii_qg
 
-      xl12=dlog(+two*dot(p,1,2)/musq)
-      xl15=dlog(-two*dot(p,1,5)/musq)
-      xl26=dlog(-two*dot(p,2,6)/musq)
+      xl12=log(+two*dot(p,1,2)/musq)
+      xl15=log(-two*dot(p,1,5)/musq)
+      xl26=log(-two*dot(p,2,6)/musq)
 
       do is=1,3
       tempqq1=+ason2pi*cf*(if_qq(z,xl15,is)+fi_qq(z,xl15,is))

@@ -1,16 +1,21 @@
       subroutine wbbgamp(j1,j2,j3,j4,j5,j6,j7,rmsq) 
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'sprods_com.f'
       include 'zprods_com.f'
-      integer j1,j2,j3,j4,j5,j6,j7,h1,h2
-      double complex xa(2,2),xb(2,2),xi(2,2),xf(2,2),t2
-      double complex xd1(2,2),xd2(2,2),xd3(2,2),
+      integer:: j1,j2,j3,j4,j5,j6,j7,h1,h2
+      complex(dp):: xa(2,2),xb(2,2),xi(2,2),xf(2,2),t2
+      complex(dp):: xd1(2,2),xd2(2,2),xd3(2,2),
      &               xd4(2,2),xd5(2,2),xd6(2,2),
      &               xd7(2,2),xd8(2,2),xd9(2,2),
      &               xd10(2,2),xd11(2,2),xd12(2,2)
-      double precision s45,s345,s2345,s267,s2367,s245,rmsq,prop
+      real(dp):: s45,s345,s2345,s267,s2367,s245,rmsq,prop
 
       s45=s(j4,j5)
       s245=s(j2,j4)+s(j2,j5)+s(j4,j5)
@@ -190,7 +195,7 @@ C**********************************************************************
 
 C****************************************************************
 
-      rmsq=0d0
+      rmsq=0._dp
 
       do h1=1,2
       do h2=1,2
@@ -203,15 +208,15 @@ C****************************************************************
      &             +xd9(h1,h2)+xd11(h1,h2)+xd7(h1,h2)+xd8(h1,h2)
 
       rmsq=rmsq
-     & +V*xn/eight*(cdabs(xa(h1,h2))**2+cdabs(xb(h1,h2))**2)
-     & +V/(eight*xn)*(cdabs(xi(h1,h2))**2+cdabs(xf(h1,h2))**2
-     & -two*(cdabs(xi(h1,h2)+xf(h1,h2)))**2)
+     & +V*xn/eight*(abs(xa(h1,h2))**2+abs(xb(h1,h2))**2)
+     & +V/(eight*xn)*(abs(xi(h1,h2))**2+abs(xf(h1,h2))**2
+     & -two*(abs(xi(h1,h2)+xf(h1,h2)))**2)
 
       enddo
       enddo
 
       prop=((s(j6,j7)-wmass**2)**2+(wmass*wwidth)**2)
-      rmsq=32d0*rmsq/prop
+      rmsq=32._dp*rmsq/prop
       return
       end
 

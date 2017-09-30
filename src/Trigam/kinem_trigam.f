@@ -12,38 +12,43 @@ c---      p_7 & = true(-15.2297670494417,-109.723100607740,-124.860731594604, 16
 
 c--- momenta are written in Kirill's notation true(E,px,py,pz)
       subroutine set_kinem_trigam(p) 
-      include 'constants.f' 
-      double precision p(mxpart,4) 
-      double precision theta,phi,rho,csig,muk
-      double precision ssig,p1true(4),p2true(4),p3true(4)
-      double precision p4true(4),p5true(4)
-      double precision p1(4),p2(4),p3(4),p4(4),p5(5)
-      integer nu,i
+      implicit none
+      include 'types.f'
+      include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h' 
+      real(dp):: p(mxpart,4) 
+      real(dp):: theta,phi,rho,csig,muk
+      real(dp):: ssig,p1true(4),p2true(4),p3true(4)
+      real(dp):: p4true(4),p5true(4)
+      real(dp):: p1(4),p2(4),p3(4),p4(4),p5(5)
+      integer:: nu,i
 
-      p(:,:)=0d0 
-      theta=pi/4d0
-      phi=pi/6d0
-      rho=pi/3d0
-      csig=-7d0/19d0
-      muk=6d0
+      p(:,:)=0._dp 
+      theta=pi/4._dp
+      phi=pi/6._dp
+      rho=pi/3._dp
+      csig=-7._dp/19._dp
+      muk=6._dp
 
-      ssig=sqrt(1d0-csig**2)
-      p1true(1)=0.5d0*muk
+      ssig=sqrt(1._dp-csig**2)
+      p1true(1)=0.5_dp*muk
       p1true(2)=-p1true(1)*sin(theta)
       p1true(3)=-p1true(1)*cos(theta)*sin(phi)
       p1true(4)=-p1true(1)*cos(theta)*cos(phi)
 
-      p2true(1)=muk/3d0
+      p2true(1)=muk/3._dp
       p2true(2)=p2true(1)
-      p2true(3)=0d0
-      p2true(4)=0d0
+      p2true(3)=0._dp
+      p2true(4)=0._dp
 
-      p3true(1)=-muk/7d0
+      p3true(1)=-muk/7._dp
       p3true(2)=p3true(1)*csig
       p3true(3)=p3true(1)*ssig
-      p3true(4)=0d0
+      p3true(4)=0._dp
 
-      p4true(1)=-0.5d0*muk
+      p4true(1)=-0.5_dp*muk
       p4true(2)=+p4true(1)*sin(theta)
       p4true(3)=+p4true(1)*cos(theta)*sin(phi)
       p4true(4)=+p4true(1)*cos(theta)*cos(phi)
@@ -54,13 +59,13 @@ c--- (re-use rho,muk here)
       p5true(nu)=-p1true(nu)-p2true(nu)-p3true(nu)-p4true(nu)
       enddo
       muk=p5true(1)**2-p5true(2)**2-p5true(3)**2-p5true(4)**2
-      rho=2d0*(p4true(1)*p5true(1)-p4true(2)*p5true(2)
+      rho=2._dp*(p4true(1)*p5true(1)-p4true(2)*p5true(2)
      &        -p4true(3)*p5true(3)-p4true(4)*p5true(4))
       do nu=1,4
       p5true(nu)=-muk/rho*p4true(nu)+p5true(nu)
       enddo
       do nu=1,4
-      p4true(nu)=(1d0+muk/rho)*p4true(nu)
+      p4true(nu)=(1._dp+muk/rho)*p4true(nu)
       enddo
                   
 c--- now form the momenta that will be used in the Kirill routines

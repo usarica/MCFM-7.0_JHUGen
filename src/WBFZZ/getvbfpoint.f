@@ -1,7 +1,12 @@
       subroutine getvbfpoint(p)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
-      double precision p(mxpart,4)
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      real(dp):: p(mxpart,4)
       
 c--- Stand-alone Madgraph PS point SQRTS=1000d0
       p(           1 ,4)=  -500.00000000000000d0   

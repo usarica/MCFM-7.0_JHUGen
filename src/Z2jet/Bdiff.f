@@ -1,9 +1,12 @@
-      double complex function Bdiff(s34,s12,msq)
+      function Bdiff(s34,s12,msq)
       implicit none
+      include 'types.f'
+      complex(dp):: Bdiff
+
       include 'scale.f'
       include 'first.f'
-      double complex qlI2
-      double precision s34,s12,msq
+      complex(dp):: qlI2
+      real(dp):: s34,s12,msq
       if (first) then
          call qlinit
          first=.false.

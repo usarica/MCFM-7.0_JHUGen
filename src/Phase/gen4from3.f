@@ -1,14 +1,19 @@
       subroutine gen4from3(q,z,rtalpha,phit,p,jac,*)
+      implicit none
+      include 'types.f'
 c----jac is the total wt of the whole business (2) and (3 from 2)
 c----q are the input momenta
 c----p are the output momenta
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'debug.f'
-      integer nmin,nmax,j,iseed,k
-      double precision p(mxpart,4),q(mxpart,4),z,rtalpha,phit,
-     . wt3_2,msq(-nf:nf,-nf:nf)
-      double precision sum(0:8),wtc(8),apweight(8),jac,ran0,myran
+      integer:: nmin,nmax,j,iseed,k
+      real(dp):: p(mxpart,4),q(mxpart,4),z,rtalpha,phit,
+     & wt3_2,msq(-nf:nf,-nf:nf)
+      real(dp):: sum(0:8),wtc(8),apweight(8),jac,ran0,myran
       common/apwt/apweight
       common/nmin/nmin
       common/nmax/nmax
@@ -24,10 +29,10 @@ c      if (debug) call writeout(q)
       enddo
       enddo
  
-      sum(nmin-1)=0d0
+      sum(nmin-1)=0._dp
 
       do j=nmin,nmax
-      apweight(j)=1d0/dfloat(nmax-nmin+1)
+      apweight(j)=1._dp/real(nmax-nmin+1,dp)
       sum(j)=sum(j-1)+apweight(j)
       if (debug) then
       write(6,*) 'j',j 
@@ -39,7 +44,7 @@ c      if (debug) call writeout(q)
       myran=ran0(iseed)
 
       do j=nmin,nmax
-      if ((myran .gt. sum(j-1)) .and. (myran .lt. sum(j))) then
+      if ((myran > sum(j-1)) .and. (myran < sum(j))) then
 c---genrad is a switchyard routine routing to genrii,genrif,genrff
 c---genrad modifies the vector p to provide new ones
       call genrad(p,i1(j),i2(j),6,z,rtalpha,phit,wt3_2,*999)
@@ -55,18 +60,18 @@ c---only one option is pursued in this do-loop
 
 c---Sum over channels
 c---Initialize jac
-      jac=0d0
+      jac=0._dp
       do j=nmin,nmax
-         if ((j .eq. 1) .or. (j .eq. 2)) 
-     .      call genii(j,p,wtc(j),msq)
-         if ((j .eq. 3) .or. (j .eq. 4)) 
-     .      call genif(j-2,p,wtc(j),msq)
-         if ((j .eq. 5) .or. (j .eq. 6) .or. (j .eq. 7) .or. (j .eq. 8))
-     .      call genff(j-4,p,wtc(j),msq)
+         if ((j == 1) .or. (j == 2)) 
+     &      call genii(j,p,wtc(j),msq)
+         if ((j == 3) .or. (j == 4)) 
+     &      call genif(j-2,p,wtc(j),msq)
+         if ((j == 5) .or. (j == 6) .or. (j == 7) .or. (j == 8))
+     &      call genff(j-4,p,wtc(j),msq)
 c        jac=jac+apweight(j)/wtc(j)
-        jac=jac+1d0/wtc(j)
+        jac=jac+1._dp/wtc(j)
       enddo
-      jac=1d0/jac
+      jac=1._dp/jac
 
       if (debug) write(6,*) 
       if (debug) write(6,*) 'this is the result of reconstruction'
@@ -74,7 +79,7 @@ c        jac=jac+apweight(j)/wtc(j)
 c      if (debug) pause
       return 
 
- 999  jac=0d0
+ 999  jac=0._dp
       return 1
       end
 

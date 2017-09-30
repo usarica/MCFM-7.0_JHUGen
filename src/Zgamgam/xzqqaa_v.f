@@ -4,15 +4,20 @@
 ****************************************************************
       subroutine zaa_a6vh(j1,j2,j3,j4,j5,j6,za,zb,a6vh)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'ipsgen.f'
-      integer j1,j2,j3,j4,j5,j6
-      double complex a6g,a6vQLslc,a6virtLL
-      double complex a6vh(4,16)
+      integer:: j1,j2,j3,j4,j5,j6
+      complex(dp):: a6g,a6vQLslc,a6virtLL
+      complex(dp):: a6vh(4,16)
       character*9 st1,st2,st3
       character*14 st4,st5 
-      integer i,j,k
+      integer:: i,j,k
 c-----helicity stamp
       st1='q+qb-g+g+'
       st2='q+qb-g+g-'
@@ -28,75 +33,75 @@ c-----initialize a60h
 c-----QQ contributions
       if (ipsgen .ne. 2) then
       a6vh(1,1) = a6g(st1,j1,j4,j2,j3,j5,j6,za,zb)
-     .           +a6g(st1,j1,j4,j3,j2,j5,j6,za,zb)
+     &           +a6g(st1,j1,j4,j3,j2,j5,j6,za,zb)
       a6vh(1,9) = a6g(st1,j1,j4,j2,j3,j5,j6,zb,za)
-     .           +a6g(st1,j1,j4,j3,j2,j5,j6,zb,za)
+     &           +a6g(st1,j1,j4,j3,j2,j5,j6,zb,za)
       a6vh(1,2) = a6g(st2,j1,j4,j2,j3,j5,j6,za,zb)
-     .           +a6g(st3,j1,j4,j3,j2,j5,j6,za,zb)
+     &           +a6g(st3,j1,j4,j3,j2,j5,j6,za,zb)
       a6vh(1,10)= a6g(st2,j1,j4,j2,j3,j5,j6,zb,za)
-     .           +a6g(st3,j1,j4,j3,j2,j5,j6,zb,za)
+     &           +a6g(st3,j1,j4,j3,j2,j5,j6,zb,za)
       a6vh(1,3) = a6g(st3,j1,j4,j2,j3,j5,j6,za,zb)
-     .           +a6g(st2,j1,j4,j3,j2,j5,j6,za,zb)
+     &           +a6g(st2,j1,j4,j3,j2,j5,j6,za,zb)
       a6vh(1,11)= a6g(st3,j1,j4,j2,j3,j5,j6,zb,za)
-     .           +a6g(st2,j1,j4,j3,j2,j5,j6,zb,za)
+     &           +a6g(st2,j1,j4,j3,j2,j5,j6,zb,za)
       a6vh(1,4) = a6g(st1,j4,j1,j2,j3,j6,j5,zb,za)
-     .           +a6g(st1,j4,j1,j3,j2,j6,j5,zb,za)
+     &           +a6g(st1,j4,j1,j3,j2,j6,j5,zb,za)
       a6vh(1,12)= a6g(st1,j4,j1,j2,j3,j6,j5,za,zb)
-     .           +a6g(st1,j4,j1,j3,j2,j6,j5,za,zb)
+     &           +a6g(st1,j4,j1,j3,j2,j6,j5,za,zb)
       a6vh(1,5) = a6g(st1,j1,j4,j2,j3,j6,j5,za,zb)
-     .           +a6g(st1,j1,j4,j3,j2,j6,j5,za,zb)
+     &           +a6g(st1,j1,j4,j3,j2,j6,j5,za,zb)
       a6vh(1,13)= a6g(st1,j1,j4,j2,j3,j6,j5,zb,za)
-     .           +a6g(st1,j1,j4,j3,j2,j6,j5,zb,za)
+     &           +a6g(st1,j1,j4,j3,j2,j6,j5,zb,za)
       a6vh(1,6) = a6g(st2,j1,j4,j2,j3,j6,j5,za,zb)
-     .           +a6g(st3,j1,j4,j3,j2,j6,j5,za,zb)
+     &           +a6g(st3,j1,j4,j3,j2,j6,j5,za,zb)
       a6vh(1,14)= a6g(st2,j1,j4,j2,j3,j6,j5,zb,za)
-     .           +a6g(st3,j1,j4,j3,j2,j6,j5,zb,za)
+     &           +a6g(st3,j1,j4,j3,j2,j6,j5,zb,za)
       a6vh(1,7) = a6g(st3,j1,j4,j2,j3,j6,j5,za,zb)
-     .           +a6g(st2,j1,j4,j3,j2,j6,j5,za,zb)
+     &           +a6g(st2,j1,j4,j3,j2,j6,j5,za,zb)
       a6vh(1,15)= a6g(st3,j1,j4,j2,j3,j6,j5,zb,za)
-     .           +a6g(st2,j1,j4,j3,j2,j6,j5,zb,za)
+     &           +a6g(st2,j1,j4,j3,j2,j6,j5,zb,za)
       a6vh(1,8) = a6g(st1,j4,j1,j2,j3,j5,j6,zb,za)
-     .           +a6g(st1,j4,j1,j3,j2,j5,j6,zb,za)
+     &           +a6g(st1,j4,j1,j3,j2,j5,j6,zb,za)
       a6vh(1,16)= a6g(st1,j4,j1,j2,j3,j5,j6,za,zb)
-     .           +a6g(st1,j4,j1,j3,j2,j5,j6,za,zb)
+     &           +a6g(st1,j4,j1,j3,j2,j5,j6,za,zb)
       endif
 c-----LL contributions
       if (ipsgen .ne. 3) then
       a6vh(2,1) = a6virtLL(st1,j6,j5,j2,j3,j4,j1,za,zb)
-     .           +a6virtLL(st1,j6,j5,j3,j2,j4,j1,za,zb)
+     &           +a6virtLL(st1,j6,j5,j3,j2,j4,j1,za,zb)
       a6vh(2,9) = a6virtLL(st1,j6,j5,j2,j3,j4,j1,zb,za)
-     .           +a6virtLL(st1,j6,j5,j3,j2,j4,j1,zb,za)
+     &           +a6virtLL(st1,j6,j5,j3,j2,j4,j1,zb,za)
       a6vh(2,2) = a6virtLL(st2,j6,j5,j2,j3,j4,j1,za,zb)
-     .           +a6virtLL(st3,j6,j5,j3,j2,j4,j1,za,zb)
+     &           +a6virtLL(st3,j6,j5,j3,j2,j4,j1,za,zb)
       a6vh(2,10)= a6virtLL(st2,j6,j5,j2,j3,j4,j1,zb,za)
-     .           +a6virtLL(st3,j6,j5,j3,j2,j4,j1,zb,za)
+     &           +a6virtLL(st3,j6,j5,j3,j2,j4,j1,zb,za)
       a6vh(2,3) = a6virtLL(st3,j6,j5,j2,j3,j4,j1,za,zb)
-     .           +a6virtLL(st2,j6,j5,j3,j2,j4,j1,za,zb)
+     &           +a6virtLL(st2,j6,j5,j3,j2,j4,j1,za,zb)
       a6vh(2,11)= a6virtLL(st3,j6,j5,j2,j3,j4,j1,zb,za)
-     .           +a6virtLL(st2,j6,j5,j3,j2,j4,j1,zb,za)
+     &           +a6virtLL(st2,j6,j5,j3,j2,j4,j1,zb,za)
       a6vh(2,4) = a6virtLL(st1,j5,j6,j2,j3,j1,j4,zb,za)
-     .           +a6virtLL(st1,j5,j6,j3,j2,j1,j4,zb,za)
+     &           +a6virtLL(st1,j5,j6,j3,j2,j1,j4,zb,za)
       a6vh(2,12)= a6virtLL(st1,j5,j6,j2,j3,j1,j4,za,zb)
-     .           +a6virtLL(st1,j5,j6,j3,j2,j1,j4,za,zb)
+     &           +a6virtLL(st1,j5,j6,j3,j2,j1,j4,za,zb)
       a6vh(2,5) = a6virtLL(st1,j5,j6,j2,j3,j4,j1,za,zb)
-     .           +a6virtLL(st1,j5,j6,j3,j2,j4,j1,za,zb)
+     &           +a6virtLL(st1,j5,j6,j3,j2,j4,j1,za,zb)
       a6vh(2,13)= a6virtLL(st1,j5,j6,j2,j3,j4,j1,zb,za)
-     .           +a6virtLL(st1,j5,j6,j3,j2,j4,j1,zb,za)
+     &           +a6virtLL(st1,j5,j6,j3,j2,j4,j1,zb,za)
       a6vh(2,6) = a6virtLL(st2,j5,j6,j2,j3,j4,j1,za,zb)
-     .           +a6virtLL(st3,j5,j6,j3,j2,j4,j1,za,zb)
+     &           +a6virtLL(st3,j5,j6,j3,j2,j4,j1,za,zb)
       a6vh(2,14)= a6virtLL(st2,j5,j6,j2,j3,j4,j1,zb,za)
-     .           +a6virtLL(st3,j5,j6,j3,j2,j4,j1,zb,za)
+     &           +a6virtLL(st3,j5,j6,j3,j2,j4,j1,zb,za)
       a6vh(2,7) = a6virtLL(st3,j5,j6,j2,j3,j4,j1,za,zb)
-     .           +a6virtLL(st2,j5,j6,j3,j2,j4,j1,za,zb)
+     &           +a6virtLL(st2,j5,j6,j3,j2,j4,j1,za,zb)
       a6vh(2,15)= a6virtLL(st3,j5,j6,j2,j3,j4,j1,zb,za)
-     .           +a6virtLL(st2,j5,j6,j3,j2,j4,j1,zb,za)
+     &           +a6virtLL(st2,j5,j6,j3,j2,j4,j1,zb,za)
       a6vh(2,8) = a6virtLL(st1,j6,j5,j2,j3,j1,j4,zb,za)
-     .           +a6virtLL(st1,j6,j5,j3,j2,j1,j4,zb,za)
+     &           +a6virtLL(st1,j6,j5,j3,j2,j1,j4,zb,za)
       a6vh(2,16)= a6virtLL(st1,j6,j5,j2,j3,j1,j4,za,zb)
-     .           +a6virtLL(st1,j6,j5,j3,j2,j1,j4,za,zb)
+     &           +a6virtLL(st1,j6,j5,j3,j2,j1,j4,za,zb)
       endif
 c-----QL contributions
-      if ((ipsgen .eq. 2) .or. (ipsgen .eq. 3)) then
+      if ((ipsgen == 2) .or. (ipsgen == 3)) then
       a6vh(3,1) = -a6vQLslc(st4,j1,j4,j2,j3,j5,j6,za,zb)
       a6vh(3,9) = -a6vQLslc(st4,j1,j4,j2,j3,j5,j6,zb,za)
       a6vh(3,2) = -a6vQLslc(st5,j1,j4,j2,j3,j5,j6,za,zb)
@@ -115,7 +120,7 @@ c-----QL contributions
       a6vh(3,16)= -a6vQLslc(st4,j4,j1,j2,j3,j5,j6,za,zb)
       endif
       
-      if ((ipsgen .eq. 3) .or. (ipsgen .eq. 4)) then
+      if ((ipsgen == 3) .or. (ipsgen == 4)) then
       a6vh(4,1) = -a6vQLslc(st4,j1,j4,j3,j2,j5,j6,za,zb)
       a6vh(4,9) = -a6vQLslc(st4,j1,j4,j3,j2,j5,j6,zb,za)
       a6vh(4,2) = -a6vQLslc(st5,j4,j1,j3,j2,j6,j5,zb,za)

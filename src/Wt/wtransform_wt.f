@@ -1,11 +1,16 @@
       subroutine wtransform_wt(p,q,pbDpg,ptDpg,ptDpb)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
-      double precision p(mxpart,4),pw(4),pt(4),lDt(5:6),lDw(5:6)
-      double precision ptDpt,pwDpw,ptDpw,q(mxpart,4),root,hsin,hcos,a,b
-      double precision ptDpg,pbDpg,ptDpb
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      real(dp):: p(mxpart,4),pw(4),pt(4),lDt(5:6),lDw(5:6)
+      real(dp):: ptDpt,pwDpw,ptDpw,q(mxpart,4),root,hsin,hcos,a,b
+      real(dp):: ptDpg,pbDpg,ptDpb
 
-      integer j,nu
+      integer:: j,nu
 
       do nu=1,4
          pw(nu)=p(5,nu)+p(6,nu)
@@ -22,13 +27,13 @@
       ptDpt=pt(4)**2-pt(1)**2-pt(2)**2-pt(3)**2
       pwDpw=pw(4)**2-pw(1)**2-pw(2)**2-pw(3)**2
 
-      root=dsqrt(ptDpw**2-ptDpt*pwDpw)
-      hsin=0.5d0/(ptDpt*pwDpw)*(-(ptDpt-pwDpw)*ptDpw+(ptDpt+pwDpw)*root)
-      hcos=0.5d0/(ptDpt*pwDpw)*(+(ptDpt+pwDpw)*ptDpw-(ptDpt-pwDpw)*root)
+      root=sqrt(ptDpw**2-ptDpt*pwDpw)
+      hsin=half/(ptDpt*pwDpw)*(-(ptDpt-pwDpw)*ptDpw+(ptDpt+pwDpw)*root)
+      hcos=half/(ptDpt*pwDpw)*(+(ptDpt+pwDpw)*ptDpw-(ptDpt-pwDpw)*root)
 
 C---calculate coefficients of lorentz transformation
       a=hsin/root
-      b=(hcos-1d0)/root**2
+      b=(hcos-1._dp)/root**2
 
 c---dot t and w into decay products of w
       do j=5,6
@@ -39,11 +44,11 @@ c---dot t and w into decay products of w
       do nu=1,4
       do j=5,6
       q(j,nu)=p(j,nu)+a*(pt(nu)*lDw(j)-pw(nu)*lDt(j))
-     . +b*(ptDpw*(pt(nu)*ldw(j)+pw(nu)*ldt(j))
-     .  -pwDpw*lDt(j)*pt(nu)-ptDpt*lDw(j)*pw(nu))
+     & +b*(ptDpw*(pt(nu)*ldw(j)+pw(nu)*ldt(j))
+     &  -pwDpw*lDt(j)*pt(nu)-ptDpt*lDw(j)*pw(nu))
       enddo
       q(7,nu)=-q(1,nu)-q(2,nu)-q(3,nu)-q(4,nu)-q(5,nu)-q(6,nu)
-      q(8,nu)=0d0
+      q(8,nu)=0._dp
       enddo
 
       call storeptilde(1,q)

@@ -1,4 +1,6 @@
       subroutine qqb_z1jet_soft(P,msq)
+      implicit none
+      include 'types.f'
 c---Soft matrix element squared averaged over initial colors and spins
 c     q(-p1)+qbar(-p2) --> Z +g(p5) +g(p6)
 c                          |
@@ -6,14 +8,16 @@ c                          --> l(p3)+a(p4)
 c                            
 c   with p6 soft
 c--all momenta incoming
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
       include 'qcdcouple.f'
-      integer j,k
-      double precision P(mxpart,4),msq(-nf:nf,-nf:nf),
-     . msq0(-nf:nf,-nf:nf),s(mxpart,mxpart),
-     . facqqb,facqbq,facgqb,facqbg,facgq,facqg
-      double precision eik12,eik15,eik25
+      integer:: j,k
+      real(dp):: P(mxpart,4),msq(-nf:nf,-nf:nf),
+     & msq0(-nf:nf,-nf:nf),s(mxpart,mxpart),
+     & facqqb,facqbq,facgqb,facqbg,facgq,facqg
+      real(dp):: eik12,eik15,eik25
       
       call dotem(6,p,s)
 
@@ -40,17 +44,17 @@ c      facqbg=two*gsq*(-eik15/xn)
       
       do j=-nf,nf
       do k=-nf,nf
-            if ((j .gt. 0) .and. (k.lt.0)) then
+            if ((j > 0) .and. (k<0)) then
                msq(j,k)=facqqb*msq0(j,k)
-            elseif ((j .lt. 0) .and. (k.gt.0)) then
+            elseif ((j < 0) .and. (k>0)) then
                msq(j,k)=facqbq*msq0(j,k)
-            elseif ((j .gt. 0) .and. (k.eq.0)) then
+            elseif ((j > 0) .and. (k==0)) then
                msq(j,k)=facqg*msq0(j,k)
-            elseif ((j .lt. 0) .and. (k.eq.0)) then
+            elseif ((j < 0) .and. (k==0)) then
                msq(j,k)=facqbg*msq0(j,k)
-            elseif ((j .eq. 0) .and. (k.gt.0)) then
+            elseif ((j == 0) .and. (k>0)) then
                msq(j,k)=facgq*msq0(j,k)
-            elseif ((j .eq. 0) .and. (k.lt.0)) then
+            elseif ((j == 0) .and. (k<0)) then
                msq(j,k)=facgqb*msq0(j,k)
             endif
       enddo

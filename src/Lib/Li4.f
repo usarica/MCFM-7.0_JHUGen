@@ -1,13 +1,16 @@
-      double precision function Li4(x)
-C     returns Li_4(x) for real x, minf < x < 1
+      function Li4(x)
       implicit none
-      double precision x
-      double complex wgplg
+      include 'types.f'
+      real(dp):: Li4
+C     returns Li_4(x) for real x, minf < x < 1
 
-      if (x .gt. 1d0) then
+      real(dp):: x
+      complex(dp):: wgplg
+
+      if (x > 1._dp) then
         write(6,*) 'x>1 in Li4 function, src/Lib/Li4.f'
         stop
       endif
 
-      Li4 = dble(wgplg(3,1,x))
+      Li4 = real(wgplg(3,1,x))
       end

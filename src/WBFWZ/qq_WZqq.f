@@ -1,8 +1,13 @@
       subroutine qq_WZqq(pin,msq)
       implicit none
+      include 'types.f'
+
 c--- Author: J.M. Campbell, January 2015
 c--- q(-p1)+q(-p2)->W(p3,p4)+Z(p5,p6)+q(p7)+q(p8);
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'cmplxmass.f'
       include 'ewcouple.f'
       include 'masses.f'
@@ -12,22 +17,22 @@ c--- q(-p1)+q(-p2)->W(p3,p4)+Z(p5,p6)+q(p7)+q(p8);
       include 'first.f'
       include 'nwz.f'
       include 'WWbits.f'
-      integer nmax,jmax
+      integer:: nmax,jmax
       parameter(jmax=8,nmax=7)
-      integer j,k,
+      integer:: j,k,
      & uqsq_dqsq,uqcq_dqcq,uqdq_dqdq,cqdq_dqsq,
      & uqcq_uqsq,uquq_dquq,uquq_uqdq
       parameter(
      & uqsq_dqsq=1,uqcq_dqcq=2,uqdq_dqdq=3,cqdq_dqsq=4,
      & uqcq_uqsq=5,uquq_dquq=6,uquq_uqdq=7)
-      integer h1,h2,h3,h5
-      double precision p(mxpart,4),msq(fn:nf,fn:nf),temp(fn:nf,fn:nf),
+      integer:: h1,h2,h3,h5
+      real(dp):: p(mxpart,4),msq(fn:nf,fn:nf),temp(fn:nf,fn:nf),
      & tempb(fn:nf,fn:nf),spinavge,pin(mxpart,4)
-      double complex zab(mxpart,4,mxpart),zba(mxpart,4,mxpart),cdotpr,
-     & amp(nmax,2,2,2,2),ampa(nmax,2,2,2,2),ampb(nmax,2,2,2,2),
+      complex(dp):: zab(mxpart,4,mxpart),zba(mxpart,4,mxpart),
+     & amp(nmax,2,2,2,2),ampa(nmax,2,2,2,2),ampb(nmax,2,2,2,2),cdotpr,
      & k7341(4),k7561(4),k7342(4),k7562(4),
      & tmpz1(mxpart,mxpart),tmpz2(mxpart,4,mxpart)
-      double complex
+      complex(dp)::
      & jz7_56_1z(4,2,2,2),jz7_56_1g(4,2,2,2),jz7_56_1w(4,2,2,2),
      & jz7_56_2z(4,2,2,2),jz7_56_2g(4,2,2,2),jz7_56_2w(4,2,2,2),
      & jz8_56_1z(4,2,2,2),jz8_56_1g(4,2,2,2),jz8_56_1w(4,2,2,2),
@@ -42,44 +47,44 @@ c--- q(-p1)+q(-p2)->W(p3,p4)+Z(p5,p6)+q(p7)+q(p8);
      & ampW2_2718(2,2),ampZ2_2718(2,2,2),ampmid_2718(2,2,2),
      & s7341,s7561,s7562,s7342
       logical,save:: doHO,doBO
-      parameter(spinavge=0.25d0)
+      parameter(spinavge=0.25_dp)
       integer,parameter::j1(jmax)=(/1,2,8,7,7,2,7,1/)
       integer,parameter::j2(jmax)=(/2,1,7,8,2,7,1,7/)
       integer,parameter::j7(jmax)=(/7,7,1,1,1,8,2,8/)
       integer,parameter::j8(jmax)=(/8,8,2,2,8,1,8,2/)
-      double precision, save:: mult
+      real(dp), save:: mult
 !$omp threadprivate(doHO,doBO,mult)
-      msq(:,:)=0d0
+      msq(:,:)=0._dp
 
 c--- This calculation uses the complex-mass scheme (c.f. arXiv:hep-ph/0605312)
 c--- and the following lines set up the appropriate masses and sin^2(theta_w)
       if (first) then
-       cwmass2=dcmplx(wmass**2,-wmass*wwidth)
-       czmass2=dcmplx(zmass**2,-zmass*zwidth)
+       cwmass2=cplx2(wmass**2,-wmass*wwidth)
+       czmass2=cplx2(zmass**2,-zmass*zwidth)
        cxw=cone-cwmass2/czmass2
-c       cxw=dcmplx(xw,0d0) ! DEBUG: Madgraph comparison
-       write(6,*)
-       write(6,*) '**************** Complex-mass scheme ***************'
-       write(6,*) '*                                                  *'
-       write(6,77) cwmass2
-       write(6,78) czmass2
-       write(6,79) cxw
-       write(6,*) '*                                                  *'
-       write(6,*) '****************************************************'
-       write(6,*)
+c       cxw=cplx2(xw,0._dp) ! DEBUG: Madgraph comparison
+c       write(6,*)
+c       write(6,*) '**************** Complex-mass scheme ***************'
+c       write(6,*) '*                                                  *'
+c       write(6,77) cwmass2
+c       write(6,78) czmass2
+c       write(6,79) cxw
+c       write(6,*) '*                                                  *'
+c       write(6,*) '****************************************************'
+c       write(6,*)
        doHO=.false.
        doBO=.false.
-       if     (runstring(4:5) .eq. 'HO') then
+       if     (runstring(4:5) == 'HO') then
          doHO=.true.
-       write(6,*) '>>>>>>>>>>>>>> Higgs contribution only <<<<<<<<<<<<<'
-       write(6,*)
-       elseif (runstring(4:5) .eq. 'BO') then
+c       write(6,*) '>>>>>>>>>>>>>> Higgs contribution only <<<<<<<<<<<<<'
+c       write(6,*)
+       elseif (runstring(4:5) == 'BO') then
          doBO=.true.
-       write(6,*)
-       write(6,*) '>>>>>>>>>>> Background contribution only <<<<<<<<<<<'
-       write(6,*)
+c       write(6,*)
+c       write(6,*) '>>>>>>>>>>> Background contribution only <<<<<<<<<<<'
+c       write(6,*)
        endif
-       mult=1d0
+       mult=1._dp
 c--- rescaling factor for Higgs amplitudes, if anomalous Higgs width
        if (anom_Higgs) then
          mult=chi_higgs**2
@@ -99,7 +104,7 @@ c--- rescaling factor for Higgs amplitudes, if anomalous Higgs width
         Bbit=cone
       endif
 
-      if (nwz .eq. +1) then
+      if (nwz == +1) then
         p(:,:)=pin(:,:)
       else
 c--- W- amplitudes obtained by parity transformation on W+
@@ -114,7 +119,7 @@ c--- W- amplitudes obtained by parity transformation on W+
 
 C---setup spinors and spinorvector products
       call spinorcurr(8,p,za,zb,zab,zba)
-      if (nwz .eq. -1) then
+      if (nwz == -1) then
 c--- parity transformation corresponds to complex conjugation
         tmpz1(1:8,1:8)=za(1:8,1:8)
         za(1:8,1:8)=zb(1:8,1:8)
@@ -125,8 +130,8 @@ c--- parity transformation corresponds to complex conjugation
       endif
 
       do j=1,jmax
-      temp(:,:)=0d0
-      tempb(:,:)=0d0
+      temp(:,:)=0._dp
+      tempb(:,:)=0._dp
       amp(:,:,:,:,:)=czip
       ampa(:,:,:,:,:)=czip
       ampb(:,:,:,:,:)=czip
@@ -171,13 +176,13 @@ c---- Z2 contributions
       call jZexch2(j2(j),j1(j),3,4,5,6,j8(j),j7(j),za,zb,ampZ2_2817)
       call jZexch2(j2(j),j1(j),3,4,5,6,j7(j),j8(j),za,zb,ampZ2_2718)
 
-      k7341(:)=0.5d0*(zab(j1(j),:,j1(j))+zab(3,:,3)
+      k7341(:)=half*(zab(j1(j),:,j1(j))+zab(3,:,3)
      & +zab(4,:,4)+zab(j7(j),:,j7(j)))
-      k7561(:)=0.5d0*(zab(j1(j),:,j1(j))+zab(5,:,5)
+      k7561(:)=half*(zab(j1(j),:,j1(j))+zab(5,:,5)
      & +zab(6,:,6)+zab(j7(j),:,j7(j)))
-      k7342(:)=0.5d0*(zab(j2(j),:,j2(j))+zab(3,:,3)
+      k7342(:)=half*(zab(j2(j),:,j2(j))+zab(3,:,3)
      & +zab(4,:,4)+zab(j7(j),:,j7(j)))
-      k7562(:)=0.5d0*(zab(j2(j),:,j2(j))+zab(5,:,5)
+      k7562(:)=half*(zab(j2(j),:,j2(j))+zab(5,:,5)
      & +zab(6,:,6)+zab(j7(j),:,j7(j)))
       s7341=cdotpr(k7341,k7341)
       s7561=cdotpr(k7561,k7561)
@@ -262,8 +267,8 @@ C-----setup for (uqsq_dqsq) (2,3)->(1,3)
       do h3=1,2
       do h5=1,2
       temp(2,3)=temp(2,3)+esq**6*spinavge
-     &   *dble(amp(uqsq_dqsq,h1,h2,h3,h5)
-     & *dconjg(amp(uqsq_dqsq,h1,h2,h3,h5)))
+     &   *real(amp(uqsq_dqsq,h1,h2,h3,h5)
+     & *conjg(amp(uqsq_dqsq,h1,h2,h3,h5)))
       enddo
       enddo
       enddo
@@ -304,8 +309,8 @@ c-----setup for (cqdq_dqsq)
       do h3=1,2
       do h5=1,2
       temp(4,1)=temp(4,1)+esq**6*spinavge
-     &   *dble(amp(cqdq_dqsq,h1,h2,h3,h5)
-     & *dconjg(amp(cqdq_dqsq,h1,h2,h3,h5)))
+     &   *real(amp(cqdq_dqsq,h1,h2,h3,h5)
+     & *conjg(amp(cqdq_dqsq,h1,h2,h3,h5)))
       enddo
       enddo
       enddo
@@ -321,15 +326,15 @@ C-----setup for (uqdq_dqdq) (2,1)->(1,1)
       do h3=1,2
       do h5=1,2
       temp(2,1)=temp(2,1)+esq**6*spinavge
-     &   *dble(ampa(uqdq_dqdq,h1,h2,h3,h5)
-     & *dconjg(ampa(uqdq_dqdq,h1,h2,h3,h5)))
+     &   *real(ampa(uqdq_dqdq,h1,h2,h3,h5)
+     & *conjg(ampa(uqdq_dqdq,h1,h2,h3,h5)))
       temp(2,1)=temp(2,1)+esq**6*spinavge
-     &   *dble(ampb(uqdq_dqdq,h1,h2,h3,h5)
-     & *dconjg(ampb(uqdq_dqdq,h1,h2,h3,h5)))
-      if (h1 .eq. h2) then
-      temp(2,1)=temp(2,1)-2d0/xn*esq**6*spinavge
-     &   *dble(ampa(uqdq_dqdq,h1,h2,h3,h5)
-     & *dconjg(ampb(uqdq_dqdq,h1,h2,h3,h5)))
+     &   *real(ampb(uqdq_dqdq,h1,h2,h3,h5)
+     & *conjg(ampb(uqdq_dqdq,h1,h2,h3,h5)))
+      if (h1 == h2) then
+      temp(2,1)=temp(2,1)-2._dp/xn*esq**6*spinavge
+     &   *real(ampa(uqdq_dqdq,h1,h2,h3,h5)
+     & *conjg(ampb(uqdq_dqdq,h1,h2,h3,h5)))
       endif
       enddo
       enddo
@@ -372,8 +377,8 @@ C-----setup for (uqcq_dqcq) (2,4)->(1,4)
       do h3=1,2
       do h5=1,2
       temp(2,4)=temp(2,4)+esq**6*spinavge
-     &   *dble(amp(uqcq_dqcq,h1,h2,h3,h5)
-     & *dconjg(amp(uqcq_dqcq,h1,h2,h3,h5)))
+     &   *real(amp(uqcq_dqcq,h1,h2,h3,h5)
+     & *conjg(amp(uqcq_dqcq,h1,h2,h3,h5)))
       enddo
       enddo
       enddo
@@ -417,8 +422,8 @@ C-----setup for (uqcq_uqsq) (2,4)->(2,3)
       do h3=1,2
       do h5=1,2
       tempb(2,4)=tempb(2,4)+esq**6*spinavge
-     &   *dble(amp(uqcq_uqsq,h1,h2,h3,h5)
-     & *dconjg(amp(uqcq_uqsq,h1,h2,h3,h5)))
+     &   *real(amp(uqcq_uqsq,h1,h2,h3,h5)
+     & *conjg(amp(uqcq_uqsq,h1,h2,h3,h5)))
       enddo
       enddo
       enddo
@@ -460,15 +465,15 @@ C-----setup for (uquq_dquq) (2,4)->(1,4)
       do h3=1,2
       do h5=1,2
       temp(2,2)=temp(2,2)+esq**6*spinavge
-     &   *dble(ampa(uquq_dquq,h1,h2,h3,h5)
-     & *dconjg(ampa(uquq_dquq,h1,h2,h3,h5)))
+     &   *real(ampa(uquq_dquq,h1,h2,h3,h5)
+     & *conjg(ampa(uquq_dquq,h1,h2,h3,h5)))
       temp(2,2)=temp(2,2)+esq**6*spinavge
-     &   *dble(ampb(uquq_dquq,h1,h2,h3,h5)
-     & *dconjg(ampb(uquq_dquq,h1,h2,h3,h5)))
-      if (h1 .eq. h2) then
-      temp(2,2)=temp(2,2)-2d0/xn*esq**6*spinavge
-     &   *dble(ampa(uquq_dquq,h1,h2,h3,h5)
-     & *dconjg(ampb(uquq_dquq,h1,h2,h3,h5)))
+     &   *real(ampb(uquq_dquq,h1,h2,h3,h5)
+     & *conjg(ampb(uquq_dquq,h1,h2,h3,h5)))
+      if (h1 == h2) then
+      temp(2,2)=temp(2,2)-2._dp/xn*esq**6*spinavge
+     &   *real(ampa(uquq_dquq,h1,h2,h3,h5)
+     & *conjg(ampb(uquq_dquq,h1,h2,h3,h5)))
       endif
       enddo
       enddo
@@ -511,15 +516,15 @@ C-----setup for (uquq_uqdq) (2,2)->(2,1) :: not canonical order, but useful for 
       do h3=1,2
       do h5=1,2
       tempb(2,2)=tempb(2,2)+esq**6*spinavge
-     &   *dble(ampa(uquq_uqdq,h1,h2,h3,h5)
-     & *dconjg(ampa(uquq_uqdq,h1,h2,h3,h5)))
+     &   *real(ampa(uquq_uqdq,h1,h2,h3,h5)
+     & *conjg(ampa(uquq_uqdq,h1,h2,h3,h5)))
       tempb(2,2)=tempb(2,2)+esq**6*spinavge
-     &   *dble(ampb(uquq_uqdq,h1,h2,h3,h5)
-     & *dconjg(ampb(uquq_uqdq,h1,h2,h3,h5)))
-      if (h1 .eq. h2) then
-      tempb(2,2)=tempb(2,2)-2d0/xn*esq**6*spinavge
-     &   *dble(ampa(uquq_uqdq,h1,h2,h3,h5)
-     & *dconjg(ampb(uquq_uqdq,h1,h2,h3,h5)))
+     &   *real(ampb(uquq_uqdq,h1,h2,h3,h5)
+     & *conjg(ampb(uquq_uqdq,h1,h2,h3,h5)))
+      if (h1 == h2) then
+      tempb(2,2)=tempb(2,2)-2._dp/xn*esq**6*spinavge
+     &   *real(ampa(uquq_uqdq,h1,h2,h3,h5)
+     & *conjg(ampb(uquq_uqdq,h1,h2,h3,h5)))
       endif
       enddo
       enddo
@@ -532,14 +537,14 @@ c--- setup for (cquq_squq) (4,2)->(3,2) :: not canonical order, but useful for c
       do h3=1,2
       do h5=1,2
       tempb(4,2)=tempb(4,2)+esq**6*spinavge
-     &   *dble(ampb(uquq_uqdq,h1,h2,h3,h5)
-     & *dconjg(ampb(uquq_uqdq,h1,h2,h3,h5)))
+     &   *real(ampb(uquq_uqdq,h1,h2,h3,h5)
+     & *conjg(ampb(uquq_uqdq,h1,h2,h3,h5)))
       enddo
       enddo
       enddo
       enddo
 
-      if (j.eq.1) then
+      if (j==1) then
       msq(2,3)=temp(2,3)
       msq(4,1)=temp(4,1)
       msq(2,1)=temp(2,1)*half
@@ -548,7 +553,7 @@ c--- setup for (cquq_squq) (4,2)->(3,2) :: not canonical order, but useful for c
       msq(2,2)=temp(2,2)
       msq(4,4)=temp(2,2)
 
-      elseif (j.eq.2) then
+      elseif (j==2) then
       msq(3,2)=temp(2,3)
       msq(1,4)=temp(4,1)
       msq(1,2)=temp(2,1)*half
@@ -556,7 +561,7 @@ c--- setup for (cquq_squq) (4,2)->(3,2) :: not canonical order, but useful for c
       msq(4,2)=temp(2,4)+tempb(2,4)
 
 c--- qbar-qbar
-      elseif (j.eq.3) then
+      elseif (j==3) then
       msq(-1,-4)=temp(2,4)
       msq(-1,-3)=temp(2,3)
       msq(-2,-3)=tempb(2,4)
@@ -565,7 +570,7 @@ c--- qbar-qbar
       msq(-4,-3)=tempb(2,2)*half
 
 c--- qbar-qbar
-      elseif (j.eq.4) then
+      elseif (j==4) then
       msq(-1,-2)=temp(2,2)*half
       msq(-3,-4)=temp(2,2)*half
       msq(-3,-2)=temp(2,4)
@@ -576,14 +581,14 @@ c--- qbar-qbar
       msq(-3,-1)=msq(-3,-1)+temp(2,3)
 
 c--- qbar-q
-      elseif (j.eq.5) then
+      elseif (j==5) then
       msq(-3,1)=temp(2,3)
       msq(-3,3)=temp(2,1)
       msq(-1,1)=temp(2,1)
       msq(-1,3)=temp(2,3)
 
 c--- qbar-q
-      elseif (j.eq.6) then
+      elseif (j==6) then
       msq(-4,2)=temp(2,4)
       msq(-4,4)=temp(2,2)
       msq(-3,2)=temp(2,3)+tempb(2,4)
@@ -594,7 +599,7 @@ c--- qbar-q
       msq(-2,4)=temp(2,4)
 
 c--- q-qbar
-      elseif (j.eq.7) then
+      elseif (j==7) then
       msq(1,-3)=temp(2,3)
       msq(1,-1)=temp(2,1)
       msq(2,-4)=tempb(2,4)
@@ -603,7 +608,7 @@ c--- q-qbar
       msq(4,-4)=tempb(2,2)
 
 c--- q-qbar
-      elseif (j.eq.8) then
+      elseif (j==8) then
       msq(2,-3)=tempb(2,4)+temp(2,3)
       msq(2,-2)=temp(2,2)
       msq(2,-1)=tempb(4,2)+temp(4,1)+tempb(2,2)+temp(2,1)

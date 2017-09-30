@@ -1,16 +1,21 @@
       subroutine amp2currentstrong(i1,i2,i3,i4,i5,i6,i7,i8,za,zb,amp)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'cmplxmass.f'
       include 'zprods_decl.f'
       include 'sprods_com.f'
       include 'ewcharge.f'
       include 'zcouple.f'
-      integer jdu1,jdu2,h28,i1,i2,i3,i4,i5,i6,i7,i8,
+      integer:: jdu1,jdu2,h28,i1,i2,i3,i4,i5,i6,i7,i8,
      & p1,p2,p3,p4,p5,p6,p7,p8
-      double complex zab2,zba2,amp(2,2,2,2),rxw,propZ3456,
+      complex(dp):: zab2,zba2,amp(2,2,2,2),rxw,propZ3456,
      & propw34,propw56,gamn3456(2,2,2),game3456(2,2,2),gamv(2,2)
-      double precision qn,t3,t4,s134,s128,s345,s347,s356,s156,s456,
+      real(dp):: qn,t3,t4,s134,s128,s345,s347,s356,s156,s456,
      & s278,s346,s567,s3456,s28,s34,s56
       parameter(qn=0d0)
 C-----Begin statement functions

@@ -1,11 +1,13 @@
       subroutine gencol(x,xjac,xmin,emit,r)
       implicit none
+      include 'types.f'
+      
 c---Generate an x value and store it for later retrieval
-      integer emit,lemit
-      double precision x,xjac,xmin,xl,xljac,xlmin,r
+      integer:: emit,lemit
+      real(dp):: x,xjac,xmin,xl,xljac,xlmin,r
       save xl,xljac,xlmin,lemit
-      x=1d0-(1d0-xmin)*abs(1d0-2d0*r)
-      xjac=2d0*(1d0-xmin)
+      x=1._dp-(1._dp-xmin)*abs(1._dp-2._dp*r)
+      xjac=2._dp*(1._dp-xmin)
       xl=x
       xljac=xjac
       xlmin=xmin

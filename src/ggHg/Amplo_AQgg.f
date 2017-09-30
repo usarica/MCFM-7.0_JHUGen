@@ -1,13 +1,18 @@
       subroutine Amplo_AQgg(p1,p2,p3,p4,ab,ba)
+      implicit none
+      include 'types.f'
 c--- this routine is a wrapper to the new versions of the leading
 c--- order amplitudes that are calculated in the same way as the
 c--- new virtual amplitudes
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_com.f'
-      integer p1,p2,p3,p4
-      double complex ab(2,2,2),ba(2,2,2),
-     . A0HAQggmppp,A0HAQggmpmm,A0HAQggmpmp,A0HAQggmppm
+      integer:: p1,p2,p3,p4
+      complex(dp):: ab(2,2,2),ba(2,2,2),
+     & A0HAQggmppp,A0HAQggmpmm,A0HAQggmpmp,A0HAQggmppm
       
       ab(1,2,2)=A0HAQggmppp(p1,p2,p3,p4,za,zb)
       ab(1,1,1)=A0HAQggmpmm(p1,p2,p3,p4,za,zb)

@@ -1,18 +1,23 @@
       subroutine higgsp(bbbr,tautaubr,gamgambr,zgambr,wwbr,zzbr)
+      implicit none
+      include 'types.f'
 C--returns Higgs branching ratios as calculated by
 C  interpolating the Spira tables br.sm1 br.sm2
 C  Other branching ratios could be added.
-      implicit none
+
+      include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
       include 'masses.f'
       include 'first.f'
-      integer npt
+      integer:: npt
       parameter(npt=1000)
-      integer j,nlo
+      integer:: j,nlo
       character*79 string
-      double precision bbbr,gamgambr,tautaubr,zgambr,wwbr,zzbr,htemp,
-     . width(npt)
-      double precision xmh(npt),brbb(npt),brtautau(npt),brss,brcc,brmumu
-     . ,brtt,brgg,brgamgam(npt),brzgam(npt),brww(npt),brzz(npt)
+      real(dp):: bbbr,gamgambr,tautaubr,zgambr,wwbr,zzbr,htemp,
+     & width(npt)
+      real(dp):: xmh(npt),brbb(npt),brtautau(npt),brss,brcc,brmumu
+     & ,brtt,brgg,brgamgam(npt),brzgam(npt),brww(npt),brzz(npt)
       save brbb,brww,brzz,width
 
       if (first) then
@@ -38,11 +43,11 @@ C  Other branching ratios could be added.
       close(unit=48)
       endif
 
-      if (hmass .lt. 1d0) then
-      htemp=1d0
+      if (hmass < one) then
+      htemp=one
       nlo=1
-      elseif (hmass .gt. 999d0) then
-      htemp=999d0
+      elseif (hmass > 999._dp) then
+      htemp=999._dp
       nlo=999
       else
       htemp=hmass

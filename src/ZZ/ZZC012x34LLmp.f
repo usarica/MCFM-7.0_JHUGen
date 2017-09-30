@@ -1,13 +1,18 @@
       subroutine ZZC012x34LLmp(j1,j2,j3,j4,j5,j6,za,zb,mt,Xmp,Xpm)
       implicit none
+      include 'types.f'
+
 c--- Author: J. M. Campbell, October 2013
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'sprods_com.f'
       include 'zprods_decl.f'
-      integer k1,k2,k3,k4,k5,k6
-      integer h3,h5,j1,j2,j3,j4,j5,j6,itot
-      double precision mt,IDelta,delta,t,s134,s234
-      double complex izab2,zab2,amp0,Xmp(2,2,2),Xpm(2,2,2)
+      integer:: k1,k2,k3,k4,k5,k6
+      integer:: h3,h5,j1,j2,j3,j4,j5,j6,itot
+      real(dp):: mt,IDelta,delta,t,s134,s234
+      complex(dp):: izab2,zab2,amp0,Xmp(2,2,2),Xpm(2,2,2)
       parameter(itot=1)
 
 C---statement functions
@@ -16,8 +21,8 @@ C---statement functions
       delta(j1,j2,j3,j4,j5,j6)=s(j1,j2)-s(j3,j4)-s(j5,j6)
 C---end statement functions
 
-      IDelta=1d0/(s(j3,j4)**2+s(j1,j2)**2+s(j5,j6)**2
-     & -2d0*(+s(j3,j4)*s(j1,j2)+s(j3,j4)*s(j5,j6)+s(j5,j6)*s(j1,j2)))
+      IDelta=one/(s(j3,j4)**2+s(j1,j2)**2+s(j5,j6)**2
+     & -two*(+s(j3,j4)*s(j1,j2)+s(j3,j4)*s(j5,j6)+s(j5,j6)*s(j1,j2)))
 
       s134=t(j1,j3,j4)
       s234=t(j2,j3,j4)
@@ -26,34 +31,34 @@ C---end statement functions
 
       do h3=1,2
       do h5=1,2
-      if (h3 .eq. 1) then
+      if (h3 == 1) then
         k3=j3
         k4=j4
-      elseif (h3 .eq. 2) then
+      elseif (h3 == 2) then
         k3=j4
         k4=j3
       endif
-      if (h5 .eq. 1) then
+      if (h5 == 1) then
         k5=j5
         k6=j6
-      elseif (h5 .eq. 2) then
+      elseif (h5 == 2) then
         k5=j6
         k6=j5
       endif
 
       amp0=
-     & +6d0*IDelta**2*s(k1,k2)*zab2(k1,k3,k4,k2)
+     & +six*IDelta**2*s(k1,k2)*zab2(k1,k3,k4,k2)
      &     *zab2(k3,k1,k2,k4)*zab2(k5,k1,k2,k6)/zab2(k2,k3,k4,k1)
      &     *delta(k1,k2,k3,k4,k5,k6)
 
-     & +2d0*IDelta/zab2(k2,k3,k4,k1)*(
+     & +two*IDelta/zab2(k2,k3,k4,k1)*(
      &  +zab2(k1,k3,k4,k2)*izab2(k2,k3,k4,k1)**2
      &   *(s134-s234)*(za(k2,k5)**2*za(k3,k4)*zb(k1,k4)**2*zb(k5,k6)
      &                -za(k2,k3)**2*za(k5,k6)*zb(k1,k6)**2*zb(k3,k4))
      &  +(s134-s234)*zab2(k1,k3,k4,k2)/zab2(k2,k3,k4,k1)
      &   *(za(k2,k3)*zb(k1,k6)*zab2(k5,k1,k3,k4)
      &    +za(k2,k5)*zb(k1,k4)*zab2(k3,k1,k5,k6))
-     &  -3d0*zab2(k1,k3,k4,k2)*(za(k1,k3)*za(k2,k5)*zb(k1,k4)*zb(k2,k6)
+     & -three*zab2(k1,k3,k4,k2)*(za(k1,k3)*za(k2,k5)*zb(k1,k4)*zb(k2,k6)
      &                         +za(k1,k5)*za(k2,k3)*zb(k1,k6)*zb(k2,k4))
      &  +za(k2,k3)*za(k2,k5)*zb(k1,k4)*zb(k1,k6)*zab2(k1,k3,k4,k2)**2
      &   /zab2(k2,k3,k4,k1)
@@ -246,7 +251,7 @@ c     &    )*za(k1,k2)*za(k3,k4)*zb(k2,k4)**2*zb(k2,k6)**2*izb(k1,k2)*
 c     &    izb(k5,k6) )
 
 c      Xmp(h3,h5,itot)=amp0+amp2*mtsq
-c      Xmp(h3,h5,irat)=amp2*(+0.5d0)
+c      Xmp(h3,h5,irat)=amp2*(+half)
 
 c--- Only return the massless coefficient
       Xmp(h3,h5,itot)=amp0
@@ -257,7 +262,7 @@ c--- Only return the massless coefficient
 c--- obtain remaining coefficients by c.c.
       do h3=1,2
       do h5=1,2
-      Xpm(h3,h5,:)=dconjg(Xmp(3-h3,3-h5,:))
+      Xpm(h3,h5,:)=conjg(Xmp(3-h3,3-h5,:))
       enddo
       enddo
 

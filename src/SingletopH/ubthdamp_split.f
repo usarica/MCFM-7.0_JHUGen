@@ -1,22 +1,27 @@
       subroutine ubthdamp(p,p1,p2,p3,p4,p6,amp)
+      implicit none
+      include 'types.f'
 C     Matrix element
 c     u(-p1)+b(p2)->H(p3,p4)+t(p5)+d(p6)
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'zprods_decl.f'
       include 'sprods_com.f'
       include 'alpha1.f'
       include 'anomHiggs.f'
-      double precision p(mxpart,4),q(mxpart,4),dot,p5Deta,omal
-      double precision s16,s25,s345,s34,mw
-      integer nu,p1,p2,p3,p4,k5,e5,p6,eta,j,k
-      double complex prW,prt,iza,izb,amp(2)
-      double complex zab2,amplower(2),ampmiddle(2),ampscalar(2)
+      real(dp):: p(mxpart,4),q(mxpart,4),dot,p5Deta,omal
+      real(dp):: s16,s25,s345,s34,mw
+      integer:: nu,p1,p2,p3,p4,k5,e5,p6,eta,j,k
+      complex(dp):: prW,prt,iza,izb,amp(2)
+      complex(dp):: zab2,amplower(2),ampmiddle(2),ampscalar(2)
       parameter (k5=5,e5=7)
 
-      prW(s34)=cone/dcmplx(s34-wmass**2,zip)
-      prt(s34)=cone/dcmplx(s34-mt**2,zip)
+      prW(s34)=cone/cplx2(s34-wmass**2,zip)
+      prt(s34)=cone/cplx2(s34-mt**2,zip)
       zab2(p1,p2,p3,p4)=za(p1,p2)*zb(p2,p4)+za(p1,p3)*zb(p3,p4)
       iza(p1,p2)=cone/za(p1,p2)
       izb(p1,p2)=cone/zb(p1,p2)
@@ -35,7 +40,7 @@ C   and store in position e5
       q(k5,nu)=p(5,nu)-mt**2*p(eta,nu)/(2d0*p5Deta)
       q(e5,nu)=mt**2*p(eta,nu)/(2d0*p5Deta)
       enddo
-      if (p3 .eq. 3) then
+      if (p3 == 3) then
         call spinoru(7,q,za,zb)
       else
         call spinoru(7,q,zb,za)
@@ -88,25 +93,30 @@ c  -- include anomalous Yukawa and EW couplings for the Higgs
       
       
       subroutine ubthdamp_dk(p,p1,p2,p3,p4,p6,pmless,amp)
+      implicit none
+      include 'types.f'
 C     Matrix element 
 c     u(-p1)+b(p2)->H(p3,p4)+t(p5)+d(p6)
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'zprods_decl.f'
       include 'sprods_com.f'
       include 'alpha1.f'
       include 'anomHiggs.f'
-      double precision p(mxpart,4),q(mxpart,4),p5Deta,omal
-      double precision pmless(4)
-      double precision s16,s25,s345,s34,mw
-      integer nu,p1,p2,p3,p4,k5,e5,p6,j
-      double complex prW,prt,izb,Amp(2)
-      double complex zab2,amplower(2),ampmiddle(2),ampscalar(2)
+      real(dp):: p(mxpart,4),q(mxpart,4),p5Deta,omal
+      real(dp):: pmless(4)
+      real(dp):: s16,s25,s345,s34,mw
+      integer:: nu,p1,p2,p3,p4,k5,e5,p6,j
+      complex(dp):: prW,prt,izb,Amp(2)
+      complex(dp):: zab2,amplower(2),ampmiddle(2),ampscalar(2)
       parameter (k5=5,e5=7)
 
-      prW(s34)=cone/dcmplx(s34-wmass**2,zip)
-      prt(s34)=cone/dcmplx(s34-mt**2,zip)
+      prW(s34)=cone/cplx2(s34-wmass**2,zip)
+      prt(s34)=cone/cplx2(s34-mt**2,zip)
       zab2(p1,p2,p3,p4)=za(p1,p2)*zb(p2,p4)+za(p1,p3)*zb(p3,p4)
       izb(p1,p2)=cone/zb(p1,p2)
 
@@ -124,7 +134,7 @@ C   and store in position e5
       q(k5,nu)=p(5,nu)-mt**2*pmless(nu)/(2d0*p5Deta)
       q(e5,nu)=mt**2*pmless(nu)/(2d0*p5Deta)
       enddo
-      if (p3 .eq. 3) then
+      if (p3 == 3) then
         call spinoru(7,q,za,zb)
       else
         call spinoru(7,q,zb,za)

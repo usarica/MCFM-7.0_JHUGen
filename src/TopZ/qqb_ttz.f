@@ -1,5 +1,7 @@
       subroutine qqb_ttz(pin,msq)
       implicit none
+      include 'types.f'
+
 ************************************************************************
 *     Author: R.K. Ellis                                               *
 *     May, 2011.                                                       *
@@ -11,24 +13,27 @@
 *                                                                      *
 ************************************************************************
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ewcouple.f'
       include 'zprods_com.f'
       include 'qcdcouple.f'
       include 'masses.f'
       include 'topzlabels.f'
-      include 'process.f'
+      include 'kprocess.f'
 
-      integer j,k,nu
-      double precision msq(-nf:nf,-nf:nf),pin(mxpart,4),p(mxpart,4)
-      double precision pw1(4),pw2(4),q(4),a(4),u(4),b(4),z(4),
+      integer:: j,k,nu
+      real(dp):: msq(-nf:nf,-nf:nf),pin(mxpart,4),p(mxpart,4)
+      real(dp):: pw1(4),pw2(4),q(4),a(4),u(4),b(4),z(4),
      & q1(4),q2(4),a1(4),a2(4),z1(4),z2(4)
-      double precision sz,sw1,sw2,qDq,aDa,uDu,bDb,densq,
-     . p3Dp5,p6Dp8,q1Dq1,q2Dq2,a1Da1,a2Da2
-      double precision wtqqb(2),wtqbq(2),wtgg
-      double precision gamu1,gamu2,gamb1,gamb2,gamq4,gama7,dot
-      double precision facqqb,facgg,denu,denb,denq1,denq2,dena1,dena2
-      double precision p1Du,p2Du,p1Db,p2Db,p4Dq,p7Da,denz1,denz2
-      double complex propz
+      real(dp):: sz,sw1,sw2,qDq,aDa,uDu,bDb,densq,
+     & p3Dp5,p6Dp8,q1Dq1,q2Dq2,a1Da1,a2Da2
+      real(dp):: wtqqb(2),wtqbq(2),wtgg
+      real(dp):: gamu1,gamu2,gamb1,gamb2,gamq4,gama7,dot
+      real(dp):: facqqb,facgg,denu,denb,denq1,denq2,dena1,dena2
+      real(dp):: p1Du,p2Du,p1Db,p2Db,p4Dq,p7Da,denz1,denz2
+      complex(dp):: propz
       integer,parameter::jj(-nf:nf)=(/-1,-2,-1,-2,-1,0,1,2,1,2,1/)
 
 c      write(6,*) 'mt',mt,twidth,wmass,wwidth,zmass,zwidth
@@ -91,7 +96,7 @@ c      p(j,nu)=scalefac*pin(j,nu)
       denu=uDu-mt**2
       denb=bDb-mt**2
 
-      propz=sz/Dcmplx((sz-zmass**2),zmass*zwidth)
+      propz=sz/cplx2((sz-zmass**2),zmass*zwidth)
       denq1=q1Dq1-mt**2
       denq2=q2Dq2-mt**2
       dena1=a1Da1-mt**2
@@ -102,7 +107,7 @@ c      p(j,nu)=scalefac*pin(j,nu)
       facqqb=V/4d0*(4d0*p3Dp5*p6Dp8)
      & *16d0*gsq**2*esq**2*gwsq**4/densq
       facgg=xn*facqqb
-      if (case .eq. 'qqtthz') then
+      if (kcase==kqqtthz) then
       facqqb=2d0*xn*facqqb
       facgg=2d0*xn*facgg
       endif
@@ -149,11 +154,11 @@ C----set all elements to zero
 
 C---fill qb-q, gg and q-qb elements
       do j=-nf,nf
-      if (j .lt. 0) then
+      if (j < 0) then
           msq(j,-j)=aveqq*facqqb*wtqbq(-jj(j))
-      elseif (j .eq. 0) then
+      elseif (j == 0) then
           msq(j,j)=avegg*facgg*wtgg
-      elseif (j .gt. 0) then
+      elseif (j > 0) then
           msq(j,-j)=aveqq*facqqb*wtqqb(jj(j))
       endif
       enddo

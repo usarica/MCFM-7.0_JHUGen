@@ -1,2 +1,2 @@
-      logical debug
+      logical:: debug
       common/debug/debug

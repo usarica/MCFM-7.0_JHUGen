@@ -1,19 +1,21 @@
       subroutine bookupeqbins(string,binsize,xlow,xhigh)
       implicit none
+      include 'types.f'
+      
       character *(*) string
       real * 8 binsize,xlow,xhigh
       include 'pwhg_bookhist-new.h'
       real * 8 xx(maxbins+1)
-      integer k
+      integer:: k
       xx(1)=xlow
       do k=2,maxbins+1
          xx(k)=xx(k-1)+binsize
-         if(xx(k)-(xhigh-binsize/1e4).gt.0) goto 10
+         if(xx(k)-(xhigh-binsize/1e4)>0) goto 10
       enddo
       write(*,*) 'bookupeqbins: too many bins in hist ',string
       call exit(-1)
  10   continue
-      if((xx(k)-xhigh)/binsize.gt.1e-4) then
+      if((xx(k)-xhigh)/binsize>1e-4) then
          write(*,*) 'upper limit incompatible with bin size'
          write(*,*) 'replacing ',xhigh,' with ',xx(k)
          write(*,*) ' in histogram ',string
@@ -23,17 +25,19 @@
 
 
       subroutine bookup(string,n,x)
+      implicit none
+      include 'types.f'
 c Books up a histogram characterized by the tag string <string>,
 c with n bins. The array x(n+1) are the bins endpoints,
 c x(i) is the low extreme of bin i.
-      implicit none
+      
       character *(*) string
-      integer n
+      integer:: n
       real * 8 x(n+1)
       include 'pwhg_bookhist-new.h'
-      integer j,k
-      integer indexhist
-      if(n.gt.maxbins) then
+      integer:: j,k
+      integer:: indexhist
+      if(n>maxbins) then
          write(*,*) ' maximum number of bins=',maxbins
          write(*,*) ' asked for ',n
          call exit(-1)
@@ -42,7 +46,7 @@ c indexhist(string) returns the histogram index if a histogram
 c with tag string was already booked, otherwise it books a new histogram,
 c and returns minus the value of its index
       j=-indexhist(string)
-      if(j.lt.0) then
+      if(j<0) then
          write(*,*) 'Histogram ',string,' already booked'
          call exit(-1)
       endif
@@ -65,18 +69,18 @@ c the overflow.
       
 
       function indexhist(string)
-      implicit none
+      
       character * (*) string
       include 'pwhg_bookhist-new.h'
-      integer indexhist
-      integer j
+      integer:: indexhist
+      integer:: j
       do j=1,jhist
-         if(stringhist(j).eq.string) then
+         if(stringhist(j)==string) then
             indexhist=j
             return
          endif
       enddo
-      if(jhist.eq.nhist) then
+      if(jhist==nhist) then
          write(*,*) ' no more rooms for histograms'
          write(*,*) ' Histogram "',string,'" cannot be booked'
          call exit(-1)
@@ -93,23 +97,25 @@ c the negative sign indicates a new histogram
 
       subroutine filld(string,xval,weight)
       implicit none
+      include 'types.f'
+      
       character *(*) string
       real * 8 xval,weight
       include 'pwhg_bookhist-new.h'
-      integer j,k,indexhist
+      integer:: j,k,indexhist
       j=indexhist(string)
-      if(j.lt.0) then
+      if(j<0) then
          write(*,*) ' histogram "',string,'" was not booked'
          call exit(-1)
       endif
 c underflow
-      if(xval.lt.xhistarr(1,j)) then
+      if(xval<xhistarr(1,j)) then
          yhistarr(0,j)=yhistarr(0,j)+weight
          nhits(0,j)=nhits(0,j)+1
          return
       else
          do k=1,nbins(j)
-            if(xval.lt.xhistarr(k+1,j)) then
+            if(xval<xhistarr(k+1,j)) then
                yhistarr(k,j)=yhistarr(k,j)+weight/
      1              (xhistarr(k+1,j)-xhistarr(k,j))
                nhits(k,j)=nhits(k,j)+1
@@ -124,14 +130,18 @@ c overflow
 
       subroutine inihists
       implicit none
+      include 'types.f'
+      
       include 'pwhg_bookhist-new.h'
       jhist=0
       end
 
       subroutine pwhgtopout
       implicit none
+      include 'types.f'
+      
       include 'pwhg_bookhist-new.h'
-      integer k,j,iun,l
+      integer:: k,j,iun,l
       character * 50 outfile
       parameter (iun=99)
       do j=1,jhist
@@ -148,12 +158,14 @@ c overflow
 
 
       subroutine pwhgaccumup
+      implicit none
+      include 'types.f'
 c values histogrammed so far are transferred to array yhistarr1,
 c and the square of the values are transferred to array errhistarr1.
 c yhistarr is zeroed. The index ient1 is increased by one unit.
-      implicit none
+      
       include 'pwhg_bookhist-new.h'
-      integer j,k
+      integer:: j,k
       do j=1,jhist
          do k=0,nbins(j)+1
             yhistarr1(k,j)=yhistarr1(k,j)+yhistarr(k,j)
@@ -165,14 +177,16 @@ c yhistarr is zeroed. The index ient1 is increased by one unit.
       end
 
       subroutine pwhgsetout
+      implicit none
+      include 'types.f'
 c provides a snapshot of the current result of the
 c analysis, leaving the yhistarr1 and errhistarr1 unchanged.
-      implicit none
+      
       include 'pwhg_bookhist-new.h'
-      integer j,k
+      integer:: j,k
       real *8 xxx,sum,sumsq
       do j=1,jhist
-         xxx=1d0/ient1(j)
+         xxx=1._dp/ient1(j)
          do k=0,nbins(j)+1
             sum=yhistarr1(k,j)
             sumsq=errhistarr1(k,j)
@@ -183,15 +197,17 @@ c analysis, leaving the yhistarr1 and errhistarr1 unchanged.
       end
 
       subroutine pwhgaddout
+      implicit none
+      include 'types.f'
 c accumulates the results obtained so far in yhistarr2 and errhistarr2.
 c It zeroes yhistarr1 and errhistarr1. To be used if we compute
 c a cross section with several contributions.
-      implicit none
+      
       include 'pwhg_bookhist-new.h'
-      integer j,k
+      integer:: j,k
       real *8 xxx,sum,sumsq
       do j=1,jhist
-         xxx=1d0/ient1(j)
+         xxx=1._dp/ient1(j)
          do k=0,nbins(j)+1
             sum=yhistarr1(k,j)
             sumsq=errhistarr1(k,j)

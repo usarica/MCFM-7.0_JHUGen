@@ -1,2 +1,2 @@
-      logical impsample
+      logical:: impsample
       common/impsample/impsample

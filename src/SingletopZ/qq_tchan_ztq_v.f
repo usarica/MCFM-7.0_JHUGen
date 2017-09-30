@@ -1,8 +1,13 @@
       subroutine qq_tchan_ztq_v(q,msq)
+      implicit none
+      include 'types.f'
 c--- Virtual contribution averaged over initial colors and spins
 c     u(-p1)+b(p2)->e-(p3)+e+(p4)+t(p5)+d(p6)
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'epinv.f'
       include 'scheme.f'
       include 'alpha1.f'
@@ -16,17 +21,17 @@ c     u(-p1)+b(p2)->e-(p3)+e+(p4)+t(p5)+d(p6)
       include 'TRtensorcontrol.f'
       include 'tensorinfo.f'
       include 'first.f'
-      integer nu,icross,u_b,b_u,db_b,b_db
-      integer origitotal,origibadpoint,origipolesfailed
-      double precision p(mxpart,4),msq(-nf:nf,-nf:nf),fac,
+      integer:: nu,icross,u_b,b_u,db_b,b_db
+      integer:: origitotal,origibadpoint,origipolesfailed
+      real(dp):: p(mxpart,4),msq(-nf:nf,-nf:nf),fac,
      & virt(4),q(mxpart,4),pswap(mxpart,4)
-      double complex xupper(-2:0),xlower(-2:0),
+      complex(dp):: xupper(-2:0),xlower(-2:0),
      & vupper(2,2,-2:0),vlower(2,2,-2:0),vmiddle(2,2,-2:0),
      & vextra(2,2,-2:0),vscalar(2,2,-2:0),vtot(2,2,-2:0),vtotep(2,2),
      & upper_tri(2,2,-2:0), lower_tri(2,2,-2:0)
-      double complex lotot(2,2)
-      integer j3,j5,h3,h5
-      logical failed
+      complex(dp):: lotot(2,2)
+      integer:: j3,j5,h3,h5
+      logical:: failed
       parameter(u_b=1,b_u=2,db_b=3,b_db=4)
       integer, parameter:: i1(4)=(/1,2,6,6/)
       integer, parameter:: i2(4)=(/2,1,2,1/)
@@ -80,14 +85,14 @@ c--- loop over all required crossings of amplitude
       
 c --- swap momenta p3 <-> p4 for tbar
       pswap=p
-      if (nwz .eq. -1) then
+      if (nwz == -1) then
          pswap(3,:)=p(4,:)
          pswap(4,:)=p(3,:)
       endif
       
-      if (nwz .eq. 1) then
+      if (nwz == 1) then
          call ubtzdamp(p,1,2,3,4,6,lotot)
-      elseif (nwz .eq. -1) then
+      elseif (nwz == -1) then
          call ubtzdamp(p,1,2,4,3,6,lotot)
       endif
 
@@ -98,9 +103,9 @@ c----- lepton helicity h3, top spin h5
       h3=2*j3-3
       h5=2*j5-3
 
-      if (nwz .eq. +1) then
+      if (nwz == +1) then
       call strings(p,h3,h5,.false.)
-      elseif (nwz .eq. -1) then
+      elseif (nwz == -1) then
       call strings(p,h3,h5,.true.)
       endif
          
@@ -140,11 +145,11 @@ c -- Pole check
       call dopoles(p,'total',lotot,vtot,first,failed)
 
       if (failed) ipolesfailed=ipolesfailed+1
-c      if (mod(itotal,100000) .eq. 0) then
+c      if (mod(itotal,100000) == 0) then
 c         write(6,*) itotal,': bad points for PV reduction ',
-c     &        dfloat(ibadpoint)/dfloat(itotal)*100d0,'%'
+c     &        real(ibadpoint,dp)/real(itotal,dp)*100d0,'%'
 c         write(6,*) itotal,': poles failing check ',
-c     &        dfloat(ipolesfailed)/dfloat(itotal)*100d0,'%'
+c     &        real(ipolesfailed,dp)/real(itotal,dp)*100d0,'%'
 c         call flush(6)
 c      endif
 c---  this block of code rejects PS point if pole check fails
@@ -157,23 +162,23 @@ c---  this block of code rejects PS point if pole check fails
 c--- wave function renormalization
       vtot(:,:,-1)=vtot(:,:,-1)-3d0*lotot(:,:)    
       vtot(:,:, 0)=vtot(:,:, 0)
-     &     -(3d0*dlog(musq/mt**2)+5d0)*lotot(:,:)
+     &     -(3d0*log(musq/mt**2)+5d0)*lotot(:,:)
 
 c--- couplings are applied here
       fac=2d0*Cf*ason2pi*esq**2*gwsq**2*xn**2
       
       vtotep(:,:)=vtot(:,:,-2)*epinv**2+vtot(:,:,-1)*epinv+vtot(:,:,0)
                       
-      virt(icross)=aveqq*fac*dble(
-     & +vtotep(1,1)*dconjg(lotot(1,1))+vtotep(1,2)*dconjg(lotot(1,2))
-     & +vtotep(2,1)*dconjg(lotot(2,1))+vtotep(2,2)*dconjg(lotot(2,2)))
+      virt(icross)=aveqq*fac*real(
+     & +vtotep(1,1)*conjg(lotot(1,1))+vtotep(1,2)*conjg(lotot(1,2))
+     & +vtotep(2,1)*conjg(lotot(2,1))+vtotep(2,2)*conjg(lotot(2,2)))
 
       if (failed) virt(icross)=0d0
 
       enddo        ! end of loop over crossings
 
 c--- fill matrix elements
-      if ( nwz .eq. +1) then
+      if ( nwz == +1) then
       msq(+2,5)=virt(u_b)
       msq(+4,5)=virt(u_b)
       msq(+5,+2)=virt(b_u)
@@ -182,7 +187,7 @@ c--- fill matrix elements
       msq(-3,+5)=virt(db_b)
       msq(+5,-1)=virt(b_db)
       msq(+5,-3)=virt(b_db)
-      elseif ( nwz .eq. -1) then
+      elseif ( nwz == -1) then
       msq(-2,-5)=virt(u_b)
       msq(-4,-5)=virt(u_b)
       msq(-5,-2)=virt(b_u)
@@ -196,7 +201,7 @@ c--- fill matrix elements
    99 continue
 
 c--- This block repeats calculation using PV if requested
-      if (  (TRtensorcontrol .eq. 1) .and. (doovred .eqv. .true.)
+      if (  (TRtensorcontrol == 1) .and. (doovred .eqv. .true.)
      &.and. (pvbadpoint) ) then
         itotal=origitotal
         ibadpoint=origibadpoint
@@ -213,15 +218,21 @@ c--- This block repeats calculation using PV if requested
 
 
       subroutine dopoles(p,desc,lo,virt,first,failed)
+      implicit none
+      include 'types.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'scale.f'
       include 'masses.f'
-      double precision p(mxpart,4),dot
+      real(dp):: p(mxpart,4),dot
+      integer::j3,j5
       character*5 desc
-      double complex lo(2,2),virt(2,2,-2:0)
-      double complex spnum
-      logical first,failed
-      double precision tol
+      complex(dp):: lo(2,2),virt(2,2,-2:0)
+      complex(dp):: spnum
+      logical:: first,failed
+      real(dp):: tol
       
       failed=.false.
       tol=1d-5
@@ -233,12 +244,12 @@ c--- This block repeats calculation using PV if requested
       
             virt(j3,j5,-2)=-2d0*lo(j3,j5)*3d0
             virt(j3,j5,-1)=2d0*lo(j3,j5)*(-11d0/2d0
-     &           -2d0*dlog(musq/(-2d0*dot(p,1,6)))
-     &           -2d0*dlog(musq/(-2d0*dot(p,2,5)))
-     &           +dlog(musq/mt**2)
+     &           -2d0*log(musq/(-2d0*dot(p,1,6)))
+     &           -2d0*log(musq/(-2d0*dot(p,2,5)))
+     &           +log(musq/mt**2)
      &           +3d0/2d0)      ! Last term is from w.f. renorm
      
-            if ( abs(spnum/virt(j3,j5,-1)-1d0) .lt. tol ) then
+            if ( abs(spnum/virt(j3,j5,-1)-1d0) < tol ) then
                continue
             else
                failed=.true.

@@ -1,12 +1,17 @@
       subroutine qqb_zz_z(p,z)
       implicit none
+      include 'types.f'
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'qcdcouple.f'
       include 'scale.f'
       include 'PR_new.f'
       include 'agq.f'
-      integer is
-      double precision z,xl12,p(mxpart,4),dot,ii_qq,ii_qg,tempqq,tempqg
+      integer:: is
+      real(dp):: z,xl12,p(mxpart,4),dot,ii_qq,ii_qg,tempqq,tempqg
 
       xl12=log(two*dot(p,1,2)/musq)
 c----contributions for one leg

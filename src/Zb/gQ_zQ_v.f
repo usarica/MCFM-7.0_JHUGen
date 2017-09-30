@@ -1,5 +1,7 @@
       subroutine gQ_zQ_v(p,msq)
       implicit none
+      include 'types.f'
+
 ************************************************************************
 *    Authors: R.K. Ellis and John Campbell                             *
 *    July, 2003.                                                       *
@@ -9,6 +11,9 @@
 *     g(-p1)+Q(-p2)-->Z^+(l(p3)+a(p4))+Q(p5)                           *
 ************************************************************************
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'qcdcouple.f'
       include 'ewcharge.f'
@@ -20,14 +25,14 @@
       include 'scheme.f'
       include 'heavyflav.f'
       include 'nflav.f'
-      integer j,k
-      double precision msq(-nf:nf,-nf:nf),msq0(-nf:nf,-nf:nf),
-     . p(mxpart,4),fac,sz,virt5,subuv
-      double precision gqZqLL,gqZqRR,gqZqLR,gqZqRL
-      double precision qgZqLL,qgZqRR,qgZqLR,qgZqRL
-      double precision gqbZqbLL,gqbZqbRR,gqbZqbLR,gqbZqbRL
-      double precision qbgZqbLL,qbgZqbRR,qbgZqbLR,qbgZqbRL
-      double complex prop
+      integer:: j,k
+      real(dp):: msq(-nf:nf,-nf:nf),msq0(-nf:nf,-nf:nf),
+     & p(mxpart,4),fac,sz,virt5,subuv
+      real(dp):: gqZqLL,gqZqRR,gqZqLR,gqZqRL
+      real(dp):: qgZqLL,qgZqRR,qgZqLR,qgZqRL
+      real(dp):: gqbZqbLL,gqbZqbRR,gqbZqbLR,gqbZqbRL
+      real(dp):: qbgZqbLL,qbgZqbRR,qbgZqbLR,qbgZqbRL
+      complex(dp):: prop
       integer,parameter::
      & iqgqLL(5)=(/1,5,3,4,2/),iqgqRR(5)=(/5,1,4,3,2/),
      & iqgqRL(5)=(/5,1,3,4,2/),iqgqLR(5)=(/1,5,4,3,2/),
@@ -38,7 +43,7 @@
 c--set msq=0 to initialize
       do j=-nf,nf
       do k=-nf,nf
-      msq(j,k)=0d0
+      msq(j,k)=0._dp
       enddo
       enddo
 
@@ -50,13 +55,14 @@ c--- calculate lowest order
 
 c----UV counterterm contains the finite renormalization to arrive
 c----at MS bar scheme.
-      subuv=ason2pi*xn*(epinv*(11d0-2d0*dble(nflav)/xn)-1d0)/6d0
+      subuv=ason2pi*xn*(epinv
+     & *(11._dp-2._dp*real(nflav,kind=dp)/xn)-1._dp)/6._dp
 
 c--   calculate propagator
       sz=s(3,4)
-      prop=sz/dcmplx((sz-zmass**2),zmass*zwidth)
+      prop=sz/cplx2((sz-zmass**2),zmass*zwidth)
 
-      fac=8d0*cf*xnsq*esq**2*gsq
+      fac=8._dp*cf*xnsq*esq**2*gsq
 
       gqZqLL=aveqg*fac*virt5(igqqLL,za,zb)
       gqZqLR=aveqg*fac*virt5(igqqLR,za,zb)
@@ -85,30 +91,30 @@ c--   calculate propagator
 
       if( abs(j+k) .ne. flav) goto 19
 
-      if     ((j .gt. 0) .and. (k .eq. 0)) then
-          msq(j,k)=+cdabs(Q(j)*q1+L(j)*l1*prop)**2*qgZqLL
-     .             +cdabs(Q(j)*q1+R(j)*r1*prop)**2*qgZqRR
-     .             +cdabs(Q(j)*q1+L(j)*r1*prop)**2*qgZqLR
-     .             +cdabs(Q(j)*q1+R(j)*l1*prop)**2*qgZqRL
-     .             -subuv*msq0(j,k)
-      elseif ((j .lt. 0) .and. (k .eq. 0)) then
-          msq(j,k)=+cdabs(Q(-j)*q1+L(-j)*l1*prop)**2*qbgZqbLL
-     .             +cdabs(Q(-j)*q1+R(-j)*r1*prop)**2*qbgZqbRR
-     .             +cdabs(Q(-j)*q1+L(-j)*r1*prop)**2*qbgZqbLR
-     .             +cdabs(Q(-j)*q1+R(-j)*l1*prop)**2*qbgZqbRL
-     .             -subuv*msq0(j,k)
-      elseif ((j .eq. 0) .and. (k .gt. 0)) then
-          msq(j,k)=+cdabs(Q(k)*q1+L(k)*l1*prop)**2*gqZqLL
-     .             +cdabs(Q(k)*q1+R(k)*r1*prop)**2*gqZqRR
-     .             +cdabs(Q(k)*q1+L(k)*r1*prop)**2*gqZqLR
-     .             +cdabs(Q(k)*q1+R(k)*l1*prop)**2*gqZqRL
-     .             -subuv*msq0(j,k)
-      elseif ((j .eq. 0) .and. (k .lt. 0)) then
-          msq(j,k)=+cdabs(Q(-k)*q1+L(-k)*l1*prop)**2*gqbZqbLL
-     .             +cdabs(Q(-k)*q1+R(-k)*r1*prop)**2*gqbZqbRR
-     .             +cdabs(Q(-k)*q1+L(-k)*r1*prop)**2*gqbZqbLR
-     .             +cdabs(Q(-k)*q1+R(-k)*l1*prop)**2*gqbZqbRL
-     .             -subuv*msq0(j,k)
+      if     ((j > 0) .and. (k == 0)) then
+          msq(j,k)=+abs(Q(j)*q1+L(j)*l1*prop)**2*qgZqLL
+     &             +abs(Q(j)*q1+R(j)*r1*prop)**2*qgZqRR
+     &             +abs(Q(j)*q1+L(j)*r1*prop)**2*qgZqLR
+     &             +abs(Q(j)*q1+R(j)*l1*prop)**2*qgZqRL
+     &             -subuv*msq0(j,k)
+      elseif ((j < 0) .and. (k == 0)) then
+          msq(j,k)=+abs(Q(-j)*q1+L(-j)*l1*prop)**2*qbgZqbLL
+     &             +abs(Q(-j)*q1+R(-j)*r1*prop)**2*qbgZqbRR
+     &             +abs(Q(-j)*q1+L(-j)*r1*prop)**2*qbgZqbLR
+     &             +abs(Q(-j)*q1+R(-j)*l1*prop)**2*qbgZqbRL
+     &             -subuv*msq0(j,k)
+      elseif ((j == 0) .and. (k > 0)) then
+          msq(j,k)=+abs(Q(k)*q1+L(k)*l1*prop)**2*gqZqLL
+     &             +abs(Q(k)*q1+R(k)*r1*prop)**2*gqZqRR
+     &             +abs(Q(k)*q1+L(k)*r1*prop)**2*gqZqLR
+     &             +abs(Q(k)*q1+R(k)*l1*prop)**2*gqZqRL
+     &             -subuv*msq0(j,k)
+      elseif ((j == 0) .and. (k < 0)) then
+          msq(j,k)=+abs(Q(-k)*q1+L(-k)*l1*prop)**2*gqbZqbLL
+     &             +abs(Q(-k)*q1+R(-k)*r1*prop)**2*gqbZqbRR
+     &             +abs(Q(-k)*q1+L(-k)*r1*prop)**2*gqbZqbLR
+     &             +abs(Q(-k)*q1+R(-k)*l1*prop)**2*gqbZqbRL
+     &             -subuv*msq0(j,k)
       endif
 
    19 continue

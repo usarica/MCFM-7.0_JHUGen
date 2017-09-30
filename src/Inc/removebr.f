@@ -1,2 +1,2 @@
-      logical removebr
+      logical:: removebr
       common/removebr/removebr

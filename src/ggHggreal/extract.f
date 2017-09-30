@@ -1,4 +1,6 @@
       subroutine extract(target_struc,target_struc_v)
+      implicit none
+      include 'types.f'
 ************************************************************************
 *     Author: J.M. Campbell                                            *
 *     February, 2005.                                                  *
@@ -11,12 +13,14 @@
 *     For efficiency, this is only done for indices (-1,0,+1)          *
 *                                                                      *
 ************************************************************************
-      implicit none
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'msq_struc.f'
-      integer istruc,j,k      
-      double precision target_struc(8,-1:1,-1:1),
-     .               target_struc_v(8,-1:1,-1:1)
+      integer::istruc,j,k      
+      real(dp)::target_struc(8,-1:1,-1:1),
+     &               target_struc_v(8,-1:1,-1:1)
       
       do j=-1,1
       do k=-1,1

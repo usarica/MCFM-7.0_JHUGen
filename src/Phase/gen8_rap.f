@@ -1,22 +1,27 @@
       subroutine gen8_rap(r,p,wt8,*)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'mxdim.f'
       include 'breit.f'
-      integer nu
+      integer:: nu
 
-      double precision r(mxdim)
-      double precision wt8,p(mxpart,4),tp(4),tm(4),bp(4),bm(4),n(4),e(4)
-      double precision wtepnn,wtnbem,ep(4),em(4),nn(4),nb(4),wp(4),wm(4)
-      double precision wtttw,wtwp,wtwm,s3min,wt0
-      parameter(wt0=1d0/twopi**4)
+      real(dp):: r(mxdim)
+      real(dp):: wt8,p(mxpart,4),tp(4),tm(4),bp(4),bm(4),n(4),e(4)
+      real(dp):: wtepnn,wtnbem,ep(4),em(4),nn(4),nb(4),wp(4),wm(4)
+      real(dp):: wtttw,wtwp,wtwm,s3min,wt0
+      parameter(wt0=1._dp/twopi**4)
 
 *     q(-p1) +qbar(-p2)=t(nu(p3)+e^+(p4)+b(p5))                        *
 *                       +t~(b~(p6)+e^-(p7)+nu(p8))+g(p9)               *
 *                                                                      * 
 
-      wt8=0d0
+      wt8=0._dp
 C---call gen4 that uses r(1)....r(10)
       call gen4(r,p,wtttw,*999)
       wtttw=(mt*twidth*pi)**2*wtttw
@@ -28,7 +33,7 @@ C---call gen4 that uses r(1)....r(10)
       
       enddo
 
-      s3min=0d0
+      s3min=0._dp
       n3=1
       mass3=wmass      
       width3=wwidth      
@@ -54,8 +59,8 @@ C---call gen4 that uses r(1)....r(10)
       enddo
 
       return
- 999  wt8=0d0
-      p(:,:)=0d0
+ 999  wt8=0._dp
+      p(:,:)=0._dp
       return 1
       
       end

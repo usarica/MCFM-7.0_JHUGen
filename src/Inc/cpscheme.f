@@ -1,5 +1,5 @@
-c--- logical variable for determining whether or not to use complex pole
+c--- logical:: variable for determining whether or not to use complex pole
 c--- scheme of Passarino et al. (HTO)
-      logical CPscheme
+      logical:: CPscheme
       common/CPscheme/CPscheme
 

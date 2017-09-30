@@ -1,5 +1,7 @@
       subroutine qqb_tottth_g(p,msq)
       implicit none
+      include 'types.f'
+      
 ************************************************************************
 *     Author: R.K. Ellis                                               *
 *     May, 2013.                                                       *
@@ -10,24 +12,27 @@
 *                                                                      *
 ************************************************************************
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ewcouple.f'
       include 'qcdcouple.f'
       include 'couple.f'
-      include 'part.f'
+      include 'kpart.f'
       include 'masses.f'
       include 'swapxz.f'
       include 'msbarmasses.f'
       include 'first.f'
       
-      integer j,k
-      double precision msq(-nf:nf,-nf:nf),p(mxpart,4)
-      double precision wtqqb,wtgg,wtqbq,wtqg,wtqbg,wtgq,wtgqb
-      double precision massfrun,mt_eff,ytsq,fac
+      integer:: j,k
+      real(dp):: msq(-nf:nf,-nf:nf),p(mxpart,4)
+      real(dp):: wtqqb,wtgg,wtqbq,wtqg,wtqbg,wtgq,wtgqb
+      real(dp):: massfrun,mt_eff,ytsq,fac
       save mt_eff
 !$omp threadprivate(mt_eff) 
       if (first) then
 c--- run mt to appropriate scale
-        if (part .eq. 'lord') then
+        if (kpart==klord) then
           mt_eff=massfrun(mt_msbar,hmass,amz,1)
         else
           mt_eff=massfrun(mt_msbar,hmass,amz,2)

@@ -1,2 +1,2 @@
-      logical includect
+      logical:: includect
       common/includect/includect

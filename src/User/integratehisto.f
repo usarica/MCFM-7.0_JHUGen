@@ -1,12 +1,14 @@
       subroutine integratehisto(N)
+      implicit none
+      include 'types.f'
 c--- Compute cumulative integral of histogram N and use it to
 c--- replace current histogram N 
-      implicit none
-      include 'histo.f'
-      integer N,j
-      double precision xint
       
-      xint=0d0
+      include 'histo.f'
+      integer:: N,j
+      real(dp):: xint
+      
+      xint=0._dp
       
       do j=1,NBIN(N)
       xint=xint+HIST(N,j)*HDEL(N)

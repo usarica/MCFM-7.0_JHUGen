@@ -1,13 +1,18 @@
       subroutine triangle7new(k1,k2,k3,k4,k5,k6,za,zb,app,apm)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'sprods_com.f'
       include 'zprods_decl.f'
       include 'Higgsint.f'
-      double precision mtsq
-      integer k1,k2,k3,k4,k5,k6,i1,i2
-      double complex app,apm,triamp,za34b,iza34b,iza,izb,
+      real(dp):: mtsq
+      integer:: k1,k2,k3,k4,k5,k6,i1,i2
+      complex(dp):: app,apm,triamp,za34b,iza34b,iza,izb,
      & t2sum,t2prod,t1234sum
 c--- statement functions
       iza(i1,i2)=cone/za(i1,i2)
@@ -51,7 +56,7 @@ c     &  -za(k3,k4)*zb(k4,k3)/za34b(k1,k1)*za(k1,k2)*zb(k2,k1))
       triamp = triamp + mtsq * (  - za(k1,k3)*za(k1,k5)*zb(k1,k4)*zb(k2
      &    ,k6)*iza(k1,k2)**2*za34b(k2,k1)*iza34b(k1,k1) - za(k1,k3)*za(
      &    k1,k5)*zb(k1,k4)*zb(k2,k6)*iza(k1,k2)**2*iza34b(k1,k2)*t2sum
-     &     - 2.D0*za(k1,k3)*za(k1,k5)*zb(k1,k4)*iza(k1,k2)**3*za34b(k1,
+     &     - 2._dp*za(k1,k3)*za(k1,k5)*zb(k1,k4)*iza(k1,k2)**3*za34b(k1,
      &    k6)*za34b(k2,k1)*iza34b(k1,k1) + za(k1,k3)*za(k1,k5)*zb(k1,k4
      &    )*iza(k1,k2)**3*za34b(k1,k6)*za34b(k2,k2)*iza34b(k1,k2) - za(
      &    k1,k3)*za(k1,k5)*zb(k1,k4)*iza(k1,k2)**3*za34b(k1,k6)*iza34b(
@@ -59,15 +64,15 @@ c     &  -za(k3,k4)*zb(k4,k3)/za34b(k1,k1)*za(k1,k2)*zb(k2,k1))
      &    ,k2)**2 + za(k1,k3)*za(k2,k5)*zb(k1,k4)*iza(k1,k2)**3*za34b(
      &    k1,k6) + za(k1,k3)*zb(k1,k4)*iza(k1,k2)**2*za34b(k1,k6)*
      &    za34b(k5,k1)*iza34b(k1,k1) - za(k1,k3)*zb(k1,k4)*iza(k1,k2)**
-     &    2*za34b(k1,k6)*za34b(k5,k2)*iza34b(k1,k2) + 2.D0*za(k1,k5)*
+     &    2*za34b(k1,k6)*za34b(k5,k2)*iza34b(k1,k2) + 2._dp*za(k1,k5)*
      &    za(k3,k4)*zb(k1,k4)**2*zb(k1,k6)*iza(k1,k2)**2*izb(k1,k2)*
      &    za34b(k1,k2)*iza34b(k1,k1) - za(k1,k5)*za(k3,k4)*zb(k1,k4)**2
      &    *zb(k1,k6)*iza(k1,k2)**2*izb(k1,k2)*za34b(k2,k2)*iza34b(k2,k1
      &    ) )
       triamp = triamp + mtsq * ( za(k1,k5)*za(k3,k4)*zb(k1,k4)**2*zb(k1
-     &    ,k6)*iza(k1,k2)**2*izb(k1,k2)*iza34b(k2,k1)*t2sum + 2.D0*za(
+     &    ,k6)*iza(k1,k2)**2*izb(k1,k2)*iza34b(k2,k1)*t2sum + 2._dp*za(
      &    k1,k5)*za(k3,k4)*zb(k1,k4)**2*zb(k2,k6)*iza(k1,k2)*iza34b(k1,
-     &    k1) + 2.D0*za(k1,k5)*za(k3,k4)*zb(k1,k4)**2*iza(k1,k2)**2*
+     &    k1) + 2._dp*za(k1,k5)*za(k3,k4)*zb(k1,k4)**2*iza(k1,k2)**2*
      &    za34b(k1,k6)*iza34b(k1,k1) - za(k2,k5)*za(k3,k4)*zb(k1,k4)**2
      &    *zb(k1,k6)*iza(k1,k2)**2*izb(k1,k2)*za34b(k1,k1)*iza34b(k2,k1
      &    )**2*t2sum - za(k2,k5)*za(k3,k4)*zb(k1,k4)**2*zb(k1,k6)*iza(
@@ -84,7 +89,7 @@ c     &  -za(k3,k4)*zb(k4,k3)/za34b(k1,k1)*za(k1,k2)*zb(k2,k1))
      &    za34b(k1,k6)*za34b(k5,k1)*iza34b(k1,k1)*iza34b(k2,k1) )
       triamp = triamp + mtsq**2 * (  - za(k1,k3)*za(k1,k5)*zb(k1,k2)*
      &    zb(k1,k4)*zb(k2,k6)*iza(k1,k2)*iza34b(k1,k1)*iza34b(k1,k2) - 
-     &    2.D0*za(k1,k3)*za(k1,k5)*zb(k1,k4)*zb(k1,k6)*iza(k1,k2)**2*
+     &    2._dp*za(k1,k3)*za(k1,k5)*zb(k1,k4)*zb(k1,k6)*iza(k1,k2)**2*
      &    iza34b(k1,k1) + za(k1,k3)*za(k2,k5)*zb(k1,k4)*zb(k1,k6)*iza(
      &    k1,k2)**2*iza34b(k2,k1) + za(k1,k3)*zb(k1,k4)*zb(k1,k6)*iza(
      &    k1,k2)*za34b(k5,k1)*iza34b(k1,k1)*iza34b(k2,k1) )
@@ -122,7 +127,7 @@ c     &  -za(k3,k4)*zb(k4,k3)/za34b(k1,k1)*za(k1,k2)*zb(k2,k1))
      &     + za(k1,k3)**2*za(k1,k5)*zb(k1,k6)*zb(k3,k4)*iza(k1,k2)**2*
      &    izb(k1,k2)*za34b(k2,k1)**2*iza34b(k1,k1)*iza34b(k1,k2) + za(
      &    k1,k3)**2*za(k1,k5)*zb(k1,k6)*zb(k3,k4)*iza(k1,k2)**2*izb(k1,
-     &    k2)*za34b(k2,k1)*iza34b(k1,k2)**2*t1234sum + 2.D0*za(k1,k3)**
+     &    k2)*za34b(k2,k1)*iza34b(k1,k2)**2*t1234sum + 2._dp*za(k1,k3)**
      &    2*za(k1,k5)*zb(k1,k6)*zb(k3,k4)*iza(k1,k2)**2*izb(k1,k2)*
      &    za34b(k2,k1)*iza34b(k1,k2)**2*t2sum + za(k1,k3)**2*za(k2,k5)*
      &    zb(k1,k6)*zb(k3,k4)*iza(k1,k2)*za34b(k2,k1)*iza34b(k1,k1)*
@@ -148,7 +153,7 @@ c     &  -za(k3,k4)*zb(k4,k3)/za34b(k1,k1)*za(k1,k2)*zb(k2,k1))
      &    iza34b(k1,k1)*iza34b(k1,k2) + za(k1,k3)*za(k1,k5)*zb(k1,k4)*
      &    iza(k1,k2)**2*izb(k1,k2)*za34b(k1,k6)*za34b(k2,k1)*iza34b(k1,
      &    k2)**2*t1234sum )
-      triamp = triamp + mtsq * ( 2.D0*za(k1,k3)*za(k1,k5)*zb(k1,k4)*
+      triamp = triamp + mtsq * ( 2._dp*za(k1,k3)*za(k1,k5)*zb(k1,k4)*
      &    iza(k1,k2)**2*izb(k1,k2)*za34b(k1,k6)*za34b(k2,k1)*iza34b(k1,
      &    k2)**2*t2sum - za(k1,k3)*za(k2,k3)*za(k2,k5)*zb(k1,k6)*zb(k3,
      &    k4)*iza(k1,k2)*iza34b(k1,k2) - za(k1,k3)*za(k2,k5)*za(k3,k4)*
@@ -180,11 +185,11 @@ c     &  -za(k3,k4)*zb(k4,k3)/za34b(k1,k1)*za(k1,k2)*zb(k2,k1))
      &    zb(k1,k4)*zb(k1,k6)*iza(k1,k2)*izb(k1,k2)*iza34b(k1,k2)**2*
      &    t2sum + za(k1,k3)*za(k2,k5)*zb(k1,k4)*zb(k1,k6)*iza34b(k1,k1)
      &    *iza34b(k1,k2) )
-      triamp = triamp - 2.D0*za(k1,k3)**2*za(k1,k5)*zb(k3,k4)*iza(k1,k2
+      triamp = triamp - 2._dp*za(k1,k3)**2*za(k1,k5)*zb(k3,k4)*iza(k1,k2
      & )**3*izb(k1,k2)*za34b(k1,k1)**2*za34b(k1,k6)*iza34b(k1,k2)**4*
      & t1234sum*t2prod + za(k1,k3)**2*za(k1,k5)*zb(k3,k4)*iza(k1,k2)**3
      &    *izb(k1,k2)*za34b(k1,k1)**2*za34b(k1,k6)*iza34b(k1,k2)**4*
-     &    t1234sum**3 - 2.D0*za(k1,k3)**2*za(k1,k5)*zb(k3,k4)*iza(k1,k2
+     &    t1234sum**3 - 2._dp*za(k1,k3)**2*za(k1,k5)*zb(k3,k4)*iza(k1,k2
      &    )**3*izb(k1,k2)*za34b(k1,k1)**2*za34b(k1,k6)*iza34b(k1,k2)**4
      &    *t2sum*t2prod + za(k1,k3)**2*za(k1,k5)*zb(k3,k4)*iza(k1,k2)**
      &    3*izb(k1,k2)*za34b(k1,k1)**2*za34b(k1,k6)*iza34b(k1,k2)**4*
@@ -192,7 +197,7 @@ c     &  -za(k3,k4)*zb(k4,k3)/za34b(k1,k1)*za(k1,k2)*zb(k2,k1))
      &    izb(k1,k2)*za34b(k1,k1)*za34b(k1,k6)*za34b(k2,k1)*iza34b(k1,
      &    k2)**3*t2prod - za(k1,k3)**2*za(k1,k5)*zb(k3,k4)*iza(k1,k2)**
      &    3*izb(k1,k2)*za34b(k1,k1)*za34b(k1,k6)*za34b(k2,k1)*iza34b(k1
-     &    ,k2)**3*t1234sum**2 + 2.D0*za(k1,k3)**2*za(k1,k5)*zb(k3,k4)*
+     &    ,k2)**3*t1234sum**2 + 2._dp*za(k1,k3)**2*za(k1,k5)*zb(k3,k4)*
      &    iza(k1,k2)**3*izb(k1,k2)*za34b(k1,k1)*za34b(k1,k6)*za34b(k2,
      &    k1)*iza34b(k1,k2)**3*t2sum**2 + za(k1,k3)**2*za(k1,k5)*zb(k3,
      &    k4)*iza(k1,k2)**3*izb(k1,k2)*za34b(k1,k6)*za34b(k2,k1)**2*
@@ -217,7 +222,7 @@ c     &  -za(k3,k4)*zb(k4,k3)/za34b(k1,k1)*za(k1,k2)*zb(k2,k1))
      & k4)*iza(k1,k2)**2*izb(k1,k2)*za34b(k1,k6)*za34b(k2,k1)**2*
      & iza34b(k1,k1)*iza34b(k1,k2) - za(k1,k3)*za(k1,k5)*za(k3,k4)*zb(
      &    k1,k4)*zb(k3,k4)*iza(k1,k2)**2*izb(k1,k2)*za34b(k1,k6)*za34b(
-     &    k2,k1)*iza34b(k1,k2)**2*t1234sum - 2.D0*za(k1,k3)*za(k1,k5)*
+     &    k2,k1)*iza34b(k1,k2)**2*t1234sum - 2._dp*za(k1,k3)*za(k1,k5)*
      &    za(k3,k4)*zb(k1,k4)*zb(k3,k4)*iza(k1,k2)**2*izb(k1,k2)*za34b(
      &    k1,k6)*za34b(k2,k1)*iza34b(k1,k2)**2*t2sum + za(k1,k3)*za(k2,
      &    k3)*za(k2,k5)*zb(k3,k4)*iza(k1,k2)**2*za34b(k1,k1)*za34b(k1,

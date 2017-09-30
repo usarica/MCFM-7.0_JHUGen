@@ -4,7 +4,11 @@ INCPATH1 = $(PWD)/../Include/
 INCPATH2 = $(PWD)/../../Include/
 OUTPUT_OPTION	= -o $(PWD)/obj_omp/$@ 
 
-FC = gfortran 
+ifeq ($(origin FC),environment)
+    $(info Inheriting FC from environment: $(FC))
+else
+    FC = gfortran
+endif
 FFLAGS 	= -O2 -fno-f2c -fopenmp  -g -I$(INCPATH1) -I$(INCPATH2) -Iobj_omp -Jobj_omp
 
 LIBRARY	      = libsmallG_omp.a

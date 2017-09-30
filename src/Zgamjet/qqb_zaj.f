@@ -6,15 +6,20 @@
 ****************************************************************
       subroutine qqb_zaj(p,msq)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'sprods_com.f'
-      double precision p(mxpart,4),msq(-nf:nf,-nf:nf)
-      double precision pbdk(mxpart,4)
-      double complex aqqb(4,16),aqbq(4,16),aqg(4,16)
-      double complex aqbg(4,16),agq(4,16),agqb(4,16)
-      double precision qqb(2),qbq(2),qg(2),qbg(2),gq(2),gqb(2)
-      integer i,j,k
+      real(dp):: p(mxpart,4),msq(-nf:nf,-nf:nf)
+      real(dp):: pbdk(mxpart,4)
+      complex(dp):: aqqb(4,16),aqbq(4,16),aqg(4,16)
+      complex(dp):: aqbg(4,16),agq(4,16),agqb(4,16)
+      real(dp):: qqb(2),qbq(2),qg(2),qbg(2),gq(2),gqb(2)
+      integer:: i,j,k
       integer, parameter::jj(-nf:nf)=(/-1,-2,-1,-2,-1,0,1,2,1,2,1/)
       integer, parameter::kk(-nf:nf)=(/-1,-2,-1,-2,-1,0,1,2,1,2,1/)
 c-----swap momenta
@@ -66,22 +71,22 @@ c-----initialize msq
 c-----fill msq
       do j=-nf,nf
       do k=-nf,nf
-          if ((j .eq. 0) .and. (k .eq. 0)) then
-            msq(j,k)=0d0
-          elseif ((j .eq. 0) .and. (k .lt. 0)) then
+          if ((j == 0) .and. (k == 0)) then
+            msq(j,k)=zip
+          elseif ((j == 0) .and. (k < 0)) then
             msq(j,k)=aveqg*gqb(-kk(k))
-          elseif ((j .eq. 0) .and. (k .gt. 0)) then
+          elseif ((j == 0) .and. (k > 0)) then
             msq(j,k)=aveqg*gq(kk(k))
-          elseif ((j .gt. 0) .and. (k .eq. -j)) then
+          elseif ((j > 0) .and. (k == -j)) then
             msq(j,k)=aveqq*qqb(jj(j))
-          elseif ((j .lt. 0) .and. (k .eq. -j)) then
+          elseif ((j < 0) .and. (k == -j)) then
             msq(j,k)=aveqq*qbq(kk(k))
-          elseif ((j .gt. 0) .and. (k .eq. 0)) then
+          elseif ((j > 0) .and. (k == 0)) then
             msq(j,k)=aveqg*qg(jj(j))
-          elseif ((j .lt. 0) .and. (k .eq. 0)) then
+          elseif ((j < 0) .and. (k == 0)) then
             msq(j,k)=aveqg*qbg(-jj(j))
           else
-            msq(j,k)=0d0
+            msq(j,k)=zip
           endif
       enddo
       enddo
@@ -91,12 +96,17 @@ c-----donehere
 
 
       subroutine zaj_m60sq(qi,a60h,msq)
+      implicit none
+      include 'types.f'
 ***********************************************
 * squared matrix element
 * qqb_zaj, for initial state flavor qi
 ***********************************************
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'sprods_com.f'
       include 'ewcouple.f'
@@ -106,52 +116,52 @@ c-----donehere
       include 'masses.f'
       include 'new_pspace.f'
       include 'ipsgen.f'
-      double precision t
-      integer j1,j2,j3,j4,j5,j6
-      double complex a60h(4,16),m60hA(16),m60hB(16)
-      double complex propzQQ,propzLL,propzQL(3:4)
-      double precision m6sq0h(16),msq
-      double precision m6sq0hAA(16),m6sq0hBB(16),m6sq0hAB(16)
-      double precision ee,gg,iwdth,qq
-      integer qi,i,j,k
+      real(dp):: t
+      integer:: j1,j2,j3,j4,j5,j6
+      complex(dp):: a60h(4,16),m60hA(16),m60hB(16)
+      complex(dp):: propzQQ,propzLL,propzQL(3:4)
+      real(dp):: m6sq0h(16),msq
+      real(dp):: m6sq0hAA(16),m6sq0hBB(16),m6sq0hAB(16)
+      real(dp):: ee,gg,iwdth,qq
+      integer:: qi,i,j,k
 c-----electric and strong coupling
-      ee=dsqrt(esq)
-      gg=dsqrt(gsq)
+      ee=sqrt(esq)
+      gg=sqrt(gsq)
 c-----Z propagator
-      iwdth = 1D0
-      qq=dabs(q1)
+      iwdth = one
+      qq=abs(q1)
 c-----QQ propagator
-      propzQQ=s(5,6)/Dcmplx(s(5,6)-zmass**2,iwdth*zwidth*zmass)
+      propzQQ=s(5,6)/cplx2(s(5,6)-zmass**2,iwdth*zwidth*zmass)
 c-----QL propagator (2,3)
-      propzQL(3)=t(1,4,2)/Dcmplx(t(1,4,2)-zmass**2,iwdth*zwidth*zmass)
+      propzQL(3)=t(1,4,2)/cplx2(t(1,4,2)-zmass**2,iwdth*zwidth*zmass)
 c-----dress the amplitude with couplings etc.
 c-----M(+-xx-+)
       do i=1,4
          m60hA(i)=twort2*ee**3*gg*
-     .   ( + Q(qi)*(q1*Q(qi)+r1*r(qi)*propzQQ)*a60h(1,i) )
+     &   ( + Q(qi)*(q1*Q(qi)+r1*r(qi)*propzQQ)*a60h(1,i) )
          m60hB(i)=twort2*ee**3*gg*
-     .   ( - qq*(q1*Q(qi)+r1*r(qi)*propzQL(3))*a60h(3,i) )
+     &   ( - qq*(q1*Q(qi)+r1*r(qi)*propzQL(3))*a60h(3,i) )
       enddo
 c-----M(+-xx+-)
       do i=5,8
          m60hA(i)=twort2*ee**3*gg*
-     .   ( + Q(qi)*(q1*Q(qi)+l1*r(qi)*propzQQ)*a60h(1,i) )
+     &   ( + Q(qi)*(q1*Q(qi)+l1*r(qi)*propzQQ)*a60h(1,i) )
          m60hB(i)=twort2*ee**3*gg*
-     .   ( + qq*(q1*Q(qi)+l1*r(qi)*propzQL(3))*a60h(3,i) )
+     &   ( + qq*(q1*Q(qi)+l1*r(qi)*propzQL(3))*a60h(3,i) )
       enddo
 c-----(-+xx+-)
       do i=9,12
          m60hA(i)=twort2*ee**3*gg*
-     .   ( + Q(qi)*(q1*Q(qi)+l1*l(qi)*propzQQ)*dconjg(a60h(1,i-8)) )
+     &   ( + Q(qi)*(q1*Q(qi)+l1*l(qi)*propzQQ)*conjg(a60h(1,i-8)) )
          m60hB(i)=twort2*ee**3*gg*
-     .   ( - qq*(q1*Q(qi)+l1*l(qi)*propzQL(3))*dconjg(a60h(3,i-8)) )
+     &   ( - qq*(q1*Q(qi)+l1*l(qi)*propzQL(3))*conjg(a60h(3,i-8)) )
       enddo
 c-----(-+xx-+)
       do i=13,16
          m60hA(i)=twort2*ee**3*gg*
-     .   ( + Q(qi)*(q1*Q(qi)+r1*l(qi)*propzQQ)*dconjg(a60h(1,i-8)) )
+     &   ( + Q(qi)*(q1*Q(qi)+r1*l(qi)*propzQQ)*conjg(a60h(1,i-8)) )
          m60hB(i)=twort2*ee**3*gg*
-     .   ( + qq*(q1*Q(qi)+r1*l(qi)*propzQL(3))*dconjg(a60h(3,i-8)) )
+     &   ( + qq*(q1*Q(qi)+r1*l(qi)*propzQL(3))*conjg(a60h(3,i-8)) )
       enddo
 
       if (.false.) then
@@ -160,7 +170,7 @@ c-----(-+xx-+)
          write(*,*) 'A6q(',i,') = ',a60h(1,i)
       enddo
       do i=9,16
-         write(*,*) 'A6q(',i,') = ',dconjg(a60h(1,i-8))
+         write(*,*) 'A6q(',i,') = ',conjg(a60h(1,i-8))
          write(*,*) '                   = ',a60h(1,i)
       enddo
       write(*,*) ' '
@@ -168,7 +178,7 @@ c-----(-+xx-+)
          write(*,*) 'A6l(',i,') = ',a60h(3,i)
       enddo
       do i=9,16
-         write(*,*) 'A6l(',i,') = ',dconjg(a60h(3,i-8))
+         write(*,*) 'A6l(',i,') = ',conjg(a60h(3,i-8))
          write(*,*) '                   = ',a60h(3,i)
       enddo
       pause
@@ -176,9 +186,9 @@ c-----(-+xx-+)
 
 c-----square the helicity amplitudes
       do i=1,16
-         m6sq0hAA(i)=dreal(m60hA(i)*dconjg(m60hA(i)))
-         m6sq0hBB(i)=dreal(m60hB(i)*dconjg(m60hB(i)))
-         m6sq0hAB(i)=2d0*dreal(m60hA(i)*dconjg(m60hB(i)))
+         m6sq0hAA(i)=real(m60hA(i)*conjg(m60hA(i)))
+         m6sq0hBB(i)=real(m60hB(i)*conjg(m60hB(i)))
+         m6sq0hAB(i)=2._dp*real(m60hA(i)*conjg(m60hB(i)))
       enddo
       do i=1,16
 c         m6sq0h(i)=m6sq0hAA(i)+m6sq0hBB(i)+m6sq0hAB(i)
@@ -186,15 +196,15 @@ c         m6sq0h(i)=m6sq0hBB(i)
 
 c--- ipsgen may now be equal to 3 or 4 when this routine is
 c--- called by fragmentation dipoles in qqb_zaa_gs.f
-         if     (ipsgen .eq. 1) then
+         if     (ipsgen == 1) then
             m6sq0h(i)=m6sq0hAA(i)
-         elseif (ipsgen .gt. 1) then
+         elseif (ipsgen > 1) then
             m6sq0h(i)=m6sq0hBB(i)+m6sq0hAB(i)
          endif
 
-c         if     (ipsgen .eq. 1) then
+c         if     (ipsgen == 1) then
 c            m6sq0h(i)=m6sq0hAA(i)
-c         elseif (ipsgen .eq. 2) then
+c         elseif (ipsgen == 2) then
 c            m6sq0h(i)=m6sq0hBB(i)+m6sq0hAB(i)
 c         else
 c         write(6,*) 'Parameter ipsgen should be 1 or 2'
@@ -215,7 +225,7 @@ c-----sum them up
       enddo
 c-----multiply by color factors
 c-----average over spins,no average over colors
-      msq=8d0*msq
+      msq=8._dp*msq
 c-----donehere
       return
       end

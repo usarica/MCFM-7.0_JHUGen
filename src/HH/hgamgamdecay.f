@@ -1,23 +1,28 @@
       subroutine hgamgamdecay(p,j,k,hdecay)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'msbarmasses.f'
       include 'ewcouple.f'
       include 'ewcharge.f'
       include 'couple.f'
-      include 'part.f'
+      include 'kpart.f'
       include 'first.f'
-      integer j,k
-      double complex Iw,Iq,Ftriangle
-      double precision p(mxpart,4),prefac,mh,hdecay
-      double precision x_t,x_b,x_w,x,mt_eff,mb_eff,massfrun
+      integer:: j,k
+      complex(dp):: Iw,Iq,Ftriangle
+      real(dp):: p(mxpart,4),prefac,mh,hdecay
+      real(dp):: x_t,x_b,x_w,x,mt_eff,mb_eff,massfrun
       save mt_eff,mb_eff
 !$threadprivate(mt_eff,mb_eff)
 C---statement functions
-      Iq(x)=dcmplx(4d0*x)*(ctwo+dcmplx(4d0*x-1d0)*Ftriangle(x))
-      Iw(x)=-ctwo*(dcmplx(6d0*x+1d0)
-     & +dcmplx(6d0*x*(2d0*x-1d0))*Ftriangle(x))
+      Iq(x)=cplx1(4._dp*x)*(ctwo+cplx1(4._dp*x-1._dp)*Ftriangle(x))
+      Iw(x)=-ctwo*(cplx1(6._dp*x+1._dp)
+     & +cplx1(6._dp*x*(2._dp*x-1._dp))*Ftriangle(x))
 C---end statement functions
       mh=sqrt((p(j,4)+p(k,4))**2
      &       -(p(j,1)+p(k,1))**2
@@ -26,7 +31,7 @@ C---end statement functions
 
       if (first) then
 c--- run mt to appropriate scale
-        if (part .eq. 'lord') then
+        if (kpart==klord) then
           mb_eff=massfrun(mb_msbar,hmass,amz,1)
           mt_eff=massfrun(mt_msbar,hmass,amz,1)
         else
@@ -39,7 +44,7 @@ c--- run mt to appropriate scale
 C---Total width multiplied by a factor of 16*pi*mh 
 C---to get matrix element squared.
 c---maybe it would be better to add esq at a higher scale.
-      prefac=(esq/(4d0*pi))**2*Gf*mh**4/(8d0*rt2*pi**2)
+      prefac=(esq/(4._dp*pi))**2*Gf*mh**4/(8._dp*rt2*pi**2)
       x_b=(mb_eff/mh)**2
       x_t=(mt_eff/mh)**2
       x_w=(wmass/mh)**2

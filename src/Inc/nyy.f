@@ -1,2 +1,2 @@
-      integer nyy
+      integer:: nyy
       parameter(nyy=101)

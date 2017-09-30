@@ -1,4 +1,6 @@
       subroutine nplotter_gmgmjt(p,wt,wt2,switch)
+      implicit none
+      include 'types.f'
 c--- Variable passed in to this routine:
 c
 c---      p:  4-momenta of particles in the format p(i,4)
@@ -9,18 +11,21 @@ c---     wt:  weight of this event
 c
 c---    wt2:  weight^2 of this event
 c
-c--- switch:  an integer equal to 0 or 1, depending on the type of event
+c--- switch:  an integer:: equal to 0 or 1, depending on the type of event
 c---                0  --> lowest order, virtual or real radiation
 c---                1  --> counterterm for real radiation
-      implicit none
+      
       include 'vegas_common.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'histo.f'
       include 'outputflags.f'
-      double precision p(mxpart,4),wt,wt2,pt,pord(mxpart,4),pt3,pt4,
+      real(dp):: p(mxpart,4),wt,wt2,pt,pord(mxpart,4),pt3,pt4,
      & pt5,pt6
-      integer switch,n,nplotmax
-      character*4 tag
+      integer:: switch,n,nplotmax
+      integer tag
       logical, save::first=.true.
       common/nplotmax/nplotmax
 ccccc!$omp threadprivate(first,/nplotmax/)
@@ -35,11 +40,11 @@ ccccc!$omp threadprivate(first,/nplotmax/)
       if (first) then
 c--- Initialize histograms, without computing any quantities; instead
 c--- set them to dummy values
-        tag='book'
+        tag=tagbook
         goto 99
       else
 c--- Add event in histograms
-        tag='plot'
+        tag=tagplot
       endif
 
 ************************************************************************
@@ -54,16 +59,16 @@ c--- order photons by pt
       
       pord(:,:)=p(:,:)
       
-      if (pt4 .gt. pt3) then
+      if (pt4 > pt3) then
         pord(3,:)=p(4,:)
         pord(4,:)=p(3,:)
       endif  
 
 c--- order jets by pt if there are two present
-      if (abs(p(6,4)) .gt. 1d-8) then
+      if (abs(p(6,4)) > 1.e-8_dp) then
         pt5=pt(5,p)
         pt6=pt(6,p)
-        if (pt6 .gt. pt5) then
+        if (pt6 > pt5) then
           pord(5,:)=p(6,:)
           pord(6,:)=p(5,:)
         endif  
@@ -81,7 +86,7 @@ c--- Call histogram routines
 c--- Book and fill ntuple if that option is set, remembering to divide
 c--- by # of iterations now that is handled at end for regular histograms
       if (creatent .eqv. .true.) then
-        call bookfill(tag,p,wt/dfloat(itmx))  
+        call bookfill(tag,p,wt/real(itmx,dp))  
       endif
 
 c--- "n" will count the number of histograms
@@ -105,18 +110,18 @@ c---   llplot:  equal to "lin"/"log" for linear/log scale
 c--- usual plots for highest pt photon
       call autoplot1(pord,3,tag,wt,wt2,n)
 
-c--- usual plots for 2nd-highest pt photon
+c--- usual plots for 2n.e-_dphighest pt photon
       call autoplot1(pord,4,tag,wt,wt2,n)
 
 c--- usual plots for highest pt jet
       call autoplot1(pord,5,tag,wt,wt2,n)
 
 c--- additional plots that may be present at NLO       
-      if (abs(p(6,4)) .gt. 1d-8) then
+      if (abs(p(6,4)) > 1.e-8_dp) then
         call autoplot1(pord,6,tag,wt,wt2,n)
         call autoplot2(pord,56,5,6,tag,wt,wt2,n)
       else
-        n=n+5
+        n=n+6
       endif
 
 ************************************************************************

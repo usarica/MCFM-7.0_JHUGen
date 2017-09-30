@@ -1,19 +1,24 @@
 c--- File written by FORM program adecayrodg.frm on Thu May 24 10:26:48 CDT 2012
       subroutine adecayrodg(p,pnu,peb,pb,pc,pem,pnb,pg,m)
       implicit none
+      include 'types.f'
+      
 C     antitopdecay with radiation from t-b line
 C     b is rendered massless wrt to pqq
 C     t is rendered massless wrt to pqb
 C     pqq,pqb,pc point to the anti-top decay products
 C     pg points to the radiated gluon
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'sprods_com.f'
       include 'masses.f'
-      double precision p(mxpart,4),q(mxpart,4),dot,sw,twopaDg,
+      real(dp):: p(mxpart,4),q(mxpart,4),dot,sw,twopaDg,
      & alc,a(4),t(4),tpa(4),s34,betasq,be,bp,bm,rtbp
-      double complex m(2,2,2),cprop,iza,izb
-      integer si,qq,qb,c,g,pnu,peb,pb,pc,pem,pnb,pg,aa,bb,k5,k6
+      complex(dp):: m(2,2,2),cprop,iza,izb
+      integer:: si,qq,qb,c,g,pnu,peb,pb,pc,pem,pnb,pg,aa,bb,k5,k6
       parameter(g=1,qq=2,qb=3,c=4,k5=5,k6=6)
 C---statement functions
       iza(aa,bb)=cone/za(aa,bb)
@@ -25,15 +30,15 @@ C construct top and antitop momenta
       a(si)=p(pem,si)+p(pnb,si)+p(pc,si)+p(pg,si)
       tpa(si)=t(si)+a(si)
       enddo
-      twopaDg=2d0*(a(4)*p(pg,4)-a(1)*p(pg,1)-a(2)*p(pg,2)-a(3)*p(pg,3))
-      alc=mb**2/(2d0*dot(p,pc,pg))
+      twopaDg=2._dp*(a(4)*p(pg,4)-a(1)*p(pg,1)-a(2)*p(pg,2)-a(3)*p(pg,3))
+      alc=mb**2/(2._dp*dot(p,pc,pg))
 C calculate betap
       s34=tpa(4)**2-tpa(1)**2-tpa(2)**2-tpa(3)**2
-      betasq=1d0-4d0*mt**2/s34
-      if (betasq .ge. 0d0) then
-        be=dsqrt(betasq)
-        bp=0.5d0*(1d0+be)
-        bm=1d0-bp
+      betasq=1._dp-4._dp*mt**2/s34
+      if (betasq >= 0._dp) then
+        be=sqrt(betasq)
+        bp=0.5_dp*(1._dp+be)
+        bm=1._dp-bp
         rtbp=sqrt(bp)
       else
         write(6,*) 'betasq < 0 in adecayrodg.f, betasq=',betasq
@@ -50,7 +55,7 @@ C calculate betap
       enddo
       call spinoru(6,q,za,zb)
       sw=s(qq,qb)
-      cprop=dcmplx(sw-wmass**2,wmass*wwidth)
+      cprop=cplx2(sw-wmass**2,wmass*wwidth)
 C---order of polarizations is the m(apol,gpol,cpol)
       m(1,1,1)= + cprop**(-1)*mt*mb * (  - za(qq,k5)*za(k5,g)*zb(qb,g)*
      &    zb(k5,c)*iza(k5,k6)*izb(c,g)**2*bm*rtbp**(-1)*twopaDg**(-1)

@@ -1,13 +1,18 @@
       subroutine gluegen(e1,p2,p3,e4,za,zb,zab,zba,pppp,ppmp,lo23,lo32,
      & calculateboth)
       implicit none
+      include 'types.f'
+
 C-----Authors: John Campbell and Keith Ellis, November 2011
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'zabprods_decl.f'
-      double complex lo23(2,2),lo32(2,2),pppp,ppmp
-      integer e1,p2,p3,e4,e1p,e4p
-      logical calculateboth
+      complex(dp):: lo23(2,2),lo32(2,2),pppp,ppmp
+      integer:: e1,p2,p3,e4,e1p,e4p
+      logical:: calculateboth
 C---we are calculating the amplitudes mxyp where x=1,2 and y=1,2
 C---from our two base amplitudes which are pppp,ppmp
 

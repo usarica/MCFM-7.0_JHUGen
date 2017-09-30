@@ -1,16 +1,21 @@
       subroutine computescalars(k1,k2,k3,k4,k5,k6,scints)
-c--- routine to compute all scalar integrals used in the Wbbm calculation
       implicit none
+      include 'types.f'
+c--- routine to compute all scalar integrals used in the Wbbm calculation
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'momwbbm.f'
       include 'scale.f'
       include 'Wbbmlabels.f'
       include 'first.f'
-      logical writescalars
-      integer k1,k2,k3,k4,k5,k6,nu,iep
-      double precision p2(4),p3(4),p23(4),p123(4),p234(4),p1234(4),
+      logical:: writescalars
+      integer:: k1,k2,k3,k4,k5,k6,nu,iep
+      real(dp):: p2(4),p3(4),p23(4),p123(4),p234(4),p1234(4),
      & p12(4),p34(4),s23,s123,s234,s34,s12,s1234,msq
-      double complex qlI4,qlI3,qlI2,qlI1
+      complex(dp):: qlI4,qlI3,qlI2,qlI1
       common/writescalars/writescalars
 !$omp threadprivate(/writescalars/)
 
@@ -42,7 +47,7 @@ c--- initialize QCDLoop, if necessary
       s12=p12(4)**2-p12(1)**2-p12(2)**2-p12(3)**2
       s1234=p1234(4)**2-p1234(1)**2-p1234(2)**2-p1234(3)**2
       msq=p2(4)**2-p2(1)**2-p2(2)**2-p2(3)**2
-c      mb=dsqrt(msq)
+c      mb=sqrt(msq)
  
 c      write(6,*)    
 c      write(6,*) 'Kinematics:'    
@@ -51,10 +56,10 @@ c      write(6,*) 's234=',s234
 c      write(6,*) 's1234=',s1234
 c      write(6,*) 's23=',s23
 c      write(6,*) 's12=',s12
-c      write(6,*) 's13=',msq+2d0*(mom(k1,4)*p3(4)
+c      write(6,*) 's13=',msq+two*(mom(k1,4)*p3(4)
 c     & -mom(k1,1)*p3(1)-mom(k1,2)*p3(2)-mom(k1,3)*p3(3))
 c      write(6,*) 's34=',s34
-c      write(6,*) 's24=',msq+2d0*(mom(k4,4)*p2(4)
+c      write(6,*) 's24=',msq+two*(mom(k4,4)*p2(4)
 c     & -mom(k4,1)*p2(1)-mom(k4,2)*p2(2)-mom(k4,3)*p2(3))
 c      write(6,*) 'bm= ',bm
 c      write(6,*) 'bp= ',bp

@@ -1,7 +1,8 @@
 	subroutine Vegas_Pomp(integrand,result,absacc,relacc,ndim,ncall,
      >                        maxiter,init)
 ! Uses kahan summation to guarantee identical results independent of number of threads
-	implicit none
+	
+	include 'types.f'
 	include 'nf.f'
 	include 'lc.f'
 	include 'mxdim.f'
@@ -33,26 +34,26 @@
 	include 'nflav.f'
 	include 'notag.f'
 	include 'reset.f'
-	double precision result, relacc, absacc,integrand
-	integer ndim, ncall, maxiter, neval,init,i
+	real(dp):: result, relacc, absacc,integrand
+	integer:: ndim, ncall, maxiter, neval,init,i
 	external integrand
-	double precision fun, sfun, sfun2
-	double precision sint,sint2,sweight
-	double precision fun2, weight
-	double precision r, dr, xo, xn, err,ran2
-	double precision Ingrid,Incall
-	integer iter, calls, dim, grid, g, c, cmax
-	integer ngrid,j,jj
+	real(dp):: fun, sfun, sfun2
+	real(dp):: sint,sint2,sweight
+	real(dp):: fun2, weight
+	real(dp):: r, dr, xo, xn, err,ran2
+	real(dp):: Ingrid,Incall
+	integer:: iter, calls, dim, grid, g, c, cmax
+	integer:: ngrid,j,jj
 	parameter (ngrid = 10)
-	double precision xi(ngrid, MXDIM), d(ngrid, MXDIM)
-	double precision x(mxdim), imp(ngrid), tmp(ngrid - 1)
-	integer pos(NDIM)
-	double precision t,dt,cfun,cfun2,cd(ngrid,MXDIM)
-        double precision p1ext(4),p2ext(4)
+	real(dp):: xi(ngrid, MXDIM), d(ngrid, MXDIM)
+	real(dp):: x(mxdim), imp(ngrid), tmp(ngrid - 1)
+	integer:: pos(NDIM)
+	real(dp):: t,dt,cfun,cfun2,cd(ngrid,MXDIM)
+        real(dp):: p1ext(4),p2ext(4)
 
 	character*255 runname
-	integer nlength
-	logical bin,dryrun
+	integer:: nlength
+	logical:: bin,dryrun
 	common/bin/bin
 	common/runname/runname
 	common/nlength/nlength
@@ -61,20 +62,20 @@
         save xi
 !$omp threadprivate(/pext/)
 	bin=.false.
-	if(init.le.0)then
+	if(init<=0)then
 	   do i=1,ndim
 	      xi(1,i)=1d0
            enddo
 *       define the initial distribution of intervals
-	   Ingrid=1d0/dble(ngrid)
+	   Ingrid=1d0/real(ngrid)
 	   do dim = 1, ndim
 	      do grid = 1, ngrid
-	         r = dble(grid)*Ingrid
+	         r = real(grid)*Ingrid
 	         xi(grid, dim) = r
 	      enddo
 	   enddo
 	endif
-	if (init.le.1)then
+	if (init<=1)then
 	   neval = 0
 	   sint=0d0
 	   sweight=0d0
@@ -89,12 +90,12 @@ c--- read-in grid if necessary
 	      open(unit=11,file=ingridfile,status='unknown')
            else
 	      open(unit=11,file=runname(1:nlength)//'_'
-     .             //ingridfile,status='unknown')
+     &             //ingridfile,status='unknown')
            endif
 
 	   write(6,*)'*********************************************'
 	   write(6,*)'* Reading in vegas grid from ',
-     .     	runname(1:nlength)//'_'//ingridfile,' *'
+     &     	runname(1:nlength)//'_'//ingridfile,' *'
            write(6,*)'*********************************************'
            call flush(6)
            do j=1,ndim
@@ -114,7 +115,7 @@ c--- read-in grid if necessary
 	cfun = 0d0
 	cfun2 = 0d0
 	cd(:,:)=0d0
-	Incall=1d0/dble(ncall)
+	Incall=1d0/real(ncall)
 !$omp  parallel do
 !$omp& schedule(dynamic)
 !$omp& default(private)
@@ -138,7 +139,7 @@ c--- read-in grid if necessary
 	      r = x(dim)*ngrid + 1
 	      grid = int(r)
 	      xo = 0
-	      if( grid .gt. 1 ) xo = xi(grid - 1, dim)
+	      if( grid > 1 ) xo = xi(grid - 1, dim)
 	      xn = xi(grid, dim) - xo
 	      x(dim) = xo + (r - grid)*xn
 	      pos(dim) = grid
@@ -150,14 +151,14 @@ c--- read-in grid if necessary
 	   fun2 = fun**2
 !$omp critical
            t=sfun+fun
-	   if (abs(sfun).ge.abs(fun)) then
+	   if (abs(sfun)>=abs(fun)) then
 	      cfun=cfun+((sfun-t)+fun)
 	   else
 	      cfun=cfun+((fun-t)+sfun)
 	   endif
 	   sfun=t
            t=sfun2+fun2
-	   if (abs(sfun2).ge.abs(fun2)) then
+	   if (abs(sfun2)>=abs(fun2)) then
 	      cfun2=cfun2+((sfun2-t)+fun2)
 	   else
 	      cfun2=cfun2+((fun2-t)+sfun2)
@@ -167,7 +168,7 @@ c--- read-in grid if necessary
 	      i=pos(dim)
 	      dt=d(i,dim)
 	      t=dt+fun2
-	      if (abs(dt).ge.abs(fun2)) then
+	      if (abs(dt)>=abs(fun2)) then
 		 cd(i,dim)=cd(i,dim)+((dt-t)+fun2)
 	      else
 		 cd(i,dim)=cd(i,dim)+((fun2-t)+dt)
@@ -192,16 +193,16 @@ c--- read-in grid if necessary
 	   sweight = sweight + weight
 	   sint = sint + sfun*weight
 	endif
-	if( sweight .eq. 0 ) then
+	if( sweight == 0 ) then
 	   result = 0
 	else
 	   r = sint/sweight
 	   result = r
 *       if the integrand is very close to zero, it is pointless (and costly)
 *       to insist on a certain relative accuracy
-	   if( abs(r) .gt. absacc ) then
+	   if( abs(r) > absacc ) then
               r = sint2/(sint*r)
-	      if( r .gt. err ) then
+	      if( r > err ) then
 		 err = r
 	      endif
 	   endif
@@ -209,11 +210,11 @@ c--- read-in grid if necessary
 	err = sqrt(err/iter)
 
         print *, "iteration ", iter, ":",result,"+/-",result*err
-        if (abs(result) .lt. 1d-9) then
+        if (abs(result) < 1d-9) then
           print *, "integral is zero, exiting"
           return
         endif
-!	if( err .le. relacc ) then
+!	if( err <= relacc ) then
 !	   print *, "iteration ", iter, ":",result,"+/-",result*err
 !	   call Outhist(iter)
 !	   return
@@ -242,7 +243,7 @@ c--- read-in grid if necessary
 	   r = 0
 	   do grid = 1, ngrid
 	      imp(grid) = 0
-	      if( d(grid, dim) .gt. 0 ) then
+	      if( d(grid, dim) > 0 ) then
 		 xo = x(dim)/d(grid, dim)
 		 imp(grid) = ((xo - 1)/xo/log(xo))**1.5D0
 	      endif
@@ -255,7 +256,7 @@ c--- read-in grid if necessary
 	   xn = 0
 	   g = 0
 	   do grid = 1, ngrid - 1
-	      do while( dr .lt. r )
+	      do while( dr < r )
 		 g = g + 1
 		 dr = dr + imp(g)
 		 xo = xn
@@ -270,7 +271,7 @@ c--- read-in grid if necessary
 	   xi(ngrid, dim) = 1
 	enddo
 c--- added to write out intermediate results
-!	if ((bin) .and. (iter .lt. maxiter)) then
+!	if ((bin) .and. (iter < maxiter)) then
 !	   write(6,*)'Writing out intermediate results for iteration',iter
 !	   call histofin(tgral,sd,iter,maxiter) 
 !	endif
@@ -278,10 +279,10 @@ c--- added to write out intermediate results
 c--- write-out grid if necessary
 	if (writeout) then
            open(unit=11,file=runname(1:nlength)//'_'
-     .           //outgridfile,status='unknown')
+     &           //outgridfile,status='unknown')
 	   write(6,*)'***********************************************'
 	   write(6,*)'* Writing out vegas grid to ',
-     .               runname(1:nlength)//'_'//outgridfile,'  *'
+     &               runname(1:nlength)//'_'//outgridfile,'  *'
            write(6,*)'***********************************************'
            call flush(6)
            do j=1,ndim
@@ -290,7 +291,7 @@ c--- write-out grid if necessary
            close(11)
          endif
 
-	if( iter .ge. maxiter ) then
+	if( iter >= maxiter ) then
 !	   print *,"iterations reached set maximum of ",maxiter
 !	   print *, "iteration ", iter, ":",result,"+/-",result*err
 	   return
@@ -313,10 +314,10 @@ c--- write-out grid if necessary
 *       * max dims-dimensional quasi-random vectors
 
 	subroutine IniRandom(dims)
-	implicit none
-	integer max, dims
+	
+	integer:: max, dims
 
-	integer ndim,a,b,ni(55),n(55)
+	integer:: ndim,a,b,ni(55),n(55)
 	data ni /
      1  980629335, 889272121, 422278310,1042669295, 531256381,
      2  335028099,  47160432, 788808135, 660624592, 793263632,
@@ -346,10 +347,10 @@ c--- write-out grid if necessary
 *       * running the algorithm 100,000 times.  Code by Ronald Kleiss.
 
 	subroutine GetRandom(array)
-	implicit none
-	double precision array(*)
-	integer ndim
-	integer dim, a, b, j, m, n(55)
+        include 'types.f'	
+ 	real(dp):: array(*)
+	integer:: ndim
+	integer:: dim, a, b, j, m, n(55)
 	common /rngdata/ ndim,a,b,n
 	parameter (m = 2**30)
 
@@ -357,8 +358,8 @@ c--- write-out grid if necessary
 	   a = mod(a, 55) + 1
 	   b = mod(b, 55) + 1
 	   j = n(b) - n(a)
-	   if( j .lt. 0 ) j = j + m
+	   if( j < 0 ) j = j + m
 	   n(a) = j
-	   array(dim) = dble(j)/m
+	   array(dim) = real(j)/m
 	enddo
 	end

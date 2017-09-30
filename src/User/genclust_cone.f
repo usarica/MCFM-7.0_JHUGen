@@ -1,4 +1,6 @@
       subroutine genclust_cone(q,Rmin,qfinal,isub)
+      implicit none
+      include 'types.f'
 c---  clusters momenta using plabel to determine which 
 c---  particles should be clustered. Forms 'jets' jets according to
 c---  the Run II cone algorithm with cone size Rmin.
@@ -7,26 +9,29 @@ c---  pT(jet) > ptjetmin and y(jet) < etajetmax
 c--- 
 c---  qfinal is the final vector q1,.... q(4+jets)
 c---  where non-jet four vectors are set equal to the incoming q 
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'npart.f'
       include 'jetcuts.f'
       include 'jetlabel.f'
-      include 'process.f'
+      include 'kprocess.f'
       include 'plabel.f'
-      double precision q(mxpart,4),qjet(mxpart,4),qfinal(mxpart,4)
-      double precision Rsep,Rmin,aetarap
-      integer i,j,k,l,nu,iter,maxjet,ajet,jetindex(mxpart),isub
+      real(dp):: q(mxpart,4),qjet(mxpart,4),qfinal(mxpart,4)
+      real(dp):: Rsep,Rmin,aetarap
+      integer:: i,j,k,l,nu,iter,maxjet,ajet,jetindex(mxpart),isub
       character*2 finallabel(mxpart)
-      double precision protoq(20,4),deltarq,deltarj,et,etmax,net,
-     . qshared(4),sharedet,getet
-      integer maxproto,protoc(20,0:mxpart),eti,shared,
-     . sharedc(20),ni
-      logical jetmerge,failed,first,trackdoubleb,is_hadronic
+      real(dp):: protoq(20,4),deltarq,deltarj,et,etmax,net,
+     & qshared(4),sharedet,getet
+      integer:: maxproto,protoc(20,0:mxpart),eti,shared,
+     & sharedc(20),ni
+      logical:: jetmerge,failed,first,trackdoubleb,is_hadronic
 c--- DEBUG
-      parameter (Rsep=1d0)  ! Default value
-c      parameter (Rsep=1.3d0)  ! Default value
-c      parameter (Rsep=2.0d0)  ! Usual (e.g. Snowmass) definition
+      parameter (Rsep=1._dp)  ! Default value
+c      parameter (Rsep=1.3_dp)  ! Default value
+c      parameter (Rsep=2.0_dp)  ! Usual (e.g. Snowmass) definition
       common/jetmerge/jetmerge
       data first/.true./
       save first
@@ -50,7 +55,7 @@ c      parameter (Rsep=2.0d0)  ! Usual (e.g. Snowmass) definition
 
 c--- flag to determine whether or not to count "double b" jets
 c--- (for Wbb, Wb+X processes only)
-      if ( (case .eq. 'Wbbmas') .or. (case .eq. 'W_bjet')) then
+      if ( (kcase==kWbbmas) .or. (kcase==kW_bjet)) then
         trackdoubleb=.true.
       else
         trackdoubleb=.false.
@@ -58,7 +63,7 @@ c--- (for Wbb, Wb+X processes only)
       
       do i=1,mxpart
         do nu=1,4
-        qfinal(i,nu)=0d0
+        qfinal(i,nu)=0._dp
         enddo
       enddo
 
@@ -78,7 +83,7 @@ c--- the dipole contributions, where isub=1.
       enddo
 
 c--- for no partons, just switch q into qfinal
-      if (maxjet .eq. 0) then
+      if (maxjet == 0) then
         do i=1,mxpart
           do nu=1,4
             qfinal(i,nu)=q(i,nu)
@@ -89,7 +94,7 @@ c--- for no partons, just switch q into qfinal
       endif
 
 c--- skip clustering if we only have one parton  
-      if (maxjet .eq. 1) then
+      if (maxjet == 1) then
         jets=1
         do nu=1,4
           qfinal(1,nu)=qjet(1,nu)
@@ -117,14 +122,14 @@ c--- set up the proto-jets
           do nu=1,4
             protoq(maxproto,nu)=qjet(i,nu)+qjet(j,nu)
           enddo
-          if (  (deltarq(maxproto,i,protoq) .gt. Rmin)
-     .     .or. (deltarq(maxproto,j,protoq) .gt. Rmin)
-     .     .or. (deltarq(i,j,protoq) .gt. Rmin*Rsep) ) then
+          if (  (deltarq(maxproto,i,protoq) > Rmin)
+     &     .or. (deltarq(maxproto,j,protoq) > Rmin)
+     &     .or. (deltarq(i,j,protoq) > Rmin*Rsep) ) then
             maxproto=maxproto-1
           endif
         enddo
       enddo
-      if (maxjet .gt. 2) then
+      if (maxjet > 2) then
       do i=1,maxjet
         do j=i+1,maxjet
           do k=j+1,maxjet
@@ -136,19 +141,19 @@ c--- set up the proto-jets
             do nu=1,4
               protoq(maxproto,nu)=qjet(i,nu)+qjet(j,nu)+qjet(k,nu)
             enddo
-            if (  (deltarq(maxproto,i,protoq) .gt. Rmin)
-     .       .or. (deltarq(maxproto,j,protoq) .gt. Rmin)
-     .       .or. (deltarq(maxproto,k,protoq) .gt. Rmin)
-     .       .or. (deltarq(i,j,protoq) .gt. Rmin*Rsep)
-     .       .or. (deltarq(i,k,protoq) .gt. Rmin*Rsep)
-     .       .or. (deltarq(j,k,protoq) .gt. Rmin*Rsep)) then
+            if (  (deltarq(maxproto,i,protoq) > Rmin)
+     &       .or. (deltarq(maxproto,j,protoq) > Rmin)
+     &       .or. (deltarq(maxproto,k,protoq) > Rmin)
+     &       .or. (deltarq(i,j,protoq) > Rmin*Rsep)
+     &       .or. (deltarq(i,k,protoq) > Rmin*Rsep)
+     &       .or. (deltarq(j,k,protoq) > Rmin*Rsep)) then
               maxproto=maxproto-1
             endif
           enddo
         enddo
       enddo
       endif
-      if (maxjet .gt. 3) then
+      if (maxjet > 3) then
       do i=1,maxjet
         do j=i+1,maxjet
           do k=j+1,maxjet
@@ -161,18 +166,18 @@ c--- set up the proto-jets
               protoc(maxproto,4)=l
               do nu=1,4
                 protoq(maxproto,nu)=qjet(i,nu)+qjet(j,nu)
-     .                             +qjet(k,nu)+qjet(l,nu)
+     &                             +qjet(k,nu)+qjet(l,nu)
               enddo
-            if (  (deltarq(maxproto,i,protoq) .gt. Rmin)
-     .       .or. (deltarq(maxproto,j,protoq) .gt. Rmin)
-     .       .or. (deltarq(maxproto,k,protoq) .gt. Rmin)
-     .       .or. (deltarq(maxproto,l,protoq) .gt. Rmin)
-     .       .or. (deltarq(i,j,protoq) .gt. Rmin*Rsep)
-     .       .or. (deltarq(i,k,protoq) .gt. Rmin*Rsep)
-     .       .or. (deltarq(i,l,protoq) .gt. Rmin*Rsep)
-     .       .or. (deltarq(j,k,protoq) .gt. Rmin*Rsep)
-     .       .or. (deltarq(j,l,protoq) .gt. Rmin*Rsep)
-     .       .or. (deltarq(k,l,protoq) .gt. Rmin*Rsep)) then
+            if (  (deltarq(maxproto,i,protoq) > Rmin)
+     &       .or. (deltarq(maxproto,j,protoq) > Rmin)
+     &       .or. (deltarq(maxproto,k,protoq) > Rmin)
+     &       .or. (deltarq(maxproto,l,protoq) > Rmin)
+     &       .or. (deltarq(i,j,protoq) > Rmin*Rsep)
+     &       .or. (deltarq(i,k,protoq) > Rmin*Rsep)
+     &       .or. (deltarq(i,l,protoq) > Rmin*Rsep)
+     &       .or. (deltarq(j,k,protoq) > Rmin*Rsep)
+     &       .or. (deltarq(j,l,protoq) > Rmin*Rsep)
+     &       .or. (deltarq(k,l,protoq) > Rmin*Rsep)) then
               maxproto=maxproto-1
             endif
             enddo
@@ -180,7 +185,7 @@ c--- set up the proto-jets
         enddo
       enddo
       endif
-      if (maxjet .gt. 4) then
+      if (maxjet > 4) then
        write(6,*) 'Too many jets for this version of the cone algorithm'
        stop
       endif
@@ -193,15 +198,15 @@ c      write(6,*) 'Found ',maxproto,' proto-jets'
 c--- loops through all the iterations of the algorithm      
     1 iter=iter+1
 
-      if (maxproto .eq. 0) goto 2
+      if (maxproto == 0) goto 2
 
 c--- find the highest Et proto-jet
       eti=0
-      etmax=-1d0
+      etmax=-1._dp
       do i=1,maxproto
         et=getet(protoq(i,4),protoq(i,1),protoq(i,2),protoq(i,3))
-c        et=dsqrt(protoq(i,1)**2+protoq(i,2)**2)
-        if (et .gt. etmax) then
+c        et=sqrt(protoq(i,1)**2+protoq(i,2)**2)
+        if (et > etmax) then
           eti=i
           etmax=et
         endif
@@ -216,7 +221,7 @@ c--- check to see if any partons are shared by this proto-jet
         if (i .ne. eti) then
           do j=1,protoc(i,0)
             do k=1,protoc(eti,0)
-              if (protoc(i,j) .eq. protoc(eti,k)) then
+              if (protoc(i,j) == protoc(eti,k)) then
                 shared=shared+1
                 sharedc(i)=1
               endif
@@ -225,7 +230,7 @@ c--- check to see if any partons are shared by this proto-jet
         endif
       enddo
       
-      if (shared .eq. 0) then
+      if (shared == 0) then
 c-- proto-jet does not share any partons - move it to qfinal and repeat
         jets=jets+1
         do nu=1,4
@@ -233,22 +238,22 @@ c-- proto-jet does not share any partons - move it to qfinal and repeat
         enddo
         finallabel(jets)='pp'
         do i=1,protoc(eti,0)
-          if (jetlabel(protoc(eti,i)) .eq. 'bq') finallabel(jets)='bq'
-          if (jetlabel(protoc(eti,i)) .eq. 'ba') finallabel(jets)='ba'
+          if (jetlabel(protoc(eti,i)) == 'bq') finallabel(jets)='bq'
+          if (jetlabel(protoc(eti,i)) == 'ba') finallabel(jets)='ba'
         enddo
 c--- special combination for W+heavy quarks
-        if ((trackdoubleb) .and. (protoc(eti,0) .eq. 2)) then
-          if ( ((jetlabel(protoc(eti,1)) .eq. 'bq') .and. 
-     &          (jetlabel(protoc(eti,2)) .eq. 'ba')) 
-     &    .or. ((jetlabel(protoc(eti,1)) .eq. 'ba') .and. 
-     &          (jetlabel(protoc(eti,2)) .eq. 'bq')) ) then
+        if ((trackdoubleb) .and. (protoc(eti,0) == 2)) then
+          if ( ((jetlabel(protoc(eti,1)) == 'bq') .and. 
+     &          (jetlabel(protoc(eti,2)) == 'ba')) 
+     &    .or. ((jetlabel(protoc(eti,1)) == 'ba') .and. 
+     &          (jetlabel(protoc(eti,2)) == 'bq')) ) then
              finallabel(jets)='bb'
            endif 
       endif
-        if ((trackdoubleb) .and. (protoc(eti,0) .eq. 3)) then
+        if ((trackdoubleb) .and. (protoc(eti,0) == 3)) then
              finallabel(jets)='bb'
         endif
-c      if (protoc(eti,0) .eq. 3) then
+c      if (protoc(eti,0) == 3) then
 c        write(6,*) jetlabel(protoc(eti,1)),jetlabel(protoc(eti,2)),
 c     &               jetlabel(protoc(eti,3)),' ->',finallabel(jets)
 c      endif
@@ -271,10 +276,10 @@ c      write(6,*) 'Need to do split/merge'
 
 c--- calculate which proto-jet that shares has the highest Et      
       ni=0
-      net=-1d0
+      net=-1._dp
       do i=1,maxproto
         et=getet(protoq(i,4),protoq(i,1),protoq(i,2),protoq(i,3))
-        if ((sharedc(i) .eq. 1) .and. (et .gt. net)) then
+        if ((sharedc(i) == 1) .and. (et > net)) then
           ni=i
           net=et
         endif
@@ -282,11 +287,11 @@ c--- calculate which proto-jet that shares has the highest Et
      
 c--- calculate the shared Et
       do nu=1,4
-        qshared(nu)=0d0
+        qshared(nu)=0._dp
       enddo
       do j=1,protoc(eti,0)
         do k=1,protoc(ni,0)
-          if (protoc(eti,j) .eq. protoc(ni,k)) then
+          if (protoc(eti,j) == protoc(ni,k)) then
             do nu=1,4
               qshared(nu)=qshared(nu)+qjet(protoc(eti,j),nu)
             enddo
@@ -300,15 +305,15 @@ c      write(6,*) 'Highest et neighbour is',ni
 c      write(6,*) 'Shared Et is',sharedet
 c      write(6,*) 'Neighbour Et is',net
       
-      if (sharedet/net .gt. 0.5d0) then
+      if (sharedet/net > 0.5_dp) then
 c---  we should merge the proto-jets
         do i=1,protoc(ni,0)
           shared=0
           do j=1,protoc(eti,0)
-            if (protoc(ni,i) .eq. protoc(eti,j)) shared=1
+            if (protoc(ni,i) == protoc(eti,j)) shared=1
           enddo
 c--- add cells that are not shared
-          if (shared .eq. 0) then
+          if (shared == 0) then
             protoc(eti,0)=protoc(eti,0)+1
             protoc(eti,protoc(eti,0))=protoc(ni,i)
             do nu=1,4
@@ -332,13 +337,13 @@ c---  we should split the proto-jets
         do i=1,protoc(ni,0)
           shared=0
           do j=1,protoc(eti,0)
-            if (protoc(ni,i) .eq. protoc(eti,j)) shared=j
+            if (protoc(ni,i) == protoc(eti,j)) shared=j
           enddo
 c--- if a cell is shared, decide where to put it based on distance in Delta_R
 c--- update the contents list and momentum of the protojet it's removed from
-          if (shared .gt. 0) then
+          if (shared > 0) then
             if (deltarj(protoc(ni,i),ni,qjet,protoq)
-     .     .lt. deltarj(protoc(ni,i),eti,qjet,protoq)) then
+     &     < deltarj(protoc(ni,i),eti,qjet,protoq)) then
 c--- shared cell is closer to neighbour, ni
               do j=shared+1,protoc(eti,0)
               protoc(eti,j-1)=protoc(eti,j)
@@ -387,7 +392,7 @@ c--- restore incoming partons
 c--- set all other momenta to zero and restore leptons
       do i=3,npart+2
         do nu=1,4
-          qfinal(i,nu)=0d0
+          qfinal(i,nu)=0._dp
           if (.not.(is_hadronic(i))) then
             qfinal(i,nu)=q(i,nu)
           endif
@@ -401,7 +406,7 @@ c----the observable rapidity region
 c      write(*,*) 'AFTER CLUSTERING: Obtained ',jets,' jets'
 
 c--- flag whether or not any jets have been merged
-      if (jets .eq. maxjet) then
+      if (jets == maxjet) then
         jetmerge=.false.
       else
         jetmerge=.true.
@@ -412,12 +417,12 @@ c--- restore jets
       do i=1,jets
 c        write(*,*) 'Jet ',i,'(',jetlabel(i),')',jetindex(i)
 c        write(*,*) 'pt: ',getet(qjet(i,4),qjet(i,1),
-c     .               qjet(i,2),qjet(i,3)),' vs min. ',ptjetmin
+c     &               qjet(i,2),qjet(i,3)),' vs min. ',ptjetmin
 c        write(*,*) 'ay: ',aetarap(i,qjet),' vs max. ',etajetmax
         if ((getet(qjet(i,4),qjet(i,1),qjet(i,2),qjet(i,3))
-     .          .gt. ptjetmin) .and.
-     .      (aetarap(i,qjet) .gt. etajetmin) .and.
-     .      (aetarap(i,qjet) .lt. etajetmax)) then  
+     &          > ptjetmin) .and.
+     &      (aetarap(i,qjet) > etajetmin) .and.
+     &      (aetarap(i,qjet) < etajetmax)) then  
         ajet=ajet+1
         do nu=1,4
           qfinal(jetindex(ajet),nu)=qjet(i,nu)
@@ -427,10 +432,10 @@ c        write(*,*) 'ay: ',aetarap(i,qjet),' vs max. ',etajetmax
       enddo
       
 c--- if no jets are removed by eta and pt cuts, then jets=ajet
-      if (ajet .lt. jets) then
+      if (ajet < jets) then
         do i=ajet+1,jets
           do nu=1,4
-            qfinal(jetindex(i),nu)=0d0
+            qfinal(jetindex(i),nu)=0._dp
           enddo
         enddo
         jets=ajet

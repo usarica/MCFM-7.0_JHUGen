@@ -1,18 +1,24 @@
-      double precision function trodmsqm(j1,j2,j3,j4,j5,j6,j7,p,tmass,
+      function trodmsqm(j1,j2,j3,j4,j5,j6,j7,p,tmass,
      & mtop,manti)
       implicit none
+      include 'types.f'
+      real(dp):: trodmsqm
+      
 C---  Author R.K. Ellis: April 2012
 C---  matrix element squared summed over colors and spins
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
 C-----The dot and spinor products transferred are those derived from q
       include 'zprods_com.f'
-      integer j1,j2,j3,j4,j5,j6,j7,j,k,hb,hc,hg
-      double complex qcda(2,2,2),qcdb(2,2,2),qedi(2,2,2),qedf(2,2,2),
+      integer:: j1,j2,j3,j4,j5,j6,j7,j,k,hb,hc,hg
+      complex(dp)::qcda(2,2,2),qcdb(2,2,2),qedi(2,2,2),qedf(2,2,2),
      & adk(2,2,2),bdk(2,2,2),idk(2,2,2),fdk(2,2,2),mtop(2,2),manti(2,2)
-      double precision prop,tmass,p(mxpart,4),dot
+      real(dp):: prop,tmass,p(mxpart,4),dot
 c---calculate the W propagator
-      prop=((2d0*dot(p,9,10)-wmass**2)**2+(wmass*wwidth)**2)
+      prop=((2._dp*dot(p,9,10)-wmass**2)**2+(wmass*wwidth)**2)
 C---These two calls exploit the symmetry under 1<->2,3<->4,6<->7,za<->zb 
 C---and overall sign change
       call Wbb(j1,j2,j3,j4,j5,j6,j7,tmass,za,zb,1,qedi,qedf,qcda,qcdb)
@@ -45,9 +51,9 @@ C  zero out matrix element
       do hc=1,2
       do hg=1,2
       trodmsqm=trodmsqm+
-     & V*xn/eight*(cdabs(adk(hb,hc,hg))**2+cdabs(bdk(hb,hc,hg))**2)
-     &+V/(eight*xn)*(cdabs(idk(hb,hc,hg))**2+cdabs(fdk(hb,hc,hg))**2
-     &-two*(cdabs(idk(hb,hc,hg)+fdk(hb,hc,hg)))**2)
+     & V*xn/eight*(abs(adk(hb,hc,hg))**2+abs(bdk(hb,hc,hg))**2)
+     &+V/(eight*xn)*(abs(idk(hb,hc,hg))**2+abs(fdk(hb,hc,hg))**2
+     &-two*(abs(idk(hb,hc,hg)+fdk(hb,hc,hg)))**2)
       enddo
       enddo
       enddo

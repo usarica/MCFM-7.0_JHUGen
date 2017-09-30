@@ -1,16 +1,21 @@
       subroutine singcoeffq(p,j1,j2,j3,j4,cnab,cqed)
       implicit none
+      include 'types.f'
+      
 C     Singular parts for process t(j2) t~(j1) q(p3) q~(p4)+H
 C     cnab is the coefficient of d_(i2,i4)*d_(i3,i1)
 C     cqed is the coefficient of d_(i2,i1)*d_(i3,i4)/xn
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'scale.f'
-      double precision p(mxpart,4),v12,htheta,
+      real(dp):: p(mxpart,4),v12,htheta,
      & x,s12,s13,s14,s23,s24,s34,
      & xlog12,xl13,xl14,xl23,xl24,xl34,xlm13,xlm14,xlm23,xlm24,xlm34
-      double complex cnab(-2:-1),cqed(-2:-1)
-      integer j1,j2,j3,j4
+      complex(dp):: cnab(-2:-1),cqed(-2:-1)
+      integer:: j1,j2,j3,j4
 C--- define Heaviside theta function (=1 for x>0) and (0 for x < 0)
       htheta(x)=half+half*sign(one,x)
       

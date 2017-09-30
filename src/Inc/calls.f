@@ -1,2 +1,2 @@
-      integer calls
+      integer:: calls
       common/calls/calls

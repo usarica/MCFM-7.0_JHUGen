@@ -9,39 +9,41 @@
 * Mathlib gen
 *
 *
-      DOUBLE PRECISION FUNCTION DCLAUS(X)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-
-      DIMENSION A(0:8),B(0:13)
+      function DCLAUS(X)
+      implicit none
+      include 'types.f'
+      real(dp):: DCLAUS,H,V,U,ALFA,B0,B1,B2,S,X
+      integer:: i
+      real(dp):: A(0:8),B(0:13),R1,HF,PI,PI2,PIH,RPIH
  
-      PARAMETER (R1 = 1d0, HF =R1/2d0)
-      PARAMETER (PI = 3.14159 26535 89793 24D0)
-      PARAMETER (PI2 = 2d0*PI, PIH = PI/2d0, RPIH = 2d0/PI)
+      PARAMETER (R1 = 1._dp, HF =R1/2._dp)
+      PARAMETER (PI = 3.14159 26535 89793 24_dp)
+      PARAMETER (PI2 = 2._dp*PI, PIH = PI/2._dp, RPIH = 2._dp/PI)
  
-      DATA A( 0) / 0.02795 28319 73575 6613D0/
-      DATA A( 1) / 0.00017 63088 74389 8116D0/
-      DATA A( 2) / 0.00000 12662 74146 1157D0/
-      DATA A( 3) / 0.00000 00117 17181 8134D0/
-      DATA A( 4) / 0.00000 00001 23006 4129D0/
-      DATA A( 5) / 0.00000 00000 01395 2729D0/
-      DATA A( 6) / 0.00000 00000 00016 6908D0/
-      DATA A( 7) / 0.00000 00000 00000 2076D0/
-      DATA A( 8) / 0.00000 00000 00000 0027D0/
+      DATA A( 0) / 0.02795 28319 73575 6613_dp/
+      DATA A( 1) / 0.00017 63088 74389 8116_dp/
+      DATA A( 2) / 0.00000 12662 74146 1157_dp/
+      DATA A( 3) / 0.00000 00117 17181 8134_dp/
+      DATA A( 4) / 0.00000 00001 23006 4129_dp/
+      DATA A( 5) / 0.00000 00000 01395 2729_dp/
+      DATA A( 6) / 0.00000 00000 00016 6908_dp/
+      DATA A( 7) / 0.00000 00000 00000 2076_dp/
+      DATA A( 8) / 0.00000 00000 00000 0027_dp/
  
-      DATA B( 0) / 0.63909 70888 57265 341D0/
-      DATA B( 1) /-0.05498 05693 01851 716D0/
-      DATA B( 2) /-0.00096 12619 45950 606D0/
-      DATA B( 3) /-0.00003 20546 86822 550D0/
-      DATA B( 4) /-0.00000 13294 61695 426D0/
-      DATA B( 5) /-0.00000 00620 93601 824D0/
-      DATA B( 6) /-0.00000 00031 29600 656D0/
-      DATA B( 7) /-0.00000 00001 66351 954D0/
-      DATA B( 8) /-0.00000 00000 09196 527D0/
-      DATA B( 9) /-0.00000 00000 00524 004D0/
-      DATA B(10) /-0.00000 00000 00030 580D0/
-      DATA B(11) /-0.00000 00000 00001 820D0/
-      DATA B(12) /-0.00000 00000 00000 110D0/
-      DATA B(13) /-0.00000 00000 00000 007D0/
+      DATA B( 0) / 0.63909 70888 57265 341_dp/
+      DATA B( 1) /-0.05498 05693 01851 716_dp/
+      DATA B( 2) /-0.00096 12619 45950 606_dp/
+      DATA B( 3) /-0.00003 20546 86822 550_dp/
+      DATA B( 4) /-0.00000 13294 61695 426_dp/
+      DATA B( 5) /-0.00000 00620 93601 824_dp/
+      DATA B( 6) /-0.00000 00031 29600 656_dp/
+      DATA B( 7) /-0.00000 00001 66351 954_dp/
+      DATA B( 8) /-0.00000 00000 09196 527_dp/
+      DATA B( 9) /-0.00000 00000 00524 004_dp/
+      DATA B(10) /-0.00000 00000 00030 580_dp/
+      DATA B(11) /-0.00000 00000 00001 820_dp/
+      DATA B(12) /-0.00000 00000 00000 110_dp/
+      DATA B(13) /-0.00000 00000 00000 007_dp/
  
       V=MOD(ABS(X),PI2)
       S=SIGN(R1,X)
@@ -49,25 +51,25 @@
        V=PI2-V
        S=-S
       ENDIF
-      IF(V .EQ. 0d0 .OR. V .EQ. PI) THEN
-       H=0d0
+      IF(V .EQ. 0._dp .OR. V .EQ. PI) THEN
+       H=0._dp
       ELSEIF(V .LT. PIH) THEN
        U=RPIH*V
-       H=2d0*U**2-1d0
+       H=2._dp*U**2-1._dp
        ALFA=H+H
-       B1=0d0
-       B2=0d0
+       B1=0._dp
+       B2=0._dp
        DO 1 I = 8,0,-1
        B0=A(I)+ALFA*B1-B2
        B2=B1
     1  B1=B0
-       H=V*(1d0-LOG(V)+HF*V**2*(B0-H*B2))
+       H=V*(1._dp-LOG(V)+HF*V**2*(B0-H*B2))
       ELSE
-       U=RPIH*V-2d0
-       H=2d0*U**2-1d0
+       U=RPIH*V-2._dp
+       H=2._dp*U**2-1._dp
        ALFA=H+H
-       B1=0d0
-       B2=0d0
+       B1=0._dp
+       B2=0._dp
        DO 2 I = 13,0,-1
        B0=B(I)+ALFA*B1-B2
        B2=B1

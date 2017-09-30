@@ -14,43 +14,45 @@ c  pwhgfill  :  fills the histograms with data
 
       subroutine init_hist_ST_tch_dk
       implicit none
+      include 'types.f'
+      
       include  'LesHouches.h'
       include 'pwhg_math.h'
-      integer lastnbx,j,l
+      integer:: lastnbx,j,l
       character * 20 prefix
-      integer nbins
+      integer:: nbins
       parameter (nbins=11)
       real * 8 pT_tt_bins(nbins+1)
-      data pT_tt_bins/  0d0, 10d0, 25d0, 50d0,100d0,
-     1     150d0,200d0,250d0,300d0,400d0,600d0, 900d0/          
+      data pT_tt_bins/  0._dp, 10._dp, 25._dp, 50._dp,100._dp,
+     1     150._dp,200._dp,250._dp,300._dp,400._dp,600._dp, 900._dp/          
       real * 8 m_tt_bins(nbins+1)
-      data m_tt_bins/ 320d0,360d0,400d0,450d0,500d0,
-     1     550d0,600d0,650d0,700d0,800d0,900d0,1000d0/          
+      data m_tt_bins/ 320._dp,360._dp,400._dp,450._dp,500._dp,
+     1     550._dp,600._dp,650._dp,700._dp,800._dp,900._dp,1000._dp/          
       external lastnbx
 
       call inihists
 
       do j=1,7
-         if(j.eq.1) then
+         if(j==1) then
             prefix='t'
-         elseif(j.eq.2) then
+         elseif(j==2) then
             prefix='b'
-         elseif(j.eq.3) then
+         elseif(j==3) then
             prefix='q'
-         elseif(j.eq.4) then
+         elseif(j==4) then
             prefix='W'
-         elseif(j.eq.5) then
+         elseif(j==5) then
             prefix='l'
-         elseif(j.eq.6) then
+         elseif(j==6) then
             prefix='a'
-         elseif(j.eq.7) then
+         elseif(j==7) then
             prefix='btop'
           endif
          l=lastnbx(prefix)
-         call bookupeqbins(prefix(1:l)//'_y'  ,0.2d0,-4d0,4d0)
-         call bookupeqbins(prefix(1:l)//'_eta',0.2d0,-4d0,4d0)
-         call bookupeqbins(prefix(1:l)//'_pt' ,5d0,0d0,400d0)
-         call bookupeqbins(prefix(1:l)//'_m'  ,2d0,-0.5d0,201.5d0)
+         call bookupeqbins(prefix(1:l)//'_y'  ,0.2_dp,-4._dp,4._dp)
+         call bookupeqbins(prefix(1:l)//'_eta',0.2_dp,-4._dp,4._dp)
+         call bookupeqbins(prefix(1:l)//'_pt' ,5._dp,0._dp,400._dp)
+         call bookupeqbins(prefix(1:l)//'_m'  ,2._dp,-0.5_dp,201.5_dp)
       enddo
 
       end
@@ -60,27 +62,29 @@ c  pwhgfill  :  fills the histograms with data
 
       subroutine analysis_ST_tch_dk(dsig0)
       implicit none
+      include 'types.f'
+      
       include 'hepevt.h'
       include 'pwhg_math.h' 
       include 'LesHouches.h'
       character * 6 whcprg      
       common/cwhcprg/whcprg
-      integer jpref
+      integer:: jpref
       character * 20 prefix(18)
       common/ccccprefix/jpref,prefix
       real * 8  dsig0,dsig
-      logical   ini
+      logical::   ini
       data      ini/.true./
       save      ini
-      integer   ihep                ! HEPEVT index.
+      integer::   ihep                ! HEPEVT index.
       real * 8 p_top(4),p_b(4),p_w(4),p_l(4),p_a(4),p_btop(4),p_q(4),
      1         y,eta,pt,mass,ptbq
-      integer j
+      integer:: j
       real * 8 prodvec2
 
       dsig  = dsig0
 
-      if(whcprg.eq.'NLO'.or.whcprg.eq.'LHE') then
+      if(whcprg=='NLO'.or.whcprg=='LHE') then
          p_top=phep(1:4,3)
          p_b=phep(1:4,8)
          p_q=phep(1:4,9)
@@ -95,7 +99,7 @@ C --------------------------------------------- C
          write(*,*) ' Now only NLO cross sections are implemented'
       endif
 
-      if(nhep.eq.10) then
+      if(nhep==10) then
          ptbq=phep(1,10)**2+phep(2,10)**2
          do j=5,9
             ptbq=min(ptbq,prodvec2(phep(:,j),phep(:,10)))

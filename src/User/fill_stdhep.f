@@ -6,13 +6,18 @@
 ************************************************************************
       subroutine fill_stdhep(p,ij,ik,wgt_jk)
       implicit none
+      include 'types.f'
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'npart.f'
       include 'stdhep.f'
       include 'masses.f'
       include 'plabel.f'
-      integer ij,ik,n,nu,eventnumber,jetlabel_to_stdhep
-      double precision p(mxpart,4),wgt_jk,mass
+      integer:: ij,ik,n,nu,eventnumber,jetlabel_to_stdhep
+      real(dp):: p(mxpart,4),wgt_jk,mass
       data eventnumber/0/
       save eventnumber
 
@@ -52,7 +57,7 @@ cc    enddo
 
 c--- idhep is the particle ID number, as per the PDG standard
 c--- (g,d,u,s,c,b,t) = (21,1,2,3,4,5,6)
-      if (ij .eq. 0) then
+      if (ij == 0) then
 cc      idhep(2)=21
         idhep(1)=21
       else
@@ -60,7 +65,7 @@ cc      idhep(2)=ij
         idhep(1)=ij
       endif
 
-      if (ik .eq. 0) then
+      if (ik == 0) then
 cc      idhep(3)=21
         idhep(2)=21
       else
@@ -94,7 +99,7 @@ c---   phep(5)  = mass
 
 c--- "Particle 1" contains the weight, as noted above
 cc    do nu=1,4
-cc      phep(nu,1)=0d0
+cc      phep(nu,1)=0._dp
 cc    enddo
 cc    phep(5,1)=wgt_jk
 
@@ -103,14 +108,14 @@ c--- particles, so that there will be a mismatch between p.p
 c--- and this assigned mass. The energy is thus re-scaled,
 c--- which induces an error. This should be investigated.
 cc    do n=2,nhep
-cc      mass=0d0
-cc      if     ((plabel(n-1) .eq. 'el').or.(plabel(n-1) .eq. 'ea')) then
+cc      mass=0._dp
+cc      if     ((plabel(n-1) == 'el').or.(plabel(n-1) == 'ea')) then
 cc        mass=mel
-cc      elseif ((plabel(n-1) .eq. 'ml').or.(plabel(n-1) .eq. 'ma')) then
+cc      elseif ((plabel(n-1) == 'ml').or.(plabel(n-1) == 'ma')) then
 cc        mass=mmu
-cc      elseif ((plabel(n-1) .eq. 'tl').or.(plabel(n-1) .eq. 'ta')) then
+cc      elseif ((plabel(n-1) == 'tl').or.(plabel(n-1) == 'ta')) then
 cc        mass=mtau
-cc      elseif ((plabel(n-1) .eq. 'bq').or.(plabel(n-1) .eq. 'ba')) then
+cc      elseif ((plabel(n-1) == 'bq').or.(plabel(n-1) == 'ba')) then
 cc        mass=mb
 cc      endif
 cc      phep(5,n)=mass
@@ -118,18 +123,18 @@ cc      do nu=1,3
 cc        phep(nu,n)=p(n-1,nu)
 cc      enddo
 c--- here's the re-scaling
-cc      phep(4,n)=dsqrt(p(n-1,4)**2+mass**2)
+cc      phep(4,n)=sqrt(p(n-1,4)**2+mass**2)
 cc    enddo
 
       do n=1,nhep
-        mass=0d0
-        if     ((plabel(n) .eq. 'el').or.(plabel(n) .eq. 'ea')) then
+        mass=0._dp
+        if     ((plabel(n) == 'el').or.(plabel(n) == 'ea')) then
           mass=mel
-        elseif ((plabel(n) .eq. 'ml').or.(plabel(n) .eq. 'ma')) then
+        elseif ((plabel(n) == 'ml').or.(plabel(n) == 'ma')) then
           mass=mmu
-        elseif ((plabel(n) .eq. 'tl').or.(plabel(n) .eq. 'ta')) then
+        elseif ((plabel(n) == 'tl').or.(plabel(n) == 'ta')) then
           mass=mtau
-        elseif ((plabel(n) .eq. 'bq').or.(plabel(n) .eq. 'ba')) then
+        elseif ((plabel(n) == 'bq').or.(plabel(n) == 'ba')) then
           mass=mb
         endif
         phep(5,n)=mass
@@ -137,7 +142,7 @@ cc    enddo
           phep(nu,n)=p(n,nu)
         enddo
 c--- here's the re-scaling
-        phep(4,n)=dsqrt(p(n,4)**2+mass**2)
+        phep(4,n)=sqrt(p(n,4)**2+mass**2)
       enddo
 
 
@@ -145,7 +150,7 @@ c--- here's the re-scaling
 c--- vhep(1..4) is vertex information, zero here
       do n=1,nhep
         do nu=1,4
-          vhep(nu,n)=0d0
+          vhep(nu,n)=0._dp
         enddo
       enddo
 

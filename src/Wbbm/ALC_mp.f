@@ -4,30 +4,35 @@
 *                                                                 *
 *******************************************************************
       subroutine ALC_mp(k1,k2,k3,k4,k5,k6,coeff,ampALC)
+      implicit none
+      include 'types.f'
 c--- This is the leading colour amplitude in the notation
 c---  (q1, Qb2, Q3, qb4)
-      implicit none
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
       include 'momwbbm.f'
       include 'zprods_com.f'
       include 'Wbbmlabels.f'
-      integer k1,k2,k3,k4,k5,k6,v1,v2,nu,j,eta,k34f,k56f
-      double complex ampALC(2,2)
-      double precision p2(4),p3(4),p23(4),p123(4),p234(4),p1234(4),
+      integer:: k1,k2,k3,k4,k5,k6,v1,v2,nu,j,eta,k34f,k56f
+      complex(dp):: ampALC(2,2)
+      real(dp):: p2(4),p3(4),p23(4),p123(4),p234(4),p1234(4),
      & p12(4),p34(4),p56(4),s23,s123,s234,s34,s12,s1234,msq,mb
-      double complex zab,zaba,zbab,zabab,zba,ampLO
-      double precision K1f(4),K2f(4),p1Dp3,p1Dp4,p2Dp3,p2Dp4
-      double precision n1(4),n2(4),p3DP,etaDp3,etaDP,al1,al2,kappa
-      double complex S1,S2,K1DK2,gamma,den,a11,a12,a21,a22
-      double complex gam,be,besq
-      double complex zaP2b,zaP3b,zaP12b,zaP23b,zaP34b,zaP123b,
+      complex(dp):: zab,zaba,zbab,zabab,zba,ampLO
+      real(dp):: K1f(4),K2f(4),p1Dp3,p1Dp4,p2Dp3,p2Dp4
+      real(dp):: n1(4),n2(4),p3DP,etaDp3,etaDP,al1,al2,kappa
+      complex(dp):: S1,S2,K1DK2,gamma,den,a11,a12,a21,a22
+      complex(dp):: gam,be,besq
+      complex(dp):: zaP2b,zaP3b,zaP12b,zaP23b,zaP34b,zaP123b,
      & zaP234b,zaP1234b
-      double complex zaP2bP123a,zaP123bP3a,zaP12bP3a,zaP23bP3a,
+      complex(dp):: zaP2bP123a,zaP123bP3a,zaP12bP3a,zaP23bP3a,
      & zaP2bP34a,zaP234bP34a,zaP34bP2a
-      double complex zbP2aP123b,zbP123aP3b,zbP12aP3b,zbP23aP3b,
+      complex(dp):: zbP2aP123b,zbP123aP3b,zbP12aP3b,zbP23aP3b,
      & zbP2aP34b,zbP234aP34b,zbP34aP2b
-      double precision kappa1,kappa2,p3Dp12,p34Dp12
+      real(dp):: kappa1,kappa2,p3Dp12,p34Dp12
       parameter(k34f=7,k56f=8)
+
 c--- statement functions to define zab spinor strings
       zaP2b(v1,v2)=bp*za(v1,k2)*zb(k2,v2)+bm*za(v1,k3)*zb(k3,v2)
       zaP3b(v1,v2)=bp*za(v1,k3)*zb(k3,v2)+bm*za(v1,k2)*zb(k2,v2)
@@ -73,6 +78,7 @@ c--- statement functions to define zbab spinor strings
      &                  +zaP234b(k4,v1)*zb(k4,v2)
       zbP34aP2b(v1,v2)=bp*zaP34b(k2,v1)*zb(k2,v2)
      &                +bm*zaP34b(k3,v1)*zb(k3,v2)
+      include 'cplx.h'
 
 
 c--- zero out all integral coefficients
@@ -109,10 +115,10 @@ c     &-mom(k1,2)*p2(2)-mom(k1,3)*p2(3)
 c      p3Dp4=mom(k4,4)*p3(4)-mom(k4,1)*p3(1)
 c     &-mom(k4,2)*p3(2)-mom(k4,3)*p3(3)
       msq=p2(4)**2-p2(1)**2-p2(2)**2-p2(3)**2
-      mb=dsqrt(msq)
+      mb=sqrt(msq)
       besq=1d0-4d0*bm*bp
       be=sqrt(besq)
-c      nlf=dfloat(nflav)
+c      nlf=real(nflav,dp)
 
       amplo=(za(k1,k3)*zb(k4,k5)
      &     *(za(k6,k1)*zb(k1,k2)+za(k6,k3)*zb(k3,k2))/s123
@@ -266,8 +272,8 @@ c--- identities that ensure the correct pole structure
 
 c--- this is the (12,3) triangle
 c---  (for this triangle, K1=-(1+2+3), K2=-3)
-      S1=dcmplx(s123)
-      S2=dcmplx(p3(4)**2-p3(1)**2-p3(2)**2-p3(3)**2)
+      S1=cplx1(s123)
+      S2=cplx1(p3(4)**2-p3(1)**2-p3(2)**2-p3(3)**2)
       K1DK2=msq+p1Dp3+p2Dp3
 
       coeff(3,c12x3)=czip
@@ -318,8 +324,8 @@ C--- additional normalization factor for Rodrigo
 
 c--- this is the (2,34) triangle
 c--- for this triangle, K1=-(2+3+4), K2=-2
-      S1=dcmplx(s234)
-      S2=dcmplx(p2(4)**2-p2(1)**2-p2(2)**2-p2(3)**2)
+      S1=cplx1(s234)
+      S2=cplx1(p2(4)**2-p2(1)**2-p2(2)**2-p2(3)**2)
       K1DK2=msq+p2Dp4+p2Dp3
 
       coeff(3,c2x34)=czip
@@ -370,9 +376,9 @@ C--- additional normalization factor for Rodrigo
 
 c--- this is the (12,34) triangle
 c--- for this triangle, K1=-(1+2+3+4), K2=-(3+4)
-      S1=dcmplx(s1234)
-      S2=dcmplx(s34)
-      K1DK2=dcmplx(p1Dp3+p1Dp4+p2Dp3+p2Dp4+s34)
+      S1=cplx1(s1234)
+      S2=cplx1(s34)
+      K1DK2=cplx1(p1Dp3+p1Dp4+p2Dp3+p2Dp4+s34)
 
       coeff(3,c12x34)=czip
       gamma=K1DK2+sqrt(K1DK2**2-S1*S2)
@@ -501,8 +507,8 @@ c--------------------------- BUBBLES ----------------------------------
 c--- this is the (123) bubble
 
       p3DP=-p3(4)*p123(4)+p3(1)*p123(1)+p3(2)*p123(2)+p3(3)*p123(3)
-      al1=(-p3DP+dsqrt(p3DP**2-msq*s123))/s123
-      al2=(-p3DP-dsqrt(p3DP**2-msq*s123))/s123
+      al1=(-p3DP+sqrt(p3DP**2-msq*s123))/s123
+      al2=(-p3DP-sqrt(p3DP**2-msq*s123))/s123
       eta=k1
       etaDp3=mom(eta,4)*p3(4)-mom(eta,1)*p3(1)
      &-mom(eta,2)*p3(2)-mom(eta,3)*p3(3)
@@ -555,8 +561,8 @@ c--- this is the (234) bubble
 
 c--- note: in the following, p3 -> p2
       p3DP=-p2(4)*p234(4)+p2(1)*p234(1)+p2(2)*p234(2)+p2(3)*p234(3)
-      al1=(-p3DP+dsqrt(p3DP**2-msq*s234))/s234
-      al2=(-p3DP-dsqrt(p3DP**2-msq*s234))/s234
+      al1=(-p3DP+sqrt(p3DP**2-msq*s234))/s234
+      al2=(-p3DP-sqrt(p3DP**2-msq*s234))/s234
       eta=k4
       etaDp3=mom(eta,4)*p2(4)-mom(eta,1)*p2(1)
      &-mom(eta,2)*p2(2)-mom(eta,3)*p2(3)
@@ -693,8 +699,8 @@ c--- this is the (23) bubble
 
 c--- this is the (1234) bubble
 
-      K1DK2=dcmplx(0.5d0*(s12-s34-s1234))
-      gam=K1DK2+sqrt(K1DK2**2-dcmplx(s1234*s34))
+      K1DK2=cplx1(0.5d0*(s12-s34-s1234))
+      gam=K1DK2+sqrt(K1DK2**2-cplx1(s1234*s34))
       kappa=1d0-s1234*s34/gam**2
       do nu=1,4
         mom(k34f,nu)=(p34(nu)-s34/gam*p56(nu))/kappa

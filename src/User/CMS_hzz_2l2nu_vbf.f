@@ -1,41 +1,45 @@
       subroutine CMS_hzz_2l2nu_vbf(p,failed_cuts)
       implicit none
+      include 'types.f'
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
       include 'masses.f'
       include 'runstring.f'
-      double precision p(mxpart,4)
-      integer ijet,ilep,id(4),idj(4),j
-      logical failed_cuts,is_electron,is_muon,is_hadronic
-      double precision pt,etarap,ptmu,etamu,ptel,etael,mjj,etaj1,etaj2
-      double precision ptparton(3:8),etaparton(3:8),mllmax,etmiss,
+      real(dp):: p(mxpart,4)
+      integer:: ijet,ilep,id(4),idj(4),j
+      logical:: failed_cuts,is_electron,is_muon,is_hadronic
+      real(dp):: pt,etarap,ptmu,etamu,ptel,etael,mjj,etaj1,etaj2
+      real(dp):: ptparton(3:8),etaparton(3:8),mllmax,etmiss,
      & mll,mllwidth,metvec(4),met,metmin,mjets,
      & ptleading,ptnexttoleading,etajmax,etajmin,
      & ygap
 
-      logical first,nomll
+      logical:: first,nomll
       data first/.true./
       save first,nomll
 
-      ptmu=20d0
-      ptel=20d0
-      etamu=2.4d0
-      etael=2.4d0
-      metmin=80d0 ! this is the CMS value
-c      metmin=25d0 ! this is me relaxing the cut to see the H peak
-      mllwidth=30d0
+      ptmu=20._dp
+      ptel=20._dp
+      etamu=2.4_dp
+      etael=2.4_dp
+      metmin=80._dp ! this is the CMS value
+c      metmin=25._dp ! this is me relaxing the cut to see the H peak
+      mllwidth=30._dp
 
-      ptleading=20d0
-      ptnexttoleading=10d0
+      ptleading=20._dp
+      ptnexttoleading=10._dp
 
 c--- additional cuts for VBF topology
-      ygap=2.4d0
-      mjets=500d0
+      ygap=2.4_dp
+      mjets=500._dp
 
 
       if(first) then
          first=.false.
 
-        if (index(runstring,'nomll') .gt. 0) then
+        if (index(runstring,'nomll') > 0) then
           nomll=.true.
         else
           nomll=.false.
@@ -50,7 +54,7 @@ c--- additional cuts for VBF topology
       write(6,99) '*     |eta_el| <       ', etael,         '         *'
       write(6,99) '*     MET >            ',metmin,         ' GeV     *'
       if (nomll .eqv. .false.) then
-      write(6,99) '*     |mll-mz| <       ',mllwidth/2d0,   ' GeV     *'
+      write(6,99) '*     |mll-mz| <       ',mllwidth/2._dp,   ' GeV     *'
       endif
       write(6,99) '*     |y(j1)-y(j2))| > ', ygap, '     *'
       write(6,99) '*     m(j1,j2) >       ', mjets,' GeV *'
@@ -73,11 +77,11 @@ c--- additional cuts for VBF topology
         if (is_electron(j)) then      ! electron cuts
           ilep=ilep+1
           id(ilep)=j
-          if (ptparton(j) .lt. ptel)  then
+          if (ptparton(j) < ptel)  then
              failed_cuts=.true.
              return
           endif
-          if (abs(etaparton(j)) .gt. etael)  then
+          if (abs(etaparton(j)) > etael)  then
              failed_cuts=.true.
              return
           endif
@@ -85,11 +89,11 @@ c--- additional cuts for VBF topology
         elseif (is_muon(j)) then      ! muon cuts
           ilep=ilep+1
           id(ilep)=j
-          if (ptparton(j) .lt. ptmu)  then
+          if (ptparton(j) < ptmu)  then
              failed_cuts=.true.
              return
           endif
-          if (abs(etaparton(j)) .gt. etamu)  then
+          if (abs(etaparton(j)) > etamu)  then
              failed_cuts=.true.
              return
           endif
@@ -106,7 +110,7 @@ c--- additional cuts for VBF topology
         stop
       endif
 
-      if (ijet .lt. 2) then
+      if (ijet < 2) then
         write(6,*) 'Error in cutting routine:'
         write(6,*) 'did not find 2 jets: ',ijet
         stop
@@ -117,23 +121,23 @@ c      goto 101
 c--- ensure a rapidity gap of at least ygap between the tagging jets
       etaj1=etaparton(idj(1))
       etaj2=etaparton(idj(2))
-      if (abs(etaj1-etaj2) .lt. ygap) then
+      if (abs(etaj1-etaj2) < ygap) then
          failed_cuts=.true.
          return
       endif
 
 c--- ensure the tagging jets lie in opposite hemispheres
-      if (etaj1*etaj2 .ge. 0d0) then
+      if (etaj1*etaj2 >= zip) then
          failed_cuts=.true.
          return
       endif
 
 c--- ensure the tagging jets have an invariant mass larger than mjets
-      mjj=dsqrt(max(0d0,(p(idj(1),4)+p(idj(2),4))**2
+      mjj=sqrt(max(zip,(p(idj(1),4)+p(idj(2),4))**2
      & -(p(idj(1),1)+p(idj(2),1))**2
      & -(p(idj(1),2)+p(idj(2),2))**2
      & -(p(idj(1),3)+p(idj(2),3))**2))
-      if (mjj .lt. mjets) then
+      if (mjj < mjets) then
          failed_cuts=.true.
          return
       endif
@@ -162,9 +166,9 @@ c--- m_ll cut
      &   -(p(id(1),1)+p(id(2),1))**2
      &   -(p(id(1),2)+p(id(2),2))**2
      &   -(p(id(1),3)+p(id(2),3))**2
-      mll=sqrt(max(mll,0d0))
+      mll=sqrt(max(mll,zip))
 
-      if (abs(mll-zmass) .gt. mllwidth/2d0) then
+      if (abs(mll-zmass) > mllwidth/2._dp) then
         failed_cuts=.true.
         return
       endif
@@ -173,7 +177,7 @@ c--- m_ll cut
 
 c--- missing ET cut
       met=etmiss(p,metvec)
-      if (met .lt. metmin) then
+      if (met < metmin) then
         failed_cuts=.true.
         return
       endif

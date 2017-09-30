@@ -1,2 +1,2 @@
-      logical realwt
+      logical:: realwt
       common/realwt/realwt

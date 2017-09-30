@@ -1,18 +1,24 @@
-      double complex function BSYA1lcqqppmp(e1,p2,p3,e4,za,zb,zab,zba)
+      function BSYA1lcqqppmp(e1,p2,p3,e4,za,zb,zab,zba)
       implicit none
+      include 'types.f'
+      complex(dp):: BSYA1lcqqppmp
+
 C-----Authors: John Campbell and Keith Ellis, March 2012
 C---- arXiv:1101.5947 [hep-ph], Eq. (98), fully Badger-compliant
 C---- (These are twiddle functions, c.f.arXiv:1101.5947[hep-ph],Eq.(91))
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'zprods_decl.f'
       include 'sprods_com.f'
       include 'zabprods_decl.f'
       include 'qdef.f'
       include 'massiveintegrals.f'
-      double precision xbeta2,xbeta4,s12,s23,mt2,mt3
-      double complex BSYA0qqppmp,A0qqppmp,bracket
-      integer e1,p2,p3,e4,j
+      real(dp):: xbeta2,xbeta4,s12,s23,mt2,mt3
+      complex(dp):: BSYA0qqppmp,A0qqppmp,bracket
+      integer:: e1,p2,p3,e4,j
 
       j=p2-1
 

@@ -1,11 +1,16 @@
       subroutine qqbgen(e1,p2,p3,e4,za,zb,zab,zba,ppmp,amp)
       implicit none
+      include 'types.f'
+
 C-----Authors: John Campbell and Keith Ellis, November 2011
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'zabprods_decl.f'
-      double complex amp(2),ppmp
-      integer e1,p2,p3,e4,e1p,e4p
+      complex(dp):: amp(2),ppmp
+      integer:: e1,p2,p3,e4,e1p,e4p
 C---we are calculating the amplitudes mmpp and mpmp
 C---from our base amplitudes which are ppmp
 

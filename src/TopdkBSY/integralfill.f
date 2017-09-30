@@ -1,15 +1,20 @@
       subroutine integralfill(p)
-C-----Authors: John Campbell and Keith Ellis, November 2011
       implicit none
+      include 'types.f'
+C-----Authors: John Campbell and Keith Ellis, November 2011
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'scale.f'
       include 'massiveintegrals.f'
       include 'first.f'
-      double precision p(mxpart,4)
-      integer nu,p2,p3,j
-      double precision mt2,xbeta2,s12,s13,s23,twop1Dp2,twop1Dp3,gram
-      double complex qlI4,qlI3,qlI2
+      real(dp):: p(mxpart,4)
+      integer:: nu,p2,p3,j
+      real(dp):: mt2,xbeta2,s12,s13,s23,twop1Dp2,twop1Dp3,gram
+      complex(dp):: qlI4,qlI3,qlI2
 
 
 c--- initialize QCDLoop on first pass
@@ -19,10 +24,10 @@ c--- initialize QCDLoop on first pass
       endif
 
       do j=1,2
-      if (j.eq.1) then 
+      if (j==1) then 
       p2=2
       p3=3
-      elseif (j.eq.2) then
+      elseif (j==2) then
       p2=3
       p3=2
       endif
@@ -41,7 +46,7 @@ c--- initialize QCDLoop on first pass
       gram=twop1Dp2*twop1Dp3-mt2*s23
       xbeta2=1d0-4d0*mt2/s23
 
-      if (j .eq. 1) then
+      if (j == 1) then
       I41x2x4x3=qlI4(mt2,zip,mt2,zip,s12,s13,zip,mt2,mt2,zip,musq,0)
       I31x23x4=qlI3(s23,mt2,mt2,zip,zip,mt2,musq,0)
       I3m1x23x4=qlI3(s23,mt2,mt2,mt2,mt2,zip,musq,0)
@@ -53,7 +58,7 @@ c--- initialize QCDLoop on first pass
       Im2m=qlI2(zip,mt2,mt2,musq,0)
       I23=qlI2(s23,zip,zip,musq,0)
       F2m23=qlI2(s23,mt2,mt2,musq,0)-Im2m
-      I2h23=qlI2(s23,zip,zip,musq,0)-I2m+dcmplx(2d0)
+      I2h23=qlI2(s23,zip,zip,musq,0)-I2m+ctwo
       endif
       
       I41x2x3x4(j)=qlI4(mt2,zip,zip,mt2,s12,s23,mt2,zip,zip,zip,musq,0)

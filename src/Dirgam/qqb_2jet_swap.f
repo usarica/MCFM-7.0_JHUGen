@@ -1,10 +1,15 @@
       subroutine qqb_2jet_swap(pin,msq)
+      implicit none
+      include 'types.f'
 c--- this is just a wrapper routine to qqb_dirgam_g,
 c--- that interchanges p3 and p4 before the call
-      implicit none
+      
       include 'constants.f'
-      integer nu
-      double precision pin(mxpart,4),msq(-nf:nf,-nf:nf),
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      integer:: nu
+      real(dp):: pin(mxpart,4),msq(-nf:nf,-nf:nf),
      & pswap(mxpart,4)
      
       pswap(:,:)=pin(:,:)

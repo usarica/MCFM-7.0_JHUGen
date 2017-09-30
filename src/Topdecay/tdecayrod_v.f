@@ -1,6 +1,8 @@
 c--- File written by FORM program tdecayrod_v.frm on Thu May 24 10:26:43 CDT 2012
       subroutine tdecayrod_v(p,nu,eb,b,bb,e,nb,m)
       implicit none
+      include 'types.f'
+      
 ************************************************************************
 *     Author: R.K. Ellis, May 2012                                     *
 *     Virtual corrections to                                           *
@@ -9,7 +11,7 @@ c--- File written by FORM program tdecayrod_v.frm on Thu May 24 10:26:43 CDT 201
 *     with bottom and top masses (and no radiation)                    *
 *     and with overall factor of (4 pi)^e/Gamma(1-e)                   *
 *     in massless spinor notation                                      *
-*     nu,eb,b,bb,e,nb are integers that point to                       *
+*     nu,eb,b,bb,e,nb are integer::s that point to                       *
 *     the appropriate four-momenta in p                                *
 *     xnu=neutrino or quark                                            *
 *     xeb=positron or antiquark                                        *
@@ -19,15 +21,18 @@ c--- File written by FORM program tdecayrod_v.frm on Thu May 24 10:26:43 CDT 201
 *     returned m(bpol,tpol)                                            *
 ************************************************************************
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'qcdcouple.f'
       include 'masses.f'
-      double precision p(mxpart,4),q(mxpart,4),sw,alb,bp,bm,ctm,
+      real(dp):: p(mxpart,4),q(mxpart,4),sw,alb,bp,bm,ctm,
      & t(4),a(4),tpa(4),s34,be,betasq,rtbp,dot,corr,nloratiotopdecay
-      double complex m(2,2),cprop,c0L,c0R,c1L,C1R,c1Lon2,c1Ron2,
+      complex(dp):: m(2,2),cprop,c0L,c0R,c1L,C1R,c1Lon2,c1Ron2,
      & iza,izb
-      integer nu,eb,b,e,nb,bb,aa
-      integer si,xnu,xeb,xb,xk3,xk4
+      integer:: nu,eb,b,e,nb,bb,aa
+      integer:: si,xnu,xeb,xb,xk3,xk4
       parameter(xnu=1,xeb=2,xb=3,xk3=4,xk4=5)
       iza(aa,bb)=cone/za(aa,bb)
       izb(aa,bb)=cone/zb(aa,bb)
@@ -40,18 +45,18 @@ C construct top and antitop momenta
       enddo
 C calculate betap
       s34=tpa(4)**2-tpa(1)**2-tpa(2)**2-tpa(3)**2
-      betasq=1d0-4d0*mt**2/s34
-      if (betasq .ge. 0d0) then
-        be=dsqrt(betasq)
-        bp=0.5d0*(1d0+be)
-        bm=1d0-bp
+      betasq=1._dp-4._dp*mt**2/s34
+      if (betasq >= 0._dp) then
+        be=sqrt(betasq)
+        bp=0.5_dp*(1._dp+be)
+        bm=1._dp-bp
         rtbp=sqrt(bp)
       else
         write(6,*) 'betasq < 0 in tdecayrod_v.f, betasq=',betasq
         call flush(6)
         stop
       endif
-      alb=mb**2/(2d0*dot(p,b,nu))
+      alb=mb**2/(2._dp*dot(p,b,nu))
       do si=1,4
       q(xnu,si)=p(nu,si)
       q(xeb,si)=p(eb,si)
@@ -60,12 +65,12 @@ C calculate betap
       q(xk4,si)=(bp*a(si)-bm*t(si))/be
       enddo
       call spinoru(5,q,za,zb)
-      sw=2d0*dot(q,xeb,xnu)
+      sw=2._dp*dot(q,xeb,xnu)
       call coefsdkmass(sw,mt,mb,ctm,c0L,c0R,c1L,c1R)
-      c0L=c0L+dcmplx(ctm-corr)
-      c1Lon2=c1L/2d0
-      c1Ron2=c1R/2d0
-      cprop=dcmplx(sw-wmass**2,wmass*wwidth)
+      c0L=c0L+cplx1(ctm-corr)
+      c1Lon2=c1L/2._dp
+      c1Ron2=c1R/2._dp
+      cprop=cplx2(sw-wmass**2,wmass*wwidth)
 C---order of polarizations is m(bpol,tpol)
       m(1,1)= + cprop**(-1)*rtbp**(-1)*mt**(-1)*mb * ( za(xb,xnu)*zb(xb
      &    ,xeb)*zb(xnu,xk3)*izb(xb,xnu)*bp*c1Lon2 )

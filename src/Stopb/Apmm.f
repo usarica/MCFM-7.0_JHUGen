@@ -1,4 +1,6 @@
       subroutine Aamp_pmm(q,mc,ms,Apmm)
+      implicit none
+      include 'types.f'
 c--- u + g  ->  c + s + d  (t-channel single-charm)
 ************************************************************************
 *                                                                      *
@@ -6,35 +8,38 @@ c--- u + g  ->  c + s + d  (t-channel single-charm)
 * DATE  : 12/17/2008                                                    *
 *                                                                      *
 ************************************************************************
-      implicit none
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_com.f'
       include 'epinv.f'
       include 'stopf1inc.f'
-      double precision q(mxpart,4),dot,cDs,gDs,cDg,mc,ms,
-     . mc2,ms2,qsq,s,t,u,xsn,xsd,xs
-      double complex trc,trg,trs,trsgc,zpmm,Apmm
+      real(dp):: q(mxpart,4),dot,cDs,gDs,cDg,mc,ms,
+     & mc2,ms2,qsq,s,t,u,xsn,xsd,xs
+      complex(dp):: trc,trg,trs,trsgc,zpmm,Apmm
 
       mc2=mc**2
       ms2=ms**2
 
-      cDs=dot(q,3,4)+mc2*dot(q,4,2)/2d0/dot(q,3,2)
-     . +ms2*dot(q,3,2)/2d0/dot(q,4,2)
+      cDs=dot(q,3,4)+mc2*dot(q,4,2)/2._dp/dot(q,3,2)
+     & +ms2*dot(q,3,2)/2._dp/dot(q,4,2)
       cDg=dot(q,3,2)
       gDs=dot(q,4,2)
-      qsq=mc2+ms2+2d0*cDs+2d0*cDg+2d0*gDs
-      s=ms2+2d0*gDs
-      t=mc2+2d0*cDg
-      u=mc2+ms2+2d0*cDs
+      qsq=mc2+ms2+2._dp*cDs+2._dp*cDg+2._dp*gDs
+      s=ms2+2._dp*gDs
+      t=mc2+2._dp*cDg
+      u=mc2+ms2+2._dp*cDs
 
-      xsn=(1d0-dsqrt(1d0-4d0*ms*mc/(u-(ms-mc)**2)))
-      xsd=(1d0+dsqrt(1d0-4d0*ms*mc/(u-(ms-mc)**2)))
+      xsn=(1._dp-sqrt(1._dp-4._dp*ms*mc/(u-(ms-mc)**2)))
+      xsd=(1._dp+sqrt(1._dp-4._dp*ms*mc/(u-(ms-mc)**2)))
       xs=-xsn/xsd
 
-      trg=2d0*za(5,2)*zb(2,1)
-      trs=2d0*za(5,4)*zb(4,1)+ms**2*za(5,2)*zb(2,1)/gDs
-      trc=2d0*za(5,3)*zb(3,1)+mc**2*za(5,2)*zb(2,1)/cDg
-      trsgc=2d0*zb(1,4)*za(4,2)*zb(2,3)*za(3,5)
+      trg=2._dp*za(5,2)*zb(2,1)
+      trs=2._dp*za(5,4)*zb(4,1)+ms**2*za(5,2)*zb(2,1)/gDs
+      trc=2._dp*za(5,3)*zb(3,1)+mc**2*za(5,2)*zb(2,1)/cDg
+      trsgc=2._dp*zb(1,4)*za(4,2)*zb(2,3)*za(3,5)
       zpmm=za(2,4)*za(2,3)*zb(4,3)**2
 
       Apmm = -ms*(cDg**3*(4*trs*gDs**3-2*ms2*trg*gDs**2+ms2*(trsgc-ms2*
@@ -78,17 +83,17 @@ c--- u + g  ->  c + s + d  (t-channel single-charm)
      &   2*trsgc*(2*gDs+ms2))+mc2*cDg*gDs**3*(-2*(mc2-3*ms2)*trs*gDs+4*m
      &   s2*(trg+trc)*gDs+6*ms2*(trs+trg+trc)*cDs+mc2*trsgc+ms2*(3*ms2*(
      &   trs+trg+trc)-mc2*(3*trs+2*trg+3*trc)))-4*ms2*trc*cDg**6)*lVc/(m
-     &   s*cDg**3*gDs**2)/4.0d+0+Apmm
+     &   s*cDg**3*gDs**2)/4.0_dp+Apmm
 
       Apmm = ms*(2*trc*cDg*gDs-mc2*trg*gDs-trsgc*cDg)*(mc2*gDs**2-2*cDg
-     &   *cDs*gDs+ms2*cDg**2)*lRs2/(cDg**2*gDs**2)/2.0d+0+Apmm
+     &   *cDs*gDs+ms2*cDg**2)*lRs2/(cDg**2*gDs**2)/2.0_dp+Apmm
 
       Apmm = epinv*ms*(2*trc*cDg*gDs-mc2*trg*gDs-trsgc*cDg)*(mc2*gDs**2
      &   -2*cDg*cDs*gDs+ms2*cDg**2)*(2*lRs1+2*lRc1-1)/(cDg**2*gDs**2)/4.
-     &   0d+0+Apmm
+     &   0_dp+Apmm
 
       Apmm = ms*(2*trc*cDg*gDs-mc2*trg*gDs-trsgc*cDg)*(mc2*gDs**2-2*cDg
-     &   *cDs*gDs+ms2*cDg**2)*lRc2/(cDg**2*gDs**2)/2.0d+0+Apmm
+     &   *cDs*gDs+ms2*cDg**2)*lRc2/(cDg**2*gDs**2)/2.0_dp+Apmm
 
       Apmm = 2*LsA*ms*(mc2**3*trg*gDs**5+cDg**5*(4*trs*gDs**3-ms2*gDs*(
      &   2*trg*gDs+ms2*(trg+2*trc))+ms2*trsgc*(gDs+ms2))+cDg**4*gDs*(ms2
@@ -134,7 +139,7 @@ c--- u + g  ->  c + s + d  (t-channel single-charm)
      &   +ms2*trg))+4*ms2*cDg**6*gDs*(8*(trs+trg-trc)*cDs*(2*gDs+ms2)+(m
      &   s2*(3*(trs+trg)+10*trc)+6*mc2*(trc-4*(trs+trg)))*gDs+ms2*(3*mc2
      &   *(trc-4*(trs+trg))+5*ms2*trc))-32*ms2*(-trs-trg+trc)*cDg**7*gDs
-     &   *(2*gDs+ms2))/(mc2*ms*cDg**3*gDs**3*(2*gDs+ms2))/1.2d+1+Apmm
+     &   *(2*gDs+ms2))/(mc2*ms*cDg**3*gDs**3*(2*gDs+ms2))/1.2e+1_dp+Apmm
 
       Apmm = B0cgsf*(-2*mc2*cDg**3*gDs*(8*trs*gDs**4+cDs*(8*trs*gDs**3+
      &   2*ms2*(-trs+2*trg+4*trc)*gDs**2+ms2*(trsgc+ms2*(trg-2*trc)+2*mc
@@ -165,7 +170,7 @@ c--- u + g  ->  c + s + d  (t-channel single-charm)
      &   sgc)+ms2**2*(trs-2*trg-trc))*gDs-ms2*(mc2*(3*trsgc+2*ms2*(-trs+
      &   4*trg+trc))+ms2**2*(trs-2*trg-trc)+mc2**2*trg))+2*ms2*cDg**6*gD
      &   s*(2*(trs+trg)*gDs+2*(trs+trg-trc)*cDs+mc2*(2*trc-3*(trs+trg)))
-     &   -4*ms2*(-trs-trg+trc)*cDg**7*gDs)/(mc2*ms*cDg**3*gDs**3)/4.0d+0
+     &   -4*ms2*(-trs-trg+trc)*cDg**7*gDs)/(mc2*ms*cDg**3*gDs**3)/4.0_dp
      &   +Apmm
 
       Apmm = tr3s00ft*(cDg**2*(-4*(-trsgc+2*ms2*trg+3*ms2*trc)*gDs**3+c
@@ -208,13 +213,13 @@ c--- u + g  ->  c + s + d  (t-channel single-charm)
      &   *mc2*ms2*cDg**2*gDs**3*(-(4*trs+trg+2*trc)*gDs+(trg-2*trs)*cDs+
      &   ms2*(-trs+2*trg+trc))*(2*(gDs+cDs)+ms2)-2*ms2*cDg**6*gDs*(2*(tr
      &   s+trg)*gDs+2*(trs+trg-trc)*cDs+mc2*(3*(trs+trg)-2*trc))+4*ms2*(
-     &   -trs-trg+trc)*cDg**7*gDs)/(mc2*ms*cDg**3*gDs**3)/4.0d+0+Apmm
+     &   -trs-trg+trc)*cDg**7*gDs)/(mc2*ms*cDg**3*gDs**3)/4.0_dp+Apmm
 
       Apmm = ls*ms*(8*trc*cDg**3*gDs**3+mc2*cDg**2*(2*gDs+ms2)*(trsgc*(
      &   2*gDs+ms2)-trg*(4*gDs**2+2*ms2*gDs+ms2**2))-2*mc2*cDg*gDs*(2*gD
      &   s+ms2)*(2*trc*gDs**2+(trsgc-2*trg*cDs)*gDs-2*ms2*trg*cDs)+8*(tr
      &   s+trg)*cDg**4*gDs**2+mc2**2*gDs**2*(2*gDs+ms2)*(trsgc-trg*(2*gD
-     &   s+ms2)))/(mc2*cDg*gDs*(2*gDs+ms2)**2)/2.0d+0+Apmm
+     &   s+ms2)))/(mc2*cDg*gDs*(2*gDs+ms2)**2)/2.0_dp+Apmm
 
       Apmm = 3*ms*tr3c002fs*(mc2**3*(trs+trg)*gDs**3+mc2*cDg**3*(ms2**2
      &   *trc-2*((trs+trg)*cDs-2*ms2*trc)*gDs)+3*mc2**2*trc*cDg*gDs**2*(
@@ -240,10 +245,10 @@ c--- u + g  ->  c + s + d  (t-channel single-charm)
      &   cDs*gDs-2*mc2*ms2*trg*gDs+mc2*ms2*(trsgc-ms2*trg))-2*cDg**3*(8*
      &   trs*gDs**2+2*ms2*trc*gDs+ms2*(2*trsgc-ms2*trg))-mc2**2*(trsgc-m
      &   s2*trg)*gDs**2-4*mc2*cDg*gDs*(trsgc*gDs+ms2*trg*cDs))/(ms*cDg*(
-     &   2*cDg+mc2)*gDs)/2.0d+0+Apmm
+     &   2*cDg+mc2)*gDs)/2.0_dp+Apmm
 
       Apmm = epinv**2*ms*(2*trc*cDg*gDs-mc2*trg*gDs-trsgc*cDg)*(mc2*gDs
-     &   **2-2*cDg*cDs*gDs+ms2*cDg**2)/(cDg**2*gDs**2)/2.0d+0+Apmm
+     &   **2-2*cDg*cDs*gDs+ms2*cDg**2)/(cDg**2*gDs**2)/2.0_dp+Apmm
 
       Apmm=Apmm/zpmm
 

@@ -3,6 +3,7 @@
 *****************
       subroutine pdfwrap
       implicit none
+      include 'types.f'
       include 'masses.f'
       include 'lhapdf.f'
       include 'nlooprun.f'

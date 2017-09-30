@@ -1,5 +1,7 @@
       subroutine qqb_w2jet_gvecx(p,n,in,msq,msqv_cs,msqvx)
       implicit none
+      include 'types.f'
+
 c----Matrix element for W+2jet production
 C----averaged over initial colours and spins
 c    line 6 contracted with the vector n(mu)
@@ -12,6 +14,9 @@ c---squared when n is replaced by two physical polarizations,
 c---but this routine contains one factor of 1/2 for identical gluons
 c   in the final state.
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'qcdcouple.f'
       include 'ewcouple.f'
@@ -19,13 +24,13 @@ c   in the final state.
       include 'sprods_com.f'
       include 'ckm.f'
 C ip is the label of the emitter
-      integer j,k,in,i,n1,n2
-      double precision msq(-nf:nf,-nf:nf),p(mxpart,4)
-      double precision fac,prop,n(4),Vfac
-      double precision p1p2(0:2,-1:1,-1:1),q1q2(0:2,-1:1,-1:1)
-      double complex zab(mxpart,mxpart),zba(mxpart,mxpart)
-      double precision msqv_cs(0:2,-nf:nf,-nf:nf)
-      double precision msqvx(-nf:nf,-nf:nf,-nf:nf,-nf:nf)
+      integer:: j,k,in,i,n1,n2
+      real(dp):: msq(-nf:nf,-nf:nf),p(mxpart,4)
+      real(dp):: fac,prop,n(4),Vfac
+      real(dp):: p1p2(0:2,-1:1,-1:1),q1q2(0:2,-1:1,-1:1)
+      complex(dp):: zab(mxpart,mxpart),zba(mxpart,mxpart)
+      real(dp):: msqv_cs(0:2,-nf:nf,-nf:nf)
+      real(dp):: msqvx(-nf:nf,-nf:nf,-nf:nf,-nf:nf)
       common/p1p2/p1p2
       common/q1q2/q1q2
 !$omp threadprivate(/p1p2/,/q1q2/)
@@ -41,9 +46,9 @@ c--- two outgoing particles switched (eg. gg->qqb rather than gg->qbq)
 
       do j=-nf,nf
       do k=-nf,nf
-      msq(j,k)=0d0
+      msq(j,k)=0._dp
       do i=0,2
-        msqv_cs(i,j,k)=0d0
+        msqv_cs(i,j,k)=0._dp
       enddo
       enddo
       enddo
@@ -51,8 +56,8 @@ c--- two outgoing particles switched (eg. gg->qqb rather than gg->qbq)
       do i=0,2
       do j=-1,1
       do k=-1,1
-      q1q2(i,j,k)=0d0
-      p1p2(i,j,k)=0d0
+      q1q2(i,j,k)=0._dp
+      p1p2(i,j,k)=0._dp
       enddo
       enddo
       enddo
@@ -65,7 +70,7 @@ c---Arbitrary conventions of Bern, Dixon, Kosower, Weinzierl,
 c---za(i,j)*zb(j,i)=s(i,j)
       call spinork(6,p,zab,zba,n)
 
-      if (in .eq. 1) then
+      if (in == 1) then
 C--initial-initial
         call w2jetnx(2,5,3,4,6,1,p,n,za,zb,zab,zba)
         call storecsv_px(0,+1)
@@ -85,7 +90,7 @@ c--- g g -> q qb
         enddo
 c      p1p2(0,+1)=aveqg*fac*w2jetn(2,6,3,4,5,1,p,n,za,zb,zab,zba)
 c      p1p2(0,-1)=aveqg*fac*w2jetn(6,2,3,4,5,1,p,n,za,zb,zab,zba)
-      elseif (in .eq. 2) then
+      elseif (in == 2) then
         call w2jetnx(1,5,3,4,6,2,p,n,za,zb,zab,zba)
         call storecsv_px(+1,0)
         call w2jetnx(5,1,3,4,6,2,p,n,za,zb,zab,zba)
@@ -104,7 +109,7 @@ c--- g g -> q qb
         enddo
 c      p1p2(+1,0)=aveqg*fac*w2jetn(1,6,3,4,5,2,p,n,za,zb,zab,zba)
 c      p1p2(-1,0)=aveqg*fac*w2jetn(6,1,3,4,5,2,p,n,za,zb,zab,zba)
-      elseif (in .eq. 5) then
+      elseif (in == 5) then
         call w2jetnx(1,2,3,4,6,5,p,n,za,zb,zab,zba)
         call storecsv_px(1,-1)
         call w2jetnx(2,1,3,4,6,5,p,n,za,zb,zab,zba)
@@ -131,7 +136,7 @@ c      p1p2(+1,0)=aveqg*fac*w2jetn(1,6,3,4,2,5,p,n,za,zb,zab,zba)
 c      p1p2(-1,0)=aveqg*fac*w2jetn(6,1,3,4,2,5,p,n,za,zb,zab,zba)
 c      p1p2(0,+1)=aveqg*fac*w2jetn(2,6,3,4,1,5,p,n,za,zb,zab,zba)
 c      p1p2(0,-1)=aveqg*fac*w2jetn(6,2,3,4,1,5,p,n,za,zb,zab,zba)
-      elseif (in .eq. 6) then
+      elseif (in == 6) then
         call w2jetnx(1,2,3,4,5,6,p,n,za,zb,zab,zba)
         call storecsv_px(1,-1)
         call w2jetnx(2,1,3,4,5,6,p,n,za,zb,zab,zba)
@@ -162,63 +167,63 @@ c      p1p2(0,-1)=aveqg*fac*w2jetn(5,2,3,4,1,6,p,n,za,zb,zab,zba)
 
       do j=-nf,nf
       do k=-nf,nf
-      if     ((j .gt. 0) .and. (k .lt. 0)) then
+      if     ((j > 0) .and. (k < 0)) then
           do i=0,2
             msqv_cs(i,j,k)=Vsq(j,k)*p1p2(i,1,-1)
           enddo
-      elseif ((j .lt. 0) .and. (k .gt. 0)) then
+      elseif ((j < 0) .and. (k > 0)) then
           do i=0,2
             msqv_cs(i,j,k)=Vsq(j,k)*p1p2(i,-1,1)
           enddo
-      elseif ((j .gt. 0) .and. (k .eq. 0)) then
+      elseif ((j > 0) .and. (k == 0)) then
           do i=0,2
             msqv_cs(i,j,k)=
      &  (Vsq(j,-1)+Vsq(j,-2)+Vsq(j,-3)+Vsq(j,-4)+Vsq(j,-5))*p1p2(i,+1,0)
           enddo
           do n1=1,nf
           msqvx(j,k,n1,0)=Vsq(j,-n1)*(
-     .                         p1p2(0,+1,0)+p1p2(1,+1,0)+p1p2(2,+1,0))
+     &                         p1p2(0,+1,0)+p1p2(1,+1,0)+p1p2(2,+1,0))
           msqvx(j,k,0,n1)=msqvx(j,k,n1,0)
           enddo
-      elseif ((j .lt. 0) .and. (k .eq. 0)) then
+      elseif ((j < 0) .and. (k == 0)) then
           do i=0,2
             msqv_cs(i,j,k)=
      &  (Vsq(j,+1)+Vsq(j,+2)+Vsq(j,+3)+Vsq(j,+4)+Vsq(j,+5))*p1p2(i,-1,0)
           do n1=1,nf
           msqvx(j,k,-n1,0)=Vsq(j,n1)*(
-     .                          p1p2(0,-1,0)+p1p2(1,-1,0)+p1p2(2,-1,0))
+     &                          p1p2(0,-1,0)+p1p2(1,-1,0)+p1p2(2,-1,0))
           msqvx(j,k,0,-n1)=msqvx(j,k,-n1,0)
           enddo
           enddo
-      elseif ((j .eq. 0) .and. (k .gt. 0)) then
+      elseif ((j == 0) .and. (k > 0)) then
           do i=0,2
             msqv_cs(i,j,k)=
      &  (Vsq(-1,k)+Vsq(-2,k)+Vsq(-3,k)+Vsq(-4,k)+Vsq(-5,k))*p1p2(i,0,+1)
           enddo
           do n1=1,nf
           msqvx(j,k,n1,0)=Vsq(-n1,k)*(
-     .                          p1p2(0,0,+1)+p1p2(1,0,+1)+p1p2(2,0,+1))
+     &                          p1p2(0,0,+1)+p1p2(1,0,+1)+p1p2(2,0,+1))
           msqvx(j,k,0,n1)=msqvx(j,k,n1,0)
           enddo
-      elseif ((j .eq. 0) .and. (k .lt. 0)) then
+      elseif ((j == 0) .and. (k < 0)) then
           do i=0,2
             msqv_cs(i,j,k)=
      &  (Vsq(+1,k)+Vsq(+2,k)+Vsq(+3,k)+Vsq(+4,k)+Vsq(+5,k))*p1p2(i,0,-1)
           enddo
           do n1=1,nf
           msqvx(j,k,-n1,0)=Vsq(n1,k)*(
-     .                          p1p2(0,0,-1)+p1p2(1,0,-1)+p1p2(2,0,-1))
+     &                          p1p2(0,0,-1)+p1p2(1,0,-1)+p1p2(2,0,-1))
           msqvx(j,k,0,-n1)=msqvx(j,k,-n1,0)
           enddo
-      elseif ((j .eq. 0) .and. (k .eq. 0)) then
-          Vfac=0d0
+      elseif ((j == 0) .and. (k == 0)) then
+          Vfac=0._dp
           do n1=1,nf
             do n2=-nf,-1
               Vfac=Vfac+Vsq(n1,n2)
               msqvx(j,k,-n1,-n2)=Vsq(n1,n2)*(
-     .                            p1p2(0,0,0)+p1p2(1,0,0)+p1p2(2,0,0))
+     &                            p1p2(0,0,0)+p1p2(1,0,0)+p1p2(2,0,0))
               msqvx(j,k,-n2,-n1)=Vsq(n1,n2)*(
-     .                            q1q2(0,0,0)+q1q2(1,0,0)+q1q2(2,0,0))
+     &                            q1q2(0,0,0)+q1q2(1,0,0)+q1q2(2,0,0))
             enddo
           enddo
           do i=0,2

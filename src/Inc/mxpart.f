@@ -1,2 +1,2 @@
-      integer mxpart
+      integer:: mxpart
       parameter(mxpart=14)

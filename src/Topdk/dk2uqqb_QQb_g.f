@@ -1,5 +1,7 @@
       subroutine dk2uqqb_QQb_g(p,msq)
       implicit none
+      include 'types.f'
+
 ************************************************************************
 *     Author: R.K. Ellis                                               *
 *     January, 2012.                                                   *
@@ -14,21 +16,24 @@
 *                                                                      *
 ************************************************************************
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ewcouple.f'
       include 'qcdcouple.f'
       include 'masses.f'
       include 'plabel.f'
-      integer j,k,hb,hc,h12,j1,j2,h1,h2,hg
-      double precision msq(-nf:nf,-nf:nf),p(mxpart,4)
-      double precision fac,qqb,gg,msqtop,msqatop
-      double complex  prop,
+      integer:: j,k,hb,hc,h12,j1,j2,h1,h2,hg
+      real(dp):: msq(-nf:nf,-nf:nf),p(mxpart,4)
+      real(dp):: fac,qqb,gg,msqtop,msqatop
+      complex(dp)::  prop,
      & mtop(2,2),manti(2,2,2),mprod(2,2,2),
      & mab(2,2,2,2),mba(2,2,2,2),mqed(2,2,2,2)
 
 C----set all elements to zero
       do j=-nf,nf
       do k=-nf,nf
-      msq(j,k)=0d0
+      msq(j,k)=0._dp
       enddo
       enddo
 
@@ -37,14 +42,14 @@ C----set all elements to zero
       call adecayg(p,7,8,6,9,manti)
 
 C----calculate spin-averaged decay matrix elements
-      msqtop=0d0
+      msqtop=0._dp
       do hb=1,2
       do j1=1,2
       msqtop=msqtop+abs(mtop(hb,j1))**2
       enddo
       enddo
 
-      msqatop=0d0
+      msqatop=0._dp
       do hc=1,2
       do hg=1,2
       do j2=1,2
@@ -53,14 +58,14 @@ C----calculate spin-averaged decay matrix elements
       enddo
       enddo
 
-      prop=dcmplx(zip,mt*twidth)**2
-      fac=V*gwsq**4*gsq**2/abs(prop)**2*gsq*V/xn*(msqtop*msqatop/4d0)
+      prop=cplx2(zip,mt*twidth)**2
+      fac=V*gwsq**4*gsq**2/abs(prop)**2*gsq*V/xn*(msqtop*msqatop/4._dp)
 c--- include factor for W hadronic decays
-      if (plabel(3) .eq. 'pp') fac=2d0*xn*fac
-      if (plabel(7) .eq. 'pp') fac=2d0*xn*fac
+      if (plabel(3) == 'pp') fac=2._dp*xn*fac
+      if (plabel(7) == 'pp') fac=2._dp*xn*fac
 
 c--- q-qbar amplitudes
-      qqb=0d0
+      qqb=0._dp
       do j1=1,2
       do j2=1,2
       do h12=1,2
@@ -71,7 +76,7 @@ c--- q-qbar amplitudes
 
 c--- gg amplitudes
       mqed(:,:,:,:)=mab(:,:,:,:)+mba(:,:,:,:)
-      gg=0d0
+      gg=0._dp
       do j1=1,2
       do j2=1,2
       do h1=1,2
@@ -86,9 +91,9 @@ c--- gg amplitudes
 
 C---fill qb-q, gg and q-qb elements
       do j=-nf,nf
-      if ((j .lt. 0) .or. (j .gt. 0)) then
+      if ((j < 0) .or. (j > 0)) then
           msq(j,-j)=qqb
-      elseif (j .eq. 0) then
+      elseif (j == 0) then
           msq(0,0)=gg
       endif
       enddo

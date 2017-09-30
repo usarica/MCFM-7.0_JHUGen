@@ -1,21 +1,26 @@
       subroutine qqb_WZjj(p,msq)
+      implicit none
+      include 'types.f'
 C-----Matrix squared for
 C-----p(p1)+p(p2)-->W(l(p3)+a(p4))+Z(l(p5)+a(p6)+p(p7)+p(p8)
 C-----Author: R.K.Ellis February 2013
-      implicit none
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_com.f'
       include 'nwz.f'
-      double precision p(mxpart,4),msq(-nf:nf,-nf:nf)
+      real(dp):: p(mxpart,4),msq(-nf:nf,-nf:nf)
      & ,WZbbmsq,WZccmsq,WZggmsq,WZddidmsq,WZuuidmsq,
      & ms(-nf:nf,-nf:nf,-nf:nf,-nf:nf)
 
-      integer i,j,k,l,ba,ac,sa,ua,da,gg,dq,uq,sq,cq,bq
+      integer:: i,j,k,l,ba,ac,sa,ua,da,gg,dq,uq,sq,cq,bq
       parameter(ba=-5,ac=-4,sa=-3,ua=-2,da=-1,
      &     gg=0,bq=+5,cq=+4,sq=+3,uq=+2,dq=+1)
 
-      msq(:,:)=0d0
-      ms(:,:,:,:)=0d0
+      msq(:,:)=0._dp
+      ms(:,:,:,:)=0._dp
 c      open(unit=66,file='madpoints.f',status='unknown')
 c      call writeformadgraph(p)
 c      write (*,*)
@@ -24,12 +29,12 @@ c      write (*,*)
 c      write (*,*) "-----------------------------------------------------------------------------"
 c      write (*,*)  "n        E             px             py              pz               m "
 c      do i=1,8
-c      if (i .lt. 3)
+c      if (i < 3)
 c     &    write (*,'(i2,1x,5e15.7)') i, -P(i,4),-P(i,1),-P(i,2),-P(i,3),
 c     & p(i,4)**2-p(i,1)**2-p(i,2)**2-p(i,3)**2
-c      if (i .ge. 3)
+c      if (i >= 3)
 c     &    write (*,'(i2,1x,5e15.7)') i, P(i,4),P(i,1),P(i,2),P(i,3),
-cc     . dsqrt(dabs(DOT(p(0,i),p(0,i))))
+cc     & sqrt(abs(DOT(p(0,i),p(0,i))))
 c     & p(i,4)**2-p(i,1)**2-p(i,2)**2-p(i,3)**2
 c      enddo
 c      write (*,*) "-----------------------------------------------------------------------------"
@@ -37,7 +42,7 @@ c      write (*,*) "------------------------------------------------------------
 
       call spinoru(8,p,za,zb)
 
-      if (nwz .eq. 1) then
+      if (nwz == 1) then
 
 C***********************************************************
 C-----Identity tables antiquark-quark
@@ -270,7 +275,7 @@ c      include 'aq+'
 
 C***********************************************************************
 
-      elseif (nwz .eq. -1) then
+      elseif (nwz == -1) then
 
 C***********************************************************
 C-----Identity table antiquark-quark
@@ -509,7 +514,7 @@ c      call madcheckm(ms)
 
       endif
 
-      msq(:,:)=0d0
+      msq(:,:)=0._dp
       do i=-nf,nf
       do j=-nf,nf
       do k=-nf,nf

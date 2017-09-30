@@ -1,11 +1,17 @@
-      double complex function ttbqqbqqmm(k1,k2,k3,k4,k5,k6,k7)
+      function ttbqqbqqmm(k1,k2,k3,k4,k5,k6,k7)
       implicit none
+      include 'types.f'
+      complex(dp):: ttbqqbqqmm
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'sprods_com.f'
       include 'zprods_com.f'
       include 'masses.f'
-      integer k1,k2,k3,k4,k5,k6,k7
-      double precision s129,mtsq
+      integer:: k1,k2,k3,k4,k5,k6,k7
+      real(dp):: s129,mtsq
       s129=s(k1,k2)+s(k1,k3)+s(k2,k3)
       mtsq=mt**2
       ttbqqbqqmm =  + xn**(-1)*s129**(-1) * ( 1/(zb(k1,k3))/(zb(k5,k3))

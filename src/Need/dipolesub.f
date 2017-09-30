@@ -15,31 +15,36 @@
 ************************************************************************
 
       subroutine dips(nd,p,ip,jp,kp,sub,subv,msq,msqv,
-     . subr_born,subr_corr)
+     & subr_born,subr_corr)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'qcdcouple.f'
       include 'qqgg.f'
       include 'ptilde.f'
       include 'alfacut.f'
-      include 'process.f'
+      include 'kprocess.f'
       include 'dynamicscale.f'
       include 'initialscales.f'
       include 'dipolescale.f'
       include 'facscale.f'
       include 'incldip.f'
-      double precision p(mxpart,4),ptrans(mxpart,4),sub(4),subv,vecsq
-      double precision x,omx,z,omz,y,omy,u,omu,sij,sik,sjk,dot,vec(4)
-      double precision msq(-nf:nf,-nf:nf),msqv(-nf:nf,-nf:nf),vtilde
-      integer nd,ip,jp,kp,nu,j,k,ipt
-c--      logical includedipole
+      real(dp):: p(mxpart,4),ptrans(mxpart,4),sub(4),subv,vecsq
+      real(dp):: x,omx,z,omz,y,omy,u,omu,sij,sik,sjk,dot,vec(4)
+      real(dp):: msq(-nf:nf,-nf:nf),msqv(-nf:nf,-nf:nf),vtilde
+      integer:: nd,ip,jp,kp,nu,j,k,ipt
+c--      logical:: includedipole
       external subr_born,subr_corr
             
 C---Initialize the dipoles to zero
       do j=1,4
-      sub(j)=0d0
+      sub(j)=0._dp
       enddo
-      subv=0d0
+      subv=0._dp
       call zeromsq(msq,msqv)
       incldip(nd)=.true.
       
@@ -50,13 +55,13 @@ C---Initialize the dipoles to zero
 ***********************************************************************
 *************************** INITIAL-INITIAL ***************************
 ***********************************************************************
-      if ((ip .le. 2) .and. (kp .le. 2)) then
+      if ((ip <= 2) .and. (kp <= 2)) then
         omx=-(sij+sjk)/sik
         x=one-omx
         vtilde=sij/sik
 
 C---Modification so that only close to singular subtracted
-        if (-vtilde .gt. aii) then
+        if (-vtilde > aii) then
            incldip(nd)=.false.
            return
         endif
@@ -71,7 +76,7 @@ c        if (incldip(nd) .eqv. .false.) return
         
         vecsq=-sij*sjk/sik
         do nu=1,4
-          vec(nu)=(p(jp,nu)-vtilde*p(kp,nu))/dsqrt(-vecsq)
+          vec(nu)=(p(jp,nu)-vtilde*p(kp,nu))/sqrt(-vecsq)
         enddo
 
 c--- if using a dynamic scale, set that scale with dipole kinematics      
@@ -82,7 +87,7 @@ c--- if using a dynamic scale, set that scale with dipole kinematics
 
 c--- for "gamgam" process, gvec contribution is not written in
 c--- a canonical way; instead, pass emitted vector directly as "vec"
-        if (case .eq. 'gamgam') then
+        if ((kcase==kgamgam) .or. (kcase==kgg2gam)) then
           do nu=1,4
             vec(nu)=p(jp,nu)
           enddo
@@ -94,13 +99,13 @@ c--- a canonical way; instead, pass emitted vector directly as "vec"
         sub(qq)=-gsq/x/sij*(two/omx-one-x)
         sub(gq)=-gsq/sij
         sub(qg)=-gsq/x/sij*(one-two*x*omx)
-        sub(gg)=-2d0*gsq/x/sij*(x/omx+x*omx)
-        subv   =-4d0*gsq/x/sij*omx/x
+        sub(gg)=-2._dp*gsq/x/sij*(x/omx+x*omx)
+        subv   =-4._dp*gsq/x/sij*omx/x
 
 ***********************************************************************
 *************************** INITIAL-FINAL *****************************
 ***********************************************************************
-      elseif ((ip .le. 2) .and. (kp .gt. 2)) then
+      elseif ((ip <= 2) .and. (kp > 2)) then
         u=sij/(sij+sik)
 
         omx=-sjk/(sij+sik)
@@ -130,27 +135,27 @@ C---Modification so that only close to singular subtracted
 C---Do not set incldip because initial-final can fail 
 C---but final initial needs still to be tested
 
-        if ((case .eq. 'H_1jet') .and. (ip.eq.1) .and. (jp.eq.6)) then
+        if ((kcase==kH_1jet) .and. (ip==1) .and. (jp==6)) then
 c--- do nothing
         else
-          if (u .gt. aif) return
+          if (u > aif) return
         endif
         
         do nu=1,4
-           vec(nu)=(p(jp,nu)/u-p(kp,nu)/omu)/dsqrt(sjk)
+           vec(nu)=(p(jp,nu)/u-p(kp,nu)/omu)/sqrt(sjk)
         enddo
         
         call subr_corr(ptrans,vec,ip,msqv)        
         sub(qq)=-gsq/x/sij*(two/(omx+u)-one-x)
         sub(gq)=-gsq/sij
         sub(qg)=-gsq/x/sij*(one-two*x*omx)
-        sub(gg)=-2d0*gsq/x/sij*(one/(omx+u)-one+x*omx)
-        subv   =-4d0*gsq/x/sij*(omx/x*u*(one-u))
+        sub(gg)=-2._dp*gsq/x/sij*(one/(omx+u)-one+x*omx)
+        subv   =-4._dp*gsq/x/sij*(omx/x*u*(one-u))
 
 ***********************************************************************
 *************************** FINAL-INITIAL *****************************
 ***********************************************************************
-      elseif ((ip .gt. 2) .and. (kp .le. 2)) then
+      elseif ((ip > 2) .and. (kp <= 2)) then
 c-- Check to see if this dipole will be included - should have been
 c-- already determined at this point in the initial-final phase
 c        if (incldip(nd) .eqv. .false.) return
@@ -159,13 +164,13 @@ c--- note, here we assume that msq kinematics are already taken care of
 c--- for msq, although msqv must be recalculated each time
         omx=-sij/(sjk+sik)
 C---Modification so that only close to singular subtracted
-        if (omx .gt. afi) return
+        if (omx > afi) return
         
         x=one-omx
         z=sik/(sik+sjk)
         omz=sjk/(sik+sjk)
         do nu=1,4
-          vec(nu)=z*p(ip,nu)-omz*p(jp,nu)
+          vec(nu)=(z*p(ip,nu)-omz*p(jp,nu))/sqrt(sij)
         enddo
 C---call msqv again because vec has changed
         do j=1,mxpart
@@ -174,18 +179,20 @@ C---call msqv again because vec has changed
         enddo
         enddo
 
-c--- if using a dynamic scale, set that scale with dipole kinematics      
+c--- if using a dynamic scale, set that scale with dipole kinematics
       if (dynamicscale) then
         call scaleset(initscale,initfacscale,ptrans)
         dipscale(nd)=facscale
       endif      
 
 c--- do something special if we're doing W+2,Z+2jet (jp .ne. 7)
-        if ((jp .ne. 7) .and. (case .ne. 'HWWjet')
-     .      .and. (case .ne. 'HZZjet')
-     .      .and. (case .ne. 'qq_HWW')
-     .      .and. (case .ne. 'qq_HZZ')) then
-          if (ip .lt. 7) then
+        if ((jp .ne. 7) .and. (kcase.ne.kHWWjet)
+     &      .and. (kcase.ne.kHZZjet)
+     &      .and. (kcase.ne.kWH1jet)
+     &      .and. (kcase.ne.kZH1jet)
+     &      .and. (kcase.ne.kqq_HWW)
+     &      .and. (kcase.ne.kqq_HZZ)) then
+          if (ip < 7) then
 C ie for cases 56_i,65_i
             ipt=5
           else
@@ -198,9 +205,9 @@ C ie for cases 57_i,67_i
         endif
       
 c--- do something special for HWW/HZZ+2 jets
-        if ((case .eq. 'HWW2jt') .or. (case .eq. 'HZZ2jt')) then
+        if ((kcase==kHWW2jt) .or. (kcase==kHZZ2jt)) then
           if (jp .ne. 9) then
-            if (ip .lt. 9) then
+            if (ip < 9) then
 C ie for cases 78_i,87_i
               ipt=7
             else
@@ -214,24 +221,24 @@ C ie for cases 79_i,89_i
       endif      
         
 c--- do something special for direct photon production
-        if (case .eq. 'dirgam') ipt=4
+        if (kcase==kdirgam) ipt=4
       
         call subr_corr(ptrans,vec,ipt,msqv)
                                 
         sub(qq)=+gsq/x/sij*(two/(omz+omx)-one-z)
         sub(gq)=+gsq/x/sij
-        sub(gg)=+2d0*gsq/x/sij*(one/(omz+omx)+one/(z+omx)-two) 
-        subv   =+4d0*gsq/x/sij/sij
+        sub(gg)=+2._dp*gsq/x/sij*(one/(omz+omx)+one/(z+omx)-two) 
+        subv   =+4._dp*gsq/x/sij
 
 ***********************************************************************
 **************************** FINAL-FINAL ******************************
 ***********************************************************************
-      elseif ((ip .gt. 2) .and. (kp .gt. 2)) then
+      elseif ((ip > 2) .and. (kp > 2)) then
 c------Eq-(5.2)    
         y=sij/(sij+sjk+sik)
 
 C---Modification so that only close to singular subtracted
-        if (y .gt. aff) then
+        if (y > aff) then
           incldip(nd)=.false.
           return
         endif
@@ -259,10 +266,10 @@ c--- if using a dynamic scale, set that scale with dipole kinematics
         endif
       
         call subr_born(ptrans,msq)
-        if (case .eq. 'epem3j') then
+        if (kcase==kepem3j) then
           ipt=5
         else
-          if (ip .lt. kp) then
+          if (ip < kp) then
             ipt=5
           else
             ipt=6
@@ -270,8 +277,8 @@ c--- if using a dynamic scale, set that scale with dipole kinematics
         endif
                
 c--- do something special for HWW/HZZ+2 jets
-        if ((case .eq. 'HWW2jt') .or. (case .eq. 'HZZ2jt')) then
-          if (ip .lt. kp) then
+        if ((kcase==kHWW2jt) .or. (kcase==kHZZ2jt)) then
+          if (ip < kp) then
             ipt=7
           else
             ipt=8
@@ -283,7 +290,7 @@ c--- do something special for HWW/HZZ+2 jets
         sub(qq)=gsq/sij*(two/(one-z*omy)-one-z)
         sub(gq)=gsq/sij
         sub(gg)=gsq/sij*(two/(one-z*omy)+two/(one-omz*omy)-four)
-        subv   =+4d0*gsq/sij/sij
+        subv   =+4._dp*gsq/sij/sij
 
       endif
       

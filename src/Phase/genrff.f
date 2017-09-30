@@ -1,33 +1,36 @@
       subroutine genrff(p,i1,i2,i7,r1,r2,phit,wt5_4,*)
+      implicit none
+      include 'types.f'
 c----i1 is an initial state vector.
 c---final,final--i1 is the emitter
-      implicit none
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
       include 'debug.f'
-      integer i1,i2,i7,j
-      double precision p(mxpart,4),rtalbe,c(4),d(4),phi,phit,wt5_4
-      double precision dot,r1,r2,jacbit
-      double precision beta,alpha
-      double precision oma,y,omy,wt0
-      parameter(wt0=1d0/eight/pisq)
+      integer:: i1,i2,i7,j
+      real(dp):: p(mxpart,4),rtalbe,c(4),d(4),phi,phit,wt5_4
+      real(dp):: dot,r1,r2,jacbit
+      real(dp):: beta,alpha
+      real(dp):: oma,y,omy,wt0
+      parameter(wt0=1._dp/eight/pisq)
 
 c----final-final case
 
 c      call writeout(p)
       phi=twopi*phit
 
-C---for p soft set r1=0.9999d0 and r2=0.4999999999d0
+C---for p soft set r1=0.9999_dp and r2=0.4999999999_dp
 
-c      write(6,*) 'setting r1=1d-7'
-c      r1=9.999999999999d0
+c      write(6,*) 'setting r1=1.e-7_dp'
+c      r1=9.999999999999_dp
 c      write(6,*) 'setting r2=0.49999999'
-c      r2=1d-7
+c      r2=1.e-7_dp
 
 
       y=r1**2
       omy=one-y
-      if (r2 .le. 0.5d0) oma=(two*r2)**2
-      if (r2 .gt. 0.5d0) oma=one-(two*r2-one)**2
+      if (r2 <= 0.5_dp) oma=(two*r2)**2
+      if (r2 > 0.5_dp) oma=one-(two*r2-one)**2
 
 
       alpha=one-oma

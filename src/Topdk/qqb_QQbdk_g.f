@@ -1,5 +1,7 @@
       subroutine qqb_QQbdk_g(p,msq)
       implicit none
+      include 'types.f'
+
 C***********************************************************************
 *     Author: R.K. Ellis                                               *
 *     March, 2002.                                                     *
@@ -12,44 +14,47 @@ C***********************************************************************
 *     Only five diagrams included, leading to 2 on-shell top quarks    *
 ************************************************************************
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ewcouple.f'
       include 'qcdcouple.f'
       include 'masses.f'
       include 'plabel.f'
       include 'zprods_com.f'
-      integer j,k,h1,h2,h3,nu
-      double precision t(4),r(4),
-     . msq(-nf:nf,-nf:nf),p(mxpart,4),ps(mxpart,4)
-      double precision ttbqqbg_sq,fac,
-     . wtgg,wtqqb,wtqbq,wtqg,wtqbarg,wtgq,wtgqbar
-      double complex
-     . ttbgggppp,ttbgggmpp,ttbgggpmp,ttbgggppm,
-     . ttbgggmmm,ttbgggpmm,ttbgggmpm,ttbgggmmp,
-     . a123(2,2,2),a132(2,2,2),a213(2,2,2),a231(2,2,2),
-     . a312(2,2,2),a321(2,2,2),
-     . a6sum,a3sum1a,a3sum1b,a3sum2a,a3sum2b,a3sum3a,a3sum3b
-      double precision p3Dp5,p6Dp8,rDp7,tDp4,s34,s78
+      integer:: j,k,h1,h2,h3,nu
+      real(dp):: t(4),r(4),
+     & msq(-nf:nf,-nf:nf),p(mxpart,4),ps(mxpart,4)
+      real(dp):: ttbqqbg_sq,fac,
+     & wtgg,wtqqb,wtqbq,wtqg,wtqbarg,wtgq,wtgqbar
+      complex(dp)::
+     & ttbgggppp,ttbgggmpp,ttbgggpmp,ttbgggppm,
+     & ttbgggmmm,ttbgggpmm,ttbgggmpm,ttbgggmmp,
+     & a123(2,2,2),a132(2,2,2),a213(2,2,2),a231(2,2,2),
+     & a312(2,2,2),a321(2,2,2),
+     & a6sum,a3sum1a,a3sum1b,a3sum2a,a3sum2b,a3sum3a,a3sum3b
+      real(dp):: p3Dp5,p6Dp8,rDp7,tDp4,s34,s78
 c--- these definitions are used for gauge check only
-c      double complex a,
-c     . ttbgggppp_full,ttbgggmpp_full,ttbgggpmp_full,ttbgggppm_full,
-c     . ttbgggmmm_full,ttbgggpmm_full,ttbgggmpm_full,ttbgggmmp_full,
-c     . ttbqqbsqpp_full,ttbqqbsqpm_full,ttbqqbsqmp_full,ttbqqbsqmm_full,
-c     . ttbqqbtqpp_full,ttbqqbtqpm_full,ttbqqbtqmp_full,ttbqqbtqmm_full,
-c     . ttbqqbqqpp_full,ttbqqbqqpm_full,ttbqqbqqmp_full,ttbqqbqqmm_full,
-c     . ttbqqbrqpp_full,ttbqqbrqpm_full,ttbqqbrqmp_full,ttbqqbrqmm_full
+c      complex(dp):: a,
+c     & ttbgggppp_full,ttbgggmpp_full,ttbgggpmp_full,ttbgggppm_full,
+c     & ttbgggmmm_full,ttbgggpmm_full,ttbgggmpm_full,ttbgggmmp_full,
+c     & ttbqqbsqpp_full,ttbqqbsqpm_full,ttbqqbsqmp_full,ttbqqbsqmm_full,
+c     & ttbqqbtqpp_full,ttbqqbtqpm_full,ttbqqbtqmp_full,ttbqqbtqmm_full,
+c     & ttbqqbqqpp_full,ttbqqbqqpm_full,ttbqqbqqmp_full,ttbqqbqqmm_full,
+c     & ttbqqbrqpp_full,ttbqqbrqpm_full,ttbqqbrqmp_full,ttbqqbrqmm_full
 
 C----set all elements to zero
       do j=-nf,nf
       do k=-nf,nf
-      msq(j,k)=0d0
+      msq(j,k)=0._dp
       enddo
       enddo
 
       p3Dp5=p(3,4)*p(5,4)-p(3,3)*p(5,3)-p(3,2)*p(5,2)-p(3,1)*p(5,1)
       p6Dp8=p(6,4)*p(8,4)-p(6,3)*p(8,3)-p(6,2)*p(8,2)-p(6,1)*p(8,1)
 
-      s34=2d0*(p(3,4)*p(4,4)-p(3,3)*p(4,3)-p(3,2)*p(4,2)-p(3,1)*p(4,1))
-      s78=2d0*(p(7,4)*p(8,4)-p(7,3)*p(8,3)-p(7,2)*p(8,2)-p(7,1)*p(8,1))
+      s34=2._dp*(p(3,4)*p(4,4)-p(3,3)*p(4,3)-p(3,2)*p(4,2)-p(3,1)*p(4,1))
+      s78=2._dp*(p(7,4)*p(8,4)-p(7,3)*p(8,3)-p(7,2)*p(8,2)-p(7,1)*p(8,1))
 
 c      we will have no further need for p3 and p5
 c      we will have no further need for p6 and p8
@@ -65,11 +70,11 @@ c      we will have no further need for p6 and p8
       ps(2,nu)=p(2,nu)
       ps(3,nu)=p(9,nu)
 c---rescaled positron
-      ps(4,nu)=0.5d0*mt**2/tDp4*p(4,nu)
+      ps(4,nu)=0.5_dp*mt**2/tDp4*p(4,nu)
 c---demassifyied top
       ps(5,nu)=t(nu)-ps(4,nu)
 c---rescaled electron
-      ps(7,nu)=0.5d0*mt**2/rDp7*p(7,nu)
+      ps(7,nu)=0.5_dp*mt**2/rDp7*p(7,nu)
 c---demassifyied antitop
       ps(6,nu)=r(nu)-ps(7,nu)
       enddo
@@ -85,73 +90,73 @@ c      j2=1
 c      write(6,*) 'ppp'
 c      do j3=3,8
 c      a=ttbgggppp_full(1,2,9,5,3,6,8,j1,j2,j3)
-c      write(6,*) j,a,cdabs(a)
+c      write(6,*) j,a,abs(a)
 c      enddo
 c      write(6,*) 'mmm'
 c      do j3=3,8
 c      a=ttbgggmmm_full(1,2,9,5,3,6,8,j1,j2,j3)
-c      write(6,*) j,a,cdabs(a)
+c      write(6,*) j,a,abs(a)
 c      enddo
 c      write(6,*) 'mpp'
 c      do j3=3,8
 c      a=ttbgggmpp_full(1,2,9,5,3,6,8,j1,j2,j3)
-c      write(6,*) j,a,cdabs(a)
+c      write(6,*) j,a,abs(a)
 c      enddo
 c      write(6,*) 'pmm'
 c      do j3=3,8
 c      a=ttbgggpmm_full(1,2,9,5,3,6,8,j1,j2,j3)
-c      write(6,*) j,a,cdabs(a)
+c      write(6,*) j,a,abs(a)
 c      enddo
 c      write(6,*) 'mpm'
 c      do j3=3,8
 c      a=ttbgggmpm_full(1,2,9,5,3,6,8,j1,j2,j3)
-c      write(6,*) j,a,cdabs(a)
+c      write(6,*) j,a,abs(a)
 c      enddo
 c      write(6,*) 'mmp'
 c      do j3=3,8
 c      a=ttbgggmmp_full(1,2,9,5,3,6,8,j1,j2,j3)
-c      write(6,*) j,a,cdabs(a)
+c      write(6,*) j,a,abs(a)
 c      enddo
 c      write(6,*) 'pmp'
 c      do j3=3,8
 c      a=ttbgggpmp_full(1,2,9,5,3,6,8,j1,j2,j3)
-c      write(6,*) j,a,cdabs(a)
+c      write(6,*) j,a,abs(a)
 c      enddo
 c      write(6,*) 'ppm'
 c      do j3=3,8
 c      a=ttbgggppm_full(1,2,9,5,3,6,8,j1,j2,j3)
-c      write(6,*) j,a,cdabs(a)
+c      write(6,*) j,a,abs(a)
 c      enddo
 c      pause
 
 c--- gauge check of the qqbg pieces (performed on 15/8/08)
 c      write(6,*) 'pp'
 c      do j=3,8
-c      write(6,*) j,cdabs(ttbqqbsqpp_full(1,2,9,5,3,6,8,j)),
-c     .           cdabs(ttbqqbtqpp_full(1,2,9,5,3,6,8,j)),
-c     .           cdabs(ttbqqbqqpp_full(1,2,9,5,3,6,8,j)),
-c     .           cdabs(ttbqqbrqpp_full(1,2,9,5,3,6,8,j))
+c      write(6,*) j,abs(ttbqqbsqpp_full(1,2,9,5,3,6,8,j)),
+c     &           abs(ttbqqbtqpp_full(1,2,9,5,3,6,8,j)),
+c     &           abs(ttbqqbqqpp_full(1,2,9,5,3,6,8,j)),
+c     &           abs(ttbqqbrqpp_full(1,2,9,5,3,6,8,j))
 c      enddo
 c      write(6,*) 'pm'
 c      do j=3,8
-c      write(6,*) j,cdabs(ttbqqbsqpm_full(1,2,9,5,3,6,8,j)),
-c     .           cdabs(ttbqqbtqpm_full(1,2,9,5,3,6,8,j)),
-c     .           cdabs(ttbqqbqqpm_full(1,2,9,5,3,6,8,j)),
-c     .           cdabs(ttbqqbrqpm_full(1,2,9,5,3,6,8,j))
+c      write(6,*) j,abs(ttbqqbsqpm_full(1,2,9,5,3,6,8,j)),
+c     &           abs(ttbqqbtqpm_full(1,2,9,5,3,6,8,j)),
+c     &           abs(ttbqqbqqpm_full(1,2,9,5,3,6,8,j)),
+c     &           abs(ttbqqbrqpm_full(1,2,9,5,3,6,8,j))
 c      enddo
 c      write(6,*) 'mp'
 c      do j=3,8
-c      write(6,*) j,cdabs(ttbqqbsqmp_full(1,2,9,5,3,6,8,j)),
-c     .           cdabs(ttbqqbtqmp_full(1,2,9,5,3,6,8,j)),
-c     .           cdabs(ttbqqbqqmp_full(1,2,9,5,3,6,8,j)),
-c     .           cdabs(ttbqqbrqmp_full(1,2,9,5,3,6,8,j))
+c      write(6,*) j,abs(ttbqqbsqmp_full(1,2,9,5,3,6,8,j)),
+c     &           abs(ttbqqbtqmp_full(1,2,9,5,3,6,8,j)),
+c     &           abs(ttbqqbqqmp_full(1,2,9,5,3,6,8,j)),
+c     &           abs(ttbqqbrqmp_full(1,2,9,5,3,6,8,j))
 c      enddo
 c      write(6,*) 'mm'
 c      do j=3,8
-c      write(6,*) j,cdabs(ttbqqbsqmm_full(1,2,9,5,3,6,8,j)),
-c     .           cdabs(ttbqqbtqmm_full(1,2,9,5,3,6,8,j)),
-c     .           cdabs(ttbqqbqqmm_full(1,2,9,5,3,6,8,j)),
-c     .           cdabs(ttbqqbrqmm_full(1,2,9,5,3,6,8,j))
+c      write(6,*) j,abs(ttbqqbsqmm_full(1,2,9,5,3,6,8,j)),
+c     &           abs(ttbqqbtqmm_full(1,2,9,5,3,6,8,j)),
+c     &           abs(ttbqqbqqmm_full(1,2,9,5,3,6,8,j)),
+c     &           abs(ttbqqbrqmm_full(1,2,9,5,3,6,8,j))
 c      enddo
 c      pause
 
@@ -219,7 +224,7 @@ c---  i7 -> pub  with pub a rescaled version of p7     = ps(8)
       a321(1,1,2)=ttbgggmmp(3,2,1,4,5,6,7)
       a321(1,1,1)=ttbgggmmm(3,2,1,4,5,6,7)
 
-      wtgg=0d0
+      wtgg=0._dp
       do h1=1,2
       do h2=1,2
       do h3=1,2
@@ -232,13 +237,13 @@ c--- NB: make sure to permute helicity labels appropriately too
         a3sum2b=a132(h2,h1,h3)+a123(h2,h3,h1)+a213(h3,h2,h1)
       a6sum=a3sum1a+a3sum1b
       wtgg=wtgg+xn**3*cf*(
-     .   (cdabs(a123(h1,h2,h3))**2+cdabs(a132(h1,h3,h2))**2
-     .   +cdabs(a213(h2,h1,h3))**2+cdabs(a231(h2,h3,h1))**2
-     .   +cdabs(a312(h3,h1,h2))**2+cdabs(a321(h3,h2,h1))**2)
-     .  -(cdabs(a3sum1a)**2+cdabs(a3sum2a)**2+cdabs(a3sum3a)**2
-     .   +cdabs(a3sum1b)**2+cdabs(a3sum2b)**2+cdabs(a3sum3b)**2)/xn**2
-     .  +(cdabs(a6sum)**2)*(xn**2+1d0)/xn**4
-     .                     )
+     &   (abs(a123(h1,h2,h3))**2+abs(a132(h1,h3,h2))**2
+     &   +abs(a213(h2,h1,h3))**2+abs(a231(h2,h3,h1))**2
+     &   +abs(a312(h3,h1,h2))**2+abs(a321(h3,h2,h1))**2)
+     &  -(abs(a3sum1a)**2+abs(a3sum2a)**2+abs(a3sum3a)**2
+     &   +abs(a3sum1b)**2+abs(a3sum2b)**2+abs(a3sum3b)**2)/xn**2
+     &  +(abs(a6sum)**2)*(xn**2+1._dp)/xn**4
+     &                     )
       enddo
       enddo
       enddo
@@ -251,30 +256,30 @@ c--- NB: make sure to permute helicity labels appropriately too
       wtgqbar=ttbqqbg_sq(3,2,1,4,5,6,7)
 
 c--- overall factor, starting with couplings
-      fac=2d0*(gwsq/2d0)**4*gsq**3
+      fac=2._dp*(gwsq/2._dp)**4*gsq**3
 c--- include top and anti-top propagators
       fac=fac/(mt*twidth)**4
 c--- include W decays
       fac=fac
-     . *8d0*p3Dp5/((s34-wmass**2)**2+(wmass*wwidth)**2)
-     . *8d0*p6Dp8/((s78-wmass**2)**2+(wmass*wwidth)**2)
+     & *8._dp*p3Dp5/((s34-wmass**2)**2+(wmass*wwidth)**2)
+     & *8._dp*p6Dp8/((s78-wmass**2)**2+(wmass*wwidth)**2)
 c--- correct normalization for p4 and p7
       fac=fac
-     . /(0.5d0*mt**2/tDp4)
-     . /(0.5d0*mt**2/rDp7)
+     & /(0.5_dp*mt**2/tDp4)
+     & /(0.5_dp*mt**2/rDp7)
 C--include factor for hadronic decays
-      if (plabel(3).eq. 'pp') fac=2d0*xn*fac
-      if (plabel(7).eq. 'pp') fac=2d0*xn*fac
+      if (plabel(3)== 'pp') fac=2._dp*xn*fac
+      if (plabel(7)== 'pp') fac=2._dp*xn*fac
 
 C---fill qb-q, gg and q-qb elements
       do j=-nf,nf
-      if     (j .gt. 0) then
+      if     (j > 0) then
           msq(j,-j)=aveqq*fac*wtqqb
           msq(j, 0)=aveqg*fac*wtqg
           msq(0, j)=aveqg*fac*wtgq
-      elseif (j .eq. 0) then
+      elseif (j == 0) then
           msq(j,j)=avegg*fac*wtgg
-      elseif (j .lt. 0) then
+      elseif (j < 0) then
           msq(j,-j)=aveqq*fac*wtqbq
           msq(j, 0)=aveqg*fac*wtqbarg
           msq(0, j)=aveqg*fac*wtgqbar

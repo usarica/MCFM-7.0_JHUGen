@@ -1,87 +1,102 @@
-      double precision function vol_wt(W)
+      function vol_wt(W)
       implicit none
+      include 'types.f'
+      real(dp):: vol_wt
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
-      include 'process.f'
-      logical first
-      double precision W,eval_int,volsave
+      include 'kprocess.f'
+      logical:: first
+      real(dp):: W,eval_int,volsave
       data first/.true./
       save first,volsave
 
-      if (case .eq. 'vlchwh') then
+      if (kcase==kvlchwh) then
 c--- volume for production of Wtg
       if (first) then
         volsave=eval_int(W,mt,wmass)/twopi**5
         first=.false.
       endif
       vol_wt=volsave
-      vol_wt=vol_wt*(wmass*wwidth/2d0)
-      vol_wt=vol_wt/8d0/pi           
-      vol_wt=vol_wt*(mt*twidth/2d0)
-      vol_wt=vol_wt*pi*(mt**2-wmass**2)/2d0/mt**2
-     .    /twopi**2
-      vol_wt=vol_wt*(wmass*wwidth/2d0)
-      vol_wt=vol_wt/8d0/pi
+      vol_wt=vol_wt*(wmass*wwidth/2._dp)
+      vol_wt=vol_wt/8._dp/pi           
+      vol_wt=vol_wt*(mt*twidth/2._dp)
+      vol_wt=vol_wt*pi*(mt**2-wmass**2)/2._dp/mt**2
+     &    /twopi**2
+      vol_wt=vol_wt*(wmass*wwidth/2._dp)
+      vol_wt=vol_wt/8._dp/pi
       return
       endif
       
 c--- volume for W+t production      
-      vol_wt=pi*dsqrt((W-mt**2-wmass**2)**2-4d0*mt**2*wmass**2)/2d0/W
-     .      /twopi**2
-      vol_wt=vol_wt*(wmass*wwidth/2d0)
-      vol_wt=vol_wt/8d0/pi
+      vol_wt=pi*sqrt((W-mt**2-wmass**2)**2-4._dp*mt**2*wmass**2)/2._dp/W
+     &      /twopi**2
+      vol_wt=vol_wt*(wmass*wwidth/2._dp)
+      vol_wt=vol_wt/8._dp/pi
       
-      if (case .eq. 'vlchwn') return
+      if (kcase==kvlchwn) return
 
-      if (case .eq. 'vlchwt') then
+      if (kcase==kvlchwt) then
 c--- extra volume for decay t->Wb
-      vol_wt=vol_wt*(mt*twidth/2d0)
-      vol_wt=vol_wt*pi*(mt**2-wmass**2)/2d0/mt**2
-     .    /twopi**2
-      vol_wt=vol_wt*(wmass*wwidth/2d0)
-      vol_wt=vol_wt/8d0/pi
+      vol_wt=vol_wt*(mt*twidth/2._dp)
+      vol_wt=vol_wt*pi*(mt**2-wmass**2)/2._dp/mt**2
+     &    /twopi**2
+      vol_wt=vol_wt*(wmass*wwidth/2._dp)
+      vol_wt=vol_wt/8._dp/pi
       endif
       
-      if (case .eq. 'vlchwg') then
+      if (kcase==kvlchwg) then
 c--- extra volume for decay t->Wbg
-      vol_wt=vol_wt*(mt*twidth/2d0)
-      vol_wt=vol_wt*pisq/8d0/mt**2/twopi**5
-     .   *(mt**4-wmass**4-2d0*mt**2*wmass**2*dlog(mt**2/wmass**2))
-      vol_wt=vol_wt*(wmass*wwidth/2d0)
-      vol_wt=vol_wt/8d0/pi
+      vol_wt=vol_wt*(mt*twidth/2._dp)
+      vol_wt=vol_wt*pisq/8._dp/mt**2/twopi**5
+     &   *(mt**4-wmass**4-2._dp*mt**2*wmass**2*log(mt**2/wmass**2))
+      vol_wt=vol_wt*(wmass*wwidth/2._dp)
+      vol_wt=vol_wt/8._dp/pi
       endif
       
       return
       end
       
-      double precision function eval_int(s,mt,mw)
+      function eval_int(s,mt,mw)
       implicit none
-      integer j,n
-      double precision s,mt,mw,dx,fun_int,part,min
+      include 'types.f'
+      real(dp):: eval_int
+      
+      integer:: j,n
+      real(dp):: s,mt,mw,dx,fun_int,part,min
 
       n=1000000
-      dx=(s-(mt+mw)**2)/dfloat(n)
+      dx=(s-(mt+mw)**2)/real(n,dp)
       min=(mt+mw)**2
 
-      eval_int=0d0
+      eval_int=0._dp
       do j=1,n
-      part=dx*(fun_int(s,mt,mw,min+dfloat(j)*dx)
-     .        +fun_int(s,mt,mw,min+dfloat(j-1)*dx))/2d0
+      part=dx*(fun_int(s,mt,mw,min+real(j,dp)*dx)
+     &        +fun_int(s,mt,mw,min+real(j-1,dp)*dx))/2._dp
       eval_int=eval_int+part
       enddo
 
       return
       end
 
-      double precision function fun_int(s,mt,mw,x)
+      function fun_int(s,mt,mw,x)
       implicit none
-      include 'constants.f'
-      double precision s,mt,mw,x,root
-
-      root=(x-mt**2-mw**2)**2-4d0*mt**2*mw**2
-      if (root .lt. 0d0) root=0d0
+      include 'types.f'
+      real(dp):: fun_int
       
-      fun_int=pi*pion4/s*(s-x)*dsqrt(root)/x
+      include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      real(dp):: s,mt,mw,x,root
+
+      root=(x-mt**2-mw**2)**2-4._dp*mt**2*mw**2
+      if (root < 0._dp) root=0._dp
+      
+      fun_int=pi*pion4/s*(s-x)*sqrt(root)/x
 
       return
       end

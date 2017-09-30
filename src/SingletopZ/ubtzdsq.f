@@ -1,16 +1,22 @@
-      double precision function ubtzdsq(p,j1,j2,j3,j4,j6)
+      function ubtzdsq(p,j1,j2,j3,j4,j6)
+      implicit none
+      include 'types.f'
+      real(dp):: ubtzdsq
 C     Matrix element squared averaged over initial colors and spins
 c     u(-p1)+b(p2)->Z(p3,p4)+t(p5)+d(p6)
-      implicit none
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ewcouple.f'
-      double precision p(mxpart,4),ubtzd
-      double complex amp(2,2)
-      integer j1,j2,j3,j4,j6
+      real(dp):: p(mxpart,4),ubtzd
+      complex(dp):: amp(2,2)
+      integer:: j1,j2,j3,j4,j6
 
       call ubtzdamp(p,j1,j2,j3,j4,j6,amp)
-      ubtzd=cdabs(amp(1,1))**2+cdabs(amp(1,2))**2
-     &     +cdabs(amp(2,1))**2+cdabs(amp(2,2))**2
+      ubtzd=abs(amp(1,1))**2+abs(amp(1,2))**2
+     &     +abs(amp(2,1))**2+abs(amp(2,2))**2
 
       ubtzdsq=4d0*xn**2*aveqq*gwsq**2*esq**2*ubtzd
 
@@ -21,24 +27,29 @@ c     u(-p1)+b(p2)->Z(p3,p4)+t(p5)+d(p6)
 
 
       subroutine ubtzdamp(p,j1,j2,j3,j4,j6,amp)
+      implicit none
+      include 'types.f'
 c--- Author: R. Rontsch (15 Feb 2013)
 c--- Amplitudes taken from Campbell, Ellis, Rontsch arXiv:1302.3856 (appendix A)
 c--- note: overall factor of 1/(s34-mz^2) extracted in a slightly
 c--- different way for numerical stability
-      implicit none
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'ewcouple.f'
       include 'zcouple.f'
       include 'zprods_decl.f'
-      double precision p(mxpart,4),q(mxpart,4),dot
-      double complex facuLl,facuRl,facdLl,facdRl
-      double precision s25,s16,s34,s234,s235,s345,s346,s134,mtsq
-      double complex amplower(2,2),ampmiddle(2,2),ampextra(2,2),
+      real(dp):: p(mxpart,4),q(mxpart,4),dot
+      complex(dp):: facuLl,facuRl,facdLl,facdRl
+      real(dp):: s25,s16,s34,s234,s235,s345,s346,s134,mtsq
+      complex(dp):: amplower(2,2),ampmiddle(2,2),ampextra(2,2),
      &     ampupper(2,2),amp(2,2)
-      double complex prW,zab2,cprop,iprZ
-      integer eta,p1,p2,p3,p4,pl,pa,j,j1,j2,j3,j4,j6,jb,nu
-      prW(s16)=cone/dcmplx(s16-wmass**2,zip)
+      complex(dp):: prW,zab2,cprop,iprZ
+      integer:: eta,p1,p2,p3,p4,pl,pa,j,j1,j2,j3,j4,j6,jb,nu
+      prW(s16)=cone/cplx2(s16-wmass**2,zip)
       zab2(p1,p2,p3,p4)=za(p1,p2)*zb(p2,p4)+za(p1,p3)*zb(p3,p4)
 
       mtsq=mt**2
@@ -64,7 +75,7 @@ c--- different way for numerical stability
       s235=2d0*dot(p,j1,j6)+2d0*dot(p,j1,j4)+2d0*dot(p,j6,j4)
 
 c--- top production (j3=3,j4=4) as-is
-      if (j3.eq.3) then
+      if (j3==3) then
         call spinoru(7,q,za,zb)
       else
 c--- antitop production (j3=4,j4=3) requires c.c.
@@ -72,24 +83,24 @@ c--- antitop production (j3=4,j4=3) requires c.c.
       endif
 
 c--- Implementation of Baur-Zeppenfeld treatment of Z width
-      cprop=dcmplx(1d0/dsqrt((s34-zmass**2)**2+(zmass*zwidth)**2))
-      iprZ=dcmplx(s34-zmass**2)
+      cprop=cplx1(1d0/sqrt((s34-zmass**2)**2+(zmass*zwidth)**2))
+      iprZ=cplx1(s34-zmass**2)
 
       do j=1,2
-      if (j .eq. 1) then
+      if (j == 1) then
          pl=3
          pa=4
-         facuLl=dcmplx(Qu*q1)*iprZ+dcmplx(L(2)*le)*s34
-         facuRl=dcmplx(Qu*q1)*iprZ+dcmplx(R(2)*le)*s34
-         facdLl=dcmplx(Qd*q1)*iprZ+dcmplx(L(1)*le)*s34
-         facdRl=dcmplx(Qd*q1)*iprZ+dcmplx(R(1)*le)*s34
+         facuLl=cplx1(Qu*q1)*iprZ+cplx1(L(2)*le)*s34
+         facuRl=cplx1(Qu*q1)*iprZ+cplx1(R(2)*le)*s34
+         facdLl=cplx1(Qd*q1)*iprZ+cplx1(L(1)*le)*s34
+         facdRl=cplx1(Qd*q1)*iprZ+cplx1(R(1)*le)*s34
       else
          pl=4
          pa=3
-         facuLl=dcmplx(Qu*q1)*iprZ+dcmplx(L(2)*re)*s34
-         facuRl=dcmplx(Qu*q1)*iprZ+dcmplx(R(2)*re)*s34
-         facdLl=dcmplx(Qd*q1)*iprZ+dcmplx(L(1)*re)*s34
-         facdRl=dcmplx(Qd*q1)*iprZ+dcmplx(R(1)*re)*s34
+         facuLl=cplx1(Qu*q1)*iprZ+cplx1(L(2)*re)*s34
+         facuRl=cplx1(Qu*q1)*iprZ+cplx1(R(2)*re)*s34
+         facdLl=cplx1(Qd*q1)*iprZ+cplx1(L(1)*re)*s34
+         facdRl=cplx1(Qd*q1)*iprZ+cplx1(R(1)*re)*s34
       endif
 
 
@@ -113,7 +124,7 @@ c--- Implementation of Baur-Zeppenfeld treatment of Z width
      &     +facuLl/(s345-mtsq)*zab2(6,1,2,pa)*za(pl,eta)*
      &     zb(1,2)/za(5,eta) )
 
-      if (j .eq. 1) then
+      if (j == 1) then
          ampextra(j,1)=prW(s25)*prW(s16)/(2d0*xw*s235)*za(pl,5)*zb(1,pa)
      &        *zab2(6,1,pa,2)*iprZ
          ampextra(j,2)=-prW(s25)*prW(s16)*mt/(2d0*xw*s235)*za(pl,eta)*

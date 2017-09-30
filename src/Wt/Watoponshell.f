@@ -1,5 +1,7 @@
       subroutine Watoponshell(q1,q2,p,iswitch,m)
       implicit none
+      include 'types.f'
+      
 ************************************************************************
 *     Author: R.K. Ellis, January 2012                                 *
 *                                                                      *
@@ -10,12 +12,15 @@
 *     iswitch=-1 for gluon emission in atop decay                      *
 ************************************************************************
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'zprods_decl.f'
-      double precision p(mxpart,4),q(mxpart,4),
+      real(dp):: p(mxpart,4),q(mxpart,4),
      & ala,dot,s34,mt2,twopaDp2
-      double complex m(2,2,2),iza,izb,cprop
-      integer p2,a,p3,p4,b,e,si,aa,bb,iswitch,q1,q2
+      complex(dp):: m(2,2,2),iza,izb,cprop
+      integer:: p2,a,p3,p4,b,e,si,aa,bb,iswitch,q1,q2
       parameter(b=1,p2=2,p3=3,p4=4,a=5,e=6)
 C-----matrix element for p1+p2(g) -> t+c where both t and c are on shell
 C-----t rendered massless wrt eb, and c rendered massless wrt p2
@@ -33,19 +38,19 @@ C---zero all arrays
       q(p2,si)=p(q2,si)
       q(p3,si)=p(3,si)
       q(p4,si)=p(4,si)
-      if (iswitch .eq. 0) then
+      if (iswitch == 0) then
       q(a,si)=p(5,si)+p(6,si)+p(7,si)
-      elseif (iswitch .eq. -1) then
+      elseif (iswitch == -1) then
       q(a,si)=p(5,si)+p(6,si)+p(7,si)+p(8,si)
       endif
       q(e,si)=p(5,si)
       enddo
       mt2=mt**2
 C---- now render "a" massless wrt to vector e
-      ala=mt2/(2d0*dot(q,a,e))
-      s34=2d0*dot(q,p3,p4)
-      cprop=dcmplx(s34-wmass**2,wmass*wwidth)
-      twopaDp2=2d0*dot(q,a,p2)
+      ala=mt2/(two*dot(q,a,e))
+      s34=two*dot(q,p3,p4)
+      cprop=cplx2(s34-wmass**2,wmass*wwidth)
+      twopaDp2=two*dot(q,a,p2)
       do si=1,4
       q(a,si)=q(a,si)-ala*q(e,si)
       enddo

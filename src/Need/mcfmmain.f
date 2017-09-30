@@ -1,4 +1,6 @@
       subroutine mcfmmain(inputfile,workdir,r,er)
+      implicit none
+      include 'types.f'
 ************************************************************************
 *                                                                      *
 *  This is the main program for MCFM                                   *
@@ -10,23 +12,25 @@
 *   call mcfm_exit          : final processing and print-out           *
 *                                                                      *
 ************************************************************************
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'efficiency.f'
       include 'maxwt.f'
       include 'eventbuffer.f'
       include 'gridinfo.f'
-      include 'part.f'
+      include 'kpart.f'
       include 'xs_store_info.f'
       include 'vegas_common.f'
       include 'ipsgen.f'
-      integer itmx1,ncall1,itmx2,ncall2,itmxplots
-      double precision integ,integ_err,r,er
-      logical dryrun
-      integer i,pflav,pbarflav
-      double precision p(mxpart,4),wt
+      include 'iterat.f'
+      include 'mpicommon.f'
+      real(dp):: integ,integ_err,r,er
+      logical:: dryrun
+      integer:: itmxplots
       character*72 inputfile,workdir
-      common/iterat/itmx1,ncall1,itmx2,ncall2
       common/dryrun/dryrun
        
 * basic variable initialization, print-out
@@ -52,7 +56,7 @@
 *   dryrun = .true. , readin = .true.  : accumulate with frozen grid
 
       if ((dryrun .eqv. .false.) .or. 
-     .    ((dryrun) .and. (readin .eqv. .false.))) then
+     &    ((dryrun) .and. (readin .eqv. .false.))) then
 * Initialize efficiency variables      
         njetzero=0
         ncutzero=0
@@ -66,9 +70,9 @@
 * The Vegas parameters are those read from options.DAT for
 * the results stage (itmx2,ncall2) and binning takes place (.true.)
 * wtmax may have been set during the dry run, so re-set here :
-      wtmax = 0d0
+      wtmax = 0._dp
       if ((dryrun .eqv. .false.) .or. 
-     .    ((dryrun) .and. (readin .eqv. .true.))) then
+     &    ((dryrun) .and. (readin .eqv. .true.))) then
 * Initialize efficiency variables      
         njetzero=0
         ncutzero=0
@@ -84,15 +88,17 @@
 
 c--- nevtrequested is the number of unweighted events to produce
 c--- (so this stage is skipped if nevtrequested <= 0)
-      if (nevtrequested .gt. 0) then
-        if (part .ne. 'lord') then
-          write(6,*) 'LHE events not available beyond LO'
-          stop
-        endif
-        if (doipsgen) then
-          write(6,*) 'LHE events not available for this process'
-          stop
-        endif
+      if (nevtrequested > 0) then
+         if (rank.eq.0) then
+            if (kpart.ne.klord) then
+               write(6,*) 'LHE events not available beyond LO'
+               stop
+            endif
+            if (doipsgen) then
+               write(6,*) 'LHE events not available for this process'
+               stop
+            endif
+         endif
         evtgen=.true.
         xs_store_val=integ
         xs_err_store_val=integ_err

@@ -1,7 +1,12 @@
       subroutine massivebub(k1,k4,k2,k3,k5,k6,za,zb,bub)
       implicit none
+      include 'types.f'
+      
 c----Bubble coefficients extracted from BDK 11.5, 11.8
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'sprods_com.f'
       include 'masses.f'
@@ -10,10 +15,10 @@ c----Bubble coefficients extracted from BDK 11.5, 11.8
       include 'docheck.f'
       include 'first.f'
       character*9 st,st1
-      integer j,k1,k2,k3,k4,k5,k6,h1,h2,e
-      double complex b(2,2,7),bcoeff(8),bub(2,2,-2:0),Bint(7,-2:0),
+      integer:: j,k1,k2,k3,k4,k5,k6,h1,h2,e
+      complex(dp):: b(2,2,7),bcoeff(8),bub(2,2,-2:0),Bint(7,-2:0),
      & qlI2,tmp
-      double precision mtsq,s12,s34,s56,s134,s156
+      real(dp):: mtsq,s12,s34,s56,s134,s156
       mtsq=mt**2
 
 c--- QCDLoop already initialized from call to massivebox
@@ -36,11 +41,11 @@ c---       (k1,k4,k2,k3,k5,k6) ordering in the call
       do h1=1,2
       do h2=1,2
 
-      if ((h1.eq.1) .and. (h2.eq.1)) st='q+qb-g-g-' 
-      if ((h1.eq.1) .and. (h2.eq.2)) st='q+qb-g-g+' 
-      if ((h1.eq.2) .and. (h2.eq.1)) st='q+qb-g+g-' 
-      if ((h1.eq.2) .and. (h2.eq.2)) st='q+qb-g+g+' 
-      if (st .eq. 'q+qb-g-g-') then
+      if ((h1==1) .and. (h2==1)) st='q+qb-g-g-' 
+      if ((h1==1) .and. (h2==2)) st='q+qb-g-g+' 
+      if ((h1==2) .and. (h2==1)) st='q+qb-g+g-' 
+      if ((h1==2) .and. (h2==2)) st='q+qb-g+g+' 
+      if (st == 'q+qb-g-g-') then
           st1='q+qb-g+g+'
           call mbc(st1,k4,k1,k3,k2,k6,k5,zb,za,bcoeff)
 c--- this call interchanges roles of 1,2 so change coeffs. accordingly
@@ -50,27 +55,27 @@ c--- this call interchanges roles of 1,2 so change coeffs. accordingly
 c--- (-,-) amplitudes
 c      write(6,*) '--'
 c      write(6,*) 'bcoeff(b12)',
-c     & bcoeff(b12),cdabs(bcoeff(b12))
+c     & bcoeff(b12),abs(bcoeff(b12))
 c      write(6,*) 'bcoeff(b12zm)',
-c     & bcoeff(b12zm),cdabs(bcoeff(b12zm))
+c     & bcoeff(b12zm),abs(bcoeff(b12zm))
 c      write(6,*) 'bcoeff(b234)',
-c     & bcoeff(b234),cdabs(bcoeff(b234))
+c     & bcoeff(b234),abs(bcoeff(b234))
 c      write(6,*) 'bcoeff(b56)',
-c     & bcoeff(b56),cdabs(bcoeff(b56))
+c     & bcoeff(b56),abs(bcoeff(b56))
 c      write(6,*) 'bcoeff(b134)',
-c     & bcoeff(b134),cdabs(bcoeff(b134))
+c     & bcoeff(b134),abs(bcoeff(b134))
 c      write(6,*) 'bcoeff(b34)',
-c     & bcoeff(b34),cdabs(bcoeff(b34))
+c     & bcoeff(b34),abs(bcoeff(b34))
 c      write(6,*) 'bcoeff(b12m)',
-c     & bcoeff(b12m),cdabs(bcoeff(b12m))
+c     & bcoeff(b12m),abs(bcoeff(b12m))
 c      write(6,*) 'sum',
 c     & +bcoeff(b12)+bcoeff(b34)+bcoeff(b56)+bcoeff(b134)
 c     & +bcoeff(b234)+bcoeff(b12m)
 c      write(6,*) 'bcoeff(rat)',
-c     & bcoeff(rat),cdabs(bcoeff(rat))
+c     & bcoeff(rat),abs(bcoeff(rat))
 c      write(6,*)
         
-      elseif (st.eq.'q+qb-g-g+') then
+      elseif (st=='q+qb-g-g+') then
           st1='q+qb-g+g-'
           call mbc(st1,k4,k1,k2,k3,k5,k6,za,zb,bcoeff)
 c--- this call interchanges roles of 1,2 so change coeffs. accordingly
@@ -80,74 +85,74 @@ c--- this call interchanges roles of 1,2 so change coeffs. accordingly
 c--- (-,+) amplitudes
 c      write(6,*) '-+'
 c      write(6,*) 'bcoeff(b12)',
-c     & bcoeff(b12),cdabs(bcoeff(b12))
+c     & bcoeff(b12),abs(bcoeff(b12))
 c      write(6,*) 'bcoeff(b12zm)',
-c     & bcoeff(b12zm),cdabs(bcoeff(b12zm))
+c     & bcoeff(b12zm),abs(bcoeff(b12zm))
 c      write(6,*) 'bcoeff(b234)',
-c     & bcoeff(b234),cdabs(bcoeff(b234))
+c     & bcoeff(b234),abs(bcoeff(b234))
 c      write(6,*) 'bcoeff(b56)',
-c     & bcoeff(b56),cdabs(bcoeff(b56))
+c     & bcoeff(b56),abs(bcoeff(b56))
 c      write(6,*) 'bcoeff(b134)',
-c     & bcoeff(b134),cdabs(bcoeff(b134))
+c     & bcoeff(b134),abs(bcoeff(b134))
 c      write(6,*) 'bcoeff(b34)',
-c     & bcoeff(b34),cdabs(bcoeff(b34))
+c     & bcoeff(b34),abs(bcoeff(b34))
 c      write(6,*) 'bcoeff(b12m)',
-c     & bcoeff(b12m),cdabs(bcoeff(b12m))
+c     & bcoeff(b12m),abs(bcoeff(b12m))
 c      write(6,*) 'sum',
 c     & +bcoeff(b12)+bcoeff(b34)+bcoeff(b56)+bcoeff(b134)
 c     & +bcoeff(b234)+bcoeff(b12m)
 c      write(6,*) 'bcoeff(rat)',
-c     & bcoeff(rat),cdabs(bcoeff(rat))
+c     & bcoeff(rat),abs(bcoeff(rat))
 c      write(6,*)
         
-      elseif (st.eq.'q+qb-g+g+') then
+      elseif (st=='q+qb-g+g+') then
           call mbc(st,k1,k4,k2,k3,k5,k6,za,zb,bcoeff)
 c--- (+,+) amplitudes
 c      write(6,*) '++'
 c      write(6,*) 'bcoeff(b12)',
-c     & bcoeff(b12),cdabs(bcoeff(b12))
+c     & bcoeff(b12),abs(bcoeff(b12))
 c      write(6,*) 'bcoeff(b12zm)',
-c     & bcoeff(b12zm),cdabs(bcoeff(b12zm))
+c     & bcoeff(b12zm),abs(bcoeff(b12zm))
 c      write(6,*) 'bcoeff(b234)',
-c     & bcoeff(b234),cdabs(bcoeff(b234))
+c     & bcoeff(b234),abs(bcoeff(b234))
 c      write(6,*) 'bcoeff(b56)',
-c     & bcoeff(b56),cdabs(bcoeff(b56))
+c     & bcoeff(b56),abs(bcoeff(b56))
 c      write(6,*) 'bcoeff(b134)',
-c     & bcoeff(b134),cdabs(bcoeff(b134))
+c     & bcoeff(b134),abs(bcoeff(b134))
 c      write(6,*) 'bcoeff(b34)',
-c     & bcoeff(b34),cdabs(bcoeff(b34))
+c     & bcoeff(b34),abs(bcoeff(b34))
 c      write(6,*) 'bcoeff(b12m)',
-c     & bcoeff(b12m),cdabs(bcoeff(b12m))
+c     & bcoeff(b12m),abs(bcoeff(b12m))
 c      write(6,*) 'sum',
 c     & +bcoeff(b12)+bcoeff(b34)+bcoeff(b56)+bcoeff(b134)
 c     & +bcoeff(b234)+bcoeff(b12m)
 c      write(6,*) 'bcoeff(rat)',
-c     & bcoeff(rat),cdabs(bcoeff(rat))
+c     & bcoeff(rat),abs(bcoeff(rat))
 c      write(6,*)
         
-      elseif (st.eq.'q+qb-g+g-') then
+      elseif (st=='q+qb-g+g-') then
           call mbc(st,k1,k4,k2,k3,k5,k6,za,zb,bcoeff)
 c--- (+,-) amplitudes
 c      write(6,*) '+-'
 c      write(6,*) 'bcoeff(b12)',
-c     & bcoeff(b12),cdabs(bcoeff(b12))
+c     & bcoeff(b12),abs(bcoeff(b12))
 c      write(6,*) 'bcoeff(b12zm)',
-c     & bcoeff(b12zm),cdabs(bcoeff(b12zm))
+c     & bcoeff(b12zm),abs(bcoeff(b12zm))
 c      write(6,*) 'bcoeff(b234)',
-c     & bcoeff(b234),cdabs(bcoeff(b234))
+c     & bcoeff(b234),abs(bcoeff(b234))
 c      write(6,*) 'bcoeff(b56)',
-c     & bcoeff(b56),cdabs(bcoeff(b56))
+c     & bcoeff(b56),abs(bcoeff(b56))
 c      write(6,*) 'bcoeff(b34)',
-c     & bcoeff(b34),cdabs(bcoeff(b34))
+c     & bcoeff(b34),abs(bcoeff(b34))
 c      write(6,*) 'bcoeff(b134)',
-c     & bcoeff(b134),cdabs(bcoeff(b134))
+c     & bcoeff(b134),abs(bcoeff(b134))
 c      write(6,*) 'bcoeff(b12m)',
-c     & bcoeff(b12m),cdabs(bcoeff(b12m))
+c     & bcoeff(b12m),abs(bcoeff(b12m))
 c      write(6,*) 'sum',
 c     & +bcoeff(b12)+bcoeff(b34)+bcoeff(b56)+bcoeff(b134)
 c     & +bcoeff(b234)+bcoeff(b12m)
 c      write(6,*) 'bcoeff(rat)',
-c     & bcoeff(rat),cdabs(bcoeff(rat))
+c     & bcoeff(rat),abs(bcoeff(rat))
 c      write(6,*)
         
       endif
@@ -172,19 +177,19 @@ c--- compare with numerical code
       
 
       do e=-1,0
-      Bint(1,e)=qlI2(s12,0d0,0d0,musq,e)
+      Bint(1,e)=qlI2(s12,0._dp,0._dp,musq,e)
       enddo
       do e=-1,0
-      Bint(2,e)=qlI2(s34,0d0,mtsq,musq,e)
+      Bint(2,e)=qlI2(s34,0._dp,mtsq,musq,e)
       enddo
       do e=-1,0
-      Bint(3,e)=qlI2(s56,0d0,mtsq,musq,e)
+      Bint(3,e)=qlI2(s56,0._dp,mtsq,musq,e)
       enddo
       do e=-1,0
-      Bint(4,e)=qlI2(s134,0d0,mtsq,musq,e)
+      Bint(4,e)=qlI2(s134,0._dp,mtsq,musq,e)
       enddo
       do e=-1,0
-      Bint(5,e)=qlI2(s156,0d0,mtsq,musq,e)
+      Bint(5,e)=qlI2(s156,0._dp,mtsq,musq,e)
       enddo
       do e=-1,0
       Bint(6,e)=qlI2(s12,mtsq,mtsq,musq,e)

@@ -1,11 +1,16 @@
       subroutine extend_trans_stopb(pold,p,ptrans,pext)
       implicit none
+      include 'types.f'
+      
 c--- take vector 
       include 'constants.f'
-      double precision pold(mxpart,4),p(mxpart,4),ptrans(mxpart,4),
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      real(dp):: pold(mxpart,4),p(mxpart,4),ptrans(mxpart,4),
      & pext(mxpart,4),p3(4),p4(4),p5(4),pt(4),ptt(4),
      & p3out(4),p4out(4),p5out(4)
-      integer j,nu
+      integer:: j,nu
       
       do nu=1,4
         pt(nu)=p(3,nu)
@@ -28,7 +33,7 @@ c--- take vector
         pext(6,nu)=ptrans(4,nu)
         pext(7,nu)=ptrans(5,nu)
         do j=8,mxpart
-        pext(j,nu)=0d0
+        pext(j,nu)=0._dp
         enddo
       enddo
             

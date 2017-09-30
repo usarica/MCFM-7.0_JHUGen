@@ -1,4 +1,6 @@
       subroutine qqb_w_twdk(p,msq)
+      implicit none
+      include 'types.f'
 ************************************************************************
 *     Author: Keith Ellis                                              *
 *     May, 2012.                                                       *
@@ -16,29 +18,32 @@
 *                            |                                         *
 *                            --> nu(p3) + e^+(p4)                      *
 ************************************************************************
-      implicit none
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ewcouple.f'
       include 'qcdcouple.f'
       include 'masses.f'
       include 'nwz.f'
-      integer j,k,ht,hb,h2,hc,ha
-      double precision p(mxpart,4),msq(-nf:nf,-nf:nf)
-      double precision fac,msq_qg,msq_gq,msq_qbg,msq_gqb
-      double complex prop
-      double complex mtop(2,2),manti(2,2),
+      integer:: j,k,ht,hb,h2,hc,ha
+      real(dp):: p(mxpart,4),msq(-nf:nf,-nf:nf)
+      real(dp):: fac,msq_qg,msq_gq,msq_qbg,msq_gqb
+      complex(dp):: prop
+      complex(dp):: mtop(2,2),manti(2,2),
      & mqg(2,2,2),mgq(2,2,2),mqbg(2,2,2),mgqb(2,2,2),
      & mtotqg(2,2,2),mtotgq(2,2,2),mtotqbg(2,2,2),mtotgqb(2,2,2)
 
 c---initialize
-      msq(:,:)=0d0
+      msq(:,:)=zero
       mtotqg(:,:,:)=czip
       mtotgq(:,:,:)=czip
       mtotqbg(:,:,:)=czip
       mtotgqb(:,:,:)=czip
 
 
-      if (nwz .eq. -1) then
+      if (nwz == -1) then
          call Wtoponshell(1,2,p,0,mqg)
          call Wtoponshell(2,1,p,0,mgq)
          call tdecay(p,5,6,7,mtop)
@@ -68,34 +73,34 @@ c---initialize
          enddo
       endif
 
-      prop=dcmplx(zip,mt*twidth)
+      prop=cplx2(zip,mt*twidth)
       fac=aveqg*V*gwsq**4*gsq/abs(prop)**2
 
-      msq_qg=0d0
-      msq_gq=0d0
-      msq_qbg=0d0
-      msq_gqb=0d0
+      msq_qg=zero
+      msq_gq=zero
+      msq_qbg=zero
+      msq_gqb=zero
       do hb=1,2
       do h2=1,2
       do hc=1,2
-      msq_qg=msq_qg+cdabs(mtotqg(hb,h2,hc))**2
-      msq_gq=msq_gq+cdabs(mtotgq(hb,h2,hc))**2
-      msq_qbg=msq_qbg+cdabs(mtotqbg(hb,h2,hc))**2
-      msq_gqb=msq_gqb+cdabs(mtotgqb(hb,h2,hc))**2
+      msq_qg=msq_qg+abs(mtotqg(hb,h2,hc))**2
+      msq_gq=msq_gq+abs(mtotgq(hb,h2,hc))**2
+      msq_qbg=msq_qbg+abs(mtotqbg(hb,h2,hc))**2
+      msq_gqb=msq_gqb+abs(mtotgqb(hb,h2,hc))**2
       enddo
       enddo
       enddo
 
       do j=-nf,nf,nf
       do k=-nf,nf,nf
-      msq(j,k)=0d0
-      if     ((j .eq. +5) .and. (k .eq. 0)) then
+      msq(j,k)=zero
+      if     ((j == +5) .and. (k == 0)) then
           msq(j,k)=fac*msq_qg
-      elseif ((j .eq. -5) .and. (k .eq. 0)) then
+      elseif ((j == -5) .and. (k == 0)) then
           msq(j,k)=fac*msq_qbg
-      elseif ((j .eq. 0) .and. (k .eq. +5)) then
+      elseif ((j == 0) .and. (k == +5)) then
           msq(j,k)=fac*msq_gq
-      elseif ((j .eq. 0) .and. (k .eq. -5)) then
+      elseif ((j == 0) .and. (k == -5)) then
           msq(j,k)=fac*msq_gqb
       endif
       enddo

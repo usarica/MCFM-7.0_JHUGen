@@ -1,5 +1,7 @@
       subroutine qqb_hflgam_g(p,msq)
       implicit none
+      include 'types.f'
+      
 ************************************************************************
 *     Authors: R.K. Ellis and John M. Campbell                         *
 *     January, 2013.                                                   *
@@ -12,16 +14,19 @@
 *                                                                      *
 ************************************************************************
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'sprods_com.f'
       include 'heavyflav.f'
       include 'masses.f'
-      double precision msq(-nf:nf,-nf:nf),p(mxpart,4),
-     .  Bigagam,Bigbgam,Bigcgam,
-     . qr_qr(2,2),rq_qr(2,2),ra_ra(2,2),ar_ra(2,2),
-     . qa_rb(2,2),aq_rb(2,2),
-     . qq_qq(2),qa_qa(2),aq_qa(2),
-     . qg_qg(2),gq_qg(2),gg_qa(2)
-      integer j,k
+      real(dp):: msq(-nf:nf,-nf:nf),p(mxpart,4),
+     &  Bigagam,Bigbgam,Bigcgam,
+     & qr_qr(2,2),rq_qr(2,2),ra_ra(2,2),ar_ra(2,2),
+     & qa_rb(2,2),aq_rb(2,2),
+     & qq_qq(2),qa_qa(2),aq_qa(2),
+     & qg_qg(2),gq_qg(2),gg_qa(2)
+      integer:: j,k
       
       call dotem(5,p,s)
 
@@ -38,8 +43,8 @@ c      ab_ab(j,k)=+aveqq*Bigagam(4,5,1,2,3,j,k)
       aq_rb(j,k)=+aveqq*Bigagam(2,5,1,4,3,j,k)
 
       enddo
-      qq_qq(j)=+aveqq*Bigbgam(1,2,4,5,3,j)*0.5d0
-c      aa_aa(j)=+aveqq*Bigbgam(4,5,1,2,3,j)*0.5d0
+      qq_qq(j)=+aveqq*Bigbgam(1,2,4,5,3,j)*0.5_dp
+c      aa_aa(j)=+aveqq*Bigbgam(4,5,1,2,3,j)*0.5_dp
       qa_qa(j)=+aveqq*Bigbgam(1,5,4,2,3,j)
       aq_qa(j)=+aveqq*Bigbgam(2,5,4,1,3,j)
 
@@ -53,15 +58,15 @@ c      ga_ag(j)=-aveqg*Bigcgam(2,4,5,1,3,j)
 
 c      do j=-flav,flav
 c      do k=-flav,flav
-c      if ((j.eq.flav).or.(k.eq.flav)
-c     & .or.(j.eq.-k).or.((j.eq.0).and.(k.eq.0)))
-c     & msq(j,k)=10d0
+c      if ((j==flav).or.(k==flav)
+c     & .or.(j==-k).or.((j==0).and.(k==0)))
+c     & msq(j,k)=10._dp
 c      enddo
 c      enddo
       
       msq(:,:)=zip
       
-      if (flav .eq. 4) then 
+      if (flav == 4) then 
         msq(+1,+4)=rq_qr(2,1)
         msq(+2,+4)=rq_qr(2,2)
         msq(+3,+4)=rq_qr(2,1)
@@ -87,7 +92,7 @@ c      enddo
         msq(+0,+0)=gg_qa(2)
         msq(+0,+4)=gq_qg(2)
 
-      elseif (flav .eq. 5) then 
+      elseif (flav == 5) then 
         msq(+1,+5)=rq_qr(1,1)
         msq(+2,+5)=rq_qr(1,2)
         msq(+4,+5)=rq_qr(1,2)
@@ -130,18 +135,18 @@ c      enddo
       
 c--- remove contributions for qq~ -> photon+QQ~ with m(QQ~)<4*mQ^2  
 c--- (to screen collinear divergence in g->QQ~)    
-      if     (flav .eq. 4) then
-        if (s(4,5) .lt. 4d0*mcsq) then
+      if     (flav == 4) then
+        if (s(4,5) < 4._dp*mcsq) then
           do j=1,4
-          msq(j,-j)=0d0
-          msq(-j,j)=0d0
+          msq(j,-j)=0._dp
+          msq(-j,j)=0._dp
           enddo
         endif
       elseif (flav. eq. 5) then
-        if (s(4,5) .lt. 4d0*mbsq) then
+        if (s(4,5) < 4._dp*mbsq) then
           do j=1,5
-          msq(j,-j)=0d0
-          msq(-j,j)=0d0
+          msq(j,-j)=0._dp
+          msq(-j,j)=0._dp
           enddo
         endif
       endif

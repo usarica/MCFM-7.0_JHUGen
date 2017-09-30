@@ -1,10 +1,10 @@
-      double precision xmass,medmass,dm_lam
-      double precision medwidth
-      double precision gdm,g_dmx,g_dmq
-      logical effective_th
+      real(dp):: xmass,medmass,dm_lam
+      real(dp):: medwidth
+      real(dp):: gdm,g_dmx,g_dmq
+      logical:: effective_th
       character*6 dm_mediator 
-      double precision dmL(5),dmR(5)
-      logical yukawa_scal
+      real(dp):: dmL(5),dmR(5)
+      logical:: yukawa_scal
       common/yuk_scal/yukawa_scal
       common/dm_params/xmass,medmass,dm_lam,medwidth
       common/dm_coup/dmL,dmR

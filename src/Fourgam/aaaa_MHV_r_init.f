@@ -1,14 +1,18 @@
 !===== T. Dennen, May 2014
 !===== Rational terms for 
 !===== q(i1,-)qb(i2,+)ga(i3,-)ga(i4,+)ga(i5,+)ga(i6,+)
-      subroutine aaaa_MHV_r_init(i1,i2,i3,i4,i5,i6,za,zb,
-     & aaaa_MHV_r)
+      subroutine aaaa_MHV_r_init(i1,i2,i3,i4,i5,i6,za,zb,aaaa_MHV_r)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'sprods_com.f'
-      integer i1,i2,i3,i4,i5,i6
-      double complex aaaa_MHV_r, zab2, t
+      integer:: i1,i2,i3,i4,i5,i6
+      complex(dp):: aaaa_MHV_r, zab2, t
 
       zab2(i1,i2,i3,i4)=za(i1,i2)*zb(i2,i4)+za(i1,i3)*zb(i3,i4)
       t(i1,i2,i3) = s(i1,i2) + s(i2,i3) + s(i3,i1)

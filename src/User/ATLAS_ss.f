@@ -1,36 +1,41 @@
       subroutine ATLAS_ss(p,failed_cuts)
+      implicit none
+      include 'types.f'
 c--- a set of vector boson scattering (VBS) cuts, to mimic
 c--- the cuts used for like-sign WWjj production in 1405.6241 (ATLAS)
-      implicit none
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'runstring.f'
       include 'jetcuts.f'
-      double precision p(mxpart,4)
-      integer ijet,ilep,id(4),idj(4),j,i1(6),i2(6),iperms,j1,j2,l1,l2,
+      real(dp):: p(mxpart,4)
+      integer:: ijet,ilep,id(4),idj(4),j,i1(6),i2(6),iperms,j1,j2,l1,l2,
      & ilomomenta,i
-      logical failed_cuts,is_lepton,is_hadronic,doszleper
-      double precision pt,etarap,ptlep,etalep,mjj,etaj1,etaj2,mlj
-      double precision ptparton(3:9),etaparton(3:9),etmiss,mljmin,
+      logical:: failed_cuts,is_lepton,is_hadronic,doszleper
+      real(dp):: pt,etarap,ptlep,etalep,mjj,etaj1,etaj2,mlj
+      real(dp):: ptparton(3:9),etaparton(3:9),etmiss,mljmin,
      & mll,mllmin,metvec(4),met,metmin,mjets,ygap,etajmin,etajmax,
      & Rllmin,Rljmin,R
-      logical first
+      logical:: first
       common/ilomomenta/ilomomenta
       data first/.true./
       data i1/1,1,2,1,2,3/
       data i2/2,3,3,4,4,4/
       save first,i1,i2,doszleper
 
-      ptlep=25d0
-      etalep=2.5d0
-      metmin=40d0
-      mllmin=20d0
-      Rllmin=0.3d0
-      Rljmin=0.3d0
+      ptlep=25._dp
+      etalep=2.5_dp
+      metmin=40._dp
+      mllmin=20._dp
+      Rllmin=0.3_dp
+      Rljmin=0.3_dp
 
 c--- additional cuts for VBF topology
-      ygap=2.4d0
-      mjets=500d0
+      ygap=2.4_dp
+      mjets=500._dp
 
       if(first) then
       first=.false.
@@ -47,7 +52,7 @@ c--- additional cuts for VBF topology
       write(6,99) '*     m(j1,j2) >         ', mjets,         ' GeV   *'
       write(6,*)  '***************************************'
 
-      if(index(runstring,'szleper') .gt. 0) then
+      if(index(runstring,'szleper') > 0) then
         doszleper=.true.
         write(6,*) '*         + Szleper Rpt > 2.0         *'
       else
@@ -63,7 +68,7 @@ c--- additional cuts for VBF topology
       etaparton(j)=etarap(j,p)
       enddo
 
-      if (ilomomenta .gt. 9) then
+      if (ilomomenta > 9) then
         write(6,*) 'VBS cuts routine does not accept > 9 momenta'
         stop
       endif
@@ -74,11 +79,11 @@ c--- additional cuts for VBF topology
         if (is_lepton(j)) then      ! lepton cuts
           ilep=ilep+1
           id(ilep)=j
-          if (ptparton(j) .lt. ptlep)  then
+          if (ptparton(j) < ptlep)  then
              failed_cuts=.true.
              return
           endif
-          if (abs(etaparton(j)) .gt. etalep)  then
+          if (abs(etaparton(j)) > etalep)  then
              failed_cuts=.true.
              return
           endif
@@ -88,13 +93,13 @@ c--- additional cuts for VBF topology
         endif
       enddo
 
-      if ((ilep .lt. 2) .or. (ilep .gt. 4)) then
+      if ((ilep < 2) .or. (ilep > 4)) then
         write(6,*) 'Error in cutting routine:'
         write(6,*) 'did not find 2 or 4 leptons: ',ilep
         stop
       endif
 
-      if (ijet .lt. 2) then
+      if (ijet < 2) then
         write(6,*) 'Error in cutting routine:'
         write(6,*) 'did not find 2 jets: ',ijet
         stop
@@ -103,11 +108,11 @@ c--- additional cuts for VBF topology
       endif
 
 c--- if there are three jets, determine two with largest gap
-      if (ijet .eq. 3) then
+      if (ijet == 3) then
         call etagapsort(idj,etaparton)
 c--- veto remaining jet if in acceptance
-c        if ((ptparton(idj(3)) .gt. ptjetmin) .and.
-c     &      (abs(etaparton(idj(3))) .lt. etajetmax)) then
+c        if ((ptparton(idj(3)) > ptjetmin) .and.
+c     &      (abs(etaparton(idj(3))) < etajetmax)) then
 c          failed_cuts=.true.
 c          return
 c        endif
@@ -116,27 +121,27 @@ c        endif
 c--- ensure a rapidity gap of at least ygap between the tagging jets
       etaj1=etaparton(idj(1))
       etaj2=etaparton(idj(2))
-      if (abs(etaj1-etaj2) .lt. ygap) then
+      if (abs(etaj1-etaj2) < ygap) then
          failed_cuts=.true.
          return
       endif
 
 c--- ensure the tagging jets have an invariant mass larger than mjets
-      mjj=dsqrt(max(0d0,(p(idj(1),4)+p(idj(2),4))**2
+      mjj=sqrt(max(zip,(p(idj(1),4)+p(idj(2),4))**2
      & -(p(idj(1),1)+p(idj(2),1))**2
      & -(p(idj(1),2)+p(idj(2),2))**2
      & -(p(idj(1),3)+p(idj(2),3))**2))
-      if (mjj .lt. mjets) then
+      if (mjj < mjets) then
          failed_cuts=.true.
          return
       endif
 
 c--- minimum value of m_ll
-      if     (ilep .eq. 2) then
+      if     (ilep == 2) then
         iperms=1
-      elseif (ilep .eq. 3) then
+      elseif (ilep == 3) then
         iperms=3
-      elseif (ilep .eq. 4) then
+      elseif (ilep == 4) then
         iperms=6
       endif
       do j=1,iperms
@@ -144,16 +149,16 @@ c--- minimum value of m_ll
      &     -(p(id(i1(j)),1)+p(id(i2(j)),1))**2
      &     -(p(id(i1(j)),2)+p(id(i2(j)),2))**2
      &     -(p(id(i1(j)),3)+p(id(i2(j)),3))**2
-        if (mll .lt. mllmin**2) then
+        if (mll < mllmin**2) then
           failed_cuts=.true.
           return
         endif
       enddo
 
 c--- only apply missing ET cut if <4 leptons
-      if (ilep .lt. 4) then
+      if (ilep < 4) then
         met=etmiss(p,metvec)
-        if (met .lt. metmin) then
+        if (met < metmin) then
           failed_cuts=.true.
           return
         endif
@@ -162,7 +167,7 @@ c--- only apply missing ET cut if <4 leptons
 c--- cut on Delta-R(l,l)
       do i=1,ilep
       do j=i+1,ilep
-      if (R(p,id(i),id(j)) .lt. Rllmin) then
+      if (R(p,id(i),id(j)) < Rllmin) then
         failed_cuts=.true.
         return
       endif
@@ -172,7 +177,7 @@ c--- cut on Delta-R(l,l)
 c--- cut on Delta-R(l,j)
       do i=1,ilep
       do j=1,ijet
-      if (R(p,id(i),idj(j)) .lt. Rljmin) then
+      if (R(p,id(i),idj(j)) < Rljmin) then
         failed_cuts=.true.
         return
       endif

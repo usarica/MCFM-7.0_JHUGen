@@ -1,4 +1,6 @@
       subroutine nplotter_qqZZqq(p,wt,wt2,switch)
+      implicit none
+      include 'types.f'
 c--- Variable passed in to this routine:
 c
 c---      p:  4-momenta of particles in the format p(i,4)
@@ -9,22 +11,25 @@ c---     wt:  weight of this event
 c
 c---    wt2:  weight^2 of this event
 c
-c--- switch:  an integer equal to 0 or 1, depending on the type of event
+c--- switch:  an integer:: equal to 0 or 1, depending on the type of event
 c---                0  --> lowest order, virtual or real radiation
 c---                1  --> counterterm for real radiation
-      implicit none
+      
       include 'vegas_common.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'histo.f'
       include 'outputflags.f'
       include 'masses.f'
       include 'removebr.f'
-      double precision p(mxpart,4),wt,wt2,m3456,pt34,pttwo,
+      real(dp):: p(mxpart,4),wt,wt2,m3456,pt34,pttwo,
      & ptll(4),Etmiss(4),Etll,Rpt,pt,mtransZZ,mtransWW,mtransWZ
-      integer switch,n,nplotmax,ilep,ijet,ielect,inu,
+      integer:: switch,n,nplotmax,ilep,ijet,ielect,inu,
      & ide(4),idl(4),idj(4),idn(4),j
-      character*4 tag
-      logical is_lepton,is_hadronic,
+      integer tag
+      logical:: is_lepton,is_hadronic,
      & is_neutrino
       logical, save::first=.true.
       common/nplotmax/nplotmax
@@ -58,24 +63,24 @@ C----setup particle identification
           endif
         enddo
         
-        if ((ilep .lt. 2) .and. (removebr .eqv. .false.)) then
+        if ((ilep < 2) .and. (removebr .eqv. .false.)) then
           write(6,*) 'Error in plotting routine:'
           write(6,*) 'did not find at least 2 leptons: ',ilep
           stop
         endif
 
-        if (ijet .lt. 2) then
+        if (ijet < 2) then
           write(6,*) 'Error in plotting routine:'
           write(6,*) 'did not find at least 2 jets: ',ijet
           stop
         endif
 c--- Initialize histograms, without computing any quantities; instead
 c--- set them to dummy values
-        tag='book'
+        tag=tagbook
         goto 99
       else
 c--- Add event in histograms
-        tag='plot'
+        tag=tagplot
       endif
 
 
@@ -86,50 +91,50 @@ c--- Add event in histograms
 *                                                                      *
 ************************************************************************
 
-c      if (ilep .eq. 4) then 
+c      if (ilep == 4) then 
       m3456=(p(idl(1),4)+p(idl(2),4)+p(idl(3),4)+p(idl(4),4))**2
      &     -(p(idl(1),1)+p(idl(2),1)+p(idl(3),1)+p(idl(4),1))**2
      &     -(p(idl(1),2)+p(idl(2),2)+p(idl(3),2)+p(idl(4),2))**2
      &     -(p(idl(1),3)+p(idl(2),3)+p(idl(3),3)+p(idl(4),3))**2
-      m3456=sqrt(max(m3456,0d0))
+      m3456=sqrt(max(m3456,zip))
 c      else 
-c      m3456=0d0
+c      m3456=0._dp
 c      endif
 c--- mtrans defined according to Eq.(13) in ATLAS-CONF-2014-042
-      if (ilep .eq. 2) then 
+      if (ilep == 2) then 
       ptll(:)=p(idl(1),:)+p(idl(2),:)
       Etmiss(:)=p(idn(1),:)+p(idn(2),:)
       mtransZZ=
-     & (sqrt(max(zmass**2+ptll(1)**2+ptll(2)**2,0d0))
-     & +sqrt(max(zmass**2+Etmiss(1)**2+Etmiss(2)**2,0d0)))**2
+     & (sqrt(max(zmass**2+ptll(1)**2+ptll(2)**2,zip))
+     & +sqrt(max(zmass**2+Etmiss(1)**2+Etmiss(2)**2,zip)))**2
      &-(ptll(1)+Etmiss(1))**2-(ptll(2)+Etmiss(2))**2
-      mtransZZ=sqrt(max(mtransZZ,0d0))
+      mtransZZ=sqrt(max(mtransZZ,zip))
       
-      Etll=sqrt(max(ptll(4)**2-ptll(3)**2,0d0))
+      Etll=sqrt(max(ptll(4)**2-ptll(3)**2,zip))
       mtransWW=
      & (Etll+sqrt(Etmiss(1)**2+Etmiss(2)**2))**2
      &-(ptll(1)+Etmiss(1))**2-(ptll(2)+Etmiss(2))**2
-      mtransWW=sqrt(max(mtransWW,0d0))      
+      mtransWW=sqrt(max(mtransWW,zip))      
       
       pt34=pttwo(idl(1),idl(2),p)
       Rpt=pt(idl(1),p)*pt(idl(2),p)
      &  /(pt(idj(1),p)*pt(idj(2),p))
       else
-      Rpt=0d0
-      mtransZZ=0d0
-      mtransWW=0d0
+      Rpt=zip
+      mtransZZ=zip
+      mtransWW=zip
       endif
 c--- mtrans defined according to Eq.(6.5) in 1412.8367
-      if (ilep .eq. 3) then 
+      if (ilep == 3) then 
       ptll(:)=p(idl(1),:)+p(idl(2),:)+p(idl(3),:)
       Etmiss(:)=p(idn(1),:)
       mtransWZ=
-     & (sqrt(max(ptll(4)**2-ptll(3)**2,0d0))
-     & +sqrt(max(Etmiss(1)**2+Etmiss(2)**2,0d0)))**2
+     & (sqrt(max(ptll(4)**2-ptll(3)**2,zip))
+     & +sqrt(max(Etmiss(1)**2+Etmiss(2)**2,zip)))**2
      &-(ptll(1)+Etmiss(1))**2-(ptll(2)+Etmiss(2))**2
-      mtransWZ=sqrt(max(mtransWZ,0d0))
+      mtransWZ=sqrt(max(mtransWZ,zip))
       else
-      mtransWZ=0d0
+      mtransWZ=zip
       endif
  
 ************************************************************************
@@ -144,7 +149,7 @@ c--- Call histogram routines
 c--- Book and fill ntuple if that option is set, remembering to divide
 c--- by # of iterations now that is handled at end for regular histograms
       if (creatent .eqv. .true.) then
-        call bookfill(tag,p,wt/dfloat(itmx))  
+        call bookfill(tag,p,wt/real(itmx,dp))  
       endif
 
 c--- "n" will count the number of histograms
@@ -167,115 +172,115 @@ c---   llplot:  equal to "lin"/"log" for linear/log scale
 
 c--- Plots of m(3456) in specific regions
       call bookplot(n,tag,'0 < m(3456) < 2000',
-     & m3456,wt,wt2,0d0,2000d0,20d0,'log')
+     & m3456,wt,wt2,zip,2000._dp,20._dp,'log')
       n=n+1
       
       call bookplot(n,tag,'100 < m(3456) < 600',
-     & m3456,wt,wt2,100d0,600d0,5d0,'log')
+     & m3456,wt,wt2,100._dp,600._dp,5._dp,'log')
       n=n+1
       
       call bookplot(n,tag,'600 < m(3456) < 1100',
-     & m3456,wt,wt2,600d0,1100d0,5d0,'log')
+     & m3456,wt,wt2,600._dp,1100._dp,5._dp,'log')
       n=n+1
       
       call bookplot(n,tag,'1100 < m(3456) < 1600',
-     & m3456,wt,wt2,1100d0,1600d0,5d0,'log')
+     & m3456,wt,wt2,1100._dp,1600._dp,5._dp,'log')
       n=n+1
       
       call bookplot(n,tag,'0 < m(3456) < 100',
-     & m3456,wt,wt2,0d0,100d0,5d0,'log')
+     & m3456,wt,wt2,zip,100._dp,5._dp,'log')
       n=n+1
       
       call bookplot(n,tag,'10 < m(3456) < 2010',
-     & m3456,wt,wt2,10d0,2010d0,20d0,'log')
+     & m3456,wt,wt2,10._dp,2010._dp,20._dp,'log')
       n=n+1
       
       call bookplot(n,tag,'130 < m(3456) < 2010',
-     & m3456,wt,wt2,130d0,2010d0,20d0,'log')
+     & m3456,wt,wt2,130._dp,2010._dp,20._dp,'log')
       n=n+1
       
       call bookplot(n,tag,'300 < m(3456) < 2020',
-     & m3456,wt,wt2,300d0,2020d0,20d0,'log')
+     & m3456,wt,wt2,300._dp,2020._dp,20._dp,'log')
       n=n+1
       
       call bookplot(n,tag,'10 < m(3456) < 130',
-     & m3456,wt,wt2,10d0,130d0,5d0,'lin')
+     & m3456,wt,wt2,10._dp,130._dp,5._dp,'lin')
       n=n+1
       
       call bookplot(n,tag,'0 < mtransZZ < 2000',
-     & mtransZZ,wt,wt2,0d0,2000d0,20d0,'log')
+     & mtransZZ,wt,wt2,zip,2000._dp,20._dp,'log')
       n=n+1
       
       call bookplot(n,tag,'10 < mtransZZ < 2010',
-     & mtransZZ,wt,wt2,10d0,2010d0,20d0,'log')
+     & mtransZZ,wt,wt2,10._dp,2010._dp,20._dp,'log')
       n=n+1
       
       call bookplot(n,tag,'130 < mtransZZ < 2010',
-     & mtransZZ,wt,wt2,130d0,2010d0,20d0,'log')
+     & mtransZZ,wt,wt2,130._dp,2010._dp,20._dp,'log')
       n=n+1
       
       call bookplot(n,tag,'300 < mtransZZ < 2020',
-     & mtransZZ,wt,wt2,300d0,2020d0,20d0,'log')
+     & mtransZZ,wt,wt2,300._dp,2020._dp,20._dp,'log')
       n=n+1
       
       call bookplot(n,tag,'10 < mtransZZ < 130',
-     & mtransZZ,wt,wt2,10d0,130d0,5d0,'lin')
+     & mtransZZ,wt,wt2,10._dp,130._dp,5._dp,'lin')
       n=n+1
       
       call bookplot(n,tag,'0 < mtransWW < 2000',
-     & mtransWW,wt,wt2,0d0,2000d0,20d0,'log')
+     & mtransWW,wt,wt2,0._dp,2000._dp,20._dp,'log')
       n=n+1
       
       call bookplot(n,tag,'10 < mtransWW < 2010',
-     & mtransWW,wt,wt2,10d0,2010d0,20d0,'log')
+     & mtransWW,wt,wt2,10._dp,2010._dp,20._dp,'log')
       n=n+1
       
       call bookplot(n,tag,'130 < mtransWW < 2010',
-     & mtransWW,wt,wt2,130d0,2010d0,20d0,'log')
+     & mtransWW,wt,wt2,130._dp,2010._dp,20._dp,'log')
       n=n+1
       
       call bookplot(n,tag,'300 < mtransWW < 2020',
-     & mtransWW,wt,wt2,300d0,2020d0,20d0,'log')
+     & mtransWW,wt,wt2,300._dp,2020._dp,20._dp,'log')
       n=n+1
       
       call bookplot(n,tag,'10 < mtransWW < 130',
-     & mtransWW,wt,wt2,10d0,130d0,5d0,'lin')
+     & mtransWW,wt,wt2,10._dp,130._dp,5._dp,'lin')
       n=n+1
       
       call bookplot(n,tag,'0 < mtransWZ < 2000',
-     & mtransWZ,wt,wt2,0d0,2000d0,20d0,'log')
+     & mtransWZ,wt,wt2,0._dp,2000._dp,20._dp,'log')
       n=n+1
       
       call bookplot(n,tag,'10 < mtransWZ < 2010',
-     & mtransWZ,wt,wt2,10d0,2010d0,20d0,'log')
+     & mtransWZ,wt,wt2,10._dp,2010._dp,20._dp,'log')
       n=n+1
       
       call bookplot(n,tag,'130 < mtransWZ < 2010',
-     & mtransWZ,wt,wt2,130d0,2010d0,20d0,'log')
+     & mtransWZ,wt,wt2,130._dp,2010._dp,20._dp,'log')
       n=n+1
       
       call bookplot(n,tag,'300 < mtransWZ < 2020',
-     & mtransWZ,wt,wt2,300d0,2020d0,20d0,'log')
+     & mtransWZ,wt,wt2,300._dp,2020._dp,20._dp,'log')
       n=n+1
       
       call bookplot(n,tag,'10 < mtransWZ < 130',
-     & mtransWZ,wt,wt2,10d0,130d0,5d0,'lin')
+     & mtransWZ,wt,wt2,10._dp,130._dp,5._dp,'lin')
       n=n+1
       
       call bookplot(n,tag,'Rpt',
-     & Rpt,wt,wt2,0d0,50d0,0.5d0,'lin')
+     & Rpt,wt,wt2,0._dp,50._dp,0.5_dp,'lin')
       n=n+1
       
       call bookplot(n,tag,'pt(Z)',
-     & pt34,wt,wt2,0d0,2d0,0.02d0,'lin')
+     & pt34,wt,wt2,0._dp,2._dp,0.02_dp,'lin')
       n=n+1
       
       call bookplot(n,tag,'+INTEGRAL+ pt(Z)',
-     & pt34,wt,wt2,0d0,10d0,0.1d0,'lin')
+     & pt34,wt,wt2,0._dp,10._dp,0.1_dp,'lin')
       n=n+1
       
       call bookplot(n,tag,'50 < m(3456) < 250',
-     & m3456,wt,wt2,50d0,250d0,2d0,'log')
+     & m3456,wt,wt2,50._dp,250._dp,2._dp,'log')
       n=n+1
       
 c--- usual plots for 3+4

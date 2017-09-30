@@ -1,11 +1,15 @@
       subroutine findmind(p,pjet,pjetmin,pjetmax,dijmin,nmin1,nmin2,
-     .                    ipow)
+     &                    ipow)
+      implicit none
+      include 'types.f'
 c--- this finds the minimum dij for pjet indices pjetmin through pjetmax
 c--- returns dijmin and indices of minimum in (nmin1,nmin2)
-      implicit none
       include 'constants.f'
-      double precision p(mxpart,4),pjet(mxpart,4),dijmin,dij,d
-      integer pjetmin,pjetmax,nmin1,nmin2,i,j,ipow
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      real(dp):: p(mxpart,4),pjet(mxpart,4),dijmin,dij,d
+      integer:: pjetmin,pjetmax,nmin1,nmin2,i,j,ipow
 
       do i=pjetmin,pjetmax
         do j=i+1,pjetmax
@@ -26,45 +30,52 @@ c--- returns dijmin and indices of minimum in (nmin1,nmin2)
       end
 
       subroutine findminet(p,pjet,pjetmin,pjetmax,dkmin,nk,ipow)
+      implicit none
+      include 'types.f'
 c--- this finds the minimum dkmin for pjet indices pjetmin through pjetmax
 c--- returns dijmin and indices of minimum in (nmin1,nmin2)
 C--- calculate the beam proto-jet separation see NPB406(1993)187, Eqn. 7
 C---  S.~Catani, Y.~L.~Dokshitzer, M.~H.~Seymour and B.~R.~Webber
-C--- in  practice this is just the minimum ptsq of protojets
-      implicit none
+C--- in practice this is just the minimum ptsq of protojets
       include 'constants.f'
-      double precision p(mxpart,4),pjet(mxpart,4),dkmin,dk,pt
-      integer pjetmin,pjetmax,nk,i,ipow
-      logical dkerror
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      real(dp):: p(mxpart,4),pjet(mxpart,4),dkmin,dk,pt
+      integer:: pjetmin,pjetmax,nk,i,ipow
 
-      dkmin=1d9
-      dkerror=.true.
+      dkmin=pt(pjetmin,pjet)
+      if (ipow .ne. 1) dkmin=dkmin**(ipow)
+      nk=pjetmin
 
-      do i=pjetmin,pjetmax
+c--- if only one entry, this must be the minimum
+      if (pjetmin+1 > pjetmax) return
+
+      do i=pjetmin+1,pjetmax
         dk=pt(i,pjet)
         if (ipow .ne. 1) dk=dk**(ipow)
-        if (dk .lt. dkmin) then
+        if (dk < dkmin) then
           dkmin=dk
           nk=i
-          dkerror=.false.
         endif
       enddo
-
-      if (dkerror) then
-        write(*,*) 'Error in dk minimum-finding routine'
-        stop
-      endif
 
       return
       end
 
-      double precision function dij(p,pjet,i,j,ipow)
-C---calculate the proto-jet separation see NPB406(1993)187, Eqn. 7
+      function dij(p,pjet,i,j,ipow)
       implicit none
+      include 'types.f'
+      real(dp):: dij
+C---calculate the proto-jet separation see NPB406(1993)187, Eqn. 7
+
       include 'constants.f'
-      integer i,j,ipow
-      double precision p(mxpart,4),pjet(mxpart,4),pti,ptj,pt,r
-c      double precision etarap,yi,yj,phii,phij
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      integer:: i,j,ipow
+      real(dp):: p(mxpart,4),pjet(mxpart,4),pti,ptj,pt,r
+c      real(dp):: etarap,yi,yj,phii,phij
 
       pti=pt(i,pjet)
       ptj=pt(j,pjet)
@@ -76,7 +87,7 @@ c      yj=etarap(j,pjet)
 c      phii=atan2(pjet(i,1),pjet(i,2))
 c      phij=atan2(pjet(j,1),pjet(j,2))
 
-c      dij=dsqrt((yi-yj)**2+(phii-phij)**2)
+c      dij=sqrt((yi-yj)**2+(phii-phij)**2)
 
 c--- new method - r() calculates true value of 0 < (phi-phij) < pi
       dij=r(pjet,i,j)
@@ -92,11 +103,16 @@ c--- new method - r() calculates true value of 0 < (phi-phij) < pi
 
       subroutine combine(pjet,i,j)
       implicit none
+      include 'types.f'
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'jetlabel.f'
-      include 'process.f'
-      integer i,j
-      double precision pjet(mxpart,4)
+      include 'kprocess.f'
+      integer:: i,j
+      real(dp):: pjet(mxpart,4)
 
 c--Run II prescription
       pjet(i,1)=pjet(i,1)+pjet(j,1)
@@ -105,46 +121,48 @@ c--Run II prescription
       pjet(i,4)=pjet(i,4)+pjet(j,4)
 
 c--- special combination tag for W+heavy quarks
-      if ((case .eq. 'Wbbmas') .or. (case .eq. 'W_bjet')) then
-      if (((jetlabel(i) .eq. 'bq') .and. (jetlabel(j) .eq. 'ba'))
-     ..or.((jetlabel(j) .eq. 'bq') .and. (jetlabel(i) .eq. 'ba'))) then
+      if ((kcase==kWbbmas) .or. (kcase==kW_bjet)
+     & .or.(kcase==kWHbbar) .or. (kcase==kZHbbar)
+     &) then
+      if (((jetlabel(i) == 'bq') .and. (jetlabel(j) == 'ba'))
+     ..or.((jetlabel(j) == 'bq') .and. (jetlabel(i) == 'ba'))) then
         jetlabel(i)='bb'
         return
       endif
-      if (((jetlabel(i) .eq. 'bb') .and. (jetlabel(j) .eq. 'pp'))
-     ..or.((jetlabel(j) .eq. 'bb') .and. (jetlabel(i) .eq. 'pp'))) then
+      if (((jetlabel(i) == 'bb') .and. (jetlabel(j) == 'pp'))
+     ..or.((jetlabel(j) == 'bb') .and. (jetlabel(i) == 'pp'))) then
         jetlabel(i)='bb'
         return
       endif
       endif
 
-      if (((jetlabel(i) .eq. 'bq') .and. (jetlabel(j) .eq. 'pp'))
-     ..or.((jetlabel(j) .eq. 'bq') .and. (jetlabel(i) .eq. 'pp'))) then
+      if (((jetlabel(i) == 'bq') .and. (jetlabel(j) == 'pp'))
+     ..or.((jetlabel(j) == 'bq') .and. (jetlabel(i) == 'pp'))) then
         jetlabel(i)='bq'
         return
       endif
-      if (((jetlabel(i) .eq. 'ba') .and. (jetlabel(j) .eq. 'pp'))
-     ..or.((jetlabel(j) .eq. 'ba') .and. (jetlabel(i) .eq. 'pp'))) then
+      if (((jetlabel(i) == 'ba') .and. (jetlabel(j) == 'pp'))
+     ..or.((jetlabel(j) == 'ba') .and. (jetlabel(i) == 'pp'))) then
         jetlabel(i)='ba'
         return
       endif
-      if (((jetlabel(i) .eq. 'bq') .and. (jetlabel(j) .eq. 'ba'))
-     ..or.((jetlabel(j) .eq. 'bq') .and. (jetlabel(i) .eq. 'ba'))) then
+      if (((jetlabel(i) == 'bq') .and. (jetlabel(j) == 'ba'))
+     ..or.((jetlabel(j) == 'bq') .and. (jetlabel(i) == 'ba'))) then
         jetlabel(i)='pp'
         return
       endif
-      if (((jetlabel(i) .eq. 'bq') .and. (jetlabel(j) .eq. 'qj'))
-     ..or.((jetlabel(j) .eq. 'bq') .and. (jetlabel(i) .eq. 'qj'))) then
+      if (((jetlabel(i) == 'bq') .and. (jetlabel(j) == 'qj'))
+     ..or.((jetlabel(j) == 'bq') .and. (jetlabel(i) == 'qj'))) then
         jetlabel(i)='bq'
         return
       endif
-      if (((jetlabel(i) .eq. 'ba') .and. (jetlabel(j) .eq. 'qj'))
-     ..or.((jetlabel(j) .eq. 'ba') .and. (jetlabel(i) .eq. 'qj'))) then
+      if (((jetlabel(i) == 'ba') .and. (jetlabel(j) == 'qj'))
+     ..or.((jetlabel(j) == 'ba') .and. (jetlabel(i) == 'qj'))) then
         jetlabel(i)='ba'
         return
       endif
-      if (((jetlabel(i) .eq. 'qj') .and. (jetlabel(j) .eq. 'pp'))
-     ..or.((jetlabel(j) .eq. 'pp') .and. (jetlabel(i) .eq. 'qj'))) then
+      if (((jetlabel(i) == 'qj') .and. (jetlabel(j) == 'pp'))
+     ..or.((jetlabel(j) == 'pp') .and. (jetlabel(i) == 'qj'))) then
         jetlabel(i)='qj'
         return
       endif
@@ -154,11 +172,16 @@ c--- special combination tag for W+heavy quarks
 
 c      subroutine combine_snowmass(p,pjet,i,j)
 c      implicit none
+c      include 'types.f'
+c
 c      include 'constants.f'
+c      include 'nf.f'
+c      include 'mxpart.f'
+c      include 'cplx.h'
 c      include 'jetlabel.f'
-c      integer i,j
-c      double precision p(mxpart,4),pjet(mxpart,4),ptjetij,yjet,phijet,
-c     . ejet,pt,etarap,pti,ptj,yi,yj,phii,phij
+c      integer:: i,j
+c      real(dp):: p(mxpart,4),pjet(mxpart,4),ptjetij,yjet,phijet,
+c     & ejet,pt,etarap,pti,ptj,yi,yj,phii,phij
 
 C----Snowmass style prescripton
 c      pti=pt(i,pjet)
@@ -176,24 +199,24 @@ c      yjet=(pti*yi+ptj*yj)/ptjetij
 c      phijet=(pti*phii+ptj*phij)/ptjetij
 c      ejet=exp(yjet)
 
-c      pjet(i,1)=ptjetij*dsin(phijet)
-c      pjet(i,2)=ptjetij*dcos(phijet)
-c      pjet(i,3)=ptjetij*(ejet-1d0/ejet)/2d0
-c      pjet(i,4)=ptjetij*(ejet+1d0/ejet)/2d0
+c      pjet(i,1)=ptjetij*sin(phijet)
+c      pjet(i,2)=ptjetij*cos(phijet)
+c      pjet(i,3)=ptjetij*(ejet-1._dp/ejet)/2._dp
+c      pjet(i,4)=ptjetij*(ejet+1._dp/ejet)/2._dp
 
 
-c      if (((jetlabel(i) .eq. 'bq') .and. (jetlabel(j) .eq. 'pp'))
-c     ..or.((jetlabel(j) .eq. 'bq') .and. (jetlabel(i) .eq. 'pp'))) then
+c      if (((jetlabel(i) == 'bq') .and. (jetlabel(j) == 'pp'))
+c     ..or.((jetlabel(j) == 'bq') .and. (jetlabel(i) == 'pp'))) then
 c        jetlabel(i)='bq'
 c        return
 c      endif
-c      if (((jetlabel(i) .eq. 'ba') .and. (jetlabel(j) .eq. 'pp'))
-c     ..or.((jetlabel(j) .eq. 'ba') .and. (jetlabel(i) .eq. 'pp'))) then
+c      if (((jetlabel(i) == 'ba') .and. (jetlabel(j) == 'pp'))
+c     ..or.((jetlabel(j) == 'ba') .and. (jetlabel(i) == 'pp'))) then
 c        jetlabel(i)='ba'
 c        return
 c      endif
-c      if (((jetlabel(i) .eq. 'bq') .and. (jetlabel(j) .eq. 'ba'))
-c     ..or.((jetlabel(j) .eq. 'bq') .and. (jetlabel(i) .eq. 'ba'))) then
+c      if (((jetlabel(i) == 'bq') .and. (jetlabel(j) == 'ba'))
+c     ..or.((jetlabel(j) == 'bq') .and. (jetlabel(i) == 'ba'))) then
 c        jetlabel(i)='pp'
 c        return
 c      endif
@@ -202,13 +225,18 @@ c      return
 c      end
 
 c      subroutine shuffle(pjet,nmin,nmax)
-c--- shuffles jets nmin..nmax-1 in pjet down by 1 index
 c      implicit none
+c      include 'types.f'
+c--- shuffles jets nmin..nmax-1 in pjet down by 1 index
+c
 c      include 'constants.f'
-c      integer i,j,nmin,nmax
-c      double precision pjet(mxpart,4)
+c      include 'nf.f'
+c      include 'mxpart.f'
+c      include 'cplx.h'
+c      integer:: i,j,nmin,nmax
+c      real(dp):: pjet(mxpart,4)
 
-c      if (nmin .eq. nmax) return
+c      if (nmin == nmax) return
 
 c      do i=nmin,nmax-1
 c        do j=1,4
@@ -220,12 +248,17 @@ c      return
 c      end
 
       subroutine swap(pjet,i,j)
-c--- swaps jets i..j in pjet
       implicit none
+      include 'types.f'
+c--- swaps jets i..j in pjet
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'jetlabel.f'
-      integer i,j,k
-      double precision pjet(mxpart,4),tmp
+      integer:: i,j,k
+      real(dp):: pjet(mxpart,4),tmp
       character*2 chartmp
 
       do k=1,4
@@ -241,52 +274,70 @@ c--- swaps jets i..j in pjet
       return
       end
 
-c      double precision function ptjet(j,p,pjet)
+c      function ptjet(j,p,pjet)
 c      implicit none
+c      include 'types.f'
+c      real(dp):: ptjet
+c
 c      include 'constants.f'
-c      integer j
-c      double precision p(mxpart,4),pjet(mxpart,4)
+c      include 'nf.f'
+c      include 'mxpart.f'
+c      include 'cplx.h'
+c      integer:: j
+c      real(dp):: p(mxpart,4),pjet(mxpart,4)
 c--- This is the formula for pt
-c      ptjet=dsqrt(pjet(j,1)**2+pjet(j,2)**2)
+c      ptjet=sqrt(pjet(j,1)**2+pjet(j,2)**2)
 c--- This is the formula for Et
-c      ptjet=dsqrt(pjet(j,1)**2+pjet(j,2)**2)
-c     . *pjet(j,4)/dsqrt(pjet(j,1)**2+pjet(j,2)**2+pjet(j,3)**2)
+c      ptjet=sqrt(pjet(j,1)**2+pjet(j,2)**2)
+c     & *pjet(j,4)/sqrt(pjet(j,1)**2+pjet(j,2)**2+pjet(j,3)**2)
 c      return
 c      end
 
-      double precision function dotjet(p,i,pjet,j)
-C---Dot the ith vector p with the jth vector pjet
+      function dotjet(p,i,pjet,j)
       implicit none
+      include 'types.f'
+      real(dp):: dotjet
+C---Dot the ith vector p with the jth vector pjet
+
       include 'constants.f'
-      integer i,j
-      double precision p(mxpart,4),pjet(mxpart,4)
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      integer:: i,j
+      real(dp):: p(mxpart,4),pjet(mxpart,4)
 
       dotjet=p(i,4)*pjet(j,4)-p(i,1)*pjet(j,1)
-     .      -p(i,2)*pjet(j,2)-p(i,3)*pjet(j,3)
+     &      -p(i,2)*pjet(j,2)-p(i,3)*pjet(j,3)
 
       return
       end
 
-      double precision function bclustmass(pjet)
+      function bclustmass(pjet)
       implicit none
+      include 'types.f'
+      real(dp):: bclustmass
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'jetlabel.f'
-      integer i,nbq,nba
-      double precision pjet(mxpart,4)
+      integer:: i,nbq,nba
+      real(dp):: pjet(mxpart,4)
 
 c--- note: this function ASSUMES that there is at most one b-quark
 c--- and one anti-b-quark, returning zero if there are less than this
 
-      bclustmass=0d0
+      bclustmass=0._dp
       nbq=0
       nba=0
 
       do i=1,jets
-        if (jetlabel(i) .eq. 'bq') nbq=i+4
-        if (jetlabel(i) .eq. 'ba') nba=i+4
+        if (jetlabel(i) == 'bq') nbq=i+4
+        if (jetlabel(i) == 'ba') nba=i+4
       enddo
 
-      if ((nbq .eq. 0) .or. (nba .eq. 0)) return
+      if ((nbq == 0) .or. (nba == 0)) return
 
       bclustmass=(pjet(nbq,4)+pjet(nba,4))**2
       do i=1,3

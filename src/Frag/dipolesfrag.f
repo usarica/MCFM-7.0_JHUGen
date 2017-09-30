@@ -14,7 +14,12 @@
 
       subroutine dipsfrag(nd,p,ip,jp,kp,sub,msq,subr_born) 
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ewcouple.f'
       include 'ptilde.f'
       include 'dynamicscale.f'
@@ -22,22 +27,22 @@
       include 'dipolescale.f'
       include 'facscale.f'
       include 'betacut.f'
-      include 'process.f'
+      include 'kprocess.f'
       include 'lastphot.f'
       include 'incldip.f'
-      double precision p(mxpart,4),ptrans(mxpart,4),sub
-      double precision z,omz,sij,sik,sjk,dot,u,p_phys(mxpart,4)
-      double precision msq(-nf:nf,-nf:nf),tmp
-      integer nd,ip,jp,kp,j,k,ipt
-      logical check_nv,phot_pass
+      real(dp):: p(mxpart,4),ptrans(mxpart,4),sub
+      real(dp):: z,omz,sij,sik,sjk,dot,u,p_phys(mxpart,4)
+      real(dp):: msq(-nf:nf,-nf:nf),tmp
+      integer:: nd,ip,jp,kp,j,k,ipt
+      logical:: check_nv,phot_pass
       external subr_born
-      z=0d0
-      omz=1d0
-      u=0d0
-      sub=0d0
+      z=0._dp
+      omz=1._dp
+      u=0._dp
+      sub=0._dp
       do j=-nf,nf
          do k=-nf,nf
-            msq(j,k)=0d0
+            msq(j,k)=0._dp
          enddo
       enddo
       
@@ -53,21 +58,21 @@
 *******************************************************************************
 
 **** I === I not implemented (need photon PDFS rather than frags) need rapidity cuts to remove collinear sing 
-      if ((ip .le. 2) .and. (kp .le. 2)) return  
+      if ((ip <= 2) .and. (kp <= 2)) return  
 
 ******************************************************************************* 
 ************************ INITIAL - FINAL **************************************
 *******************************************************************************
 
 **** I === F not implemented (need photon PDFS rather than frags) need rapidity cuts to remove collinear sing
-      if ((ip .le. 2) .and. (kp .gt. 2)) return  
+      if ((ip <= 2) .and. (kp > 2)) return  
 
 ******************************************************************************* 
 ************************ FINAL - INITIAL  *************************************
 *******************************************************************************
 
       
-      if ((ip .gt. 2) .and. (kp .le. 2)) then
+      if ((ip > 2) .and. (kp <= 2)) then
          
      
          if(check_nv(p,ip,jp,kp).eqv..false.) then 
@@ -76,7 +81,7 @@
          endif
          call transformfrag(p,ptrans,z,ip,jp,kp)
          ipt=ip
-         if (ip .lt. lastphot) then
+         if (ip < lastphot) then
              do j=1,4
              tmp=ptrans(ip,j)
              ptrans(ip,j)=ptrans(lastphot,j)
@@ -125,7 +130,7 @@ c        endif
 ************************ FINAL - FINAL ****************************************
 *******************************************************************************
          
-      elseif ((ip .gt. 2) .and. (kp .gt. 2)) then 
+      elseif ((ip > 2) .and. (kp > 2)) then 
 
          write(6,*) 'Final-final fragmentation dipole not implemented.'
          stop
@@ -135,7 +140,7 @@ c        endif
          
          u=sij/(sij+sik) 
        
-         if(u.gt.bff) then
+         if(u>bff) then
             incldip(nd)=.false.
             return 
          endif
@@ -143,7 +148,7 @@ c        endif
 c--- Calculate the ptrans-momenta 
          call transformfrag(p,ptrans,z,ip,jp,kp)
          ipt=ip
-         if (ip .lt. lastphot) then
+         if (ip < lastphot) then
              do j=1,4
              tmp=ptrans(ip,j)
              ptrans(ip,j)=ptrans(lastphot,j)
@@ -181,25 +186,31 @@ c--- store z for use in isolation routine
       end
 
       
-      logical function phot_pass(p,ip,z)
-      implicit none
+      function phot_pass(p,ip,z)
+       implicit none
+      include 'types.f'
+      logical:: phot_pass
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'leptcuts.f'
-      integer ip,nu
-      double precision z,p(mxpart,4),pt 
-      double precision p_temp(mxpart,4)
+      integer:: ip,nu
+      real(dp):: z,p(mxpart,4),pt 
+      real(dp):: p_temp(mxpart,4)
 
       write(6,*) 'Routine out of date'
       stop
 
-      p_temp=0d0
+      p_temp=0._dp
       phot_pass=.true.
 c---- Rescale photon
       do nu=1,4
          p_temp(ip,nu)=p(ip,nu)*z
       enddo
 
-      if ((pt(ip,p_temp) .lt. gammpt)) then 
+      if ((pt(ip,p_temp) < gammpt)) then 
          phot_pass=.false.
          return 
       endif
@@ -212,10 +223,15 @@ c---- Rescale photon
 !---- subroutines for transforming dipole momenta 
       subroutine rescale_z_dip(p,nd,ip)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'z_dip.f'
-      double precision p(mxpart,4)
-      integer nd,ip,nu 
+      real(dp):: p(mxpart,4)
+      integer:: nd,ip,nu 
 
       write(6,*) 'Routine out of date'
       stop
@@ -229,16 +245,21 @@ c---- Rescale photon
 
       subroutine return_z_dip(p,nd,ip)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'z_dip.f'
-      double precision p(mxpart,4)
-      integer nd,ip,nu 
+      real(dp):: p(mxpart,4)
+      integer:: nd,ip,nu 
 
       write(6,*) 'Routine out of date'
       stop
 
       do nu=1,4
-         p(ip,nu)=(1d0/z_dip(nd))*p(ip,nu)
+         p(ip,nu)=(1._dp/z_dip(nd))*p(ip,nu)
       enddo
 
       return 

@@ -1,5 +1,7 @@
       subroutine qqb_zbjet(p,msq)
       implicit none
+      include 'types.f'
+
 c--- J.Campbell,  7/4/05
 c--- Matrix element squared averaged over initial colors and spins
 c     q(-p1)+qbar(-p2) --> Z + b(p5) + g(p6)
@@ -9,6 +11,9 @@ c
 c--- all momenta are incoming
 c--- Extended to include charm quark production via the variable "flav"
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'ewcouple.f'
       include 'heavyflav.f'
@@ -19,30 +24,30 @@ c--- Extended to include charm quark production via the variable "flav"
       include 'zprods_com.f'
       include 'msq_cs.f'
       include 'nflav.f'
-      integer i,j,k,pq,pl,j1,j2,j3,icol
-      double precision msq(-nf:nf,-nf:nf),p(mxpart,4),fac,faclo,
-     .   qgZqg2(2,2),gqZqg2(2,2),
-     .   qgZqg2_cs(0:2,2,2),gqZqg2_cs(0:2,2,2),
-     .   qbgZqbg2_cs(0:2,2,2),gqbZqbg2_cs(0:2,2,2)
-      double complex a111,a112,a121,a211,a122,a212,a221,a222
-c      double complex b111,b112,b121,b211,b122,b212,b221,b222
-      double complex qRb_a(2,2,2),qRb_b(2,2,2)
-      double complex qqb_a(2,2,2),qqb_b(2,2,2),prop
-      double complex qbq_a(2,2,2),qbq_b(2,2,2)
-      double complex qbR_a(2,2,2),qbR_b(2,2,2)
-      double complex qq_a(2,2,2),qq_b(2,2,2)
-      double complex qR_a(2,2,2),qR_b(2,2,2)
-      double complex qbRb_a(2,2,2),qbRb_b(2,2,2)
-      double complex qbqb_a(2,2,2),qbqb_b(2,2,2)
+      integer:: i,j,k,pq,pl,j1,j2,j3,icol
+      real(dp):: msq(-nf:nf,-nf:nf),p(mxpart,4),fac,faclo,
+     &   qgZqg2(2,2),gqZqg2(2,2),
+     &   qgZqg2_cs(0:2,2,2),gqZqg2_cs(0:2,2,2),
+     &   qbgZqbg2_cs(0:2,2,2),gqbZqbg2_cs(0:2,2,2)
+      complex(dp):: a111,a112,a121,a211,a122,a212,a221,a222
+c      complex(dp):: b111,b112,b121,b211,b122,b212,b221,b222
+      complex(dp):: qRb_a(2,2,2),qRb_b(2,2,2)
+      complex(dp):: qqb_a(2,2,2),qqb_b(2,2,2),prop
+      complex(dp):: qbq_a(2,2,2),qbq_b(2,2,2)
+      complex(dp):: qbR_a(2,2,2),qbR_b(2,2,2)
+      complex(dp):: qq_a(2,2,2),qq_b(2,2,2)
+      complex(dp):: qR_a(2,2,2),qR_b(2,2,2)
+      complex(dp):: qbRb_a(2,2,2),qbRb_b(2,2,2)
+      complex(dp):: qbqb_a(2,2,2),qbqb_b(2,2,2)
       integer,parameter::swap(2)=(/2,1/),swap1(0:2)=(/0,2,1/)
 
 c--- initialize the matrix element squared
-      msq(:,:)=0d0
-      msq_cs(:,:,:)=0d0
+      msq(:,:)=0._dp
+      msq_cs(:,:,:)=0._dp
 
       call spinoru(6,p,za,zb)
 
-      prop=s(3,4)/dcmplx((s(3,4)-zmass**2),zmass*zwidth)
+      prop=s(3,4)/cplx2((s(3,4)-zmass**2),zmass*zwidth)
 
 c--- calculate the amplitudes which involve 2 heavy quarks
 c--- and 2 gluons
@@ -71,9 +76,9 @@ c--- and 2 gluons
         enddo
 
         gqZqg2(pq,pl)  = gqZqg2_cs(1,pq,pl) +gqZqg2_cs(2,pq,pl)
-     .                  +gqZqg2_cs(0,pq,pl)
+     &                  +gqZqg2_cs(0,pq,pl)
         qgZqg2(pq,pl)  = qgZqg2_cs(1,pq,pl)  +qgZqg2_cs(2,pq,pl)
-     .                  +qgZqg2_cs(0,pq,pl)
+     &                  +qgZqg2_cs(0,pq,pl)
       enddo
       enddo
 
@@ -137,228 +142,228 @@ c--- qbR->qbR
 c--- qbq->qbq
       call ampqqb_qqb(5,1,6,2,qbq_a,qbq_b)
 
-      faclo=4d0*V*gsq**2*esq**2*aveqq
+      faclo=4._dp*V*gsq**2*esq**2*aveqq
 
 c--- add up the various contributions
       do j=-nflav,nflav
       do k=-nflav,nflav
 
       if ((abs(j) .ne. flav) .and. (abs(k) .ne. flav)) goto 99
-      if ((abs(j) .eq. flav) .and. (abs(k) .eq. flav)) goto 99
+      if ((abs(j) == flav) .and. (abs(k) == flav)) goto 99
 c--- so that either abs(j) or abs(k) = flav (but not both).
 
 c--- Q-G contribution
-      if     ((j .eq. +flav) .and. (k .eq. 0)) then
+      if     ((j == +flav) .and. (k == 0)) then
         do icol=0,2
            msq_cs(icol,j,k)=
-     .     +abs(Q(j)*q1+L(j)*l1*prop)**2*qgZqg2_cs(icol,1,1)
-     .     +abs(Q(j)*q1+R(j)*r1*prop)**2*qgZqg2_cs(icol,2,2)
-     .     +abs(Q(j)*q1+L(j)*r1*prop)**2*qgZqg2_cs(icol,1,2)
-     .     +abs(Q(j)*q1+R(j)*l1*prop)**2*qgZqg2_cs(icol,2,1)
+     &     +abs(Q(j)*q1+L(j)*l1*prop)**2*qgZqg2_cs(icol,1,1)
+     &     +abs(Q(j)*q1+R(j)*r1*prop)**2*qgZqg2_cs(icol,2,2)
+     &     +abs(Q(j)*q1+L(j)*r1*prop)**2*qgZqg2_cs(icol,1,2)
+     &     +abs(Q(j)*q1+R(j)*l1*prop)**2*qgZqg2_cs(icol,2,1)
         enddo
 c--- Qb-G contribution
-      elseif ((j .eq. -flav) .and. (k .eq. 0)) then
+      elseif ((j == -flav) .and. (k == 0)) then
         do icol=0,2
            msq_cs(icol,j,k)=
-     .     +abs(Q(-j)*q1+L(-j)*l1*prop)**2*qbgZqbg2_cs(icol,1,1)
-     .     +abs(Q(-j)*q1+R(-j)*r1*prop)**2*qbgZqbg2_cs(icol,2,2)
-     .     +abs(Q(-j)*q1+L(-j)*r1*prop)**2*qbgZqbg2_cs(icol,1,2)
-     .     +abs(Q(-j)*q1+R(-j)*l1*prop)**2*qbgZqbg2_cs(icol,2,1)
+     &     +abs(Q(-j)*q1+L(-j)*l1*prop)**2*qbgZqbg2_cs(icol,1,1)
+     &     +abs(Q(-j)*q1+R(-j)*r1*prop)**2*qbgZqbg2_cs(icol,2,2)
+     &     +abs(Q(-j)*q1+L(-j)*r1*prop)**2*qbgZqbg2_cs(icol,1,2)
+     &     +abs(Q(-j)*q1+R(-j)*l1*prop)**2*qbgZqbg2_cs(icol,2,1)
         enddo
 c--- G-Q contribution
-      elseif ((j .eq. 0) .and. (k .eq. +flav)) then
+      elseif ((j == 0) .and. (k == +flav)) then
         do icol=0,2
            msq_cs(icol,j,k)=
-     .     +abs(Q(k)*q1+L(k)*l1*prop)**2*gqZqg2_cs(icol,1,1)
-     .     +abs(Q(k)*q1+R(k)*r1*prop)**2*gqZqg2_cs(icol,2,2)
-     .     +abs(Q(k)*q1+L(k)*r1*prop)**2*gqZqg2_cs(icol,1,2)
-     .     +abs(Q(k)*q1+R(k)*l1*prop)**2*gqZqg2_cs(icol,2,1)
+     &     +abs(Q(k)*q1+L(k)*l1*prop)**2*gqZqg2_cs(icol,1,1)
+     &     +abs(Q(k)*q1+R(k)*r1*prop)**2*gqZqg2_cs(icol,2,2)
+     &     +abs(Q(k)*q1+L(k)*r1*prop)**2*gqZqg2_cs(icol,1,2)
+     &     +abs(Q(k)*q1+R(k)*l1*prop)**2*gqZqg2_cs(icol,2,1)
         enddo
 c--- G-Qb contribution
-      elseif ((j .eq. 0) .and. (k .eq. -flav)) then
+      elseif ((j == 0) .and. (k == -flav)) then
         do icol=0,2
            msq_cs(icol,j,k)=
-     .     +abs(Q(-k)*q1+L(-k)*l1*prop)**2*gqbZqbg2_cs(icol,1,1)
-     .     +abs(Q(-k)*q1+R(-k)*r1*prop)**2*gqbZqbg2_cs(icol,2,2)
-     .     +abs(Q(-k)*q1+L(-k)*r1*prop)**2*gqbZqbg2_cs(icol,1,2)
-     .     +abs(Q(-k)*q1+R(-k)*l1*prop)**2*gqbZqbg2_cs(icol,2,1)
+     &     +abs(Q(-k)*q1+L(-k)*l1*prop)**2*gqbZqbg2_cs(icol,1,1)
+     &     +abs(Q(-k)*q1+R(-k)*r1*prop)**2*gqbZqbg2_cs(icol,2,2)
+     &     +abs(Q(-k)*q1+L(-k)*r1*prop)**2*gqbZqbg2_cs(icol,1,2)
+     &     +abs(Q(-k)*q1+R(-k)*l1*prop)**2*gqbZqbg2_cs(icol,2,1)
         enddo
 c--- Q-Q contribution
-      elseif ((j .gt. 0) .and. (k .gt. 0)) then
-        if     (j .eq. +flav) then
+      elseif ((j > 0) .and. (k > 0)) then
+        if     (j == +flav) then
           a111=(Q(j)*q1+L(j)*l1*prop)*qR_a(1,1,1)
-     .        +(Q(k)*q1+L(k)*l1*prop)*qR_b(1,1,1)
+     &        +(Q(k)*q1+L(k)*l1*prop)*qR_b(1,1,1)
           a121=(Q(j)*q1+L(j)*l1*prop)*qR_a(1,2,1)
-     .        +(Q(k)*q1+R(k)*l1*prop)*qR_b(1,2,1)
+     &        +(Q(k)*q1+R(k)*l1*prop)*qR_b(1,2,1)
           a112=(Q(j)*q1+L(j)*r1*prop)*qR_a(1,1,2)
-     .        +(Q(k)*q1+L(k)*r1*prop)*qR_b(1,1,2)
+     &        +(Q(k)*q1+L(k)*r1*prop)*qR_b(1,1,2)
           a122=(Q(j)*q1+L(j)*r1*prop)*qR_a(1,2,2)
-     .        +(Q(k)*q1+R(k)*r1*prop)*qR_b(1,2,2)
+     &        +(Q(k)*q1+R(k)*r1*prop)*qR_b(1,2,2)
           a211=(Q(j)*q1+R(j)*l1*prop)*qR_a(2,1,1)
-     .        +(Q(k)*q1+L(k)*l1*prop)*qR_b(2,1,1)
+     &        +(Q(k)*q1+L(k)*l1*prop)*qR_b(2,1,1)
           a221=(Q(j)*q1+R(j)*l1*prop)*qR_a(2,2,1)
-     .        +(Q(k)*q1+R(k)*l1*prop)*qR_b(2,2,1)
+     &        +(Q(k)*q1+R(k)*l1*prop)*qR_b(2,2,1)
           a212=(Q(j)*q1+R(j)*r1*prop)*qR_a(2,1,2)
-     .        +(Q(k)*q1+L(k)*r1*prop)*qR_b(2,1,2)
+     &        +(Q(k)*q1+L(k)*r1*prop)*qR_b(2,1,2)
           a222=(Q(j)*q1+R(j)*r1*prop)*qR_a(2,2,2)
-     .        +(Q(k)*q1+R(k)*r1*prop)*qR_b(2,2,2)
-        elseif (k .eq. +flav) then
+     &        +(Q(k)*q1+R(k)*r1*prop)*qR_b(2,2,2)
+        elseif (k == +flav) then
           a111=(Q(j)*q1+L(j)*l1*prop)*qq_a(1,1,1)
-     .        +(Q(k)*q1+L(k)*l1*prop)*qq_b(1,1,1)
+     &        +(Q(k)*q1+L(k)*l1*prop)*qq_b(1,1,1)
           a121=(Q(j)*q1+L(j)*l1*prop)*qq_a(1,2,1)
-     .        +(Q(k)*q1+R(k)*l1*prop)*qq_b(1,2,1)
+     &        +(Q(k)*q1+R(k)*l1*prop)*qq_b(1,2,1)
           a112=(Q(j)*q1+L(j)*r1*prop)*qq_a(1,1,2)
-     .        +(Q(k)*q1+L(k)*r1*prop)*qq_b(1,1,2)
+     &        +(Q(k)*q1+L(k)*r1*prop)*qq_b(1,1,2)
           a122=(Q(j)*q1+L(j)*r1*prop)*qq_a(1,2,2)
-     .        +(Q(k)*q1+R(k)*r1*prop)*qq_b(1,2,2)
+     &        +(Q(k)*q1+R(k)*r1*prop)*qq_b(1,2,2)
           a211=(Q(j)*q1+R(j)*l1*prop)*qq_a(2,1,1)
-     .        +(Q(k)*q1+L(k)*l1*prop)*qq_b(2,1,1)
+     &        +(Q(k)*q1+L(k)*l1*prop)*qq_b(2,1,1)
           a221=(Q(j)*q1+R(j)*l1*prop)*qq_a(2,2,1)
-     .        +(Q(k)*q1+R(k)*l1*prop)*qq_b(2,2,1)
+     &        +(Q(k)*q1+R(k)*l1*prop)*qq_b(2,2,1)
           a212=(Q(j)*q1+R(j)*r1*prop)*qq_a(2,1,2)
-     .        +(Q(k)*q1+L(k)*r1*prop)*qq_b(2,1,2)
+     &        +(Q(k)*q1+L(k)*r1*prop)*qq_b(2,1,2)
           a222=(Q(j)*q1+R(j)*r1*prop)*qq_a(2,2,2)
-     .        +(Q(k)*q1+R(k)*r1*prop)*qq_b(2,2,2)
+     &        +(Q(k)*q1+R(k)*r1*prop)*qq_b(2,2,2)
         endif
         msq_cs(0,j,k)=zip
         msq_cs(1,j,k)=
-     .  +faclo*(abs(a111)**2+abs(a112)**2+abs(a221)**2+abs(a222)**2
-     .         +abs(a122)**2+abs(a212)**2+abs(a121)**2+abs(a211)**2)
+     &  +faclo*(abs(a111)**2+abs(a112)**2+abs(a221)**2+abs(a222)**2
+     &         +abs(a122)**2+abs(a212)**2+abs(a121)**2+abs(a211)**2)
         msq_cs(2,j,k)=zip
 c--- Qb-Qb contribution
-      elseif ((j .lt. 0) .and. (k .lt. 0)) then
-        if     (j .eq. -flav) then
+      elseif ((j < 0) .and. (k < 0)) then
+        if     (j == -flav) then
           a111=(Q(-j)*q1+L(-j)*l1*prop)*qbRb_a(1,1,1)
-     .        +(Q(-k)*q1+L(-k)*l1*prop)*qbRb_b(1,1,1)
+     &        +(Q(-k)*q1+L(-k)*l1*prop)*qbRb_b(1,1,1)
           a121=(Q(-j)*q1+L(-j)*l1*prop)*qbRb_a(1,2,1)
-     .        +(Q(-k)*q1+R(-k)*l1*prop)*qbRb_b(1,2,1)
+     &        +(Q(-k)*q1+R(-k)*l1*prop)*qbRb_b(1,2,1)
 
           a112=(Q(-j)*q1+L(-j)*r1*prop)*qbRb_a(1,1,2)
-     .        +(Q(-k)*q1+L(-k)*r1*prop)*qbRb_b(1,1,2)
+     &        +(Q(-k)*q1+L(-k)*r1*prop)*qbRb_b(1,1,2)
           a122=(Q(-j)*q1+L(-j)*r1*prop)*qbRb_a(1,2,2)
-     .        +(Q(-k)*q1+R(-k)*r1*prop)*qbRb_b(1,2,2)
+     &        +(Q(-k)*q1+R(-k)*r1*prop)*qbRb_b(1,2,2)
 
           a211=(Q(-j)*q1+R(-j)*l1*prop)*qbRb_a(2,1,1)
-     .        +(Q(-k)*q1+L(-k)*l1*prop)*qbRb_b(2,1,1)
+     &        +(Q(-k)*q1+L(-k)*l1*prop)*qbRb_b(2,1,1)
           a221=(Q(-j)*q1+R(-j)*l1*prop)*qbRb_a(2,2,1)
-     .        +(Q(-k)*q1+R(-k)*l1*prop)*qbRb_b(2,2,1)
+     &        +(Q(-k)*q1+R(-k)*l1*prop)*qbRb_b(2,2,1)
 
           a212=(Q(-j)*q1+R(-j)*r1*prop)*qbRb_a(2,1,2)
-     .        +(Q(-k)*q1+L(-k)*r1*prop)*qbRb_b(2,1,2)
+     &        +(Q(-k)*q1+L(-k)*r1*prop)*qbRb_b(2,1,2)
           a222=(Q(-j)*q1+R(-j)*r1*prop)*qbRb_a(2,2,2)
-     .        +(Q(-k)*q1+R(-k)*r1*prop)*qbRb_b(2,2,2)
-        elseif (k .eq. -flav) then
+     &        +(Q(-k)*q1+R(-k)*r1*prop)*qbRb_b(2,2,2)
+        elseif (k == -flav) then
           a111=(Q(-j)*q1+L(-j)*l1*prop)*qbqb_a(1,1,1)
-     .        +(Q(-k)*q1+L(-k)*l1*prop)*qbqb_b(1,1,1)
+     &        +(Q(-k)*q1+L(-k)*l1*prop)*qbqb_b(1,1,1)
           a121=(Q(-j)*q1+L(-j)*l1*prop)*qbqb_a(1,2,1)
-     .        +(Q(-k)*q1+R(-k)*l1*prop)*qbqb_b(1,2,1)
+     &        +(Q(-k)*q1+R(-k)*l1*prop)*qbqb_b(1,2,1)
 
           a112=(Q(-j)*q1+L(-j)*r1*prop)*qbqb_a(1,1,2)
-     .        +(Q(-k)*q1+L(-k)*r1*prop)*qbqb_b(1,1,2)
+     &        +(Q(-k)*q1+L(-k)*r1*prop)*qbqb_b(1,1,2)
           a122=(Q(-j)*q1+L(-j)*r1*prop)*qbqb_a(1,2,2)
-     .        +(Q(-k)*q1+R(-k)*r1*prop)*qbqb_b(1,2,2)
+     &        +(Q(-k)*q1+R(-k)*r1*prop)*qbqb_b(1,2,2)
 
           a211=(Q(-j)*q1+R(-j)*l1*prop)*qbqb_a(2,1,1)
-     .        +(Q(-k)*q1+L(-k)*l1*prop)*qbqb_b(2,1,1)
+     &        +(Q(-k)*q1+L(-k)*l1*prop)*qbqb_b(2,1,1)
           a221=(Q(-j)*q1+R(-j)*l1*prop)*qbqb_a(2,2,1)
-     .        +(Q(-k)*q1+R(-k)*l1*prop)*qbqb_b(2,2,1)
+     &        +(Q(-k)*q1+R(-k)*l1*prop)*qbqb_b(2,2,1)
 
           a212=(Q(-j)*q1+R(-j)*r1*prop)*qbqb_a(2,1,2)
-     .        +(Q(-k)*q1+L(-k)*r1*prop)*qbqb_b(2,1,2)
+     &        +(Q(-k)*q1+L(-k)*r1*prop)*qbqb_b(2,1,2)
           a222=(Q(-j)*q1+R(-j)*r1*prop)*qbqb_a(2,2,2)
-     .        +(Q(-k)*q1+R(-k)*r1*prop)*qbqb_b(2,2,2)
+     &        +(Q(-k)*q1+R(-k)*r1*prop)*qbqb_b(2,2,2)
         endif
         msq_cs(0,j,k)=zip
         msq_cs(1,j,k)=
-     .  +faclo*(abs(a111)**2+abs(a112)**2+abs(a221)**2+abs(a222)**2
-     .         +abs(a122)**2+abs(a212)**2+abs(a121)**2+abs(a211)**2)
+     &  +faclo*(abs(a111)**2+abs(a112)**2+abs(a221)**2+abs(a222)**2
+     &         +abs(a122)**2+abs(a212)**2+abs(a121)**2+abs(a211)**2)
         msq_cs(2,j,k)=zip
 c--- Q-Qb contribution
-      elseif ((j .gt. 0) .and. (k .lt. 0)) then
-        if     (j .eq. +flav) then
+      elseif ((j > 0) .and. (k < 0)) then
+        if     (j == +flav) then
           a111=(Q(+j)*q1+L(+j)*l1*prop)*qRb_a(1,1,1)
-     .        +(Q(-k)*q1+L(-k)*l1*prop)*qRb_b(1,1,1)
+     &        +(Q(-k)*q1+L(-k)*l1*prop)*qRb_b(1,1,1)
           a112=(Q(+j)*q1+L(+j)*r1*prop)*qRb_a(1,1,2)
-     .        +(Q(-k)*q1+L(-k)*r1*prop)*qRb_b(1,1,2)
+     &        +(Q(-k)*q1+L(-k)*r1*prop)*qRb_b(1,1,2)
           a221=(Q(+j)*q1+R(+j)*l1*prop)*qRb_a(2,2,1)
-     .        +(Q(-k)*q1+R(-k)*l1*prop)*qRb_b(2,2,1)
+     &        +(Q(-k)*q1+R(-k)*l1*prop)*qRb_b(2,2,1)
           a222=(Q(+j)*q1+R(+j)*r1*prop)*qRb_a(2,2,2)
-     .        +(Q(-k)*q1+R(-k)*r1*prop)*qRb_b(2,2,2)
+     &        +(Q(-k)*q1+R(-k)*r1*prop)*qRb_b(2,2,2)
 
           a121=(Q(+j)*q1+L(+j)*l1*prop)*qRb_a(1,2,1)
-     .        +(Q(-k)*q1+R(-k)*l1*prop)*qRb_b(1,2,1)
+     &        +(Q(-k)*q1+R(-k)*l1*prop)*qRb_b(1,2,1)
           a122=(Q(+j)*q1+L(+j)*r1*prop)*qRb_a(1,2,2)
-     .        +(Q(-k)*q1+R(-k)*r1*prop)*qRb_b(1,2,2)
+     &        +(Q(-k)*q1+R(-k)*r1*prop)*qRb_b(1,2,2)
           a211=(Q(+j)*q1+R(+j)*l1*prop)*qRb_a(2,1,1)
-     .        +(Q(-k)*q1+L(-k)*l1*prop)*qRb_b(2,1,1)
+     &        +(Q(-k)*q1+L(-k)*l1*prop)*qRb_b(2,1,1)
           a212=(Q(+j)*q1+R(+j)*r1*prop)*qRb_a(2,1,2)
-     .        +(Q(-k)*q1+L(-k)*r1*prop)*qRb_b(2,1,2)
-        elseif (k .eq. -flav) then
+     &        +(Q(-k)*q1+L(-k)*r1*prop)*qRb_b(2,1,2)
+        elseif (k == -flav) then
           a111=(Q(+j)*q1+L(+j)*l1*prop)*qqb_a(1,1,1)
-     .        +(Q(-k)*q1+L(-k)*l1*prop)*qqb_b(1,1,1)
+     &        +(Q(-k)*q1+L(-k)*l1*prop)*qqb_b(1,1,1)
           a112=(Q(+j)*q1+L(+j)*r1*prop)*qqb_a(1,1,2)
-     .        +(Q(-k)*q1+L(-k)*r1*prop)*qqb_b(1,1,2)
+     &        +(Q(-k)*q1+L(-k)*r1*prop)*qqb_b(1,1,2)
           a221=(Q(+j)*q1+R(+j)*l1*prop)*qqb_a(2,2,1)
-     .        +(Q(-k)*q1+R(-k)*l1*prop)*qqb_b(2,2,1)
+     &        +(Q(-k)*q1+R(-k)*l1*prop)*qqb_b(2,2,1)
           a222=(Q(+j)*q1+R(+j)*r1*prop)*qqb_a(2,2,2)
-     .        +(Q(-k)*q1+R(-k)*r1*prop)*qqb_b(2,2,2)
+     &        +(Q(-k)*q1+R(-k)*r1*prop)*qqb_b(2,2,2)
 
           a121=(Q(+j)*q1+L(+j)*l1*prop)*qqb_a(1,2,1)
-     .        +(Q(-k)*q1+R(-k)*l1*prop)*qqb_b(1,2,1)
+     &        +(Q(-k)*q1+R(-k)*l1*prop)*qqb_b(1,2,1)
           a122=(Q(+j)*q1+L(+j)*r1*prop)*qqb_a(1,2,2)
-     .        +(Q(-k)*q1+R(-k)*r1*prop)*qqb_b(1,2,2)
+     &        +(Q(-k)*q1+R(-k)*r1*prop)*qqb_b(1,2,2)
           a211=(Q(+j)*q1+R(+j)*l1*prop)*qqb_a(2,1,1)
-     .        +(Q(-k)*q1+L(-k)*l1*prop)*qqb_b(2,1,1)
+     &        +(Q(-k)*q1+L(-k)*l1*prop)*qqb_b(2,1,1)
           a212=(Q(+j)*q1+R(+j)*r1*prop)*qqb_a(2,1,2)
-     .        +(Q(-k)*q1+L(-k)*r1*prop)*qqb_b(2,1,2)
+     &        +(Q(-k)*q1+L(-k)*r1*prop)*qqb_b(2,1,2)
         endif
         msq_cs(0,j,k)=zip
         msq_cs(1,j,k)=zip
         msq_cs(2,j,k)=
-     .  +faclo*(abs(a111)**2+abs(a112)**2+abs(a221)**2+abs(a222)**2
-     .         +abs(a122)**2+abs(a212)**2+abs(a121)**2+abs(a211)**2)
-      elseif ((j .lt. 0) .and. (k .gt. 0)) then
+     &  +faclo*(abs(a111)**2+abs(a112)**2+abs(a221)**2+abs(a222)**2
+     &         +abs(a122)**2+abs(a212)**2+abs(a121)**2+abs(a211)**2)
+      elseif ((j < 0) .and. (k > 0)) then
 c--- Qb-Q contribution
-        if     (j .eq. -flav) then
+        if     (j == -flav) then
           a111=(Q(-j)*q1+L(-j)*l1*prop)*qbq_a(1,1,1)
-     .        +(Q(+k)*q1+L(+k)*l1*prop)*qbq_b(1,1,1)
+     &        +(Q(+k)*q1+L(+k)*l1*prop)*qbq_b(1,1,1)
           a121=(Q(-j)*q1+L(-j)*l1*prop)*qbq_a(1,2,1)
-     .        +(Q(+k)*q1+R(+k)*l1*prop)*qbq_b(1,2,1)
+     &        +(Q(+k)*q1+R(+k)*l1*prop)*qbq_b(1,2,1)
           a112=(Q(-j)*q1+L(-j)*r1*prop)*qbq_a(1,1,2)
-     .        +(Q(+k)*q1+L(+k)*r1*prop)*qbq_b(1,1,2)
+     &        +(Q(+k)*q1+L(+k)*r1*prop)*qbq_b(1,1,2)
           a122=(Q(-j)*q1+L(-j)*r1*prop)*qbq_a(1,2,2)
-     .        +(Q(+k)*q1+R(+k)*r1*prop)*qbq_b(1,2,2)
+     &        +(Q(+k)*q1+R(+k)*r1*prop)*qbq_b(1,2,2)
           a211=(Q(-j)*q1+R(-j)*l1*prop)*qbq_a(2,1,1)
-     .        +(Q(+k)*q1+L(+k)*l1*prop)*qbq_b(2,1,1)
+     &        +(Q(+k)*q1+L(+k)*l1*prop)*qbq_b(2,1,1)
           a221=(Q(-j)*q1+R(-j)*l1*prop)*qbq_a(2,2,1)
-     .        +(Q(+k)*q1+R(+k)*l1*prop)*qbq_b(2,2,1)
+     &        +(Q(+k)*q1+R(+k)*l1*prop)*qbq_b(2,2,1)
           a212=(Q(-j)*q1+R(-j)*r1*prop)*qbq_a(2,1,2)
-     .        +(Q(+k)*q1+L(+k)*r1*prop)*qbq_b(2,1,2)
+     &        +(Q(+k)*q1+L(+k)*r1*prop)*qbq_b(2,1,2)
           a222=(Q(-j)*q1+R(-j)*r1*prop)*qbq_a(2,2,2)
-     .        +(Q(+k)*q1+R(+k)*r1*prop)*qbq_b(2,2,2)
-        elseif (k .eq. +flav) then
+     &        +(Q(+k)*q1+R(+k)*r1*prop)*qbq_b(2,2,2)
+        elseif (k == +flav) then
           a111=(Q(-j)*q1+L(-j)*l1*prop)*qbR_a(1,1,1)
-     .        +(Q(+k)*q1+L(+k)*l1*prop)*qbR_b(1,1,1)
+     &        +(Q(+k)*q1+L(+k)*l1*prop)*qbR_b(1,1,1)
           a121=(Q(-j)*q1+L(-j)*l1*prop)*qbR_a(1,2,1)
-     .        +(Q(+k)*q1+R(+k)*l1*prop)*qbR_b(1,2,1)
+     &        +(Q(+k)*q1+R(+k)*l1*prop)*qbR_b(1,2,1)
           a112=(Q(-j)*q1+L(-j)*r1*prop)*qbR_a(1,1,2)
-     .        +(Q(+k)*q1+L(+k)*r1*prop)*qbR_b(1,1,2)
+     &        +(Q(+k)*q1+L(+k)*r1*prop)*qbR_b(1,1,2)
           a122=(Q(-j)*q1+L(-j)*r1*prop)*qbR_a(1,2,2)
-     .        +(Q(+k)*q1+R(+k)*r1*prop)*qbR_b(1,2,2)
+     &        +(Q(+k)*q1+R(+k)*r1*prop)*qbR_b(1,2,2)
           a211=(Q(-j)*q1+R(-j)*l1*prop)*qbR_a(2,1,1)
-     .        +(Q(+k)*q1+L(+k)*l1*prop)*qbR_b(2,1,1)
+     &        +(Q(+k)*q1+L(+k)*l1*prop)*qbR_b(2,1,1)
           a221=(Q(-j)*q1+R(-j)*l1*prop)*qbR_a(2,2,1)
-     .        +(Q(+k)*q1+R(+k)*l1*prop)*qbR_b(2,2,1)
+     &        +(Q(+k)*q1+R(+k)*l1*prop)*qbR_b(2,2,1)
           a212=(Q(-j)*q1+R(-j)*r1*prop)*qbR_a(2,1,2)
-     .        +(Q(+k)*q1+L(+k)*r1*prop)*qbR_b(2,1,2)
+     &        +(Q(+k)*q1+L(+k)*r1*prop)*qbR_b(2,1,2)
           a222=(Q(-j)*q1+R(-j)*r1*prop)*qbR_a(2,2,2)
-     .        +(Q(+k)*q1+R(+k)*r1*prop)*qbR_b(2,2,2)
+     &        +(Q(+k)*q1+R(+k)*r1*prop)*qbR_b(2,2,2)
         endif
         msq_cs(0,j,k)=zip
         msq_cs(1,j,k)=zip
         msq_cs(2,j,k)=
-     .  +faclo*(abs(a111)**2+abs(a112)**2+abs(a221)**2+abs(a222)**2
-     .         +abs(a122)**2+abs(a212)**2+abs(a121)**2+abs(a211)**2)
+     &  +faclo*(abs(a111)**2+abs(a112)**2+abs(a221)**2+abs(a222)**2
+     &         +abs(a122)**2+abs(a212)**2+abs(a121)**2+abs(a211)**2)
       endif
 
 c--- only the colour-ordered matrix elements are calculated above, so

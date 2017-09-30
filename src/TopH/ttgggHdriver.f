@@ -1,9 +1,14 @@
       subroutine ttgggHdriver(q,ampsq)
       implicit none
+      include 'types.f'
+
       include 'constants.f'
-      double precision q(mxpart,4),ampsq
-      integer h1,h2,h3,h4,h6
-      double complex m(6),mqed,
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      real(dp):: q(mxpart,4),ampsq
+      integer:: h1,h2,h3,h4,h6
+      complex(dp):: m(6),mqed,
      & m126(2,2,2,2,2),m261(2,2,2,2,2),m612(2,2,2,2,2),
      & m621(2,2,2,2,2),m216(2,2,2,2,2),m162(2,2,2,2,2)
 
@@ -28,17 +33,17 @@
       mqed=m(1)+m(2)+m(3)+m(4)+m(5)+m(6)
 C-----Overall factor of V removed from color sum
       ampsq=ampsq+(xnsq-2d0)*(
-     & +dble(m(1)*Dconjg(m(1)))+dble(m(2)*Dconjg(m(2)))
-     & +dble(m(3)*Dconjg(m(3)))+dble(m(4)*Dconjg(m(4)))
-     & +dble(m(5)*Dconjg(m(5)))+dble(m(6)*Dconjg(m(6))))
+     & +real(m(1)*conjg(m(1)))+real(m(2)*conjg(m(2)))
+     & +real(m(3)*conjg(m(3)))+real(m(4)*conjg(m(4)))
+     & +real(m(5)*conjg(m(5)))+real(m(6)*conjg(m(6))))
        ampsq=ampsq
-     & +dble(m(1)*dconjg(m(4)-m(6)-m(5)))
-     & +dble(m(2)*dconjg(m(6)-m(5)-m(4)))
-     & +dble(m(3)*dconjg(m(5)-m(4)-m(6)))
-     & +dble(m(4)*dconjg(m(1)-m(2)-m(3)))
-     & +dble(m(5)*dconjg(m(3)-m(1)-m(2)))
-     & +dble(m(6)*dconjg(m(2)-m(3)-m(1)))
-      ampsq=ampsq+dble(mqed*dconjg(mqed))/xn**2
+     & +real(m(1)*conjg(m(4)-m(6)-m(5)))
+     & +real(m(2)*conjg(m(6)-m(5)-m(4)))
+     & +real(m(3)*conjg(m(5)-m(4)-m(6)))
+     & +real(m(4)*conjg(m(1)-m(2)-m(3)))
+     & +real(m(5)*conjg(m(3)-m(1)-m(2)))
+     & +real(m(6)*conjg(m(2)-m(3)-m(1)))
+      ampsq=ampsq+real(mqed*conjg(mqed))/xn**2
       enddo
       enddo
       enddo

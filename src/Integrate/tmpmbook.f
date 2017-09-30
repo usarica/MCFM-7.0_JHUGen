@@ -14,9 +14,9 @@ C a file name to unit 98) and a topdrawer file (to be specified in the
 C calling program by assigning a file name to unit 99).
 C
 C INITIALIZATION:
-C Call once INIHIST; this just resets a few counters and logicals
+C Call once INIHIST; this just resets a few counters and logical::s
 C Call MBOOK(N,'TITLE',DEL,XMIN,XMAX) for each histogram to be booked.
-C N (an integer) is the label of the histogram;
+C N (an integer::) is the label of the histogram;
 C 'TITLE' is the name of the histogram (no more then 100 characters);
 C DEL (real*8) is the bin size;
 C XMIN (real*8) is the lower limit of the first bin;
@@ -33,11 +33,12 @@ C in which X (real*8) happens to be, within histogram N.
 C
 C--------------------------------------------------------------------------
       SUBROUTINE TMPMBOOK(N,TIT,DEL,XMIN,XMAX)
-      implicit none
+      
 c      IMPLICIT REAL*8 (A-H,O-Z)
-c      IMPLICIT INTEGER (I-N)
-      INTEGER N,I,NNBIN
-      DOUBLE PRECISION DEL,XMIN,XMAX
+c      IMPLICIT integer:: (I-N)
+      include 'types.f'
+      integer:: N,I,NNBIN
+      real(dp):: DEL,XMIN,XMAX
       CHARACTER*(*) TIT
       include 'tmphisto.f'
       TMPNHIST=MAX(N,TMPNHIST)
@@ -59,17 +60,18 @@ c      IMPLICIT INTEGER (I-N)
       TMPHAVG(N)=0.d0
       TMPHINT(N)=0.d0
       DO 1 I=1,TMPNBIN(N)
-      TMPXHIS(N,I)=TMPHMIN(N)+TMPHDEL(N)*(DFLOAT(I)-0.5d0)
+      TMPXHIS(N,I)=TMPHMIN(N)+TMPHDEL(N)*(real(I,dp)-0.5d0)
       TMPIHIS(N,I)=0
    1  TMPHIST(N,I)=0.d0
       END
 
       SUBROUTINE TMPMFILL(N,X,Y)
-      implicit none
+      
 c      IMPLICIT REAL*8 (A-H,O-Z)
-c      IMPLICIT INTEGER (I-N)
-      INTEGER N,I
-      DOUBLE PRECISION X,Y
+c      IMPLICIT integer:: (I-N)
+      include 'types.f'
+      integer:: N,I
+      real(dp):: X,Y
       include 'tmphisto.f'
       I=INT((X-TMPHMIN(N))/TMPHDEL(N)+1)
       IF(I.GT.0.AND.I.LE.TMPNBIN(N))  THEN
@@ -86,10 +88,11 @@ c     we are renormalising the weights by the bin width
 
      
       SUBROUTINE TMPMZERO(N)
-      implicit none
+      
 c      IMPLICIT REAL*8 (A-H,O-Z)
-c      IMPLICIT INTEGER (I-N)
-      INTEGER N,I
+c      IMPLICIT integer:: (I-N)
+      include 'types.f'
+      integer:: N,I
       include 'tmphisto.f'
       TMPBOOK(N)='RES'
       TMPIENT(N)=0

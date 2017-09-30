@@ -1,11 +1,12 @@
-c-----multiplication of k-slash from the left with a spinor sp
+c-----multiplication of k-slash from the left with a spinor spinor
 C-----and return resultant spinor f. Weyl representation
-      subroutine kslashU(k,sp,f) 
+      subroutine kslashU(k,spinor,f) 
       implicit none
+      include 'types.f'
+      include 'constants.f'
       include 'swapxz.f'
-      double complex sp(4),k(4),f(4),czip,im,kslash(4,4),E,kx,ky,kz
-      integer i,j
-      parameter(czip=(0d0,0d0),im=(0d0,1d0))
+      complex(dp):: spinor(4),k(4),f(4),kslash(4,4),E,kx,ky,kz
+      integer:: i,j
 
       logical,save::first
       data first/.true./
@@ -52,7 +53,7 @@ C----create kslash after performing the swap (x<->z),(y->-y)
       do i=1,4
       f(i)=czip
       do j=1,4
-      f(i)=f(i)+kslash(i,j)*sp(j)
+      f(i)=f(i)+kslash(i,j)*spinor(j)
       enddo
       enddo  
       return

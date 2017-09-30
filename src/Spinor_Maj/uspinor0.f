@@ -1,12 +1,17 @@
       subroutine uspinor0(q,i,f)
+      implicit none
+      include 'types.f'
 !-----subroutine for massless spinor
 !     Majorana representation
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'swapxz.f'
-      integer i
-      double complex p(4),q(4),f(4),fc
-      double precision  Ep,px,py,pz,phase,rtEon2
+      integer:: i
+      complex(dp):: p(4),q(4),f(4),fc
+      real(dp)::  Ep,px,py,pz,phase,rtEon2
       logical,save::first
       data first/.true./
      
@@ -28,42 +33,42 @@ C performing the swap (x<->z),(y->-y)
       p(3)=q(2)
       p(4)=q(3)
       endif
-      Ep=dreal(p(1))
-      px=+dreal(p(2))
-      py=+dreal(p(3))
-      pz=dreal(p(4))
+      Ep=real(p(1))
+      px=+real(p(2))
+      py=+real(p(3))
+      pz=real(p(4))
 
       fc=sqrt(p(1)+p(4))
-      if (dble(p(1)+p(4)) .gt. 0) then
-        phase=1d0
+      if (real(p(1)+p(4)) > 0) then
+        phase=1._dp
       else
-        phase=-1d0
+        phase=-1._dp
       endif
 
-      if (abs(fc).gt.1D-8) then 
+      if (abs(fc)>1.e-8_dp) then 
 
-      if (i.eq.+1) then 
-        f(1)=dcmplx(pz+py+Ep,-px)/(2d0*fc)
+      if (i==+1) then 
+        f(1)=cplx2(pz+py+Ep,-px)/(2._dp*fc)
         f(2)=+im*f(1)
-        f(3)=-dcmplx(pz-py+Ep,+px)/(2d0*fc)
+        f(3)=-cplx2(pz-py+Ep,+px)/(2._dp*fc)
         f(4)=-im*f(3)
-      elseif (i.eq.-1) then 
-        f(1)=-dcmplx(-px,pz+py+Ep)/(2d0*fc)
+      elseif (i==-1) then 
+        f(1)=-cplx2(-px,pz+py+Ep)/(2._dp*fc)
         f(2)=-im*f(1)
-        f(3)=+dcmplx(px,pz-py+Ep)/(2d0*fc)
+        f(3)=+cplx2(px,pz-py+Ep)/(2._dp*fc)
         f(4)=+im*f(3)
       endif 
       else
-      rtEon2=sqrt(Ep/2d0)
-      if (i.eq.+1) then 
-        f(1)=dcmplx(0d0,-rtEon2)
+      rtEon2=sqrt(Ep/2._dp)
+      if (i==+1) then 
+        f(1)=cplx2(0._dp,-rtEon2)
         f(2)=+im*f(1)
-        f(3)=dcmplx(0d0,-rtEon2)
+        f(3)=cplx2(0._dp,-rtEon2)
         f(4)=-im*f(3)
-      elseif (i.eq.-1) then 
-        f(1)=dcmplx(rtEon2,0d0)
+      elseif (i==-1) then 
+        f(1)=cplx2(rtEon2,0._dp)
         f(2)=-im*f(1)
-        f(3)=dcmplx(rtEon2,0d0)
+        f(3)=cplx2(rtEon2,0._dp)
         f(4)=+im*f(3)
       endif 
       endif 

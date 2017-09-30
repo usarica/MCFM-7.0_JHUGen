@@ -1,16 +1,22 @@
-      double complex function BDK1211mm(k1,k2,k3,k4,k5,k6,za,zb)
+      function BDK1211mm(k1,k2,k3,k4,k5,k6,za,zb)
       implicit none
+      include 'types.f'
+      complex(dp):: BDK1211mm
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'sprods_com.f'
       include 'zprods_decl.f'
       include 'momwbbm.f'
       include 'Wbbmlabels.f'
-      integer k1,k2,k3,k4,k5,k6,nu
-      double precision t,p2(4),p3(4),p23(4),p123(4),p234(4),p14(4),
+      integer:: k1,k2,k3,k4,k5,k6,nu
+      real(dp):: t,p2(4),p3(4),p23(4),p123(4),p234(4),p14(4),
      & p1234(4),s23,s123,s234,s1234,s14,s56
-      double complex zab,bubrat
-      double precision IDELTA3,DELTA3,ddelta
-      double complex L0,L1,Lnrat,i3m,Lsm1_2mh,zab2
+      complex(dp):: zab,bubrat
+      real(dp):: IDELTA3,DELTA3,ddelta
+      complex(dp):: L0,L1,Lnrat,i3m,Lsm1_2mh,zab2
 C  statement functions
       zab2(k1,k2,k3,k4)=za(k1,k2)*zb(k2,k4)+za(k1,k3)*zb(k3,k4)
 c      zba2(k1,k2,k3,k4)=za(k4,k2)*zb(k2,k1)+za(k4,k3)*zb(k3,k1)
@@ -55,7 +61,7 @@ c     &     -mom(k1,2)*p2(2)-mom(k1,3)*p2(3)
 c      p3Dp4=mom(k4,4)*p3(4)-mom(k4,1)*p3(1)
 c     &     -mom(k4,2)*p3(2)-mom(k4,3)*p3(3)
 c      msq=p2(4)**2-p2(1)**2-p2(2)**2-p2(3)**2
-c      mb=dsqrt(msq)
+c      mb=sqrt(msq)
 
 c---------------------------- BOXES --------------------------------------
 

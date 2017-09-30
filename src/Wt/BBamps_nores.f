@@ -1,27 +1,31 @@
       subroutine BBamps_nores(p,ig,ia,ie,in,it,ib,BB)
       implicit none
+      include 'types.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'zprods_decl.f'
-      integer ig,ia,it,ib,ie,in,nu,j,jpart,i1,i2,i3,i4
-      double precision p(mxpart,4),q(mxpart,4),tvec(4),bvec(4)
-      double precision dot,mtsq,
-     . aDg,aDb,aDt,bDg,nDt,bDe,bga2
+      integer:: ig,ia,it,ib,ie,in,nu,j,jpart,i1,i2,i3,i4
+      real(dp):: p(mxpart,4),q(mxpart,4),tvec(4),bvec(4)
+      real(dp):: dot,mtsq,
+     & aDg,aDb,aDt,bDg,nDt,bDe,bga2
 C    . ,tsq
-      double complex BB(2,2,2,2),tga2,gDt
-      double complex tzab(mxpart,mxpart),tzba(mxpart,mxpart)
-      double complex bzab(mxpart,mxpart),bzba(mxpart,mxpart)
+      complex(dp):: BB(2,2,2,2),tga2,gDt
+      complex(dp):: tzab(mxpart,mxpart),tzba(mxpart,mxpart)
+      complex(dp):: bzab(mxpart,mxpart),bzba(mxpart,mxpart)
       mtsq=mt**2
       mbsq=mb**2
       aDb=dot(p,ia,ib)
       aDg=dot(p,ia,ig)
       aDt=dot(p,ia,it)
       bDg=dot(p,ib,ig)
-      gDt=dcmplx(dot(p,ig,it),0d0)
+      gDt=cplx2(dot(p,ig,it),zip)
       nDt=dot(p,in,it)
       bDe=dot(p,ib,ie)
-      bga2=2d0*(bDg+aDb+aDg)
-      tga2=2d0*gDt+dcmplx(2d0*(aDt+aDg),0d0)
+      bga2=two*(bDg+aDb+aDg)
+      tga2=two*gDt+cplx2(two*(aDt+aDg),zip)
       do j=1,4
       tvec(j)=p(it,j)
       bvec(j)=p(ib,j)
@@ -29,8 +33,8 @@ C    . ,tsq
       do nu=1,4
       do jpart=1,6
       q(jpart,nu)=p(jpart,nu)
-      if (jpart.eq.it) q(it,nu)=p(it,nu)-0.5D0*mtsq/nDt*p(in,nu)
-      if (jpart.eq.ib) q(ib,nu)=p(ib,nu)-0.5D0*mbsq/bDe*p(ie,nu)
+      if (jpart==it) q(it,nu)=p(it,nu)-half*mtsq/nDt*p(in,nu)
+      if (jpart==ib) q(ib,nu)=p(ib,nu)-half*mbsq/bDe*p(ie,nu)
       enddo
       enddo
       call spinoru(6,q,za,zb)
@@ -39,15 +43,15 @@ C    . ,tsq
 
 c--- additions to cope with off-shell top quark
 c      tsq=dot(p,it,it)
-c      gDt=gDt+dcmplx((tsq-mtsq)/2d0 ,0d0)  
+c      gDt=gDt+cplx2((tsq-mtsq)/two ,zip)  
 c      tga2=tga2+(tsq-mtsq)   
 
 c--- Use the "non-overall scheme" to include the top width when necessary
-      if (dble(tga2)+mt**2 .gt. 0d0) then
-        tga2=tga2+dcmplx(0d0,mt*twidth)
+      if (real(tga2)+mt**2 > zip) then
+        tga2=tga2+cplx2(zip,mt*twidth)
       endif
-c      if (dble(2d0*gDt+mt**2) .gt. 0d0) then
-c        gDt=gDt+dcmplx(0d0,0.5d0*mt*twidth)
+c      if (real(two*gDt+mt**2) > zip) then
+c        gDt=gDt+cplx2(zip,half*mt*twidth)
 c      endif
 
       BB(1,1,1,1)= +one/(za(ib,ie))/(zb(ig,ia))/(zb(ig,ia))/(zb(in,it))
@@ -58,16 +62,16 @@ c      endif
      & aDb**(-1) * (  - za(ie,ia)*zb(in,ia) )
       BB(1,1,1,1) = BB(1,1,1,1)+one/(za(ib,ie))/(zb(ig,ia))/(zb(ig,ia))
      & /(zb(in,it))*bzba(ig,ie)*bzba(in,ig)*bzba(ia,ia)*tzba(in,ie)*
-     & tga2*bga2**(-1)*aDb**(-1) * ( 1.D0 )
+     & tga2*bga2**(-1)*aDb**(-1) * ( one )
       BB(1,1,1,1) = BB(1,1,1,1)+one/(za(ib,ie))/(zb(ig,ia))/(zb(ig,ia))
      & /(zb(in,it))*bzba(ig,ie)*bzba(in,ig)*tzba(in,ie)*tga2*bga2**(-1)
-     &  * (  - 1.D0 )
+     &  * (  - one )
       BB(1,1,1,1) = BB(1,1,1,1)+one/(za(ib,ie))/(zb(ig,ia))/(zb(ig,ia))
      & /(zb(in,it))*bzba(ig,ie)*bzba(in,ia)*half*mtsq*tga2*gDt**(-1)*
      & aDb**(-1) * (  - za(ig,ie)*zb(in,ia) )
       BB(1,1,1,1) = BB(1,1,1,1)+one/(za(ib,ie))/(zb(ig,ia))/(zb(ig,ia))
      & /(zb(in,it))*bzba(ig,ie)*bzba(in,ia)*tzba(in,ig)*tzba(ia,ie)*
-     & half*tga2*gDt**(-1)*aDb**(-1) * (  - 1.D0 )
+     & half*tga2*gDt**(-1)*aDb**(-1) * (  - one )
       BB(1,1,1,1) = BB(1,1,1,1)+one/(za(ib,ie))/(zb(ig,ia))/(zb(ig,ia))
      & /(zb(in,it))*bzba(ig,ie)*bzba(ia,ia)*tzba(in,ie)*tga2*bga2**(-1)
      & *aDb**(-1) * (  - za(ig,ia)*zb(in,ia) )
@@ -79,7 +83,7 @@ c      endif
      &    ia)*zb(in,ia) )
       BB(1,1,1,1) = BB(1,1,1,1)+one/(za(ib,ie))/(zb(ig,ia))/(zb(ig,ia))
      & /(zb(in,it))*bzba(in,ia)*bzba(ia,ie)*tzba(in,ie)*tga2*bga2**(-1)
-     &  * ( 1.D0 )
+     &  * ( one )
       BB(1,1,1,1) = BB(1,1,1,1)+one/(za(ib,ie))/(zb(ig,ia))/(zb(ig,ia))
      & /(zb(in,it))*bzba(ia,ie)*tzba(in,ie)*tga2*bga2**(-1) * (  - za(
      &    ig,ia)*zb(ig,in) )
@@ -189,7 +193,7 @@ c      endif
      &    ig,in)*zb(ie,ia) - za(ig,ia)*zb(ig,ie)*zb(in,ia) )
       BB(1,1,2,1) = BB(1,1,2,1)+one/(zb(ig,ia))/(zb(in,it))/(zb(ib,ie))
      & *bzab(ia,ie)*bzba(in,ig)*tzba(in,ie)*mb*tga2*bga2**(-1)*
-     & aDb**(-1) * ( 1.D0 )
+     & aDb**(-1) * ( one )
       BB(1,1,2,1) = BB(1,1,2,1)+one/(zb(ig,ia))/(zb(in,it))/(zb(ib,ie))
      & *bzab(ia,ie)*tzba(in,ig)*half*mb*tga2*gDt**(-1)*aDb**(-1) * ( 
      &    za(ig,ie)*zb(ig,in) )
@@ -254,13 +258,13 @@ c      endif
      & aDb**(-1) * (  - za(ie,ia)*zb(ig,in) )
       BB(1,2,1,1) = BB(1,2,1,1)+one/(za(ig,ia))/(za(ib,ie))/(zb(ig,ia))
      & /(zb(in,it))*bzba(ig,ie)*bzba(ig,ia)*bzba(in,ia)*tzba(in,ie)*
-     & tga2*bga2**(-1)*aDb**(-1) * (  - 1.D0 )
+     & tga2*bga2**(-1)*aDb**(-1) * (  - one )
       BB(1,2,1,1) = BB(1,2,1,1)+one/(za(ig,ia))/(za(ib,ie))/(zb(ig,ia))
      & /(zb(in,it))*bzba(ig,ie)*bzba(in,ia)*half*mtsq*tga2*gDt**(-1)*
      & aDb**(-1) * ( za(ie,ia)*zb(ig,in) )
       BB(1,2,1,1) = BB(1,2,1,1)+one/(za(ig,ia))/(za(ib,ie))/(zb(ig,ia))
      & /(zb(in,it))*bzba(ig,ie)*bzba(in,ia)*tzba(ig,ie)*tzba(in,ia)*
-     & half*tga2*gDt**(-1)*aDb**(-1) * ( 1.D0 )
+     & half*tga2*gDt**(-1)*aDb**(-1) * ( one )
       BB(1,2,1,1) = BB(1,2,1,1)+one/(za(ig,ia))/(za(ib,ie))/(zb(ig,ia))
      & /(zb(in,it))*tzba(ig,ie)*tzba(in,ia)*mbsq*half*tga2*gDt**(-1)*
      & aDb**(-1) * ( za(ie,ia)*zb(ig,in) )
@@ -342,13 +346,13 @@ c      endif
      & aDb**(-1) * (  - za(ig,ie)*zb(in,ia) )
       BB(2,1,1,1) = BB(2,1,1,1)+one/(za(ig,ia))/(za(ib,ie))/(zb(ig,ia))
      & /(zb(in,it))*bzba(in,ig)*bzba(ia,ig)*bzba(ia,ie)*tzba(in,ie)*
-     & tga2*bga2**(-1)*aDb**(-1) * (  - 1.D0 )
+     & tga2*bga2**(-1)*aDb**(-1) * (  - one )
       BB(2,1,1,1) = BB(2,1,1,1)+one/(za(ig,ia))/(za(ib,ie))/(zb(ig,ia))
      & /(zb(in,it))*bzba(in,ig)*bzba(ia,ie)*half*mtsq*tga2*gDt**(-1)*
      & aDb**(-1) * ( za(ig,ie)*zb(in,ia) )
       BB(2,1,1,1) = BB(2,1,1,1)+one/(za(ig,ia))/(za(ib,ie))/(zb(ig,ia))
      & /(zb(in,it))*bzba(in,ig)*bzba(ia,ie)*tzba(in,ig)*tzba(ia,ie)*
-     & half*tga2*gDt**(-1)*aDb**(-1) * ( 1.D0 )
+     & half*tga2*gDt**(-1)*aDb**(-1) * ( one )
       BB(2,1,1,1) = BB(2,1,1,1)+one/(za(ig,ia))/(za(ib,ie))/(zb(ig,ia))
      & /(zb(in,it))*tzba(in,ig)*tzba(ia,ie)*mbsq*half*tga2*gDt**(-1)*
      & aDb**(-1) * ( za(ig,ie)*zb(in,ia) )
@@ -490,19 +494,19 @@ c      endif
      & aDb**(-1) * (  - za(ig,ie)*zb(ig,in) )
       BB(2,2,1,1) = BB(2,2,1,1)+one/(za(ig,ia))/(za(ig,ia))/(za(ib,ie))
      & /(zb(in,it))*bzba(ig,ig)*bzba(in,ia)*bzba(ia,ie)*tzba(in,ie)*
-     & tga2*bga2**(-1)*aDb**(-1) * ( 1.D0 )
+     & tga2*bga2**(-1)*aDb**(-1) * ( one )
       BB(2,2,1,1) = BB(2,2,1,1)+one/(za(ig,ia))/(za(ig,ia))/(za(ib,ie))
      & /(zb(in,it))*bzba(ig,ie)*bzba(in,ig)*tzba(in,ie)*tga2*bga2**(-1)
-     &  * (  - 1.D0 )
+     &  * (  - one )
       BB(2,2,1,1) = BB(2,2,1,1)+one/(za(ig,ia))/(za(ig,ia))/(za(ib,ie))
      & /(zb(in,it))*bzba(in,ig)*bzba(ia,ie)*half*mtsq*tga2*gDt**(-1)*
      & aDb**(-1) * (  - za(ie,ia)*zb(ig,in) )
       BB(2,2,1,1) = BB(2,2,1,1)+one/(za(ig,ia))/(za(ig,ia))/(za(ib,ie))
      & /(zb(in,it))*bzba(in,ig)*bzba(ia,ie)*tzba(ig,ie)*tzba(in,ia)*
-     & half*tga2*gDt**(-1)*aDb**(-1) * (  - 1.D0 )
+     & half*tga2*gDt**(-1)*aDb**(-1) * (  - one )
       BB(2,2,1,1) = BB(2,2,1,1)+one/(za(ig,ia))/(za(ig,ia))/(za(ib,ie))
      & /(zb(in,it))*bzba(in,ia)*bzba(ia,ie)*tzba(in,ie)*tga2*bga2**(-1)
-     &  * ( 1.D0 )
+     &  * ( one )
       BB(2,2,1,1) = BB(2,2,1,1)+one/(za(ig,ia))/(za(ig,ia))/(za(ib,ie))
      & /(zb(in,it))*bzba(in,ia)*tzba(in,ie)*mbsq*tga2*bga2**(-1)*
      & aDb**(-1) * ( za(ig,ie)*zb(ig,ia) )
@@ -709,8 +713,8 @@ c      endif
      &    ia) )
 
 c--- Use the "non-overall scheme" to include the top width when necessary
-c      if (dble(tga2+mt**2) .gt. 0d0) then
-c        tga2=tga2+dcmplx(0d0,mt*twidth)
+c      if (real(tga2+mt**2) > zip) then
+c        tga2=tga2+cplx2(zip,mt*twidth)
 c      endif
 
       do i1=1,2

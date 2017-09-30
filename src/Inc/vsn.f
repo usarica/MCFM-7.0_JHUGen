@@ -1,2 +1,2 @@
-      double precision verysmallnumber
-      parameter(verysmallnumber=1d-9)
+      real(dp):: verysmallnumber
+      parameter(verysmallnumber=1.e-9_dp)

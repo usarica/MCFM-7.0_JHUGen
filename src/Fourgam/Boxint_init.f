@@ -2,16 +2,19 @@
 !===== Initialise array of box integral values.
 !===== For use with qqb->4gamma and qqb->2j2gamma
 !===== coefficients by same author.
-      subroutine Boxint_init(i1,i2,i3,i4,i5,i6,
-     & Boxint,ord)
+      subroutine Boxint_init(i1,i2,i3,i4,i5,i6,Boxint,ord)
       implicit none
+      include 'types.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'sprods_com.f'
       include 'scale.f'
-      integer i1,i2,i3,i4,i5,i6
-      integer ord
-      double complex Boxint(195), qlI4
-      double precision t
+      integer:: i1,i2,i3,i4,i5,i6
+      integer:: ord
+      complex(dp):: Boxint(195), qlI4
+      real(dp):: t
 
       t(i1,i2,i3) = s(i1,i2) + s(i2,i3) + s(i3,i1)
 

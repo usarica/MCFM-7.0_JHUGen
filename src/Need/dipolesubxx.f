@@ -24,30 +24,35 @@
 ************************************************************************
 
       subroutine dipsxx(nd,p,ip,jp,kp,sub,subv,
-     . subr_born,subr_corr,msqx,msqvx)
+     & subr_born,subr_corr,msqx,msqvx)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'qcdcouple.f'
       include 'qqgg.f'
       include 'ptilde.f'
-      double precision p(mxpart,4),ptrans(mxpart,4),sub(4),subv,vecsq
-      double precision x,omx,z,omz,y,omy,u,omu,sij,sik,sjk,dot,vec(4)
-      double precision msq(-nf:nf,-nf:nf)
-      double precision msqx(0:2,-nf:nf,-nf:nf,-nf:nf,-nf:nf)
-      double precision msqvx(0:2,-1:1,-1:1,-1:1,-1:1)
-      integer nd,ip,jp,kp,nu,j,k
+      real(dp):: p(mxpart,4),ptrans(mxpart,4),sub(4),subv,vecsq
+      real(dp):: x,omx,z,omz,y,omy,u,omu,sij,sik,sjk,dot,vec(4)
+      real(dp):: msq(-nf:nf,-nf:nf)
+      real(dp):: msqx(0:2,-nf:nf,-nf:nf,-nf:nf,-nf:nf)
+      real(dp):: msqvx(0:2,-1:1,-1:1,-1:1,-1:1)
+      integer:: nd,ip,jp,kp,nu,j,k
       external subr_born,subr_corr
       
 C---Initialize the dipoles to zero
       do j=1,4
-      sub(j)=0d0
+      sub(j)=0._dp
       enddo
 
       sij=two*dot(p,ip,jp)
       sik=two*dot(p,ip,kp)
       sjk=two*dot(p,jp,kp)
 
-      if ((ip .le. 2) .and. (kp .le. 2)) then
+      if ((ip <= 2) .and. (kp <= 2)) then
 ***********************************************************************
 *************************** INITIAL-INITIAL ***************************
 ***********************************************************************
@@ -66,13 +71,13 @@ C---Initialize the dipoles to zero
         sub(qq)=-gsq/x/sij*(two/omx-one-x)
         sub(gq)=-gsq/sij
         sub(qg)=-gsq/x/sij*(one-two*x*omx)
-        sub(gg)=-2d0*gsq/x/sij*(x/omx+x*omx)
-        subv   =+4d0*gsq/x/sij*omx/x/vecsq
+        sub(gg)=-2._dp*gsq/x/sij*(x/omx+x*omx)
+        subv   =+4._dp*gsq/x/sij*omx/x/vecsq
 
 ***********************************************************************
 *************************** INITIAL-FINAL *****************************
 ***********************************************************************
-      elseif ((ip .le. 2) .and. (kp .gt. 2)) then
+      elseif ((ip <= 2) .and. (kp > 2)) then
         
         omx=-sjk/(sij+sik)
         x=one-omx
@@ -90,10 +95,10 @@ C---transform the momenta so that only the first npart+1 are filled
         sub(qq)=-gsq/x/sij*(two/(omx+u)-one-x)
         sub(gq)=-gsq/sij
         sub(qg)=-gsq/x/sij*(one-two*x*omx)
-        sub(gg)=-2d0*gsq/x/sij*(one/(omx+u)-one+x*omx)
-        subv   =-4d0*gsq/x/sij*(omx/x*u*(one-u)/sjk)
+        sub(gg)=-2._dp*gsq/x/sij*(one/(omx+u)-one+x*omx)
+        subv   =-4._dp*gsq/x/sij*(omx/x*u*(one-u)/sjk)
 
-      elseif ((ip .gt. 2) .and. (kp .le. 2)) then
+      elseif ((ip > 2) .and. (kp <= 2)) then
 ***********************************************************************
 *************************** FINAL-INITIAL *****************************
 ***********************************************************************
@@ -114,7 +119,7 @@ C---call again because vec has changed
         enddo
 c--- do something special if (jp .ne. 5)
         if (jp .ne. 5) then
-          if (ip .lt. 5) then
+          if (ip < 5) then
 C ie for cases 34_i,43_i
           call subr_corr(ptrans,vec,3,msqvx)
           else
@@ -128,14 +133,14 @@ C ie for cases 35_i,45_i
                 
         sub(qq)=+gsq/x/sij*(two/(omz+omx)-one-z)
         sub(gq)=+gsq/x/sij
-        sub(gg)=+2d0*gsq/x/sij*(one/(omz+omx)+one/(z+omx)-two) 
-        subv   =+4d0*gsq/x/sij/sij
+        sub(gg)=+2._dp*gsq/x/sij*(one/(omz+omx)+one/(z+omx)-two) 
+        subv   =+4._dp*gsq/x/sij/sij
 
 
 ***********************************************************************
 **************************** FINAL-FINAL ******************************
 ***********************************************************************
-      elseif ((ip .gt. 2) .and. (kp .gt. 2)) then
+      elseif ((ip > 2) .and. (kp > 2)) then
 c------Eq-(5.2)    
        y=sij/(sij+sjk+sik)
        z=sik/(sjk+sik)
@@ -149,7 +154,7 @@ C---calculate the ptrans-momenta
          vec(nu)=z*p(ip,nu)-omz*p(jp,nu)
        enddo
        call subr_born(ptrans,msq,msqx)
-       if (ip .lt. kp) then
+       if (ip < kp) then
          call subr_corr(ptrans,vec,3,msqvx)
        else
          call subr_corr(ptrans,vec,4,msqvx)
@@ -158,7 +163,7 @@ C---calculate the ptrans-momenta
        sub(qq)=gsq/sij*(two/(one-z*omy)-one-z)
        sub(gq)=gsq/sij
        sub(gg)=gsq/sij*(two/(one-z*omy)+two/(one-omz*omy)-four)
-       subv   =+4d0*gsq/sij/sij
+       subv   =+4._dp*gsq/sij/sij
 
       endif
       

@@ -1,6 +1,11 @@
       subroutine extradk(q,yextra)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'poles.f'
       include 'alpha1.f'
@@ -9,17 +14,17 @@
       include 'ewcouple.f'
       include 'decl_kininv.f'
       include 'nwz.f'
-      integer k1,k2,ep
-      double complex prW,yextra(2,-2:0),
+      integer:: k1,k2,ep
+      complex(dp):: prW,yextra(2,-2:0),
      & qlI2,qlI3,qlI2diff(-2:0),izb,
      & vert25x1,vert25x2,vert25x3,vert16x1,iprZ,cprop
-      double precision q(mxpart,4),mtsq,mwsq
-      double precision p2Dp5,omal
-      integer p1,p2,p3,p4,k5,e5,p6
+      real(dp):: q(mxpart,4),mtsq,mwsq
+      real(dp):: p2Dp5,omal
+      integer:: p1,p2,p3,p4,k5,e5,p6
       parameter(p1=1,p2=2,p3=3,p4=4,k5=5,p6=7,e5=6)
 
 c----statement functions
-      prW(s16)=cone/dcmplx(s16-wmass**2)
+      prW(s16)=cone/cplx1(s16-wmass**2)
       izb(k1,k2)=cone/zb(k1,k2)
 c----end statement functions
 
@@ -31,16 +36,16 @@ c--- amplitude only exists for left-handed lepton couplings
       mwsq=wmass**2
       p2Dp5=0.5d0*(s25-mtsq)
       
-      if (nwz .eq. +1) then
+      if (nwz == +1) then
       call spinoru(7,q,za,zb)
-      elseif (nwz .eq. -1) then
+      elseif (nwz == -1) then
       call spinoru(7,q,zb,za)
       endif
       
 c--- Implementation of Baur-Zeppenfeld treatment of Z width
-      cprop=dcmplx(1d0/dsqrt((s34-zmass**2)**2+(zmass*zwidth)**2))
-      iprZ=dcmplx(s34-zmass**2)
-      cprop=cprop/dcmplx(zip,mt*twidth)
+      cprop=cplx1(1d0/sqrt((s34-zmass**2)**2+(zmass*zwidth)**2))
+      iprZ=cplx1(s34-zmass**2)
+      cprop=cprop/cplx2(zip,mt*twidth)
 
       do ep=-2,0
       qlI2diff(ep)=qlI2(s25,0d0,mtsq,musq,ep)

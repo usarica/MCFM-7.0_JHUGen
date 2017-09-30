@@ -1,9 +1,14 @@
       subroutine qq_ZZqqstrong(p,msq)
       implicit none
+      include 'types.f'
+      
 c--- Author: R.K. Ellis, October 2014
 c--- q(-p1)+q(-p2)->Z(p3,p4)+Z(p5,p6)+q(p7)+q(p8);
 c--- with the t-channel exchange of a gluon.
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'cmplxmass.f'
       include 'ewcouple.f'
       include 'masses.f'
@@ -11,9 +16,9 @@ c--- with the t-channel exchange of a gluon.
       include 'sprods_com.f'
       include 'zprods_decl.f'
       include 'first.f'
-      integer nmax,jmax
+      integer:: nmax,jmax
       parameter(jmax=12,nmax=10)
-      integer j,k,l,i1,i2,i3,i4,
+      integer:: j,k,l,i1,i2,i3,i4,
      & uqcq_uqcq,uquq_uquq,dqsq_dqsq,
      & dqdq_dqdq,uqbq_uqbq,dqcq_dqcq
 c     & dquq_dquq,dqcq_uqsq,uqsq_dqcq
@@ -21,13 +26,13 @@ c     & dquq_dquq,dqcq_uqsq,uqsq_dqcq
      & uqcq_uqcq=1,uquq_uquq=2,dqsq_dqsq=3,
      & dqdq_dqdq=4,uqbq_uqbq=5,dqcq_dqcq=6)
 c     & dquq_dquq=7,dqcq_uqsq=8,uqsq_dqcq=9)
-      integer h1,h2,h3,h5
-      double precision p(mxpart,4),msq(fn:nf,fn:nf),temp(fn:nf,fn:nf),
+      integer:: h1,h2,h3,h5
+      real(dp):: p(mxpart,4),msq(fn:nf,fn:nf),temp(fn:nf,fn:nf),
      & stat,spinavge,Colorfac,t4,
      & s17,s28,s18,s27,s7341,s7561,s7342,s7562,
      & msqgg(2)
-      double complex zab(mxpart,4,mxpart),zba(mxpart,4,mxpart),cdotpr,
-     & j7_1(4,2),j7_2(4,2),j8_1(4,2),j8_2(4,2),
+      complex(dp):: zab(mxpart,4,mxpart),zba(mxpart,4,mxpart),
+     & j7_1(4,2),j7_2(4,2),j8_1(4,2),j8_2(4,2),cdotpr,
      & j7_34_1(4,2,2,2),j7_34_2(4,2,2,2),
      & j7_56_1(4,2,2,2),j7_56_2(4,2,2,2),
      & j8_34_1(4,2,2,2),j8_34_2(4,2,2,2),
@@ -61,10 +66,10 @@ c--- End statement functions
 c--- This calculation uses the complex-mass scheme (c.f. arXiv:hep-ph/0605312)
 c--- and the following lines set up the appropriate masses and sin^2(theta_w)
       if (first) then
-       cwmass2=dcmplx(wmass**2,-wmass*wwidth)
-       czmass2=dcmplx(zmass**2,-zmass*zwidth)
+       cwmass2=cplx2(wmass**2,-wmass*wwidth)
+       czmass2=cplx2(zmass**2,-zmass*zwidth)
        cxw=cone-cwmass2/czmass2
-c       cxw=dcmplx(xw,0d0) ! DEBUG: Madgraph comparison
+c       cxw=cplx2(xw,0d0) ! DEBUG: Madgraph comparison
 c       gsq=(-1.2177157847767197d0)**2 ! DEBUG: Madgraph comparison
        write(6,*)
        write(6,*) '**************** Complex-mass scheme ***************'
@@ -134,8 +139,8 @@ C---two-one currents
      & +cdotpr(j7_1(:,h1),j8_3456_2(:,1,h2,h3,h5))/s17
 
       temp(2,5)=temp(2,5)+esq**4*gsq**2*Colorfac*spinavge
-     &   *dble(amp(uqbq_uqbq,h1,h2,h3,h5)
-     & *dconjg(amp(uqbq_uqbq,h1,h2,h3,h5)))
+     &   *real(amp(uqbq_uqbq,h1,h2,h3,h5)
+     & *conjg(amp(uqbq_uqbq,h1,h2,h3,h5)))
       enddo
       enddo
       enddo
@@ -160,8 +165,8 @@ C---two-one currents
      & +cdotpr(j7_1(:,h1),j8_3456_2(:,2,h2,h3,h5))/s17
 
       temp(2,4)=temp(2,4)+esq**4*gsq**2*Colorfac*spinavge
-     &   *dble(amp(uqcq_uqcq,h1,h2,h3,h5)
-     & *dconjg(amp(uqcq_uqcq,h1,h2,h3,h5)))
+     &   *real(amp(uqcq_uqcq,h1,h2,h3,h5)
+     & *conjg(amp(uqcq_uqcq,h1,h2,h3,h5)))
 
       enddo
       enddo
@@ -183,8 +188,8 @@ C-----setup for (dqcq_dqcq) (1,4)-->(1,4)
      & +cdotpr(j7_1(:,h1),j8_3456_2(:,2,h2,h3,h5))/s17
 
       temp(1,4)=temp(1,4)+esq**4*gsq**2*Colorfac*spinavge
-     &   *dble(amp(dqcq_dqcq,h1,h2,h3,h5)
-     & *dconjg(amp(dqcq_dqcq,h1,h2,h3,h5)))
+     &   *real(amp(dqcq_dqcq,h1,h2,h3,h5)
+     & *conjg(amp(dqcq_dqcq,h1,h2,h3,h5)))
       enddo
       enddo
       enddo
@@ -206,8 +211,8 @@ C-----setup for (dqsq_dqsq) (1,3)-->(1,3)
      & +cdotpr(j8_3456_2(:,1,h2,h3,h5),j7_1(:,h1))/s17
 
       temp(1,3)=temp(1,3)+esq**4*gsq**2*Colorfac*spinavge
-     &   *dble(amp(dqsq_dqsq,h1,h2,h3,h5)
-     & *dconjg(amp(dqsq_dqsq,h1,h2,h3,h5)))
+     &   *real(amp(dqsq_dqsq,h1,h2,h3,h5)
+     & *conjg(amp(dqsq_dqsq,h1,h2,h3,h5)))
       enddo
       enddo
       enddo
@@ -215,8 +220,8 @@ C-----setup for (dqsq_dqsq) (1,3)-->(1,3)
       temp(1,5)=temp(1,3)
       temp(3,5)=temp(1,3)
 
-      if ((j.eq.2).or.(j.eq.4).or.(j.eq.6).or.(j.eq.8)
-     & .or.(j.eq.10).or.(j.eq.12)) go to 100
+      if ((j==2).or.(j==4).or.(j==6).or.(j==8)
+     & .or.(j==10).or.(j==12)) go to 100
 C-----setup for ((uquq_uquq)  (2,2)-->(2,2)
       do h1=1,2
       do h2=1,2
@@ -235,15 +240,15 @@ C-----------------ampb
      & +cdotpr(j8_1(:,h1),j7_3456_2(:,2,h2,h3,h5))/s18
 
       temp(2,2)=temp(2,2)+esq**4*gsq**2*Colorfac*spinavge
-     & *dble(ampa(uquq_uquq,h1,h2,h3,h5)
-     & *dconjg(ampa(uquq_uquq,h1,h2,h3,h5)))
+     & *real(ampa(uquq_uquq,h1,h2,h3,h5)
+     & *conjg(ampa(uquq_uquq,h1,h2,h3,h5)))
       temp(2,2)=temp(2,2)+esq**4*gsq**2*Colorfac*spinavge
-     & *dble(ampb(uquq_uquq,h1,h2,h3,h5)
-     & *dconjg(ampb(uquq_uquq,h1,h2,h3,h5)))
-      if (h1 .eq. h2) then
+     & *real(ampb(uquq_uquq,h1,h2,h3,h5)
+     & *conjg(ampb(uquq_uquq,h1,h2,h3,h5)))
+      if (h1 == h2) then
       temp(2,2)=temp(2,2)+2d0/xn*esq**4*gsq**2*Colorfac*spinavge
-     & *dble(ampa(uquq_uquq,h1,h2,h3,h5)
-     & *dconjg(ampb(uquq_uquq,h1,h2,h3,h5)))
+     & *real(ampa(uquq_uquq,h1,h2,h3,h5)
+     & *conjg(ampb(uquq_uquq,h1,h2,h3,h5)))
       endif
 
       enddo
@@ -272,15 +277,15 @@ C-----------------ampb
      & +cdotpr(j8_1(:,h1),j7_3456_2(:,1,h2,h3,h5))/s18
 
       temp(1,1)=temp(1,1)+esq**4*gsq**2*Colorfac*spinavge
-     & *dble(ampa(dqdq_dqdq,h1,h2,h3,h5)
-     & *dconjg(ampa(dqdq_dqdq,h1,h2,h3,h5)))
+     & *real(ampa(dqdq_dqdq,h1,h2,h3,h5)
+     & *conjg(ampa(dqdq_dqdq,h1,h2,h3,h5)))
       temp(1,1)=temp(1,1)+esq**4*gsq**2*Colorfac*spinavge
-     & *dble(ampb(dqdq_dqdq,h1,h2,h3,h5)
-     & *dconjg(ampb(dqdq_dqdq,h1,h2,h3,h5)))
-      if (h1 .eq. h2) then
+     & *real(ampb(dqdq_dqdq,h1,h2,h3,h5)
+     & *conjg(ampb(dqdq_dqdq,h1,h2,h3,h5)))
+      if (h1 == h2) then
       temp(1,1)=temp(1,1)+2d0/xn*esq**4*gsq**2*Colorfac*spinavge
-     & *dble(ampa(dqdq_dqdq,h1,h2,h3,h5)
-     & *dconjg(ampb(dqdq_dqdq,h1,h2,h3,h5)))
+     & *real(ampa(dqdq_dqdq,h1,h2,h3,h5)
+     & *conjg(ampb(dqdq_dqdq,h1,h2,h3,h5)))
       endif
 
       enddo
@@ -291,7 +296,7 @@ C-----------------ampb
       temp(5,5)=temp(1,1)
  100  continue
 
-      if (j.eq.1) then
+      if (j==1) then
       do k=1,nf
       msq(k,k)=temp(k,k)*stat
       do l=k+1,nf
@@ -299,14 +304,14 @@ C-----------------ampb
       enddo
       enddo
 
-      elseif (j.eq.2) then
+      elseif (j==2) then
       do k=1,nf
       do l=k+1,nf
       msq(l,k)=temp(k,l)
       enddo
       enddo
 
-      elseif (j.eq.3) then
+      elseif (j==3) then
       do k=-nf,-1
       msq(k,k)=temp(-k,-k)*stat
       do l=k+1,-1
@@ -314,7 +319,7 @@ C-----------------ampb
       enddo
       enddo
 
-      elseif (j.eq.4) then
+      elseif (j==4) then
       do k=-nf,-1
       do l=k+1,-1
       msq(l,k)=temp(-l,-k)
@@ -322,52 +327,52 @@ C-----------------ampb
       enddo
 
 c--- qbar-q
-      elseif (j.eq.5) then
+      elseif (j==5) then
       do k=-nf,-1
       msq(k,-k)=temp(-k,-k)
       do l=1,nf
-      if (abs(k) .lt. abs(l)) then
+      if (abs(k) < abs(l)) then
       msq(k,l)=temp(-k,l)
       endif
       enddo
       enddo
       
 c--- qbar-q
-      elseif (j.eq.6) then
+      elseif (j==6) then
       do k=-nf,-1
       do l=1,nf
-      if (abs(k) .gt. abs(l)) then
+      if (abs(k) > abs(l)) then
       msq(k,l)=temp(l,-k)
       endif
       enddo
       enddo
 
 c--- q-qbar
-      elseif (j.eq.7) then
+      elseif (j==7) then
       do k=-nf,-1
       msq(-k,k)=temp(-k,-k)
       do l=1,nf
-      if (abs(k) .lt. abs(l)) then
+      if (abs(k) < abs(l)) then
       msq(l,k)=temp(-k,l)
       endif
       enddo
       enddo
 
 c--- q-qbar
-      elseif (j.eq.8) then
+      elseif (j==8) then
       do k=-nf,-1
       do l=-nf,-1
-      if (abs(k) .lt. abs(l)) then
+      if (abs(k) < abs(l)) then
       msq(-k,l)=temp(-k,-l)
       endif
       enddo
       enddo
       
 c--- q-qbar extra pieces
-      elseif (j.eq.9) then
+      elseif (j==9) then
       do k=1,nf
       do l=1,nf
-      if (k .lt. l) then
+      if (k < l) then
       msq(k,-k)=msq(k,-k)+temp(k,l)
       endif
       enddo
@@ -375,20 +380,20 @@ c--- q-qbar extra pieces
       msq(3,-4)=msq(1,-2)
       msq(4,-3)=msq(2,-1)
 c--- q-qbar extra pieces
-      elseif (j.eq.10) then
+      elseif (j==10) then
       do k=1,nf
       do l=1,nf
-      if (k .gt. l) then
+      if (k > l) then
       msq(k,-k)=msq(k,-k)+temp(l,k)
       endif
       enddo
       enddo
  
 c--- qbar-q extra pieces
-      elseif (j.eq.11) then
+      elseif (j==11) then
       do k=1,nf
       do l=1,nf
-      if (k .lt. l) then
+      if (k < l) then
       msq(-k,k)=msq(-k,k)+temp(k,l)
       endif
       enddo
@@ -397,10 +402,10 @@ c--- qbar-q extra pieces
       msq(-3,4)=msq(-1,2)
 
 c--- qbar-q extra pieces
-      elseif (j.eq.12) then
+      elseif (j==12) then
       do k=1,nf
       do l=1,nf
-      if (k .gt. l) then
+      if (k > l) then
       msq(-k,k)=msq(-k,k)+temp(l,k)
       endif
       enddo

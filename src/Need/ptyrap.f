@@ -1,51 +1,75 @@
-      double precision function pt(j,p)
+      function pt(j,p)
+      implicit none
+      include 'types.f'
+      real(dp):: pt
 c--- This routine is now just a wrapper to getet, which
 c--- computes either pt or et, depending on the value of useEt      
-      implicit none
+      
       include 'constants.f'
-      integer j
-      double precision p(mxpart,4),getet
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      integer:: j
+      real(dp):: p(mxpart,4),getet
       
       pt=getet(p(j,4),p(j,1),p(j,2),p(j,3))
 
       return
       end
 
-      double precision function pttwo(j,k,p)
+      function pttwo(j,k,p)
+      implicit none
+      include 'types.f'
+      real(dp):: pttwo
 c--- This routine is now just a wrapper to getet, which
 c--- computes either pt or et, depending on the value of useEt      
-      implicit none
+      
       include 'constants.f'
-      integer j,k
-      double precision p(mxpart,4),getet
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      integer:: j,k
+      real(dp):: p(mxpart,4),getet
 
       pttwo=getet(p(j,4)+p(k,4),p(j,1)+p(k,1),
-     .            p(j,2)+p(k,2),p(j,3)+p(k,3))
+     &            p(j,2)+p(k,2),p(j,3)+p(k,3))
 
       return
       end
 
-      double precision function ptthree(j,k,m,p)
+      function ptthree(j,k,m,p)
+      implicit none
+      include 'types.f'
+      real(dp):: ptthree
 c--- This routine is now just a wrapper to getet, which
 c--- computes either pt or et, depending on the value of useEt      
-      implicit none
+      
       include 'constants.f'
-      integer j,k,m
-      double precision p(mxpart,4),getet
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      integer:: j,k,m
+      real(dp):: p(mxpart,4),getet
       
       ptthree=getet(p(j,4)+p(k,4)+p(m,4),p(j,1)+p(k,1)+p(m,1),
-     .              p(j,2)+p(k,2)+p(m,2),p(j,3)+p(k,3)+p(m,3))
+     &              p(j,2)+p(k,2)+p(m,2),p(j,3)+p(k,3)+p(m,3))
 
       return
       end
 
-      double precision function ptfour(j,k,m,n,p)
+      function ptfour(j,k,m,n,p)
+      implicit none
+      include 'types.f'
+      real(dp):: ptfour
 c--- This routine is now just a wrapper to getet, which
 c--- computes either pt or et, depending on the value of useEt      
-      implicit none
+      
       include 'constants.f'
-      integer j,k,m,n
-      double precision p(mxpart,4),getet
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      integer:: j,k,m,n
+      real(dp):: p(mxpart,4),getet
            
       ptfour=getet(p(j,4)+p(k,4)+p(m,4)+p(n,4),
      &             p(j,1)+p(k,1)+p(m,1)+p(n,1),
@@ -55,13 +79,19 @@ c--- computes either pt or et, depending on the value of useEt
       return
       end
 
-      double precision function ptsix(j1,k1,m1,j2,k2,m2,p)
+      function ptsix(j1,k1,m1,j2,k2,m2,p)
+      implicit none
+      include 'types.f'
+      real(dp):: ptsix
 c--- This routine is now just a wrapper to getet, which
 c--- computes either pt or et, depending on the value of useEt      
-      implicit none
+      
       include 'constants.f'
-      integer j1,k1,m1,j2,k2,m2
-      double precision p(mxpart,4),getet
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      integer:: j1,k1,m1,j2,k2,m2
+      real(dp):: p(mxpart,4),getet
            
       ptsix=getet(p(j1,4)+p(k1,4)+p(m1,4)+p(j2,4)+p(k2,4)+p(m2,4),
      &            p(j1,1)+p(k1,1)+p(m1,1)+p(j2,1)+p(k2,1)+p(m2,1),
@@ -71,261 +101,351 @@ c--- computes either pt or et, depending on the value of useEt
       return
       end
 
-      double precision function etarap(j,p)
+      function etarap(j,p)
       implicit none
+      include 'types.f'
+      real(dp):: etarap
+      
 C---returns the value of the pseudorapidity
       include 'constants.f'
-      integer j
-      double precision p(mxpart,4)
-      etarap=dsqrt(p(j,1)**2+p(j,2)**2+p(j,3)**2)
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      integer:: j
+      real(dp):: p(mxpart,4)
+      etarap=sqrt(p(j,1)**2+p(j,2)**2+p(j,3)**2)
       etarap=(etarap+p(j,3))/(etarap-p(j,3))
 
-      if (etarap .lt. 1d-13) then
+      if (etarap < 1.e-13_dp) then
 C-- set to 100 if this is very close to or less than zero
 c-- rapidities of 100 will be rejected by any sensible cuts
-      etarap=100d0
+      etarap=100._dp
       else
-      etarap=0.5d0*dlog(etarap)
+      etarap=0.5_dp*log(etarap)
       endif
       return
       end
 
-      double precision function aetarap(j,p)
+      function aetarap(j,p)
       implicit none
+      include 'types.f'
+      real(dp):: aetarap
+      
 C---returns the absolute value of the pseudorapidity
       include 'constants.f'
-      integer j
-      double precision p(mxpart,4)
-      aetarap=dsqrt(p(j,1)**2+p(j,2)**2+p(j,3)**2)
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      integer:: j
+      real(dp):: p(mxpart,4)
+      aetarap=sqrt(p(j,1)**2+p(j,2)**2+p(j,3)**2)
       aetarap=(aetarap+p(j,3))/(aetarap-p(j,3))
-      if (aetarap .lt. 1d-13) then
+      if (aetarap < 1.e-13_dp) then
 C-- set to 100 if this is very close to or less than zero
 c-- rapidities of 100 will be rejected by any sensible cuts
-      aetarap=100d0
+      aetarap=100._dp
       else
-      aetarap=0.5d0*abs(dlog(aetarap))
+      aetarap=0.5_dp*abs(log(aetarap))
       endif
       return
       end
  
-      double precision function yrap(j,p)
+      function yrap(j,p)
       implicit none
+      include 'types.f'
+      real(dp):: yrap
+      
 C---returns the value of the rapidity
       include 'constants.f'
-      integer j
-      double precision p(mxpart,4)
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      integer:: j
+      real(dp):: p(mxpart,4)
       yrap=(p(j,4)+p(j,3))/(p(j,4)-p(j,3))
-      if (yrap .lt. 1d-13) then
+      if (yrap < 1.e-13_dp) then
 C-- set to 100 if this is very close to or less than zero
 c-- rapidities of 100 will be rejected by any sensible cuts
-      yrap=100d0
+      yrap=100._dp
       else
-      yrap=0.5d0*dlog(yrap)
+      yrap=0.5_dp*log(yrap)
       endif
       return
       end
 
-      double precision function ayrap(j,p)
+      function ayrap(j,p)
       implicit none
+      include 'types.f'
+      real(dp):: ayrap
+      
 C---returns the absolute value of the rapidity
       include 'constants.f'
-      integer j
-      double precision p(mxpart,4)
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      integer:: j
+      real(dp):: p(mxpart,4)
       ayrap=(p(j,4)+p(j,3))/(p(j,4)-p(j,3))
-      if (ayrap .lt. 1d-13) then
+      if (ayrap < 1.e-13_dp) then
 C-- set to 100 if this is very close to or less than zero
 c-- rapidities of 100 will be rejected by any sensible cuts
-      ayrap=100d0
+      ayrap=100._dp
       else
-      ayrap=0.5d0*dabs(dlog(ayrap))
+      ayrap=0.5_dp*abs(log(ayrap))
       endif
       return
       end
  
 c--- this is the rapidity of pair j,k
-      double precision function yraptwo(j,k,p)
+      function yraptwo(j,k,p)
       implicit none
+      include 'types.f'
+      real(dp):: yraptwo
+      
       include 'constants.f'
-      integer j,k
-      double precision p(mxpart,4)
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      integer:: j,k
+      real(dp):: p(mxpart,4)
       yraptwo=(p(j,4)+p(k,4)+p(j,3)+p(k,3))
-     .       /(p(j,4)+p(k,4)-p(j,3)-p(k,3))
-      if (yraptwo .lt. 1d-13) then
+     &       /(p(j,4)+p(k,4)-p(j,3)-p(k,3))
+      if (yraptwo < 1.e-13_dp) then
 C-- set to 100 if this is very close to or less than zero
 c-- rapidities of 100 will be rejected by any sensible cuts
-      yraptwo=100d0
+      yraptwo=100._dp
       else 
-      yraptwo=0.5d0*dlog(yraptwo)
+      yraptwo=0.5_dp*log(yraptwo)
       endif
             
       return
       end
 
 c--- this is the pseudo-rapidity of pair j,k
-      double precision function etaraptwo(j,k,p)
+      function etaraptwo(j,k,p)
       implicit none
-      include 'constants.f'
-      integer j,k
-      double precision p(mxpart,4)
+      include 'types.f'
+      real(dp):: etaraptwo
       
-      etaraptwo=dsqrt((p(j,1)+p(k,1))**2+(p(j,2)+p(k,2))**2
-     .               +(p(j,3)+p(k,3))**2)
-      if (abs(etaraptwo)-abs(p(j,3)+p(k,3)) .lt. 1d-13) then
+      include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      integer:: j,k
+      real(dp):: p(mxpart,4)
+      
+      etaraptwo=sqrt((p(j,1)+p(k,1))**2+(p(j,2)+p(k,2))**2
+     &               +(p(j,3)+p(k,3))**2)
+      if (abs(etaraptwo)-abs(p(j,3)+p(k,3)) < 1.e-13_dp) then
 C-- set to 100 if this is very close to or less than zero
 c-- rapidities of 100 will be rejected by any sensible cuts
-      etaraptwo=100d0
+      etaraptwo=100._dp
       else 
       etaraptwo=(etaraptwo+p(j,3)+p(k,3))
-     .         /(etaraptwo-p(j,3)-p(k,3))
-      etaraptwo=0.5d0*dlog(etaraptwo)
+     &         /(etaraptwo-p(j,3)-p(k,3))
+      etaraptwo=0.5_dp*log(etaraptwo)
       endif
       
       return
       end
 
-      double precision function yrapthree(j,k,m,p)
-c--- this is the rapidity of the combination j+k+m
+      function yrapthree(j,k,m,p)
       implicit none
+      include 'types.f'
+      real(dp):: yrapthree
+c--- this is the rapidity of the combination j+k+m
+      
       include 'constants.f'
-      integer j,k,m
-      double precision p(mxpart,4)
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      integer:: j,k,m
+      real(dp):: p(mxpart,4)
       yrapthree=(p(j,4)+p(k,4)+p(m,4)+p(j,3)+p(k,3)+p(m,3))
-     .         /(p(j,4)+p(k,4)+p(m,4)-p(j,3)-p(k,3)-p(m,3))
-      if (yrapthree .lt. 1d-13) then
+     &         /(p(j,4)+p(k,4)+p(m,4)-p(j,3)-p(k,3)-p(m,3))
+      if (yrapthree < 1.e-13_dp) then
 C-- set to 100 if this is very close to or less than zero
 c-- rapidities of 100 will be rejected by any sensible cuts
-      yrapthree=100d0
+      yrapthree=100._dp
       else 
-      yrapthree=0.5d0*dlog(yrapthree)
+      yrapthree=0.5_dp*log(yrapthree)
       endif
             
       return
       end
 
-      double precision function etarapthree(j,k,m,p)
-c--- this is the pseudo-rapidity of the combination j+k+m
+      function etarapthree(j,k,m,p)
       implicit none
+      include 'types.f'
+      real(dp):: etarapthree
+c--- this is the pseudo-rapidity of the combination j+k+m
+      
       include 'constants.f'
-      integer j,k,m
-      double precision p(mxpart,4)
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      integer:: j,k,m
+      real(dp):: p(mxpart,4)
       
       etarapthree=
-     .    dsqrt((p(j,1)+p(k,1)+p(m,1))**2+(p(j,2)+p(k,2)+p(m,2))**2
-     .         +(p(j,3)+p(k,3)+p(m,3))**2)
-      if (abs(etarapthree)-abs(p(j,3)+p(k,3)+p(m,3)) .lt. 1d-13) then
+     &    sqrt((p(j,1)+p(k,1)+p(m,1))**2+(p(j,2)+p(k,2)+p(m,2))**2
+     &         +(p(j,3)+p(k,3)+p(m,3))**2)
+      if (abs(etarapthree)-abs(p(j,3)+p(k,3)+p(m,3)) < 1.e-13_dp) then
 C-- set to 100 if this is very close to or less than zero
 c-- rapidities of 100 will be rejected by any sensible cuts
-      etarapthree=100d0
+      etarapthree=100._dp
       else 
       etarapthree=(etarapthree+p(j,3)+p(k,3)+p(m,3))
-     .           /(etarapthree-p(j,3)-p(k,3)-p(m,3))
-      etarapthree=0.5d0*dlog(etarapthree)
+     &           /(etarapthree-p(j,3)-p(k,3)-p(m,3))
+      etarapthree=0.5_dp*log(etarapthree)
       endif
       
       return
       end
 
-      double precision function yrapfour(j,k,m,n,p)
-c--- this is the rapidity of the combination j+k+m+n
+      function yrapfour(j,k,m,n,p)
       implicit none
+      include 'types.f'
+      real(dp):: yrapfour
+c--- this is the rapidity of the combination j+k+m+n
+      
       include 'constants.f'
-      integer j,k,m,n
-      double precision p(mxpart,4)
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      integer:: j,k,m,n
+      real(dp):: p(mxpart,4)
       yrapfour=(p(j,4)+p(k,4)+p(m,4)+p(n,4)+p(j,3)+p(k,3)+p(m,3)+p(n,3))
      &        /(p(j,4)+p(k,4)+p(m,4)+p(n,4)-p(j,3)-p(k,3)-p(m,3)-p(n,3))
-      if (yrapfour .lt. 1d-13) then
+      if (yrapfour < 1.e-13_dp) then
 C-- set to 100 if this is very close to or less than zero
 c-- rapidities of 100 will be rejected by any sensible cuts
-      yrapfour=100d0
+      yrapfour=100._dp
       else 
-      yrapfour=0.5d0*dlog(yrapfour)
+      yrapfour=0.5_dp*log(yrapfour)
       endif
             
       return
       end
 
-      double precision function yrapsix(j1,k1,m1,j2,k2,m2,p)
-c--- this is the rapidity of the combination j1+k1+m1+j2+k2+m2
+      function yrapsix(j1,k1,m1,j2,k2,m2,p)
       implicit none
+      include 'types.f'
+      real(dp):: yrapsix
+c--- this is the rapidity of the combination j1+k1+m1+j2+k2+m2
+      
       include 'constants.f'
-      integer j1,k1,m1,j2,k2,m2
-      double precision p(mxpart,4)
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      integer:: j1,k1,m1,j2,k2,m2
+      real(dp):: p(mxpart,4)
       yrapsix=(p(j1,4)+p(k1,4)+p(m1,4)+p(j1,3)+p(k1,3)+p(m1,3)
      &        +p(j2,4)+p(k2,4)+p(m2,4)+p(j2,3)+p(k2,3)+p(m2,3))
      &       /(p(j1,4)+p(k1,4)+p(m1,4)-p(j1,3)-p(k1,3)-p(m1,3)
      &        +p(j2,4)+p(k2,4)+p(m2,4)-p(j2,3)-p(k2,3)-p(m2,3))
-      if (yrapsix .lt. 1d-13) then
+      if (yrapsix < 1.e-13_dp) then
 C-- set to 100 if this is very close to or less than zero
 c-- rapidities of 100 will be rejected by any sensible cuts
-      yrapsix=100d0
+      yrapsix=100._dp
       else 
-      yrapsix=0.5d0*dlog(yrapsix)
+      yrapsix=0.5_dp*log(yrapsix)
       endif
             
       return
       end
 
-      double precision function yrapseven(j1,k1,m1,j2,k2,m2,n,p)
-c--- this is the rapidity of the combination j1+k1+m1+j2+k2+m2+n
+      function yrapseven(j1,k1,m1,j2,k2,m2,n,p)
       implicit none
+      include 'types.f'
+      real(dp):: yrapseven
+c--- this is the rapidity of the combination j1+k1+m1+j2+k2+m2+n
+      
       include 'constants.f'
-      integer j1,k1,m1,j2,k2,m2,n
-      double precision p(mxpart,4)
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      integer:: j1,k1,m1,j2,k2,m2,n
+      real(dp):: p(mxpart,4)
       yrapseven=(p(j1,4)+p(k1,4)+p(m1,4)+p(j1,3)+p(k1,3)+p(m1,3)+p(n,4)
      &          +p(j2,4)+p(k2,4)+p(m2,4)+p(j2,3)+p(k2,3)+p(m2,3)+p(n,3))
      &         /(p(j1,4)+p(k1,4)+p(m1,4)-p(j1,3)-p(k1,3)-p(m1,3)+p(n,4)
      &          +p(j2,4)+p(k2,4)+p(m2,4)-p(j2,3)-p(k2,3)-p(m2,3)-p(n,3))
-      if (yrapseven .lt. 1d-13) then
+      if (yrapseven < 1.e-13_dp) then
 C-- set to 100 if this is very close to or less than zero
 c-- rapidities of 100 will be rejected by any sensible cuts
-      yrapseven=100d0
+      yrapseven=100._dp
       else 
-      yrapseven=0.5d0*dlog(yrapseven)
+      yrapseven=0.5_dp*log(yrapseven)
       endif
        return
        end
 c -- RR: mass definitions
 
-       double precision function onemass(j,p)
+       function onemass(j,p)
        implicit none
+      include 'types.f'
+      real(dp):: onemass
+       
        include 'constants.f'
-       integer j
-       double precision p(mxpart,4)
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+       integer:: j
+       real(dp):: p(mxpart,4)
        onemass=p(j,4)**2-p(j,1)**2-p(j,2)**2-p(j,3)**2
-       onemass=dsqrt(onemass)
+       onemass=sqrt(onemass)
        return
        end
 
-      double precision function twomass(j,k1,p)
+      function twomass(j,k1,p)
       implicit none
+      include 'types.f'
+      real(dp):: twomass
+      
       include 'constants.f'
-      integer j,k1
-      double precision p(mxpart,4),pjk(4)
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      integer:: j,k1
+      real(dp):: p(mxpart,4),pjk(4)
       pjk(:)=p(j,:)+p(k1,:)
       twomass=pjk(4)**2-pjk(1)**2-pjk(2)**2-pjk(3)**2
-      twomass=dsqrt(twomass)
+      twomass=sqrt(twomass)
       return
       end
 
-      double precision function threemass(j,k1,k2,p)
+      function threemass(j,k1,k2,p)
       implicit none
+      include 'types.f'
+      real(dp):: threemass
+      
       include 'constants.f'
-      integer j,k1,k2
-      double precision p(mxpart,4),ptot(4)
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      integer:: j,k1,k2
+      real(dp):: p(mxpart,4),ptot(4)
       ptot(:)=p(j,:)+p(k1,:)+p(k2,:)
       threemass=ptot(4)**2-ptot(1)**2-ptot(2)**2-ptot(3)**2
-      threemass=dsqrt(threemass)
+      threemass=sqrt(threemass)
       return
       end
 
-      double precision function fourmass(j,k1,k2,k3,p)
+      function fourmass(j,k1,k2,k3,p)
       implicit none
+      include 'types.f'
+      real(dp):: fourmass
+      
       include 'constants.f'
-      integer j,k1,k2,k3
-      double precision p(mxpart,4),ptot(4)
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      integer:: j,k1,k2,k3
+      real(dp):: p(mxpart,4),ptot(4)
       ptot(:)=p(j,:)+p(k1,:)+p(k2,:)+p(k3,:)
       fourmass=ptot(4)**2-ptot(1)**2-ptot(2)**2-ptot(3)**2
-      fourmass=dsqrt(fourmass)
+      fourmass=sqrt(fourmass)
       return
       end
 

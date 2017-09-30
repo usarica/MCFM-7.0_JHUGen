@@ -1,5 +1,7 @@
       subroutine qqb_tottth_v(p,msq)
       implicit none
+      include 'types.f'
+      
 ************************************************************************
 *     Author: R.K. Ellis                                               *
 *     December, 1999.                                                  *
@@ -10,10 +12,13 @@ C     q(-p1) +qbar(-p2)=t(p3)+t(p4)+h(p5)
 C  
 ************************************************************************
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ewcouple.f'
       include 'qcdcouple.f'
       include 'couple.f'
-      include 'part.f'
+      include 'kpart.f'
       include 'masses.f'
       include 'epinv.f'
       include 'swapxz.f'
@@ -22,10 +27,10 @@ C
       include 'scheme.f'
       include 'first.f'
       
-      integer j,k
-      double precision msq(-nf:nf,-nf:nf),p(mxpart,4),ren,
+      integer:: j,k
+      real(dp):: msq(-nf:nf,-nf:nf),p(mxpart,4),ren,
      & wtqqb,wtqbq,wtgg0,massfrun,mt_eff,facqq,facgg,ytsq
-      double complex cnab(-2:-1),cqed(-2:-1)
+      complex(dp):: cnab(-2:-1),cqed(-2:-1)
       save mt_eff
 !$omp threadprivate(mt_eff) 
 
@@ -33,7 +38,7 @@ C
       
       if (first) then
 c--- run mt to appropriate scale
-        if (part .eq. 'lord') then
+        if (kpart==klord) then
           mt_eff=massfrun(mt_msbar,hmass,amz,1)
         else
           mt_eff=massfrun(mt_msbar,hmass,amz,2)
@@ -44,11 +49,11 @@ c--- run mt to appropriate scale
       call ttqqHampsq(p,3,4,1,2,wtqqb)
       call ttqqHampsq(p,3,4,2,1,wtqbq)
       call singcoeffq(p,3,4,1,2,cnab,cqed)
-      wtqqb=(dble(cnab(-2))*epinv**2+dble(cnab(-1))*epinv)*wtqqb
+      wtqqb=(real(cnab(-2))*epinv**2+real(cnab(-1))*epinv)*wtqqb
 c      write(6,*) 'cnab(-2),cqed(-2)',cnab(-2),cqed(-2)
 c      write(6,*) 'cnab(-1),cqed(-1)',cnab(-1),cqed(-1)
       call singcoeffq(p,3,4,2,1,cnab,cqed)
-      wtqbq=(dble(cnab(-2))*epinv**2+dble(cnab(-1))*epinv)*wtqbq
+      wtqbq=(real(cnab(-2))*epinv**2+real(cnab(-1))*epinv)*wtqbq
 c      write(6,*) 'cnab(-2),cqed(-2)',cnab(-2),cqed(-2)
 c      write(6,*) 'cnab(-1),cqed(-1)',cnab(-1),cqed(-1)
       
@@ -79,11 +84,11 @@ C----set all elements to zero
 
 C---fill qb-q, gg and q-qb elements
       do j=-nf,nf
-      if (j .lt. 0) then
+      if (j < 0) then
           msq(j,-j)=aveqq*facqq*wtqqb
-      elseif (j .eq. 0) then
+      elseif (j == 0) then
           msq(j,j)=avegg*facgg*wtgg0
-      elseif (j .gt. 0) then
+      elseif (j > 0) then
           msq(j,-j)=aveqq*facqq*wtqqb
       endif
       enddo

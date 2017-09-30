@@ -1,22 +1,57 @@
       subroutine sethparams(br,wwbr,zzbr,tautaubr,gamgambr,zgambr)
+      implicit none
+      include 'types.f'
 c--- set up the necessary parameters for a Standard Model Higgs boson
 c---   hwidth : either the NLO value from Spira,
 c---                or the LO value calculated here
 c---   br,wwbr,zzbr,tautaubr : the LO calculated values
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      include 'couple.f'
       include 'ewcouple.f'
       include 'masses.f'
       include 'anom_higgs.f' 
-      include 'process.f' 
+      include 'kprocess.f' 
       include 'verbose.f'
       include 'cpscheme.f'
-      double precision br,gamgambr,zgambr,wwbr,zzbr,tautaubr,x_w,x_z,
+      include 'msbarmasses.f'
+      include 'kpart.f'
+      include 'hbbparams.f'
+      include 'hdecaymode.f'
+      real(dp):: br,gamgambr,zgambr,wwbr,zzbr,tautaubr,x_w,x_z,
      & msqgamgam,hzgamwidth,msqhbb,msqhtautau,
      & pw_bb,pw_tautau,pw_gamgam,pw_ww,pw_zz,pw_zgam,
-     & br_sp,tautaubr_sp,gamgambr_sp,wwbr_sp,zzbr_sp,zgambr_sp
-      logical spira
+     & br_sp,tautaubr_sp,gamgambr_sp,wwbr_sp,zzbr_sp,zgambr_sp,
+     & GammaHbb0,GammaHbb1,massfrun
+      logical:: spira
       common/spira/spira
+
+******************************* H->bb PARAMETERS *******************************
+c---- if true, uses the input b-mass in the Yukawa coupling and normalizes
+c---- the H->bb cross-section according to the best value from Spira
+c---- if false, instead runs the b-mass to the Higgs mass and uses the LO Br
+
+      if(hdecaymode=='bqba') then 
+         FixBrHbb=.true.
+      else
+         FixBrHbb=.false.
+      endif
+
+c---  mb_eff is the bottom mass used in the Yukawa coupling
+      if (FixBrHbb) then
+c--- fix mb to to value in input file
+        mb_eff=mb
+      else
+c--- run mb to appropriate scale
+        if (kpart==klord) then
+          mb_eff=massfrun(mb_msbar,hmass,amz,1)
+        else
+          mb_eff=massfrun(mb_msbar,hmass,amz,2)
+        endif
+      endif
 
 ***************************** COMPUTE PARTIAL WIDTHS ***************************
 *                                                                              *
@@ -29,32 +64,32 @@ c---   br,wwbr,zzbr,tautaubr : the LO calculated values
 
 c--- Compute partial width of H -> bb : note that the mass is mostly retained
 c--- in the coupling only, since mb=0 usually (the mass in the phase space)
-      pw_bb=msqhbb(hmass**2)/(16d0*pi*hmass)
-     &     *sqrt(1d0-4d0*mb**2/hmass**2)
+      pw_bb=msqhbb(hmass**2)/(16._dp*pi*hmass)
+     &     *sqrt(1._dp-4._dp*mb**2/hmass**2)
 
 c--- Compute partial width of H -> tau^- tau^+
-      pw_tautau=msqhtautau(hmass**2)/(16d0*pi*hmass)
-     &     *sqrt(1d0-4d0*mtau**2/hmass**2)
+      pw_tautau=msqhtautau(hmass**2)/(16._dp*pi*hmass)
+     &     *sqrt(1._dp-4._dp*mtau**2/hmass**2)
 
-      x_w=4d0*wmass**2/hmass**2
-      x_z=4d0*zmass**2/hmass**2
+      x_w=4._dp*wmass**2/hmass**2
+      x_z=4._dp*zmass**2/hmass**2
 c--- Compute partial width of H -> WW
-      if (x_w .lt. 1d0) then
-        pw_ww=gwsq/64d0/pi*hmass**3/wmass**2
-     &       *dsqrt(1d0-x_w)*(1d0-x_w+0.75d0*x_w**2)
+      if (x_w < 1._dp) then
+        pw_ww=gwsq/64._dp/pi*hmass**3/wmass**2
+     &       *sqrt(1._dp-x_w)*(1._dp-x_w+0.75_dp*x_w**2)
       else
-        pw_ww=0d0
+        pw_ww=0._dp
       endif
 c--- Compute partial width of H -> ZZ
-      if (x_z .lt. 1d0) then
-        pw_zz=gwsq/128d0/pi*hmass**3/wmass**2
-     &       *dsqrt(1d0-x_z)*(1d0-x_z+0.75d0*x_z**2)
+      if (x_z < 1._dp) then
+        pw_zz=gwsq/128._dp/pi*hmass**3/wmass**2
+     &       *sqrt(1._dp-x_z)*(1._dp-x_z+0.75_dp*x_z**2)
       else
-        pw_zz=0d0
+        pw_zz=0._dp
       endif
 
 c--- Compute partial width of H -> gamma gamma
-      pw_gamgam=msqgamgam(hmass)/(16d0*pi*hmass)
+      pw_gamgam=msqgamgam(hmass)/(16._dp*pi*hmass)
       
 c--- Compute partial width of H -> Z gamma
       pw_zgam=hzgamwidth(hmass)
@@ -79,26 +114,26 @@ c        call hto_main_cpH(hmass,hwidth)
 c        write(6,*) 'Call to HTO currently not implemented'
 c        stop
       endif
-c      hwidth=4.17116d-3 ! HTO width at 126 GeV
+c      hwidth=4.17116e-3_dp ! HTO width at 126 GeV
 
 
 c--- Set up anomalous width of the Higgs boson if required
-      if (abs(hwidth_ratio-1d0) .lt. 1d-6) then
+      if (abs(hwidth_ratio-1._dp) < 1.e-6_dp) then
         anom_Higgs=.false.
       else
-        if ( (case .eq. 'HZZ_tb') .or. (case .eq. 'HZZint')
-     &   .or.(case .eq. 'HZZH+i') .or. (case .eq. 'ggZZ4l')
-     &   .or.(case .eq. 'HZZqgI') .or. (case .eq. 'HWW_tb')
-     &   .or.(case .eq. 'HWWint') .or. (case .eq. 'HWWH+i')
-     &   .or.(case .eq. 'ggWW4l') .or. (case .eq. 'HVV_tb')
-     &   .or.(case .eq. 'ggVV4l') .or. (case .eq. 'HZZ_jj')
-     &   .or.(case .eq. 'HZZ+jt') .or. (case .eq. 'qqWWqq')
-     &   .or.(case .eq. 'qqZZqq') .or. (case .eq. 'qqWWss')
-     &   .or.(case .eq. 'qqWZqq')) then
+        if ( (kcase==kHZZ_tb) .or. (kcase==kHZZint)
+     &   .or.(kcase==kHZZHpi) .or. (kcase==kggZZ4l)
+     &   .or.(kcase==kHZZqgI) .or. (kcase==kHWW_tb)
+     &   .or.(kcase==kHWWint) .or. (kcase==kHWWHpi)
+     &   .or.(kcase==kggWW4l) .or. (kcase==kHVV_tb)
+     &   .or.(kcase==kggVV4l) .or. (kcase==kHZZ_jj)
+     &   .or.(kcase==kHZZpjt) .or. (kcase==kqqWWqq)
+     &   .or.(kcase==kqqZZqq) .or. (kcase==kqqWWss)
+     &   .or.(kcase==kqqWZqq)) then
           anom_Higgs=.true.
           keep_SMhiggs_norm=.true.
           hwidth=hwidth*hwidth_ratio
-          chi_higgs=hwidth_ratio**(0.25d0)
+          chi_higgs=hwidth_ratio**(0.25_dp)
           pw_bb=pw_bb*chi_higgs**2
           pw_tautau=pw_tautau*chi_higgs**2
           pw_ww=pw_ww*chi_higgs**2
@@ -117,7 +152,7 @@ c!===== read in anom_higgs.DAT
 c      call read_anom_higgsp
 c!========= read in anomalous higgs couplings for width studies 
 c      if(anom_Higgs) then 
-c         chi_higgs=hwidth_ratio**(0.25d0)
+c         chi_higgs=hwidth_ratio**(0.25_dp)
 c         hwidth=hwidth*chi_higgs**4 
 c         if(keep_smhiggs_norm) then 
 c            pw_bb=pw_bb*chi_higgs**2 
@@ -157,6 +192,18 @@ c--- Branching ratio H -> gamgam
 c--- Branching ratio H -> Zgam
       zgambr=pw_zgam/hwidth
 
+******************************* H->bb PARAMETERS *******************************
+
+      if (FixBrHbb) then
+        br=br_sp
+c--- most accurate theoretical calculation of BR
+        GamHbb=br*hwidth
+c--- BR at LO
+        GamHbb0=GammaHbb0(hmass**2,mb**2)
+c--- BR at NLO
+        GamHbb1=GammaHbb1(hmass**2,mb**2)
+      endif
+
 *************************** WRITE OUT BRANCHING RATIOS *************************
 
 
@@ -176,16 +223,16 @@ c--- Branching ratio H -> Zgam
       return
 
  99   format(/,
-     .       ' ****************** Higgs parameters ****************'/, 
-     .       ' *                                                  *'/, 
-     .       ' *   mass(H) = ',f7.2,'      width(H) = ',e12.5,' *'/,
-     .       ' *                                                  *'/, 
-     .       ' *              Br( H -> b bbar)  = ',f9.5,'       *'/,
-     .       ' *              Br( H -> tau tau) = ',f9.5,'       *'/,
-     .       ' *              Br( H -> W W)     = ',f9.5,'       *'/,
-     .       ' *              Br( H -> Z Z)     = ',f9.5,'       *'/,
-     .       ' *              Br( H -> gam gam) = ',f9.5,'       *'/,
-     .       ' *              Br( H -> Z gam)   = ',f9.5,'       *'/,
-     .       ' ****************************************************')
+     &       ' ****************** Higgs parameters ****************'/, 
+     &       ' *                                                  *'/, 
+     &       ' *   mass(H) = ',f7.2,'      width(H) = ',e12.5,' *'/,
+     &       ' *                                                  *'/, 
+     &       ' *              Br( H -> b bbar)  = ',f9.5,'       *'/,
+     &       ' *              Br( H -> tau tau) = ',f9.5,'       *'/,
+     &       ' *              Br( H -> W W)     = ',f9.5,'       *'/,
+     &       ' *              Br( H -> Z Z)     = ',f9.5,'       *'/,
+     &       ' *              Br( H -> gam gam) = ',f9.5,'       *'/,
+     &       ' *              Br( H -> Z gam)   = ',f9.5,'       *'/,
+     &       ' ****************************************************')
 
       end

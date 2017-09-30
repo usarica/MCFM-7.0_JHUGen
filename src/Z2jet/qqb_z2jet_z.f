@@ -1,4 +1,6 @@
       subroutine qqb_z2jet_z(p,z)
+      implicit none
+      include 'types.f'
 ************************************************************************
 *     Author: J.M. Campbell                                            *
 *     September, 2001.                                                 *
@@ -9,211 +11,224 @@
 *     are included in the terms for the QQGG piece                     *
 *                                                                      *
 ************************************************************************
-      implicit none
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
       include 'qcdcouple.f'
       include 'scale.f'
       include 'agq.f'
       include 'PR_cs_new.f'
       include 'lc.f'
       include 'flags.f'
-      double precision z,p(mxpart,4),dot
-      double precision xl12,xl15,xl16,xl25,xl26,xl56
-      double precision
-     .                 ii_qq,ii_qg,ii_gq,ii_gg,
-     .                 if_qq,if_gg,
-     .                 fi_qq,fi_gg,
-     .                 ff_qq,ff_gg
-      double precision tempgq,tempqg
-      integer is
+      real(dp):: z,p(mxpart,4),dot
+      real(dp):: xl12,xl15,xl16,xl25,xl26,xl56
+      real(dp)::
+     &                 ii_qq,ii_qg,ii_gq,ii_gg,
+     &                 if_qq,if_gg,
+     &                 fi_qq,fi_gg,
+     &                 ff_qq,ff_gg,ff_gq,fi_gq
+      real(dp):: tempgq,tempqg
+      integer:: is
 
-      xl12=dlog(+two*dot(p,1,2)/musq)
-      xl15=dlog(-two*dot(p,1,5)/musq)
-      xl16=dlog(-two*dot(p,1,6)/musq)
-      xl25=dlog(-two*dot(p,2,5)/musq)
-      xl26=dlog(-two*dot(p,2,6)/musq)
-      xl56=dlog(+two*dot(p,5,6)/musq)
+      xl12=log(+two*dot(p,1,2)/musq)
+      xl15=log(-two*dot(p,1,5)/musq)
+      xl16=log(-two*dot(p,1,6)/musq)
+      xl25=log(-two*dot(p,2,5)/musq)
+      xl26=log(-two*dot(p,2,6)/musq)
+      xl56=log(+two*dot(p,5,6)/musq)
 
 ************************************************************************
 *     Contributions from QQGG matrix elements                          *
 ************************************************************************
       if (Gflag) then
 c--- QUARK-ANTIQUARK contributions
-      if ((colourchoice .eq. 1) .or. (colourchoice .eq. 0)) then
+      if ((colourchoice == 1) .or. (colourchoice == 0)) then
       do is=1,3
-      R1(q,q,a,1,is)=ason4pi*xn*(if_qq(z,xl15,is)+fi_gg(z,xl15,is)/2d0
-     .                          +ff_gg(z,xl56,is)/2d0)
-      R1(q,q,a,2,is)=ason4pi*xn*(if_qq(z,xl16,is)+fi_gg(z,xl16,is)/2d0
-     .                          +ff_gg(z,xl56,is)/2d0)
-      R2(a,a,q,1,is)=ason4pi*xn*(if_qq(z,xl26,is)+fi_gg(z,xl26,is)/2d0
-     .                          +ff_gg(z,xl56,is)/2d0)
-      R2(a,a,q,2,is)=ason4pi*xn*(if_qq(z,xl25,is)+fi_gg(z,xl25,is)/2d0
-     .                          +ff_gg(z,xl56,is)/2d0)
+      R1(q,q,a,1,is)=ason4pi*xn*(if_qq(z,xl15,is)+fi_gg(z,xl15,is)/2._dp
+     &                          +ff_gg(z,xl56,is)/2._dp)
+      R1(q,q,a,2,is)=ason4pi*xn*(if_qq(z,xl16,is)+fi_gg(z,xl16,is)/2._dp
+     &                          +ff_gg(z,xl56,is)/2._dp)
+      R2(a,a,q,1,is)=ason4pi*xn*(if_qq(z,xl26,is)+fi_gg(z,xl26,is)/2._dp
+     &                          +ff_gg(z,xl56,is)/2._dp)
+      R2(a,a,q,2,is)=ason4pi*xn*(if_qq(z,xl25,is)+fi_gg(z,xl25,is)/2._dp
+     &                          +ff_gg(z,xl56,is)/2._dp)
       enddo
       endif
-      if ((colourchoice .eq. 2) .or. (colourchoice .eq. 0)) then
+      if ((colourchoice == 2) .or. (colourchoice == 0)) then
       do is=1,3
       R1(q,q,a,0,is)=R1(q,q,a,0,is)+ason4pi*xn*
-     .  (if_qq(z,xl15,is)+fi_gg(z,xl15,is)/2d0
-     .  +if_qq(z,xl16,is)+fi_gg(z,xl16,is)/2d0)
+     &  (if_qq(z,xl15,is)+fi_gg(z,xl15,is)/2._dp
+     &  +if_qq(z,xl16,is)+fi_gg(z,xl16,is)/2._dp
+     &  +(ff_gq(z,xl56,is)/2._dp
+     &   -fi_gq(z,xl15,is)/4._dp
+     &   -fi_gq(z,xl16,is)/4._dp))
       R1(q,q,a,1,is)=R1(q,q,a,1,is)-ason4pi/xn*ii_qq(z,xl12,is)
       R1(q,q,a,2,is)=R1(q,q,a,2,is)-ason4pi/xn*ii_qq(z,xl12,is)
       R2(a,a,q,0,is)=R2(a,a,q,0,is)+ason4pi*xn*
-     .  (if_qq(z,xl25,is)+fi_gg(z,xl25,is)/2d0
-     .  +if_qq(z,xl26,is)+fi_gg(z,xl26,is)/2d0)
+     &  (if_qq(z,xl25,is)+fi_gg(z,xl25,is)/2._dp
+     &  +if_qq(z,xl26,is)+fi_gg(z,xl26,is)/2._dp
+     &  +(ff_gq(z,xl56,is)/2._dp
+     &   -fi_gq(z,xl25,is)/4._dp
+     &   -fi_gq(z,xl26,is)/4._dp))
       R2(a,a,q,1,is)=R2(a,a,q,1,is)-ason4pi/xn*ii_qq(z,xl12,is)
       R2(a,a,q,2,is)=R2(a,a,q,2,is)-ason4pi/xn*ii_qq(z,xl12,is)
       enddo
       endif
 
-      if ((colourchoice .eq. 3) .or. (colourchoice .eq. 0)) then
+      if ((colourchoice == 3) .or. (colourchoice == 0)) then
       do is=1,3
-      R1(q,q,a,0,is)=R1(q,q,a,0,is)-ason4pi*(xn+1d0/xn)
-     .  *ii_qq(z,xl12,is)
-      R2(a,a,q,0,is)=R2(a,a,q,0,is)-ason4pi*(xn+1d0/xn)
-     .  *ii_qq(z,xl12,is)
+      R1(q,q,a,0,is)=R1(q,q,a,0,is)-ason4pi*(xn+1._dp/xn)
+     &  *ii_qq(z,xl12,is)
+      R2(a,a,q,0,is)=R2(a,a,q,0,is)-ason4pi*(xn+1._dp/xn)
+     &  *ii_qq(z,xl12,is)
       enddo
       endif
 
 c--- ANTIQUARK-QUARK contributions
 c--- additional final-final pieces that are 0:
 c--- ason4pi*xn*ff_gg(z,xl56,2)*( (1) + (2) )
-      if ((colourchoice .eq. 1) .or. (colourchoice .eq. 0)) then
+      if ((colourchoice == 1) .or. (colourchoice == 0)) then
       do is=1,3
-      R1(a,a,q,1,is)=ason4pi*xn*(if_qq(z,xl16,is)+fi_gg(z,xl16,is)/2d0
-     .                          +ff_gg(z,xl56,is)/2d0)
-      R1(a,a,q,2,is)=ason4pi*xn*(if_qq(z,xl15,is)+fi_gg(z,xl15,is)/2d0
-     .                          +ff_gg(z,xl56,is)/2d0)
-      R2(q,q,a,1,is)=ason4pi*xn*(if_qq(z,xl25,is)+fi_gg(z,xl25,is)/2d0
-     .                          +ff_gg(z,xl56,is)/2d0)
-      R2(q,q,a,2,is)=ason4pi*xn*(if_qq(z,xl26,is)+fi_gg(z,xl26,is)/2d0
-     .                          +ff_gg(z,xl56,is)/2d0)
+      R1(a,a,q,1,is)=ason4pi*xn*(if_qq(z,xl16,is)+fi_gg(z,xl16,is)/2._dp
+     &                          +ff_gg(z,xl56,is)/2._dp)
+      R1(a,a,q,2,is)=ason4pi*xn*(if_qq(z,xl15,is)+fi_gg(z,xl15,is)/2._dp
+     &                          +ff_gg(z,xl56,is)/2._dp)
+      R2(q,q,a,1,is)=ason4pi*xn*(if_qq(z,xl25,is)+fi_gg(z,xl25,is)/2._dp
+     &                          +ff_gg(z,xl56,is)/2._dp)
+      R2(q,q,a,2,is)=ason4pi*xn*(if_qq(z,xl26,is)+fi_gg(z,xl26,is)/2._dp
+     &                          +ff_gg(z,xl56,is)/2._dp)
       enddo
       endif
-      if ((colourchoice .eq. 2) .or. (colourchoice .eq. 0)) then
+      if ((colourchoice == 2) .or. (colourchoice == 0)) then
       do is=1,3
       R1(a,a,q,0,is)=R1(a,a,q,0,is)+ason4pi*xn*
-     .  (if_qq(z,xl15,is)+fi_gg(z,xl15,is)/2d0
-     .  +if_qq(z,xl16,is)+fi_gg(z,xl16,is)/2d0)
+     &  (if_qq(z,xl15,is)+fi_gg(z,xl15,is)/2._dp
+     &  +if_qq(z,xl16,is)+fi_gg(z,xl16,is)/2._dp
+     &  +(ff_gq(z,xl56,is)/2._dp
+     &   -fi_gq(z,xl15,is)/4._dp
+     &   -fi_gq(z,xl16,is)/4._dp))
       R1(a,a,q,1,is)=R1(a,a,q,1,is)-ason4pi/xn*ii_qq(z,xl12,is)
       R1(a,a,q,2,is)=R1(a,a,q,2,is)-ason4pi/xn*ii_qq(z,xl12,is)
       R2(q,q,a,0,is)=R2(q,q,a,0,is)+ason4pi*xn*
-     .  (if_qq(z,xl25,is)+fi_gg(z,xl25,is)/2d0
-     .  +if_qq(z,xl26,is)+fi_gg(z,xl26,is)/2d0)
+     &  (if_qq(z,xl25,is)+fi_gg(z,xl25,is)/2._dp
+     &  +if_qq(z,xl26,is)+fi_gg(z,xl26,is)/2._dp
+     &  +(ff_gq(z,xl56,is)/2._dp
+     &   -fi_gq(z,xl25,is)/4._dp
+     &   -fi_gq(z,xl26,is)/4._dp))
       R2(q,q,a,1,is)=R2(q,q,a,1,is)-ason4pi/xn*ii_qq(z,xl12,is)
       R2(q,q,a,2,is)=R2(q,q,a,2,is)-ason4pi/xn*ii_qq(z,xl12,is)
       enddo
       endif
-      if ((colourchoice .eq. 3) .or. (colourchoice .eq. 0)) then
+      if ((colourchoice == 3) .or. (colourchoice == 0)) then
       do is=1,3
-      R1(a,a,q,0,is)=R1(a,a,q,0,is)-ason4pi*(xn+1d0/xn)
-     .  *ii_qq(z,xl12,is)
-      R2(q,q,a,0,is)=R2(q,q,a,0,is)-ason4pi*(xn+1d0/xn)
-     .  *ii_qq(z,xl12,is)
+      R1(a,a,q,0,is)=R1(a,a,q,0,is)-ason4pi*(xn+1._dp/xn)
+     &  *ii_qq(z,xl12,is)
+      R2(q,q,a,0,is)=R2(q,q,a,0,is)-ason4pi*(xn+1._dp/xn)
+     &  *ii_qq(z,xl12,is)
       enddo
       endif
 
 c--- GLUON-GLUON contributions
 c--- no additional final-final pieces
-      if ((colourchoice .eq. 1) .or. (colourchoice .eq. 0)) then
+      if ((colourchoice == 1) .or. (colourchoice == 0)) then
       do is=1,3
       R1(g,g,g,1,is)=ason4pi*xn*(if_gg(z,xl15,is)+fi_qq(z,xl15,is)
-     .                           +ii_gg(z,xl12,is))
+     &                           +ii_gg(z,xl12,is))
       R1(g,g,g,2,is)=ason4pi*xn*(if_gg(z,xl16,is)+fi_qq(z,xl16,is)
-     .                           +ii_gg(z,xl12,is))
+     &                           +ii_gg(z,xl12,is))
       R2(g,g,g,1,is)=ason4pi*xn*(if_gg(z,xl26,is)+fi_qq(z,xl26,is)
-     .                           +ii_gg(z,xl12,is))
+     &                           +ii_gg(z,xl12,is))
       R2(g,g,g,2,is)=ason4pi*xn*(if_gg(z,xl25,is)+fi_qq(z,xl25,is)
-     .                           +ii_gg(z,xl12,is))
+     &                           +ii_gg(z,xl12,is))
       R1(q,g,g,1,is)=ason4pi*xn*(avegg/aveqg)*ii_qg(z,xl12,is)
       R1(q,g,g,2,is)=ason4pi*xn*(avegg/aveqg)*ii_qg(z,xl12,is)
       R2(q,g,g,1,is)=ason4pi*xn*(avegg/aveqg)*ii_qg(z,xl12,is)
       R2(q,g,g,2,is)=ason4pi*xn*(avegg/aveqg)*ii_qg(z,xl12,is)
       enddo
       endif
-      if ((colourchoice .eq. 2) .or. (colourchoice .eq. 0)) then
+      if ((colourchoice == 2) .or. (colourchoice == 0)) then
       do is=1,3
       R1(g,g,g,0,is)=R1(g,g,g,0,is)+ason4pi*xn*
-     .  (if_gg(z,xl15,is)+fi_qq(z,xl15,is)
-     .  +if_gg(z,xl16,is)+fi_qq(z,xl16,is))
+     &  (if_gg(z,xl15,is)+fi_qq(z,xl15,is)
+     &  +if_gg(z,xl16,is)+fi_qq(z,xl16,is))
       R2(g,g,g,0,is)=R2(g,g,g,0,is)+ason4pi*xn*
-     .  (if_gg(z,xl25,is)+fi_qq(z,xl25,is)
-     .  +if_gg(z,xl26,is)+fi_qq(z,xl26,is))
+     &  (if_gg(z,xl25,is)+fi_qq(z,xl25,is)
+     &  +if_gg(z,xl26,is)+fi_qq(z,xl26,is))
       R1(g,g,g,1,is)=R1(g,g,g,1,is)-ason4pi/xn*ff_qq(z,xl56,is)
       R2(g,g,g,1,is)=R2(g,g,g,1,is)-ason4pi/xn*ff_qq(z,xl56,is)
       R1(g,g,g,2,is)=R1(g,g,g,2,is)-ason4pi/xn*ff_qq(z,xl56,is)
       R2(g,g,g,2,is)=R2(g,g,g,2,is)-ason4pi/xn*ff_qq(z,xl56,is)
       R1(q,g,g,1,is)=R1(q,g,g,1,is)-
-     . ason4pi/xn*(avegg/aveqg)*ii_qg(z,xl12,is)
+     & ason4pi/xn*(avegg/aveqg)*ii_qg(z,xl12,is)
       R1(q,g,g,2,is)=R1(q,g,g,2,is)-
-     . ason4pi/xn*(avegg/aveqg)*ii_qg(z,xl12,is)
+     & ason4pi/xn*(avegg/aveqg)*ii_qg(z,xl12,is)
       R1(q,g,g,0,is)=R1(q,g,g,0,is)+
-     . ason4pi*2d0*xn*(avegg/aveqg)*ii_qg(z,xl12,is)
+     & ason4pi*2._dp*xn*(avegg/aveqg)*ii_qg(z,xl12,is)
       R2(q,g,g,1,is)=R2(q,g,g,1,is)-
-     . ason4pi/xn*(avegg/aveqg)*ii_qg(z,xl12,is)
+     & ason4pi/xn*(avegg/aveqg)*ii_qg(z,xl12,is)
       R2(q,g,g,2,is)=R2(q,g,g,2,is)-
-     . ason4pi/xn*(avegg/aveqg)*ii_qg(z,xl12,is)
+     & ason4pi/xn*(avegg/aveqg)*ii_qg(z,xl12,is)
       R2(q,g,g,0,is)=R2(q,g,g,0,is)+
-     . ason4pi*2d0*xn*(avegg/aveqg)*ii_qg(z,xl12,is)
+     & ason4pi*2._dp*xn*(avegg/aveqg)*ii_qg(z,xl12,is)
       enddo
       endif
-      if ((colourchoice .eq. 3) .or. (colourchoice .eq. 0)) then
+      if ((colourchoice == 3) .or. (colourchoice == 0)) then
       do is=1,3
-      R1(g,g,g,0,is)=R1(g,g,g,0,is)-ason4pi*(xn+1d0/xn)*ff_qq(z,xl56,is)
-      R2(g,g,g,0,is)=R2(g,g,g,0,is)-ason4pi*(xn+1d0/xn)*ff_qq(z,xl56,is)
+      R1(g,g,g,0,is)=R1(g,g,g,0,is)-ason4pi*(xn+1._dp/xn)*ff_qq(z,xl56,is)
+      R2(g,g,g,0,is)=R2(g,g,g,0,is)-ason4pi*(xn+1._dp/xn)*ff_qq(z,xl56,is)
       R1(q,g,g,0,is)=R1(q,g,g,0,is)-
-     . ason4pi*(xn+1d0/xn)*(avegg/aveqg)*ii_qg(z,xl12,is)
+     & ason4pi*(xn+1._dp/xn)*(avegg/aveqg)*ii_qg(z,xl12,is)
       R2(q,g,g,0,is)=R2(q,g,g,0,is)-
-     . ason4pi*(xn+1d0/xn)*(avegg/aveqg)*ii_qg(z,xl12,is)
+     & ason4pi*(xn+1._dp/xn)*(avegg/aveqg)*ii_qg(z,xl12,is)
       enddo
       endif
 
 c--- QUARK-GLUON contributions
 c--- additional final-final pieces that are 0:
-c--- ason4pi*xn*(ff_qq(z,xl56,2) + ff_gg(z,xl56,2)/2d0) * (1)
-      if ((colourchoice .eq. 1) .or. (colourchoice .eq. 0)) then
+c--- ason4pi*xn*(ff_qq(z,xl56,2) + ff_gg(z,xl56,2)/2._dp) * (1)
+      if ((colourchoice == 1) .or. (colourchoice == 0)) then
       do is=1,3
       R1(q,q,g,1,is)=ason4pi*half*xn*(ii_qq(z,xl12,is)+ii_qq(z,xl12,is)
-     .              +ff_qq(z,xl56,is)+ff_gg(z,xl56,is)/2d0)
-      R1(q,q,g,2,is)=ason4pi*xn*(if_qq(z,xl16,is)+fi_gg(z,xl16,is)/2d0)
+     &              +ff_qq(z,xl56,is)+ff_gg(z,xl56,is)/2._dp)
+      R1(q,q,g,2,is)=ason4pi*xn*(if_qq(z,xl16,is)+fi_gg(z,xl16,is)/2._dp)
       R2(g,g,q,1,is)=ason4pi*half*xn
-     . *(2d0*if_gg(z,xl26,is)+fi_gg(z,xl26,is)
-     .      +ii_gg(z,xl12,is)+ii_gg(z,xl12,is)
-     .      +ff_qq(z,xl56,is)+ff_gg(z,xl56,is)/2d0)
-      R2(g,g,q,2,is)=ason4pi*xn*(if_gg(z,xl26,is)+fi_gg(z,xl26,is)/2d0
-     .                          +if_gg(z,xl25,is)+fi_qq(z,xl25,is))
+     & *(2._dp*if_gg(z,xl26,is)+fi_gg(z,xl26,is)
+     &      +ii_gg(z,xl12,is)+ii_gg(z,xl12,is)
+     &      +ff_qq(z,xl56,is)+ff_gg(z,xl56,is)/2._dp)
+      R2(g,g,q,2,is)=ason4pi*xn*(if_gg(z,xl26,is)+fi_gg(z,xl26,is)/2._dp
+     &                          +if_gg(z,xl25,is)+fi_qq(z,xl25,is))
       R2(a,g,q,1,is)=ason4pi*xn*(aveqg/aveqq)*ii_qg(z,xl12,is)
       R2(a,g,q,2,is)=ason4pi*xn*(aveqg/aveqq)*ii_qg(z,xl12,is)
       enddo
       endif
-      if ((colourchoice .eq. 2) .or. (colourchoice .eq. 0)) then
+      if ((colourchoice == 2) .or. (colourchoice == 0)) then
       do is=1,3
       R1(q,q,g,1,is)=R1(q,q,g,1,is)
-     .           -ason4pi/xn*(if_qq(z,xl15,is)+fi_qq(z,xl15,is))
+     &           -ason4pi/xn*(if_qq(z,xl15,is)+fi_qq(z,xl15,is))
       R1(q,q,g,2,is)=R1(q,q,g,2,is)
-     .           -ason4pi/xn*(if_qq(z,xl15,is)+fi_qq(z,xl15,is))
+     &           -ason4pi/xn*(if_qq(z,xl15,is)+fi_qq(z,xl15,is))
       R1(q,q,g,0,is)=R1(q,q,g,0,is)+ason4pi*half*xn*
-     .            (2d0*if_qq(z,xl16,is)+fi_gg(z,xl16,is)
-     .            +ii_qq(z,xl12,is)+ii_qq(z,xl12,is)
-     .            +ff_qq(z,xl56,is)+ff_gg(z,xl56,is)/2d0)
+     &            (2._dp*if_qq(z,xl16,is)+fi_gg(z,xl16,is)
+     &            +ii_qq(z,xl12,is)+ii_qq(z,xl12,is)
+     &            +ff_qq(z,xl56,is)+ff_gg(z,xl56,is)/2._dp)
       R2(g,g,q,0,is)=R2(g,g,q,0,is)+ason4pi*half*xn*
-     .            (2d0*if_gg(z,xl25,is)+2d0*fi_qq(z,xl25,is)
-     .            +ii_gg(z,xl12,is)+ii_gg(z,xl12,is)
-     .            +ff_qq(z,xl56,is)+ff_gg(z,xl56,is)/2d0)
+     &            (2._dp*if_gg(z,xl25,is)+2._dp*fi_qq(z,xl25,is)
+     &            +ii_gg(z,xl12,is)+ii_gg(z,xl12,is)
+     &            +ff_qq(z,xl56,is)+ff_gg(z,xl56,is)/2._dp)
       R2(a,g,q,1,is)=R2(a,g,q,1,is)-
-     . ason4pi/xn*(aveqg/aveqq)*ii_qg(z,xl12,is)
+     & ason4pi/xn*(aveqg/aveqq)*ii_qg(z,xl12,is)
       R2(a,g,q,2,is)=R2(a,g,q,2,is)-
-     . ason4pi/xn*(aveqg/aveqq)*ii_qg(z,xl12,is)
+     & ason4pi/xn*(aveqg/aveqq)*ii_qg(z,xl12,is)
       R2(a,g,q,0,is)=R2(a,g,q,0,is)+
-     . ason4pi*2d0*xn*(aveqg/aveqq)*ii_qg(z,xl12,is)
+     & ason4pi*2._dp*xn*(aveqg/aveqq)*ii_qg(z,xl12,is)
       enddo
       endif
-      if ((colourchoice .eq. 3) .or. (colourchoice .eq. 0)) then
+      if ((colourchoice == 3) .or. (colourchoice == 0)) then
       do is=1,3
-      R1(q,q,g,0,is)=R1(q,q,g,0,is)-ason4pi*(xn+1d0/xn)
-     .                       *(if_qq(z,xl15,is)+fi_qq(z,xl15,is))
+      R1(q,q,g,0,is)=R1(q,q,g,0,is)-ason4pi*(xn+1._dp/xn)
+     &                       *(if_qq(z,xl15,is)+fi_qq(z,xl15,is))
       R2(a,g,q,0,is)=R2(a,g,q,0,is)-
-     . ason4pi*(xn+1d0/xn)*(aveqg/aveqq)*ii_qg(z,xl12,is)
+     & ason4pi*(xn+1._dp/xn)*(aveqg/aveqq)*ii_qg(z,xl12,is)
       enddo
       endif
 
@@ -225,49 +240,49 @@ c--- ason4pi*xn*(ff_qq(z,xl56,2) + ff_gg(z,xl56,2)/2d0) * (1)
 
 c--- GLUON-QUARK contributions
 c--- additional final-final pieces that are 0:
-c--- ason4pi*xn*(ff_qq(z,xl56,2) + ff_gg(z,xl56,2)/2d0) * (1)
-      if ((colourchoice .eq. 1) .or. (colourchoice .eq. 0)) then
+c--- ason4pi*xn*(ff_qq(z,xl56,2) + ff_gg(z,xl56,2)/2._dp) * (1)
+      if ((colourchoice == 1) .or. (colourchoice == 0)) then
       do is=1,3
       R1(g,g,q,1,is)=ason4pi*half*xn*(ii_gg(z,xl12,is)+ii_gg(z,xl12,is)
-     .                           +2d0*if_gg(z,xl16,is)+fi_gg(z,xl16,is)
-     .              +ff_qq(z,xl56,is)+ff_gg(z,xl56,is)/2d0)
-      R1(g,g,q,2,is)=ason4pi*xn*(if_gg(z,xl16,is)+fi_gg(z,xl16,is)/2d0
-     .                           +if_gg(z,xl15,is)+fi_qq(z,xl15,is))
+     &                           +2._dp*if_gg(z,xl16,is)+fi_gg(z,xl16,is)
+     &              +ff_qq(z,xl56,is)+ff_gg(z,xl56,is)/2._dp)
+      R1(g,g,q,2,is)=ason4pi*xn*(if_gg(z,xl16,is)+fi_gg(z,xl16,is)/2._dp
+     &                           +if_gg(z,xl15,is)+fi_qq(z,xl15,is))
       R2(q,q,g,1,is)=ason4pi*half*xn*(ii_qq(z,xl12,is)+ii_qq(z,xl12,is)
-     .              +ff_qq(z,xl56,is)+ff_gg(z,xl56,is)/2d0)
-      R2(q,q,g,2,is)=ason4pi*xn*(if_qq(z,xl26,is)+fi_gg(z,xl26,is)/2d0)
+     &              +ff_qq(z,xl56,is)+ff_gg(z,xl56,is)/2._dp)
+      R2(q,q,g,2,is)=ason4pi*xn*(if_qq(z,xl26,is)+fi_gg(z,xl26,is)/2._dp)
       R1(a,g,q,1,is)=ason4pi*xn*(aveqg/aveqq)*ii_qg(z,xl12,is)
       R1(a,g,q,2,is)=ason4pi*xn*(aveqg/aveqq)*ii_qg(z,xl12,is)
       enddo
       endif
-      if ((colourchoice .eq. 2) .or. (colourchoice .eq. 0)) then
+      if ((colourchoice == 2) .or. (colourchoice == 0)) then
       do is=1,3
       R2(q,q,g,1,is)=R2(q,q,g,1,is)
-     .           -ason4pi/xn*(if_qq(z,xl25,is)+fi_qq(z,xl25,is))
+     &           -ason4pi/xn*(if_qq(z,xl25,is)+fi_qq(z,xl25,is))
       R2(q,q,g,2,is)=R2(q,q,g,2,is)
-     .           -ason4pi/xn*(if_qq(z,xl25,is)+fi_qq(z,xl25,is))
+     &           -ason4pi/xn*(if_qq(z,xl25,is)+fi_qq(z,xl25,is))
       R1(g,g,q,0,is)=R1(g,g,q,0,is)+ason4pi*half*xn*
-     .            (2d0*if_gg(z,xl15,is)+2d0*fi_qq(z,xl15,is)
-     .            +ii_gg(z,xl12,is)+ii_gg(z,xl12,is)
-     .            +ff_qq(z,xl56,is)+ff_gg(z,xl56,is)/2d0)
+     &            (2._dp*if_gg(z,xl15,is)+2._dp*fi_qq(z,xl15,is)
+     &            +ii_gg(z,xl12,is)+ii_gg(z,xl12,is)
+     &            +ff_qq(z,xl56,is)+ff_gg(z,xl56,is)/2._dp)
       R2(q,q,g,0,is)=R2(q,q,g,0,is)+ason4pi*half*xn*
-     .            (2d0*if_qq(z,xl26,is)+fi_gg(z,xl26,is)
-     .            +ii_qq(z,xl12,is)+ii_qq(z,xl12,is)
-     .            +ff_qq(z,xl56,is)+ff_gg(z,xl56,is)/2d0)
+     &            (2._dp*if_qq(z,xl26,is)+fi_gg(z,xl26,is)
+     &            +ii_qq(z,xl12,is)+ii_qq(z,xl12,is)
+     &            +ff_qq(z,xl56,is)+ff_gg(z,xl56,is)/2._dp)
       R1(a,g,q,1,is)=R1(a,g,q,1,is)-
-     . ason4pi/xn*(aveqg/aveqq)*ii_qg(z,xl12,is)
+     & ason4pi/xn*(aveqg/aveqq)*ii_qg(z,xl12,is)
       R1(a,g,q,2,is)=R1(a,g,q,2,is)-
-     . ason4pi/xn*(aveqg/aveqq)*ii_qg(z,xl12,is)
+     & ason4pi/xn*(aveqg/aveqq)*ii_qg(z,xl12,is)
       R1(a,g,q,0,is)=R1(a,g,q,0,is)+
-     . ason4pi*2d0*xn*(aveqg/aveqq)*ii_qg(z,xl12,is)
+     & ason4pi*2._dp*xn*(aveqg/aveqq)*ii_qg(z,xl12,is)
       enddo
       endif
-      if ((colourchoice .eq. 3) .or. (colourchoice .eq. 0)) then
+      if ((colourchoice == 3) .or. (colourchoice == 0)) then
       do is=1,3
-      R2(q,q,g,0,is)=R2(q,q,g,0,is)-ason4pi*(xn+1d0/xn)
-     .                       *(if_qq(z,xl25,is)+fi_qq(z,xl25,is))
+      R2(q,q,g,0,is)=R2(q,q,g,0,is)-ason4pi*(xn+1._dp/xn)
+     &                       *(if_qq(z,xl25,is)+fi_qq(z,xl25,is))
       R1(a,g,q,0,is)=R1(a,g,q,0,is)-
-     . ason4pi*(xn+1d0/xn)*(aveqg/aveqq)*ii_qg(z,xl12,is)
+     & ason4pi*(xn+1._dp/xn)*(aveqg/aveqq)*ii_qg(z,xl12,is)
       enddo
       endif
 
@@ -279,7 +294,7 @@ c--- ason4pi*xn*(ff_qq(z,xl56,2) + ff_gg(z,xl56,2)/2d0) * (1)
 
 c--- GLUON-ANTIQUARK contributions
 c--- additional final-final pieces that are 0:
-c--- ason4pi*xn*(ff_qq(z,xl56,2) + ff_gg(z,xl56,2)/2d0) * (1)
+c--- ason4pi*xn*(ff_qq(z,xl56,2) + ff_gg(z,xl56,2)/2._dp) * (1)
       do is=1,3
       R1(g,g,a,1,is)= R1(g,g,q,2,is)
       R1(g,g,a,2,is)= R1(g,g,q,1,is)
@@ -297,7 +312,7 @@ c--- ason4pi*xn*(ff_qq(z,xl56,2) + ff_gg(z,xl56,2)/2d0) * (1)
 
 c--- ANTIQUARK-GLUON contributions
 c--- additional final-final pieces that are 0:
-c--- ason4pi*xn*(ff_qq(z,xl56,2) + ff_gg(z,xl56,2)/2d0) * (1)
+c--- ason4pi*xn*(ff_qq(z,xl56,2) + ff_gg(z,xl56,2)/2._dp) * (1)
       do is=1,3
       R1(a,a,g,1,is)= R1(q,q,g,2,is)
       R1(a,a,g,2,is)= R1(q,q,g,1,is)
@@ -371,35 +386,35 @@ C--- off-diagonal qflag->gflag pieces
 c--- QUARK-QUARK contributions
       do is=1,3
       R1(q,q,q,0,is)=ason4pi*(
-     . -(if_qq(z,xl15,is)+fi_qq(z,xl15,is))/xn
-     . -(if_qq(z,xl16,is)+fi_qq(z,xl16,is))/xn
-     . +ii_qq(z,xl12,is)*(xn+one/xn)
-     . +ff_qq(z,xl56,is)*(xn+one/xn))
+     & -(if_qq(z,xl15,is)+fi_qq(z,xl15,is))/xn
+     & -(if_qq(z,xl16,is)+fi_qq(z,xl16,is))/xn
+     & +ii_qq(z,xl12,is)*(xn+one/xn)
+     & +ff_qq(z,xl56,is)*(xn+one/xn))
       R1(q,q,q,1,is)=ason4pi*(
-     . -(if_qq(z,xl15,is)+fi_qq(z,xl15,is))/xn
-     . +(if_qq(z,xl16,is)+fi_qq(z,xl16,is))*(xn-two/xn)
-     . +ii_qq(z,xl12,is)*two/xn
-     . +ff_qq(z,xl56,is)*two/xn)
+     & -(if_qq(z,xl15,is)+fi_qq(z,xl15,is))/xn
+     & +(if_qq(z,xl16,is)+fi_qq(z,xl16,is))*(xn-two/xn)
+     & +ii_qq(z,xl12,is)*two/xn
+     & +ff_qq(z,xl56,is)*two/xn)
       R1(q,q,q,2,is)=ason4pi*(
-     . +(if_qq(z,xl15,is)+fi_qq(z,xl15,is))*(xn-two/xn)
-     . -(if_qq(z,xl16,is)+fi_qq(z,xl16,is))/xn
-     . +ii_qq(z,xl12,is)*two/xn
-     . +ff_qq(z,xl56,is)*two/xn)
+     & +(if_qq(z,xl15,is)+fi_qq(z,xl15,is))*(xn-two/xn)
+     & -(if_qq(z,xl16,is)+fi_qq(z,xl16,is))/xn
+     & +ii_qq(z,xl12,is)*two/xn
+     & +ff_qq(z,xl56,is)*two/xn)
       R2(q,q,q,0,is)=ason4pi*(
-     . -(if_qq(z,xl25,is)+fi_qq(z,xl25,is))/xn
-     . -(if_qq(z,xl26,is)+fi_qq(z,xl26,is))/xn
-     . +ii_qq(z,xl12,is)*(xn+one/xn)
-     . +ff_qq(z,xl56,is)*(xn+one/xn))
+     & -(if_qq(z,xl25,is)+fi_qq(z,xl25,is))/xn
+     & -(if_qq(z,xl26,is)+fi_qq(z,xl26,is))/xn
+     & +ii_qq(z,xl12,is)*(xn+one/xn)
+     & +ff_qq(z,xl56,is)*(xn+one/xn))
       R2(q,q,q,1,is)=ason4pi*(
-     . +(if_qq(z,xl25,is)+fi_qq(z,xl25,is))*(xn-two/xn)
-     . -(if_qq(z,xl26,is)+fi_qq(z,xl26,is))/xn
-     . +ii_qq(z,xl12,is)*two/xn
-     . +ff_qq(z,xl56,is)*two/xn)
+     & +(if_qq(z,xl25,is)+fi_qq(z,xl25,is))*(xn-two/xn)
+     & -(if_qq(z,xl26,is)+fi_qq(z,xl26,is))/xn
+     & +ii_qq(z,xl12,is)*two/xn
+     & +ff_qq(z,xl56,is)*two/xn)
       R2(q,q,q,2,is)=ason4pi*(
-     . -(if_qq(z,xl25,is)+fi_qq(z,xl25,is))/xn
-     . +(if_qq(z,xl26,is)+fi_qq(z,xl26,is))*(xn-two/xn)
-     . +ii_qq(z,xl12,is)*two/xn
-     . +ff_qq(z,xl56,is)*two/xn)
+     & -(if_qq(z,xl25,is)+fi_qq(z,xl25,is))/xn
+     & +(if_qq(z,xl26,is)+fi_qq(z,xl26,is))*(xn-two/xn)
+     & +ii_qq(z,xl12,is)*two/xn
+     & +ff_qq(z,xl56,is)*two/xn)
 
       enddo
 
@@ -418,70 +433,70 @@ c--- ANTIQUARK-ANTIQUARK contributions
 c--- QUARK-ANTIQUARK contributions
       do is=1,3
       R1(q,q,a,0,is)=ason4pi*(
-     . -(if_qq(z,xl15,is)+fi_qq(z,xl15,is))/xn
-     . +(if_qq(z,xl16,is)+fi_qq(z,xl16,is))*(xn+one/xn)
-     . -ii_qq(z,xl12,is)/xn
-     . -ff_qq(z,xl56,is)/xn)
+     & -(if_qq(z,xl15,is)+fi_qq(z,xl15,is))/xn
+     & +(if_qq(z,xl16,is)+fi_qq(z,xl16,is))*(xn+one/xn)
+     & -ii_qq(z,xl12,is)/xn
+     & -ff_qq(z,xl56,is)/xn)
       R1(q,q,a,1,is)=ason4pi*(
-     . +(if_qq(z,xl15,is)+fi_qq(z,xl15,is))*(xn-two/xn)
-     . +(if_qq(z,xl16,is)+fi_qq(z,xl16,is))*two/xn
-     . -ii_qq(z,xl12,is)/xn
-     . -ff_qq(z,xl56,is)/xn)
+     & +(if_qq(z,xl15,is)+fi_qq(z,xl15,is))*(xn-two/xn)
+     & +(if_qq(z,xl16,is)+fi_qq(z,xl16,is))*two/xn
+     & -ii_qq(z,xl12,is)/xn
+     & -ff_qq(z,xl56,is)/xn)
       R1(q,q,a,2,is)=ason4pi*(
-     . -(if_qq(z,xl15,is)+fi_qq(z,xl15,is))/xn
-     . +(if_qq(z,xl16,is)+fi_qq(z,xl16,is))*two/xn
-     . +ii_qq(z,xl12,is)*(xn-two/xn)
-     . +ff_qq(z,xl56,is)*(xn-two/xn))
+     & -(if_qq(z,xl15,is)+fi_qq(z,xl15,is))/xn
+     & +(if_qq(z,xl16,is)+fi_qq(z,xl16,is))*two/xn
+     & +ii_qq(z,xl12,is)*(xn-two/xn)
+     & +ff_qq(z,xl56,is)*(xn-two/xn))
       R2(a,a,q,0,is)=ason4pi*(
-     . +(if_qq(z,xl25,is)+fi_qq(z,xl25,is))*(xn+one/xn)
-     . -(if_qq(z,xl26,is)+fi_qq(z,xl26,is))/xn
-     . -ii_qq(z,xl12,is)/xn
-     . -ff_qq(z,xl56,is)/xn)
+     & +(if_qq(z,xl25,is)+fi_qq(z,xl25,is))*(xn+one/xn)
+     & -(if_qq(z,xl26,is)+fi_qq(z,xl26,is))/xn
+     & -ii_qq(z,xl12,is)/xn
+     & -ff_qq(z,xl56,is)/xn)
       R2(a,a,q,1,is)=ason4pi*(
-     . +(if_qq(z,xl25,is)+fi_qq(z,xl25,is))*two/xn
-     . +(if_qq(z,xl26,is)+fi_qq(z,xl26,is))*(xn-two/xn)
-     . -ii_qq(z,xl12,is)/xn
-     . -ff_qq(z,xl56,is)/xn)
+     & +(if_qq(z,xl25,is)+fi_qq(z,xl25,is))*two/xn
+     & +(if_qq(z,xl26,is)+fi_qq(z,xl26,is))*(xn-two/xn)
+     & -ii_qq(z,xl12,is)/xn
+     & -ff_qq(z,xl56,is)/xn)
       R2(a,a,q,2,is)=ason4pi*(
-     . +(if_qq(z,xl25,is)+fi_qq(z,xl25,is))*two/xn
-     . -(if_qq(z,xl26,is)+fi_qq(z,xl26,is))/xn
-     . +ii_qq(z,xl12,is)*(xn-two/xn)
-     . +ff_qq(z,xl56,is)*(xn-two/xn))
+     & +(if_qq(z,xl25,is)+fi_qq(z,xl25,is))*two/xn
+     & -(if_qq(z,xl26,is)+fi_qq(z,xl26,is))/xn
+     & +ii_qq(z,xl12,is)*(xn-two/xn)
+     & +ff_qq(z,xl56,is)*(xn-two/xn))
 
       enddo
 
 c--- ANTIQUARK-QUARK contributions
       do is=1,3
       R1(a,a,q,0,is)=ason4pi*(
-     . +(if_qq(z,xl15,is)+fi_qq(z,xl15,is))*(xn+one/xn)
-     . -(if_qq(z,xl16,is)+fi_qq(z,xl16,is))/xn
-     . -ii_qq(z,xl12,is)/xn
-     . -ff_qq(z,xl56,is)/xn)
+     & +(if_qq(z,xl15,is)+fi_qq(z,xl15,is))*(xn+one/xn)
+     & -(if_qq(z,xl16,is)+fi_qq(z,xl16,is))/xn
+     & -ii_qq(z,xl12,is)/xn
+     & -ff_qq(z,xl56,is)/xn)
       R1(a,a,q,1,is)=ason4pi*(
-     . +(if_qq(z,xl15,is)+fi_qq(z,xl15,is))*two/xn
-     . +(if_qq(z,xl16,is)+fi_qq(z,xl16,is))*(xn-two/xn)
-     . -ii_qq(z,xl12,is)/xn
-     . -ff_qq(z,xl56,is)/xn)
+     & +(if_qq(z,xl15,is)+fi_qq(z,xl15,is))*two/xn
+     & +(if_qq(z,xl16,is)+fi_qq(z,xl16,is))*(xn-two/xn)
+     & -ii_qq(z,xl12,is)/xn
+     & -ff_qq(z,xl56,is)/xn)
       R1(a,a,q,2,is)=ason4pi*(
-     . +(if_qq(z,xl15,is)+fi_qq(z,xl15,is))*two/xn
-     . -(if_qq(z,xl16,is)+fi_qq(z,xl16,is))/xn
-     . +ii_qq(z,xl12,is)*(xn-two/xn)
-     . +ff_qq(z,xl56,is)*(xn-two/xn))
+     & +(if_qq(z,xl15,is)+fi_qq(z,xl15,is))*two/xn
+     & -(if_qq(z,xl16,is)+fi_qq(z,xl16,is))/xn
+     & +ii_qq(z,xl12,is)*(xn-two/xn)
+     & +ff_qq(z,xl56,is)*(xn-two/xn))
       R2(q,q,a,0,is)=ason4pi*(
-     . -(if_qq(z,xl25,is)+fi_qq(z,xl25,is))/xn
-     . +(if_qq(z,xl26,is)+fi_qq(z,xl26,is))*(xn+one/xn)
-     . -ii_qq(z,xl12,is)/xn
-     . -ff_qq(z,xl56,is)/xn)
+     & -(if_qq(z,xl25,is)+fi_qq(z,xl25,is))/xn
+     & +(if_qq(z,xl26,is)+fi_qq(z,xl26,is))*(xn+one/xn)
+     & -ii_qq(z,xl12,is)/xn
+     & -ff_qq(z,xl56,is)/xn)
       R2(q,q,a,1,is)=ason4pi*(
-     . +(if_qq(z,xl25,is)+fi_qq(z,xl25,is))*(xn-two/xn)
-     . +(if_qq(z,xl26,is)+fi_qq(z,xl26,is))*two/xn
-     . -ii_qq(z,xl12,is)/xn
-     . -ff_qq(z,xl56,is)/xn)
+     & +(if_qq(z,xl25,is)+fi_qq(z,xl25,is))*(xn-two/xn)
+     & +(if_qq(z,xl26,is)+fi_qq(z,xl26,is))*two/xn
+     & -ii_qq(z,xl12,is)/xn
+     & -ff_qq(z,xl56,is)/xn)
       R2(q,q,a,2,is)=ason4pi*(
-     . -(if_qq(z,xl25,is)+fi_qq(z,xl25,is))/xn
-     . +(if_qq(z,xl26,is)+fi_qq(z,xl26,is))*two/xn
-     . +ii_qq(z,xl12,is)*(xn-two/xn)
-     . +ff_qq(z,xl56,is)*(xn-two/xn))
+     & -(if_qq(z,xl25,is)+fi_qq(z,xl25,is))/xn
+     & +(if_qq(z,xl26,is)+fi_qq(z,xl26,is))*two/xn
+     & +ii_qq(z,xl12,is)*(xn-two/xn)
+     & +ff_qq(z,xl56,is)*(xn-two/xn))
 
       enddo
 

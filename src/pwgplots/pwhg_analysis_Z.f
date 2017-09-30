@@ -22,35 +22,37 @@ c  pwhgfill  :  fills the histograms with data
 
       subroutine init_hist_Z
       implicit none
+      include 'types.f'
+      
       include  'LesHouches.h'
       include 'pwhg_math.h'
-      integer lastnbx,j,l
+      integer:: lastnbx,j,l
       character * 20 prefix
-      integer nbins
+      integer:: nbins
       parameter (nbins=11)
       real * 8 pT_tt_bins(nbins+1)
-      data pT_tt_bins/  0d0, 10d0, 25d0, 50d0,100d0,
-     1     150d0,200d0,250d0,300d0,400d0,600d0, 900d0/          
+      data pT_tt_bins/  0._dp, 10._dp, 25._dp, 50._dp,100._dp,
+     1     150._dp,200._dp,250._dp,300._dp,400._dp,600._dp, 900._dp/          
       real * 8 m_tt_bins(nbins+1)
-      data m_tt_bins/ 320d0,360d0,400d0,450d0,500d0,
-     1     550d0,600d0,650d0,700d0,800d0,900d0,1000d0/          
+      data m_tt_bins/ 320._dp,360._dp,400._dp,450._dp,500._dp,
+     1     550._dp,600._dp,650._dp,700._dp,800._dp,900._dp,1000._dp/          
       external lastnbx
 
       call inihists
 
       do j=1,3
-         if(j.eq.1) then
+         if(j==1) then
             prefix='p3'
-         elseif(j.eq.2) then
+         elseif(j==2) then
             prefix='p4'
-         elseif(j.eq.3) then
+         elseif(j==3) then
             prefix='p34'
          endif
          l=lastnbx(prefix)
-         call bookupeqbins(prefix(1:l)//'_y'  ,0.2d0,-6d0,6d0)
-         call bookupeqbins(prefix(1:l)//'_eta',0.2d0,-6d0,6d0)
-         call bookupeqbins(prefix(1:l)//'_pt' ,2d0,0d0,80d0)
-         call bookupeqbins(prefix(1:l)//'_m'  ,5d0,0d0,100d0)
+         call bookupeqbins(prefix(1:l)//'_y'  ,0.2_dp,-6._dp,6._dp)
+         call bookupeqbins(prefix(1:l)//'_eta',0.2_dp,-6._dp,6._dp)
+         call bookupeqbins(prefix(1:l)//'_pt' ,2._dp,0._dp,80._dp)
+         call bookupeqbins(prefix(1:l)//'_m'  ,5._dp,0._dp,100._dp)
       enddo
 
       end
@@ -60,26 +62,28 @@ c  pwhgfill  :  fills the histograms with data
 
       subroutine analysis_Z(dsig0)
       implicit none
+      include 'types.f'
+      
       include 'hepevt.h'
       include 'pwhg_math.h' 
       include 'LesHouches.h'
       character * 6 whcprg      
       common/cwhcprg/whcprg
-      integer jpref
+      integer:: jpref
       character * 20 prefix(18)
       common/ccccprefix/jpref,prefix
       real * 8  dsig0,dsig
-      logical   ini
+      logical::   ini
       data      ini/.true./
       save      ini
-      integer   ihep                ! HEPEVT index.
+      integer::   ihep                ! HEPEVT index.
       real * 8 p3(4),p4(4),p34(4),y,eta,pt,mass
-      integer j
+      integer:: j
       real * 8 prodvec2
 
       dsig  = dsig0
 
-      if(whcprg.eq.'NLO'.or.whcprg.eq.'LHE') then
+      if(whcprg=='NLO'.or.whcprg=='LHE') then
          p3=phep(1:4,3)
          p4=phep(1:4,4)
          p34=p3+p4

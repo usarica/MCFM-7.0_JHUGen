@@ -1,18 +1,23 @@
       subroutine qq_tchan_htq_dk(p,msq)
       implicit none
+      include 'types.f'
+      
 c---Matrix element squared averaged over initial colors and spins
 c     u(-p1)+b(p2)->h(p3,p4)+t(nu(p5)+e(p6)+b(p7))+d(p8)
       include 'ewcouple.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'hdecaymode.f'
       include 'masses.f'
       include 'nwz.f'
       include 'zprods_com.f'
-      integer nu,eta,e5
-      double precision p(mxpart,4),q(mxpart,4),q5Deta,s34,hdecay,
+      integer:: nu,eta,e5
+      real(dp):: p(mxpart,4),q(mxpart,4),q5Deta,s34,hdecay,
      & msq(-nf:nf,-nf:nf),msqgamgam,fac,tpropsq,
      & b_u,u_b,db_b,b_db,d_bb,ub_bb,bb_d,bb_ub,ubhtdsqdk
-       double complex mdecaymb(2,2),mdecay
+       complex(dp):: mdecaymb(2,2),mdecay
 
 
 C   Deal with Higgs decay
@@ -33,10 +38,10 @@ C   Deal with Higgs decay
 c --  Deal with top decay
 c --  tdecay assumes a massive b, hence 4 polarizations -- we only need one
       mb=0d0
-      if (nwz .eq. 1) then
+      if (nwz == 1) then
       call tdecay(p,5,6,7,mdecaymb)
       mdecay=mdecaymb(1,1)
-      elseif (nwz .eq. -1) then
+      elseif (nwz == -1) then
       call adecay(p,5,6,7,mdecaymb)
       mdecay=mdecaymb(2,2)
       endif
@@ -69,7 +74,7 @@ C   using rescaled electron momentum q(e5,:)
 C -- zero all components of msq
       msq(:,:)=0d0
 
-      if (nwz .eq. +1) then
+      if (nwz == +1) then
       call spinoru(7,q,za,zb) 
 
       u_b=ubhtdsqdk(1,2,3,4,5,6,e5,mdecay)*fac
@@ -87,7 +92,7 @@ C -- zero all components of msq
       msq(+5,+4)=b_u
 
       
-      elseif(nwz .eq. -1) then
+      elseif(nwz == -1) then
       call spinoru(7,q,zb,za)
 
       d_bb=ubhtdsqdk(1,2,4,3,5,6,e5,mdecay)*fac

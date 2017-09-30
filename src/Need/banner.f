@@ -1,24 +1,26 @@
       block data codeversion_data
-      implicit none
+      
       include 'codeversion.f'
-      data codeversion/'7.0.1'/      
+      data codeversion/'8.0'/      
       data      prelim/.false./      ! if true, print warning message
       end
 
       subroutine banner
+      implicit none
+      include 'types.f'
 ************************************************************************
 *  Set the version number of MCFM and write out the banner heading     *
 ************************************************************************
-      implicit none
+      
       include 'codeversion.f'
       character*50 line
-      integer vlength,lenocc
+      integer:: vlength,lenocc
 
       line='**************************************************'
       vlength=lenocc(codeversion)
       vlength=vlength+17   
       line(25-vlength/2:24+(vlength+1)/2)=
-     . ' MCFM - version '//codeversion//' '
+     & ' MCFM - version '//codeversion//' '
 
       write(6,*) line
 
@@ -44,14 +46,23 @@ c--- warning message, if necessary
 
       write(6,*) '*                                                *'
       write(6,*) '* MCFM, v'//codeversion//
-     .                          '                March 20th, 2015  *'
+     &                          '                  June 2nd, 2016  *'
       write(6,*) '*                                                *'
       write(6,*) '* Authors: John Campbell, Keith Ellis,           *'
       write(6,*) '*          Walter Giele, Ciaran Williams         *'
       write(6,*) '*         (johnmc@fnal.gov, ellis@fnal.gov,      *'
-      write(6,*) '*          giele@fnal.gov,ciaran@fnal.gov)       *'
+      write(6,*) '*          giele@fnal.gov,ciaranwi@buffalo.edu)  *'
       write(6,*) '*                                                *'
       write(6,*) '* For details see:                               *'
+      write(6,*) '*                                                *'
+      write(6,*) '*  Color singlet production at NNLO in MCFM      *'
+      write(6,*) '*   R. Boughezal, J. Campbell, R.K. Ellis,       *'
+      write(6,*) '*    C. Focke, W. Giele, X. Liu, F. Petriello,   *'
+      write(6,*) '*    C. Williams,  arXiv:1605.08011              *'
+      write(6,*) '*    (overview of NNLO implementation in MCFM)   *'
+      write(6,*) '*                                                *'
+      write(6,*) '*  arXiv:1603.02663 (diphotons at NNLO)          *'
+      write(6,*) '*  arXiv:1601.00658 (VH at NNLO)                 *'
       write(6,*) '*                                                *'
       write(6,*) '*  arXiv:1502.02990 (VBF and VBS Higgs)          *'
       write(6,*) '*  arXiv:1403.2641  (Triphoton production)       *'

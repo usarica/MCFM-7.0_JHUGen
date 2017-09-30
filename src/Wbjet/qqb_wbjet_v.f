@@ -1,5 +1,7 @@
       subroutine qqb_wbjet_v(p,msqv)
       implicit none
+      include 'types.f'
+
 ************************************************************************
 *     Author: J. M. Campbell                                           *
 *     January 22nd, 2004.                                              *
@@ -18,17 +20,20 @@
 ************************************************************************
 
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'qcdcouple.f'
       include 'ewcouple.f'
       include 'heavyflav.f'
       include 'ckm.f'
       include 'zprods_com.f'
       include 'scheme.f'
-      double precision msq(-nf:nf,-nf:nf),msqv(-nf:nf,-nf:nf),fac,
-     . p(mxpart,4),q(mxpart,4),Vsm(-nf:nf)
-      integer nu,j,k
-      double precision qqb_jkji,qbq_jkji,qq_jkji,qbqb_jkji,
-     .                 qqbxjkik,qbqxjkki,qq_jkki,qbqb_jkki
+      real(dp):: msq(-nf:nf,-nf:nf),msqv(-nf:nf,-nf:nf),fac,
+     & p(mxpart,4),q(mxpart,4),Vsm(-nf:nf)
+      integer:: nu,j,k
+      real(dp):: qqb_jkji,qbq_jkji,qq_jkji,qbqb_jkji,
+     &                 qqbxjkik,qbqxjkki,qq_jkki,qbqb_jkki
 
       scheme='dred'
 c--- calculate the lowest order matrix element and fill the
@@ -38,7 +43,7 @@ c--- common block twopij with s_{ij}
 c--- initialize matrix elements
       do j=-nf,nf
       do k=-nf,nf
-      msqv(j,k)=0d0
+      msqv(j,k)=0._dp
       enddo
       enddo
 
@@ -66,15 +71,15 @@ c---  q-(-p4)+Q+(-p2)+l-(-p5) ---> q+(p1)+Q-(p3)+l+(p6)
 
 c--- set-up matrix elements
       call qqbwbj_loop(1,2,3,4,5,6,
-     .                       qqb_jkji,qbq_jkji,qq_jkji,qbqb_jkji,
-     .                       qqbxjkik,qbqxjkki,qq_jkki,qbqb_jkki)
+     &                       qqb_jkji,qbq_jkji,qq_jkji,qbqb_jkji,
+     &                       qqbxjkik,qbqxjkki,qq_jkki,qbqb_jkki)
 
 c--- set up auxiliary array
       do j=-nf,nf
         Vsm(j)=Vsum(j)
-        if (abs(j) .ge. flav) Vsm(j)=0d0
+        if (abs(j) >= flav) Vsm(j)=0._dp
 c--- make sure that elements are either one or zero
-        if (Vsm(j) .gt. 0d0) Vsm(j)=1d0
+        if (Vsm(j) > 0._dp) Vsm(j)=1._dp
       enddo
 
 c--- Add VIRTUAL terms
@@ -82,25 +87,25 @@ c--- Add VIRTUAL terms
       do k=-nf,nf
 
       if ((abs(j) .ne. flav) .and. (abs(k) .ne. flav)) goto 99
-      if ((abs(j) .eq. flav) .and. (abs(k) .eq. flav)) goto 99
+      if ((abs(j) == flav) .and. (abs(k) == flav)) goto 99
 c--- so that either abs(j) or abs(k) = flav (but not both).
 
-      if     ((j .gt. 0) .and. (k .lt. 0)) then
+      if     ((j > 0) .and. (k < 0)) then
           msqv(j,k)=msqv(j,k)+fac*aveqq*(
-     .     +Vsm(j)*qqbxjkik
-     .     +Vsm(k)*qqb_jkji)
-      elseif ((j .lt. 0) .and. (k .gt. 0)) then
+     &     +Vsm(j)*qqbxjkik
+     &     +Vsm(k)*qqb_jkji)
+      elseif ((j < 0) .and. (k > 0)) then
           msqv(j,k)=msqv(j,k)+fac*aveqq*(
-     .     +Vsm(j)*qbqxjkki
-     .     +Vsm(k)*qbq_jkji)
-      elseif ((j .gt. 0) .and. (k .gt. 0)) then
+     &     +Vsm(j)*qbqxjkki
+     &     +Vsm(k)*qbq_jkji)
+      elseif ((j > 0) .and. (k > 0)) then
           msqv(j,k)=msqv(j,k)+fac*aveqq*(
-     .     +Vsm(j)*qq_jkki
-     .     +Vsm(k)*qq_jkji)
-      elseif ((j .lt. 0) .and. (k .lt. 0)) then
+     &     +Vsm(j)*qq_jkki
+     &     +Vsm(k)*qq_jkji)
+      elseif ((j < 0) .and. (k < 0)) then
           msqv(j,k)=msqv(j,k)+fac*aveqq*(
-     .     +Vsm(j)*qbqb_jkki
-     .     +Vsm(k)*qbqb_jkji)
+     &     +Vsm(j)*qbqb_jkki
+     &     +Vsm(k)*qbqb_jkji)
       endif
 
    99 continue
@@ -116,20 +121,24 @@ c      write(6,*)
       end
 
 
-       subroutine qqbwbj_loop(i1,i2,i3,i4,i5,i6,
-     .                       qqb_jkji,qbq_jkji,qq_jkji,qbqb_jkji,
-     .                       qqbxjkik,qbqxjkki,qq_jkki,qbqb_jkki)
+      subroutine qqbwbj_loop(i1,i2,i3,i4,i5,i6,
+     &                       qqb_jkji,qbq_jkji,qq_jkji,qbqb_jkji,
+     &                       qqbxjkik,qbqxjkki,qq_jkki,qbqb_jkki)
       implicit none
+      include 'types.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_com.f'
-      integer i1,i2,i3,i4,i5,i6
-      double complex a61_1432(2),a61_2314(2),a61_4132(2),a61_2341(2),
-     .               a61_2431(2),a61_2134(2),a61_1342(2),a61_4312(2),
-     .               atr_1432(2),atr_2314(2),atr_4132(2),atr_2341(2),
-     .               atr_2431(2),atr_2134(2),atr_1342(2),atr_4312(2)
-      double complex atrLLL,atrLRL,a61LLL,a61LRL
-      double precision qqb_jkji,qbq_jkji,qq_jkji,qbqb_jkji,
-     .                 qqbxjkik,qbqxjkki,qq_jkki,qbqb_jkki
+      integer:: i1,i2,i3,i4,i5,i6
+      complex(dp)::a61_1432(2),a61_2314(2),a61_4132(2),a61_2341(2),
+     &               a61_2431(2),a61_2134(2),a61_1342(2),a61_4312(2),
+     &               atr_1432(2),atr_2314(2),atr_4132(2),atr_2341(2),
+     &               atr_2431(2),atr_2134(2),atr_1342(2),atr_4312(2)
+      complex(dp):: atrLLL,atrLRL,a61LLL,a61LRL
+      real(dp):: qqb_jkji,qbq_jkji,qq_jkji,qbqb_jkji,
+     &                 qqbxjkik,qbqxjkki,qq_jkki,qbqb_jkki
 c--- this routine returns various pieces of the tree-loop interference
 c--- for the process 0 -> q(1) qb(4) Q(3) Qb(2) + W (-> l(5) + lbar(6))
 c--- the returned pieces are labelled according to the qqb -> qqb
@@ -147,10 +156,10 @@ c--- q-qb amplitudes
       a61_2314(1)=a61LLL(i2,i3,i1,i4,i5,i6,za,zb)
       a61_2314(2)=a61LRL(i2,i3,i1,i4,i5,i6,za,zb)
 
-      atr_1432(1)=Dconjg(atrLLL(i1,i4,i3,i2,i5,i6,za,zb))
-      atr_1432(2)=Dconjg(atrLRL(i1,i4,i3,i2,i5,i6,za,zb))
-      atr_2314(1)=Dconjg(atrLLL(i2,i3,i1,i4,i5,i6,za,zb))
-      atr_2314(2)=Dconjg(atrLRL(i2,i3,i1,i4,i5,i6,za,zb))
+      atr_1432(1)=conjg(atrLLL(i1,i4,i3,i2,i5,i6,za,zb))
+      atr_1432(2)=conjg(atrLRL(i1,i4,i3,i2,i5,i6,za,zb))
+      atr_2314(1)=conjg(atrLLL(i2,i3,i1,i4,i5,i6,za,zb))
+      atr_2314(2)=conjg(atrLRL(i2,i3,i1,i4,i5,i6,za,zb))
 
 c--- qb-q amplitudes
       a61_4132(1)=a61LLL(i4,i1,i3,i2,i5,i6,za,zb)
@@ -158,10 +167,10 @@ c--- qb-q amplitudes
       a61_2341(1)=a61LLL(i2,i3,i4,i1,i5,i6,za,zb)
       a61_2341(2)=a61LRL(i2,i3,i4,i1,i5,i6,za,zb)
 
-      atr_4132(1)=Dconjg(atrLLL(i4,i1,i3,i2,i5,i6,za,zb))
-      atr_4132(2)=Dconjg(atrLRL(i4,i1,i3,i2,i5,i6,za,zb))
-      atr_2341(1)=Dconjg(atrLLL(i2,i3,i4,i1,i5,i6,za,zb))
-      atr_2341(2)=Dconjg(atrLRL(i2,i3,i4,i1,i5,i6,za,zb))
+      atr_4132(1)=conjg(atrLLL(i4,i1,i3,i2,i5,i6,za,zb))
+      atr_4132(2)=conjg(atrLRL(i4,i1,i3,i2,i5,i6,za,zb))
+      atr_2341(1)=conjg(atrLLL(i2,i3,i4,i1,i5,i6,za,zb))
+      atr_2341(2)=conjg(atrLRL(i2,i3,i4,i1,i5,i6,za,zb))
 
 c--- q-q amplitudes
       a61_2431(1)=a61LLL(i2,i4,i3,i1,i5,i6,za,zb)
@@ -169,10 +178,10 @@ c--- q-q amplitudes
       a61_2134(1)=a61LLL(i2,i1,i3,i4,i5,i6,za,zb)
       a61_2134(2)=a61LRL(i2,i1,i3,i4,i5,i6,za,zb)
 
-      atr_2431(1)=Dconjg(atrLLL(i2,i4,i3,i1,i5,i6,za,zb))
-      atr_2431(2)=Dconjg(atrLRL(i2,i4,i3,i1,i5,i6,za,zb))
-      atr_2134(1)=Dconjg(atrLLL(i2,i1,i3,i4,i5,i6,za,zb))
-      atr_2134(2)=Dconjg(atrLRL(i2,i1,i3,i4,i5,i6,za,zb))
+      atr_2431(1)=conjg(atrLLL(i2,i4,i3,i1,i5,i6,za,zb))
+      atr_2431(2)=conjg(atrLRL(i2,i4,i3,i1,i5,i6,za,zb))
+      atr_2134(1)=conjg(atrLLL(i2,i1,i3,i4,i5,i6,za,zb))
+      atr_2134(2)=conjg(atrLRL(i2,i1,i3,i4,i5,i6,za,zb))
 
 c--- qb-qb amplitudes
       a61_1342(1)=a61LLL(i1,i3,i4,i2,i5,i6,za,zb)
@@ -180,33 +189,33 @@ c--- qb-qb amplitudes
       a61_4312(1)=a61LLL(i4,i3,i1,i2,i5,i6,za,zb)
       a61_4312(2)=a61LRL(i4,i3,i1,i2,i5,i6,za,zb)
 
-      atr_1342(1)=Dconjg(atrLLL(i1,i3,i4,i2,i5,i6,za,zb))
-      atr_1342(2)=Dconjg(atrLRL(i1,i3,i4,i2,i5,i6,za,zb))
-      atr_4312(1)=Dconjg(atrLLL(i4,i3,i1,i2,i5,i6,za,zb))
-      atr_4312(2)=Dconjg(atrLRL(i4,i3,i1,i2,i5,i6,za,zb))
+      atr_1342(1)=conjg(atrLLL(i1,i3,i4,i2,i5,i6,za,zb))
+      atr_1342(2)=conjg(atrLRL(i1,i3,i4,i2,i5,i6,za,zb))
+      atr_4312(1)=conjg(atrLLL(i4,i3,i1,i2,i5,i6,za,zb))
+      atr_4312(2)=conjg(atrLRL(i4,i3,i1,i2,i5,i6,za,zb))
 
 * Note: in the expressions below, there are no LRL (2) interference
 *       terms, since these would correspond to polarizations
 *       that don't match, ie. (LL -> RR) x (LR -> LR)
 C--transition (2-->1) (6->2 in original notation)
-      qqb_jkji=dble(a61_1432(1)*atr_1432(1)+a61_1432(2)*atr_1432(2))
+      qqb_jkji=real(a61_1432(1)*atr_1432(1)+a61_1432(2)*atr_1432(2))
 C--transition (4-->2) (1->6 in original notation)
-      qqbxjkik=dble(a61_2314(1)*atr_2314(1)+a61_2314(2)*atr_2314(2))
+      qqbxjkik=real(a61_2314(1)*atr_2314(1)+a61_2314(2)*atr_2314(2))
 
 C--transition (2-->4) (6->1 in original notation)
-      qbqxjkki=dble(a61_4132(1)*atr_4132(1)+a61_4132(2)*atr_4132(2))
+      qbqxjkki=real(a61_4132(1)*atr_4132(1)+a61_4132(2)*atr_4132(2))
 C--transition (1-->2) (2->6 in original notation)
-      qbq_jkji=dble(a61_2341(1)*atr_2341(1)+a61_2341(2)*atr_2341(2))
+      qbq_jkji=real(a61_2341(1)*atr_2341(1)+a61_2341(2)*atr_2341(2))
 
 C--transition (1-->2) (2->6 in original notation)
-      qq_jkji=dble(a61_2431(1)*atr_2431(1)+a61_2431(2)*atr_2431(2))
+      qq_jkji=real(a61_2431(1)*atr_2431(1)+a61_2431(2)*atr_2431(2))
 C--transition (4-->2) (1->6 in original notation)
-      qq_jkki=dble(a61_2134(1)*atr_2134(1)+a61_2134(2)*atr_2134(2))
+      qq_jkki=real(a61_2134(1)*atr_2134(1)+a61_2134(2)*atr_2134(2))
 
 C--transition (2-->1) (6->2 in original notation)
-      qbqb_jkji=dble(a61_1342(1)*atr_1342(1)+a61_1342(2)*atr_1342(2))
+      qbqb_jkji=real(a61_1342(1)*atr_1342(1)+a61_1342(2)*atr_1342(2))
 C--transition (2-->4) (6->1 in original notation)
-      qbqb_jkki=dble(a61_4312(1)*atr_4312(1)+a61_4312(2)*atr_4312(2))
+      qbqb_jkki=real(a61_4312(1)*atr_4312(1)+a61_4312(2)*atr_4312(2))
 
       return
       end

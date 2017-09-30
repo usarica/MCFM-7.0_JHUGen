@@ -1,7 +1,12 @@
 c--- Routine to write a generic LHE file for a given MCFM process
       subroutine mcfm_writelhe(pin,xmsq,xfac)
       implicit none
+      include 'types.f'
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'plabel.f'
       include 'eventbuffer.f'
       include 'facscale.f'
@@ -12,9 +17,9 @@ c--- Routine to write a generic LHE file for a given MCFM process
       include 'heprup.f'
       include 'nqcdjets.f'
       include 'nproc.f'
-      integer ilomomenta,plabeltoPDG,ip_parent(10),id_parent(10),ic,
+      integer:: ilomomenta,plabeltoPDG,ip_parent(10),id_parent(10),ic,
      & i,j,k,jj,kk,j1,j2,j3,j4,ip,nu,ilen
-      double precision p(mxpart,4),xfac,p_parent(10,4),pin(mxpart,4),
+      real(dp):: p(mxpart,4),xfac,p_parent(10,4),pin(mxpart,4),
      & xmsq(-nf:nf,-nf:nf),xx,mm
       character*255 runname,outputstring
       common/ilomomenta/ilomomenta
@@ -24,12 +29,12 @@ c--- Routine to write a generic LHE file for a given MCFM process
 c--- work out flavour to use for initial state
 c--- (randomly, based on weights passed in xmsq)
       call mcfm_getflavour(xmsq,jj,kk)
-      if (jj .eq. 0) then
+      if (jj == 0) then
         idup(1)=21
       else
         idup(1)=jj
       endif
-      if (kk .eq. 0) then
+      if (kk == 0) then
         idup(2)=21
       else
         idup(2)=kk
@@ -49,13 +54,13 @@ c--- copy array pin to new array p
 c--- get parent combinations: at the end of this loop there will be ip of them
       call getparents(ip_parent,id_parent)
       ip=1
-      do while (ip_parent(ip) .gt. 0)
+      do while (ip_parent(ip) > 0)
         j=ip_parent(ip)
         idup(ilomomenta+ip)=id_parent(ip)
-        if     (j .lt. 100) then
+        if     (j < 100) then
           j1=j/10
           j2=mod(j,10)
-          if (j2 .eq. 0) j2=10   ! special code: 0 -> 10
+          if (j2 == 0) j2=10   ! special code: 0 -> 10
           mothup(1,ilomomenta+ip)=1
           mothup(2,ilomomenta+ip)=2
           istup(ilomomenta+ip)=+2
@@ -63,19 +68,19 @@ c--- get parent combinations: at the end of this loop there will be ip of them
           mothup(:,j2)=ilomomenta+ip
           call fixmasses(p,id_parent(ip),idup(j1),idup(j2),j1,j2)
           p_parent(ip,:)=p(j1,:)+p(j2,:)
-        elseif (j .lt. 1000) then
+        elseif (j < 1000) then
 c--- three-particle plots
           j2=(j-j1*100)/10
           j3=mod(j,10)
-          if (j3 .eq. 0) j3=10   ! special code: 0 -> 10
+          if (j3 == 0) j3=10   ! special code: 0 -> 10
           write(6,*) 'Unfinished mcfm_writelhe: j=',j
           stop
-        elseif (j .lt. 10000) then
+        elseif (j < 10000) then
           j1=j/1000
           j2=(j-j1*1000)/100
           j3=(j-j1*1000-j2*100)/10
           j4=mod(j,10)
-          if (j4 .eq. 0) j4=10   ! special code: 0 -> 10
+          if (j4 == 0) j4=10   ! special code: 0 -> 10
           write(6,*) 'Unfinished mcfm_writelhe: j=',j
           stop
         else
@@ -87,14 +92,14 @@ c--- three-particle plots
       ip=ip-1 ! over-counted
 
 c--- now handle color
-      if (nqcdjets .eq. 0) then
+      if (nqcdjets == 0) then
 c---   for no jets in the final state, straightforward
-        if     (jj .gt. 0) then
+        if     (jj > 0) then
           icolup(1,1)=501
           icolup(2,1)=0
           icolup(1,2)=0
           icolup(2,2)=501
-        elseif (jj .lt. 0) then
+        elseif (jj < 0) then
           icolup(1,1)=0
           icolup(2,1)=501
           icolup(1,2)=501
@@ -116,22 +121,22 @@ c--- number of entries to write
 c--- fill momenta
       do i=1,nup
         do nu=1,4
-          if     (i .le. 2) then
+          if     (i <= 2) then
             xx=-p(i,nu)
-          elseif (i .le. ilomomenta) then
+          elseif (i <= ilomomenta) then
             xx=p(i,nu)
           else
             xx=p_parent(i-ilomomenta,nu)
           endif
           pup(nu,i)=xx
         enddo
-        if     (i .le. 2) then
-          mm=0d0
-        elseif (i .le. ilomomenta) then
-          mm=sqrt(max(0d0,p(i,4)**2-p(i,1)**2-p(i,2)**2-p(i,3)**2))
-          if (mm .lt. 1d-12) mm=0d0
+        if     (i <= 2) then
+          mm=zip
+        elseif (i <= ilomomenta) then
+          mm=sqrt(max(zip,p(i,4)**2-p(i,1)**2-p(i,2)**2-p(i,3)**2))
+          if (mm < 1.e-12_dp) mm=zip
         else
-          mm=sqrt(max(0d0,
+          mm=sqrt(max(zip,
      &     +p_parent(i-ilomomenta,4)**2-p_parent(i-ilomomenta,1)**2
      &     -p_parent(i-ilomomenta,2)**2-p_parent(i-ilomomenta,3)**2))
         endif
@@ -146,12 +151,12 @@ c--- events with negative weight or events with weights that exceed wtmax
 c--- Miscellaneous info
       idprup=10000+nproc
       scalup=facscale
-      aqedup=-1d0
+      aqedup=-one
       aqcdup=as
 
 c--- junk entries
-      vtimup(:)=0d0
-      spinup(:)=9d0
+      vtimup(:)=zip
+      spinup(:)=9._dp
 
 c--- on the first pass, open unit 84 with the right file name and write header
       if(first) then
@@ -173,51 +178,53 @@ c--- increment event counter and write out entry to unit 84
 c--- Routine to specify parent particles
       subroutine getparents(ip_parent,id_parent)
       implicit none
+      include 'types.f'
+
       include 'nwz.f'
-      include 'process.f'
+      include 'kprocess.f'
       include 'montecarlorpp.f'
-      integer j,ip_parent(10),id_parent(10)
+      integer:: j,ip_parent(10),id_parent(10)
 
       ip_parent(:)=0
 
-      if ( (case.eq.'HZZ_4l') .or. (case.eq.'HZZ_tb')
-     & .or.(case.eq.'HZZint') .or. (case.eq.'ggZZ4l')
-     & .or.(case.eq.'HZZH+i') .or. (case.eq.'ZZlept')
-     & .or.(case.eq.'ggZZbx')) then
+      if ( (kcase==kHZZ_4l) .or. (kcase==kHZZ_tb)
+     & .or.(kcase==kHZZint) .or. (kcase==kggZZ4l)
+     & .or.(kcase==kHZZHpi) .or. (kcase==kZZlept)
+     & .or.(kcase==kggZZbx)) then
         ip_parent= (/ 34, 56, (0,j=1,8) /)
         id_parent= (/ z0_pdg, z0_pdg, (0,j=1,8) /)
       endif
 
-      if ( (case.eq.'HWW_4l') .or. (case.eq.'HWW_tb')
-     & .or.(case.eq.'HWWint') .or. (case.eq.'ggWW4l')
-     & .or.(case.eq.'HWWH+i') .or. (case.eq.'WWqqbr')
-     & .or.(case.eq.'ggWWbx')) then
+      if ( (kcase==kHWW_4l) .or. (kcase==kHWW_tb)
+     & .or.(kcase==kHWWint) .or. (kcase==kggWW4l)
+     & .or.(kcase==kHWWHpi) .or. (kcase==kWWqqbr)
+     & .or.(kcase==kggWWbx)) then
         ip_parent= (/ 34, 56, (0,j=1,8) /)
         id_parent= (/ wp_pdg, wm_pdg, (0,j=1,8) /)
       endif
 
-      if (case.eq.'W_only') then
+      if (kcase==kW_only) then
         ip_parent= (/ 34, (0,j=1,9) /)
         id_parent= (/ wp_pdg*nwz, (0,j=1,9) /)
       endif
 
-      if (case.eq.'Z_only') then
+      if (kcase==kZ_only) then
         ip_parent= (/ 34, (0,j=1,9) /)
         id_parent= (/ z0_pdg, (0,j=1,9) /)
       endif
 
-      if (case.eq.'ggfus0') then
+      if (kcase==kggfus0) then
         ip_parent= (/ 34, (0,j=1,9) /)
         id_parent= (/ h_pdg, (0,j=1,9) /)
       endif
 
-      if ( (case.eq.'WWqqbr') .or. (case.eq.'WWnpol')
-     & .or.(case.eq.'WWqqdk')) then
+      if ( (kcase==kWWqqbr) .or. (kcase==kWWnpol)
+     & .or.(kcase==kWWqqdk)) then
         ip_parent= (/ 34, 56, (0,j=1,8) /)
         id_parent= (/ wp_pdg, wm_pdg, (0,j=1,8) /)
       endif
 
-      if (case.eq.'WZbbar') then
+      if (kcase==kWZbbar) then
         ip_parent= (/ 34, 56, (0,j=1,8) /)
         id_parent= (/ wp_pdg*nwz, z0_pdg, (0,j=1,8) /)
       endif
@@ -237,68 +244,73 @@ c---  i1,id2 -> PDG codes of daughter particles
 c---  j1,j2 -> entries in momentum array for daughters
       subroutine fixmasses(p,idparent,id1,id2,j1,j2)
       implicit none
+      include 'types.f'
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'montecarlorpp.f'
       include 'masses.f'
-      double precision p(mxpart,4),dot,m,beta,p1(4),p2(4)
-      integer idparent,id1,id2,j1,j2,imass
+      real(dp):: p(mxpart,4),dot,m,beta,p1(4),p2(4)
+      integer:: idparent,id1,id2,j1,j2,imass
 
-      if     (idparent .eq. z0_pdg) then
+      if     (idparent == z0_pdg) then
 c--- Z parent
-        if     ((abs(id1).eq.el_pdg) .and. (abs(id2).eq.el_pdg)) then
+        if     ((abs(id1)==el_pdg) .and. (abs(id2)==el_pdg)) then
           m=mel   ! electrons
-        elseif ((abs(id1).eq.ml_pdg) .and. (abs(id2).eq.ml_pdg)) then
+        elseif ((abs(id1)==ml_pdg) .and. (abs(id2)==ml_pdg)) then
           m=mmu   ! muons
-        elseif ((abs(id1).eq.tl_pdg) .and. (abs(id2).eq.tl_pdg)) then
+        elseif ((abs(id1)==tl_pdg) .and. (abs(id2)==tl_pdg)) then
           m=mtau  ! taus
-        elseif ((abs(id1).eq.bq_pdg) .and. (abs(id2).eq.bq_pdg)) then
+        elseif ((abs(id1)==bq_pdg) .and. (abs(id2)==bq_pdg)) then
           m=mb    ! b-quarks
-        elseif ((abs(id1).eq.nel_pdg) .and. (abs(id2).eq.nel_pdg))then
+        elseif ((abs(id1)==nel_pdg) .and. (abs(id2)==nel_pdg))then
           return  ! massless neutrinos -> nothing to do
-        elseif ((abs(id1).eq.nml_pdg) .and. (abs(id2).eq.nml_pdg))then
+        elseif ((abs(id1)==nml_pdg) .and. (abs(id2)==nml_pdg))then
           return  ! massless neutrinos -> nothing to do
-        elseif ((abs(id1).eq.ntl_pdg) .and. (abs(id2).eq.ntl_pdg))then
+        elseif ((abs(id1)==ntl_pdg) .and. (abs(id2)==ntl_pdg))then
           return  ! massless neutrinos -> nothing to do
         else
           write(6,*) 'Unexpected Z decay products: id1,id2=',id1,id2
           stop
         endif
-        beta=sqrt(max(0d0,1d0-4d0*m**2/(2d0*dot(p,j1,j2))))
-        p1(:)=(1d0+beta)/2d0*p(j1,:)+(1d0-beta)/2d0*p(j2,:)
-        p2(:)=(1d0+beta)/2d0*p(j2,:)+(1d0-beta)/2d0*p(j1,:)
+        beta=sqrt(max(zip,one-4._dp*m**2/(2._dp*dot(p,j1,j2))))
+        p1(:)=(one+beta)/2._dp*p(j1,:)+(one-beta)/2._dp*p(j2,:)
+        p2(:)=(one+beta)/2._dp*p(j2,:)+(one-beta)/2._dp*p(j1,:)
         p(j1,:)=p1(:)
         p(j2,:)=p2(:)
-      elseif (abs(idparent) .eq. wp_pdg) then
+      elseif (abs(idparent) == wp_pdg) then
 c--- W parent
-        if     ((abs(id1).eq.el_pdg) .and. (abs(id2).eq.nel_pdg)) then
+        if     ((abs(id1)==el_pdg) .and. (abs(id2)==nel_pdg)) then
           m=mel   ! electron
           imass=1
-        elseif ((abs(id1).eq.ml_pdg) .and. (abs(id2).eq.nml_pdg)) then
+        elseif ((abs(id1)==ml_pdg) .and. (abs(id2)==nml_pdg)) then
           m=mmu   ! muon
           imass=1
-        elseif ((abs(id1).eq.tl_pdg) .and. (abs(id2).eq.ntl_pdg)) then
+        elseif ((abs(id1)==tl_pdg) .and. (abs(id2)==ntl_pdg)) then
           m=mtau  ! tau
           imass=1
-        elseif ((abs(id1).eq.nel_pdg) .and. (abs(id2).eq.el_pdg)) then
+        elseif ((abs(id1)==nel_pdg) .and. (abs(id2)==el_pdg)) then
           m=mel   ! electron
           imass=2
-        elseif ((abs(id1).eq.nml_pdg) .and. (abs(id2).eq.ml_pdg)) then
+        elseif ((abs(id1)==nml_pdg) .and. (abs(id2)==ml_pdg)) then
           m=mmu   ! muon
           imass=2
-        elseif ((abs(id1).eq.ntl_pdg) .and. (abs(id2).eq.tl_pdg)) then
+        elseif ((abs(id1)==ntl_pdg) .and. (abs(id2)==tl_pdg)) then
           m=mtau  ! tau
           imass=2
         else
           write(6,*) 'Unexpected W decay products: id1,id2=',id1,id2
           stop
         endif
-        beta=m**2/(2d0*dot(p,j1,j2))
-        if (imass .eq. 1) then ! massive particle is j1
-          p2(:)=(1d0-beta)*p(j2,:)
+        beta=m**2/(2._dp*dot(p,j1,j2))
+        if (imass == 1) then ! massive particle is j1
+          p2(:)=(one-beta)*p(j2,:)
           p1(:)=p(j1,:)+beta*p(j2,:)
         endif
-        if (imass .eq. 2) then ! massive particle is j2
-          p1(:)=(1d0-beta)*p(j1,:)
+        if (imass == 2) then ! massive particle is j2
+          p1(:)=(one-beta)*p(j1,:)
           p2(:)=p(j2,:)+beta*p(j1,:)
         endif
           p(j1,:)=p1(:)
@@ -313,41 +325,46 @@ c--- W parent
 
 
 c--- Routine to convert MCFM plabel to PDG number
-      integer function plabeltoPDG(ch)
-      implicit none
+      function plabeltoPDG(ch)
+       implicit none
+      include 'types.f'
+      integer:: plabeltoPDG
+
       include 'montecarlorpp.f'
       character*2 ch
 
-      if     (ch .eq. 'el') then
+      if     (ch == 'el') then
         plabeltoPDG=el_pdg
-      elseif (ch .eq. 'ea') then
+      elseif (ch == 'ea') then
         plabeltoPDG=ea_pdg
-      elseif (ch .eq. 'ml') then
+      elseif (ch == 'ml') then
         plabeltoPDG=ml_pdg
-      elseif (ch .eq. 'ma') then
+      elseif (ch == 'ma') then
         plabeltoPDG=ma_pdg
-      elseif (ch .eq. 'tl') then
+      elseif (ch == 'tl') then
         plabeltoPDG=tl_pdg
-      elseif (ch .eq. 'ta') then
+      elseif (ch == 'ta') then
         plabeltoPDG=ta_pdg
-      elseif (ch .eq. 'bq') then
+      elseif (ch == 'bq') then
         plabeltoPDG=bq_pdg
-      elseif (ch .eq. 'ba') then
+      elseif (ch == 'ba') then
         plabeltoPDG=bb_pdg
-      elseif (ch .eq. 'nl') then
+      elseif (ch == 'nl') then
         plabeltoPDG=nel_pdg
-      elseif (ch .eq. 'na') then
+      elseif (ch == 'na') then
         plabeltoPDG=nea_pdg
-      elseif (ch .eq. 'nm') then
+      elseif (ch == 'nm') then
         plabeltoPDG=nml_pdg
-      elseif (ch .eq. 'bm') then
+      elseif (ch == 'bm') then
         plabeltoPDG=nma_pdg
-      elseif (ch .eq. 'nt') then
+      elseif (ch == 'nt') then
         plabeltoPDG=ntl_pdg
-      elseif (ch .eq. 'bt') then
+      elseif (ch == 'bt') then
         plabeltoPDG=nta_pdg
-      elseif (ch .eq. 'pp') then
+      elseif (ch == 'pp') then
         plabeltoPDG=g_pdg
+      elseif (ch == 'ga') then
+        plabeltoPDG=g0_pdg
       else
         write(6,*) 'Unknown plabel in plabeltoPDG: ',ch
         stop
@@ -359,12 +376,17 @@ c--- Routine to convert MCFM plabel to PDG number
 
       subroutine mcfm_getflavour(msq,j,k)
       implicit none
+      include 'types.f'
+
       include 'constants.f'
-      integer j,k
-      double precision msq(-nf:nf,-nf:nf),msqsum,ran2,ptr
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      integer:: j,k
+      real(dp):: msq(-nf:nf,-nf:nf),msqsum,ran2,ptr
 
 c--- total of absolute weights
-      msqsum=0d0
+      msqsum=zip
       do j=-nf,nf
       do k=-nf,nf
         msqsum=msqsum+abs(msq(j,k))
@@ -375,11 +397,11 @@ c--- random weight between 0 and this total
       ptr=msqsum*ran2()
 
 c--- recover corresponding j,k
-      msqsum=0d0
+      msqsum=zip
       do j=-nf,nf
       do k=-nf,nf
         msqsum=msqsum+abs(msq(j,k))
-        if (msqsum .ge. ptr) return
+        if (msqsum >= ptr) return
       enddo
       enddo
 

@@ -1,4 +1,6 @@
       subroutine qqb_wbb_soft(P,msq)
+      implicit none
+      include 'types.f'
 c---Matrix element SUBTRACTION squared averaged over initial colors and spins
 c     q(-p1)+qbar(-p2) -->  b(p5)+bb(p6) + W +g(p7)
 c                                          |
@@ -6,20 +8,23 @@ c                                          --> nu(p3)+e^+(p4)
 c                            
 c   positively charged W only
 c--all momenta incoming
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'qcdcouple.f'
       include 'masses.f'
-      integer j,k
+      integer:: j,k
 
-      double precision P(mxpart,4),msq(-nf:nf,-nf:nf),
-     . msq0(-nf:nf,-nf:nf),s(mxpart,mxpart),facqqb,facqbq
-      double precision eik17_2,eik17_5,eik17_6,eik27_5,eik27_6,eik57_6
-      double precision eik27_1,eik57_1,eik67_1,eik57_2,eik67_2,eik67_5
+      real(dp):: P(mxpart,4),msq(-nf:nf,-nf:nf),
+     & msq0(-nf:nf,-nf:nf),s(mxpart,mxpart),facqqb,facqbq
+      real(dp):: eik17_2,eik17_5,eik17_6,eik27_5,eik27_6,eik57_6
+      real(dp):: eik27_1,eik57_1,eik67_1,eik57_2,eik67_2,eik67_5
       
       do j=-nf,nf
       do k=-nf,nf
-      msq(j,k)=0d0
+      msq(j,k)=0._dp
       enddo
       enddo
       call dotem(7,p,s)
@@ -47,9 +52,9 @@ c      eik26=s(2,6)/s(2,7)/s(6,7)
 
 
 c      facqqb=((+two*(eik17_6+eik67_1+eik27_5+eik57_2
-c     . -eik27_6-eik67_2-eik17_5-eik57_1)
-c     . -eik17_2-eik27_1-eik57_6-eik67_5
-c     . )/xn
+c     & -eik27_6-eik67_2-eik17_5-eik57_1)
+c     & -eik17_2-eik27_1-eik57_6-eik67_5
+c     & )/xn
 c     & +xn*(eik17_5+eik57_1+eik27_6+eik67_2))
 
 
@@ -75,17 +80,17 @@ c     & +xn*(eik17_5+eik57_1+eik27_6+eik67_2))
 
 
 c      facqbq=((+two*(eik27_6+eik67_2+eik17_5+eik57_1
-c     . -eik17_6-eik67_1-eik27_5-eik57_2)
-c     . -eik27_1-eik17_2-eik57_6-eik67_5
-c     . )/xn
+c     & -eik17_6-eik67_1-eik27_5-eik57_2)
+c     & -eik27_1-eik17_2-eik57_6-eik67_5
+c     & )/xn
 c     & +xn*(eik27_5+eik57_2+eik17_6+eik67_1))
 
       facqqb=(eik27_6+eik67_2+eik17_5+eik57_1)*(xn-two/xn)
-     .      +(eik17_6+eik67_1+eik27_5+eik57_2)*(two/xn)
-     .      +(eik27_1+eik17_2+eik57_6+eik67_5)*(-one/xn)
+     &      +(eik17_6+eik67_1+eik27_5+eik57_2)*(two/xn)
+     &      +(eik27_1+eik17_2+eik57_6+eik67_5)*(-one/xn)
       facqbq=(eik17_6+eik67_1+eik27_5+eik57_2)*(xn-two/xn)
-     .      +(eik27_6+eik67_2+eik17_5+eik57_1)*(two/xn)
-     .      +(eik17_2+eik27_1+eik57_6+eik67_5)*(-one/xn)
+     &      +(eik27_6+eik67_2+eik17_5+eik57_1)*(two/xn)
+     &      +(eik17_2+eik27_1+eik57_6+eik67_5)*(-one/xn)
 
 
 c??????? exchange ???/
@@ -99,7 +104,7 @@ c      write(6,*)
       
       do j=2,2
       do k=-1,-1
-            if ((j .gt. 0) .and. (k.lt.0)) then
+            if ((j > 0) .and. (k<0)) then
                msq(j,k)=facqqb*msq0(j,k)
       
        write(6,*) '-eik17_2*msq0(j,k)/xn',-eik17_2*msq0(j,k)/xn
@@ -109,16 +114,16 @@ c      write(6,*)
        write(6,*) '-eik67_5*msq0(j,k)/xn',-eik67_5*msq0(j,k)/xn
 
        write(6,*) 'two/xn*(eik17_5+eik57_1)*msq0(j,k)',
-     . +(xn-two/xn)*(eik17_5+eik57_1)*msq0(j,k)
+     & +(xn-two/xn)*(eik17_5+eik57_1)*msq0(j,k)
        write(6,*) 'two/xn*(eik17_6+eik67_1)*msq0(j,k)',
-     . two/xn*(eik17_6+eik67_1)*msq0(j,k)
+     & two/xn*(eik17_6+eik67_1)*msq0(j,k)
        write(6,*) '(eik27_6+eik67_2)*msq0(j,k)',
-     . +(xn-two/xn)*(eik27_6+eik67_2)*msq0(j,k)
+     & +(xn-two/xn)*(eik27_6+eik67_2)*msq0(j,k)
        write(6,*) 'two/xn*(eik27_5+eik57_2)*msq0(j,k)',
-     . +two/xn*(eik27_5+eik57_2)*msq0(j,k)
+     & +two/xn*(eik27_5+eik57_2)*msq0(j,k)
 
 
-            elseif ((j .lt. 0) .and. (k.gt.0)) then
+            elseif ((j < 0) .and. (k>0)) then
                msq(j,k)=facqbq*msq0(j,k)
             endif
       enddo

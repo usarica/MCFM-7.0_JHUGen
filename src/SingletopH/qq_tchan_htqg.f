@@ -1,16 +1,21 @@
       subroutine qq_tchan_htqg(p,msq)
+      implicit none
+      include 'types.f'
 c---Matrix element squared averaged over initial colors and spins
 c     u(-p1)+b(p2)->h(p3,p4)+t(p5)+d(p6)+g(p7)
-      implicit none
+      
       include 'ewcouple.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'qcdcouple.f'
       include 'hdecaymode.f'
       include 'masses.f'
       include 'nwz.f'
       include 'zprods_com.f'
-      integer j,nu,eta,e5
-      double precision p(mxpart,4),q(mxpart,4),p5Deta,s34,hdecay,
+      integer:: j,nu,eta,e5
+      real(dp):: p(mxpart,4),q(mxpart,4),p5Deta,s34,hdecay,
      & msq(-nf:nf,-nf:nf),dot,msqgamgam,fac,ampsqL,ampsqH,
      & b_u,u_b,db_b,b_db,d_bb,ub_bb,bb_d,bb_ub,
      & db_g,g_b,u_g,g_db,b_g,g_u,
@@ -49,7 +54,7 @@ C---zero all matrix elements
       msq(:,:)=0d0
       fac=xn**2*(2d0*CF)*gwsq**3*gsq*hdecay
 
-      if (nwz .eq. 1) then
+      if (nwz == 1) then
       call spinoru(8,q,za,zb) 
 
       call ubhtdgsq(1,2,3,4,5,6,7,e5,ampsqL,ampsqH)
@@ -97,7 +102,7 @@ c--- In g-q diagrams, remove corrections on light line
       msq(0,-3)=g_db
       msq(5,0)=b_g
 
-      elseif(nwz .eq. -1) then
+      elseif(nwz == -1) then
       call spinoru(8,q,zb,za) 
       
       call ubhtdgsq(1,2,4,3,5,6,7,e5,ampsqL,ampsqH)

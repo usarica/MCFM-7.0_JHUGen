@@ -1,23 +1,28 @@
       subroutine gen7_rap(r,p,wt7,*)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'mxdim.f'
       include 'breit.f'
-      integer nu
+      integer:: nu
 
-      double precision r(mxdim)
-      double precision wt7,p(mxpart,4),tp(4),tm(4),bp(4),bm(4),
-     . nn(4),nb(4)
-      double precision wtepnn,wtnbem,ep(4),em(4),pg(4)
-      double precision wp(4),wm(4),m3,m4
-      double precision wt0,wtttg,wtwp,wtwm,s3min
-      parameter(wt0=1d0/twopi**4)
+      real(dp):: r(mxdim)
+      real(dp):: wt7,p(mxpart,4),tp(4),tm(4),bp(4),bm(4),
+     & nn(4),nb(4)
+      real(dp):: wtepnn,wtnbem,ep(4),em(4),pg(4)
+      real(dp):: wp(4),wm(4),m3,m4
+      real(dp):: wt0,wtttg,wtwp,wtwm,s3min
+      parameter(wt0=1._dp/twopi**4)
 
 *     q(-p1) +qbar(-p2)=t(nu(p3)+e^+(p4)+b(p5))                        *
 *                       +t~(b~(p6)+e^-(p7)+nu(p8))+g(p9)               *
 *                                                                      * 
-      wt7=0d0
+      wt7=0._dp
       m3=mt
       m4=mt
       call gen3m_rap(r,p,m3,m4,wtttg,*999)
@@ -27,7 +32,7 @@
       tm(nu)=p(4,nu)
       pg(nu)=p(5,nu)
       enddo
-      s3min=0d0
+      s3min=0._dp
       n3=1
       mass3=wmass      
       width3=wwidth      
@@ -53,8 +58,8 @@
       p(9,nu)=pg(nu)
       enddo
       return
- 999  wt7=0d0
-      p(:,:)=0d0
+ 999  wt7=0._dp
+      p(:,:)=0._dp
       return 1
       
       end

@@ -1,13 +1,18 @@
       subroutine box3(k1,k2,k3,k4,k5,k6,za,zb,app,apm,amp,amm)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'sprods_com.f'
       include 'zprods_decl.f'
       include 'Higgsint.f'
-      double precision mtsq,s12,s34,s56,s134,s156
-      integer k1,k2,k3,k4,k5,k6
-      double complex app,apm,amp,amm,boxamp,zab2
+      real(dp):: mtsq,s12,s34,s56,s134,s156
+      integer:: k1,k2,k3,k4,k5,k6
+      complex(dp):: app,apm,amp,amm,boxamp,zab2
 c--- statement functions
       zab2(k1,k2,k3,k4)=za(k1,k2)*zb(k2,k4)+za(k1,k3)*zb(k3,k4)
 c--- end statement functions

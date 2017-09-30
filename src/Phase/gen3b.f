@@ -1,34 +1,39 @@
       subroutine gen3b(r,p,wt3,*)
+      implicit none
+      include 'types.f'
 c----generate 3 dimensional phase space weight and vectors p(7,4)
 c----           p1+p2+p3+p4+p5=0
 c----and x1 and x2 given seven random numbers
 c----p(6,i) and p(7,i) are set equal to zero
-      implicit none
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'mxdim.f'
       include 'phasemin.f'
       include 'x1x2.f'
       include 'energy.f'
-      integer nu
-      double precision r(mxdim),wt3
-      double precision p(mxpart,4),
-     . p1(4),p2(4),p3(4),p4(4),p5(4),p6(4),p7(4)
-      double precision pswt,xjac,tau,y
+      integer:: nu
+      real(dp):: r(mxdim),wt3
+      real(dp):: p(mxpart,4),
+     & p1(4),p2(4),p3(4),p4(4),p5(4),p6(4),p7(4)
+      real(dp):: pswt,xjac,tau,y
 
-      wt3=0d0
-      p(:,:)=0d0
+      wt3=0._dp
+      p(:,:)=0._dp
       tau=exp(log(taumin)*r(4))
-      y=0.5d0*log(tau)*(1d0-2d0*r(5))
+      y=0.5_dp*log(tau)*(1._dp-2._dp*r(5))
       xjac=log(taumin)*tau*log(tau)
 
       xx(1)=sqrt(tau)*exp(+y)
       xx(2)=sqrt(tau)*exp(-y)
 
 c---if x's out of normal range alternative return
-      if   ((xx(1) .gt. 1d0)
-     & .or. (xx(2) .gt. 1d0)
-     & .or. (xx(1) .lt. xmin)
-     & .or. (xx(2) .lt. xmin)) return 1
+      if   ((xx(1) > 1._dp)
+     & .or. (xx(2) > 1._dp)
+     & .or. (xx(1) < xmin)
+     & .or. (xx(2) < xmin)) return 1
 
       p1(4)=-xx(1)*sqrts*half
       p1(1)=zip
@@ -54,8 +59,8 @@ c---if x's out of normal range alternative return
       enddo
 
       wt3=xjac*pswt
-      if(wt3 .eq. 0d0) then
-      p(:,:)=0d0
+      if(wt3 == 0._dp) then
+      p(:,:)=0._dp
       return 1
       endif
 

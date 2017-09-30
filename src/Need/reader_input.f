@@ -1,14 +1,17 @@
       subroutine reader_input(inputfile,workdir)
+      implicit none
+      include 'types.f'
 ************************************************************************
 *   Routine to read in the file input.DAT, which is a consolidated     *
 *   form of all the input files and new to version 3.4 of MCFM         *
 ************************************************************************
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
       include 'debug.f'
       include 'new_pspace.f'
       include 'couple.f'
-      include 'part.f'
+      include 'kpart.f'
       include 'virtonly.f'
       include 'realonly.f'
       include 'noglue.f'
@@ -17,7 +20,7 @@
       include 'cutoff.f'
       include 'maxwt.f'
       include 'masses.f'
-      include 'process.f'
+      include 'kprocess.f'
       include 'scale.f'
       include 'facscale.f'
       include 'dynamicscale.f'
@@ -51,31 +54,34 @@
       include 'runstring.f'
       include 'energy.f'
       include 'nproc.f'
+      include 'taucut.f'
+      include 'iterat.f'
+      include 'mpicommon.f'
 c--- APPLgrid - flag using grid
 c      include 'ptilde.f'
 c      include 'APPLinclude.f'
 c--- APPLgrid - end
       character*72 workdir,inputfile
       character*90 line
-      logical spira,dryrun,makecuts,creategrid
-      integer nmin,nmax,ii
-      integer ih1,ih2,itmx1,itmx2,ncall1,ncall2,idum,origij
-      integer NPTYPE,NGROUP,NSET
-      double precision rtsmin,factor
-      double precision mbbmin,mbbmax,Mwmin,Mwmax
-      double precision Rcut
-      logical technicalincluded
-      double precision ran2,randummy
-      double precision cmass,bmass
-      double precision alphas
+      character*15 part
+      logical:: spira,dryrun,makecuts,creategrid,writerefs
+      integer:: nmin,nmax,ii
+      integer:: ih1,ih2,idum,origij
+      integer:: NPTYPE,NGROUP,NSET
+      real(dp):: rtsmin,factor
+      real(dp):: mbbmin,mbbmax,Mwmin,Mwmax
+      real(dp):: Rcut
+      logical:: technicalincluded
+      real(dp):: ran2,ran2nr,randummy
+      real(dp):: alphas
       
+      common/writerefs/writerefs
       common/spira/spira
       common/nmin/nmin
       common/nmax/nmax
       common/rtsmin/rtsmin 
 
       common/density/ih1,ih2
-      common/iterat/itmx1,ncall1,itmx2,ncall2
       common/ranno/idum
       common/dryrun/dryrun
       
@@ -84,27 +90,27 @@ c--- APPLgrid - end
       common/Rcut/Rcut
       common/makecuts/makecuts
 
-      common/qmass/cmass,bmass
+c      common/qmass/cmass,bmass
 
       common/origij/origij
 
       save /ranno/
 
-      data cttH/1.0d0/
-      data cWWH/1.0d0/
+      data cttH/1.0_dp/
+      data cWWH/1.0_dp/
 
-      
-      verbose=.true.
+      verbose=.false.
+      if (rank.eq.0) verbose=.true.
 
       werkdir=workdir
 c--- work out the name of the input file and open it
 
-      write(6,*) '* Using input file named ',inputfile
+      if (rank.eq.0) write(6,*) '* Using input file named ',inputfile
 
       open(unit=20,file=inputfile,status='old',err=999)
       call checkversion(20,inputfile)
 
-c--- read-in the user inputs
+c--- rea.e-_dpin the user inputs
 
       if (verbose) write(6,*)
       read(20,99) line
@@ -116,14 +122,17 @@ c--- flags for the mode of MCFM
       if (verbose) call writeinput(6,' * ',' ','nevtrequested')
       read(20,*) creatent
       if (verbose) call writeinput(6,' * ',' ','creatent')
-      read(20,*) skipnt
-      if (verbose) call writeinput(6,' * ',' ','skipnt')
+      skipnt=.false.
+!      read(20,*) skipnt
+!      if (verbose) call writeinput(6,' * ',' ','skipnt')
       read(20,*) dswhisto
       if (verbose) call writeinput(6,' * ',' ','dswhisto')
 c--- APPLgrid - added to read flag for grids
        read(20,*) creategrid
        if (verbose) call writeinput(6,' * ',' ','creategrid')
 c--- APPLgrid - end
+      read(20,*) writerefs
+      if (verbose) call writeinput(6,' * ',' ','writerefs')
       read(20,*) writetop
       if (verbose) call writeinput(6,' * ',' ','writetop')
       read(20,*) writedat
@@ -145,7 +154,7 @@ c--- general options
 c--- read in whole line for nproc
       read(20,99) line
       ii=index(line,'.')
-      if (ii .gt. 0) then
+      if (ii > 0) then
         vdecayid=.true.
 c------ special string present to specify V decays
         read(line(1:ii-1),*) nproc
@@ -162,6 +171,34 @@ c------ normal case
       endif
       if (verbose) call writeinput(6,' * ',' ','nproc')
       read(20,*) part
+      coeffonly=.false.
+      kpart=0
+      if     ((part == 'lo') .or. (part == 'lord')) then
+        kpart=klord
+      elseif (part == 'virt') then
+        kpart=kvirt
+      elseif (part == 'real') then
+        kpart=kreal
+      elseif ((part == 'nlo') .or. (part == 'tota')
+     &   .or. (part == 'nlocoeff') .or. (part == 'totacoeff')) then
+        kpart=ktota
+      elseif (part == 'frag') then
+        kpart=kfrag
+      elseif (part == 'todk') then
+        kpart=ktodk
+      elseif ((part == 'snlo') .or. (part == 'scetnlo')
+     &   .or. (part == 'snlocoeff') .or. (part == 'scetnlocoeff')) then
+        kpart=ksnlo
+      elseif ((part == 'nnlo') .or. (part == 'nnlocoeff')) then
+        kpart=knnlo
+      endif
+      if (index(part,'coeff') > 0) then
+        coeffonly=.true.
+      endif
+      if (kpart == 0) then
+        write(6,*) 'Invalid value of part = ',part
+        stop
+      endif
       if (verbose) call writeinput(6,' * ',' ','part')
       read(20,*) runstring
       if (verbose) call writeinput(6,' * ',' ','runstring')
@@ -180,13 +217,13 @@ c------ normal case
       initfacscale=facscale
       if (verbose) call writeinput(6,' * ',' ','facscale')
       
-      initrenscale_L=0d0
-      initfacscale_L=0d0
-      initrenscale_H=0d0
-      initfacscale_H=0d0
+      initrenscale_L=0._dp
+      initfacscale_L=0._dp
+      initrenscale_H=0._dp
+      initfacscale_H=0._dp
 c--- catch special scale choices for stop+b process
-      if (((nproc .ge. 231) .and. (nproc .le. 240)) .and.      
-     .     (scale .eq. 0d0) .and. (facscale .eq. 0d0)) then
+      if (((nproc >= 231) .and. (nproc <= 240)) .and.      
+     &     (scale == 0._dp) .and. (facscale == 0._dp)) then
         read(20,*) initrenscale_L
       renscale_L=initrenscale_L
         if (verbose) call writeinput(6,' * ',' ','renscale_L')
@@ -217,6 +254,23 @@ c--- catch special scale choices for stop+b process
       if (verbose) call writeinput(6,' * ',' ','itmx2')
       read(20,*) ncall2
       if (verbose) call writeinput(6,' * ',' ','ncall2')
+      read(20,*) line
+      if     (index(line,'1%acc') > 0) then
+        if ((kpart == knnlo) .or. (kpart == ksnlo)) then
+          call setuptau(10)
+        else
+          taucut=0.1_dp
+        endif
+      elseif (index(line,'0.2%acc') > 0) then
+        if ((kpart == knnlo) .or. (kpart == ksnlo)) then
+          call setuptau(2)
+        else
+          taucut=0.1_dp
+        endif
+      else
+        read(line,*) taucut
+      endif
+      if (verbose) call writeinput(6,' * ',' ','taucut')
       read(20,*) origij
       if (verbose) call writeinput(6,' * ',' ','ij')
       read(20,*) dryrun
@@ -266,19 +320,20 @@ c--- jets and cuts options
       wsqmin=Mwmin**2
       if (verbose) call writeinput(6,' * ',' ','m34min')
       read(20,*) Mwmax 
-      if (Mwmax .gt. sqrts) Mwmax=sqrts ! physical cap on m34max
+      if (Mwmax > sqrts*0.9999_dp) Mwmax=sqrts*0.9999_dp ! physical cap on m34max
       wsqmax=Mwmax**2
       if (verbose) call writeinput(6,' * ',' ','m34max')
       read(20,*) mbbmin
       bbsqmin=mbbmin**2
       if (verbose) call writeinput(6,' * ',' ','m56min')
       read(20,*) mbbmax 
-      if (mbbmax .gt. sqrts) Mbbmax=sqrts ! physical cap on m56max
+      if (mbbmax > sqrts*0.9999_dp) Mbbmax=sqrts*09.999_dp ! physical cap on m56max
       bbsqmax=mbbmax**2
       if (verbose) call writeinput(6,' * ',' ','m56max')
       read(20,*) m3456min 
       if (verbose) call writeinput(6,' * ',' ','m3456min')
       read(20,*) m3456max 
+      if (m3456max > sqrts) m3456max=sqrts ! physical cap on m3456max
       if (verbose) call writeinput(6,' * ',' ','m3456max')
       read(20,*) inclusive
       if (verbose) call writeinput(6,' * ',' ','inclusive')
@@ -332,7 +387,7 @@ c--- write-out comment line
       if (verbose) write(6,*) '* ',line
 c--- settings for photon processes 
       read(20,*) frag
-      if (verbose) call writeinput(6,' * ',' ','frag')
+      if (verbose) call writeinput(6,' * ',' ',kfrag)
       read(20,*) fragset
       if (verbose) call writeinput(6,' * ',' ','fragset')
       read(20,*) frag_scale
@@ -356,6 +411,8 @@ c--- settings for photon processes
       if (verbose) call writeinput(6,' * ',' ','cone_ang')
       read(20,*) epsilon_h
       if (verbose) call writeinput(6,' * ',' ','epsilon_h')
+      read(20,*) n_pow
+      if (verbose) call writeinput(6,' * ',' ','n_pow')
 
       if (verbose) write(6,*)
       read(20,99) line
@@ -392,7 +449,7 @@ c--- anomalous couplings
       read(20,*) tevscale
       if (verbose) call writeinput(6,' * ',' ','tevscale')
 
-      if ( nproc .ge. 550 .and. nproc .le. 557 ) then
+      if ( nproc >= 550 .and. nproc <= 557 ) then
          if (verbose) call writeinput(6,' * ',' ','cttH')
          if (verbose) call writeinput(6,' * ',' ','cWWH')
       endif
@@ -444,14 +501,15 @@ c--- file and open technical.DAT instead; otherwise continue on
       endif
 
       if (verbose) write(6,*) '* [Technical parameters that'//
-     .                        ' should not normally be changed]'
+     &                        ' should not normally be changed]'
       if (verbose) write(6,*)
 
-c---- read-in the technical parameters
+c---- read in the technical parameters
 
       read(20,*) debug
       if (verbose) call writeinput(6,' * ',' ','debug')
       read(20,*) verbose
+      if (rank.ne.0) verbose=.false.
       if (verbose) call writeinput(6,' * ',' ','verbose')
       read(20,*) new_pspace
       if (verbose) call writeinput(6,' * ',' ','new_pspace')
@@ -471,10 +529,14 @@ c---- read-in the technical parameters
       if (verbose) call writeinput(6,' * ',' ','omitgg')
       read(20,*) vanillafiles
       if (verbose) call writeinput(6,' * ',' ','vanillafiles')
-      read(20,*) nmin
-      if (verbose) call writeinput(6,' * ',' ','nmin')
-      read(20,*) nmax
-      if (verbose) call writeinput(6,' * ',' ','nmax')
+! 4/28/16: removed nmin, nmax from input file (no longer used)
+!          set values to nmin=1, nmax=2 in case of unforeseen problems
+      nmin=1
+      nmax=2
+!      read(20,*) nmin
+!      if (verbose) call writeinput(6,' * ',' ','nmin')
+!      read(20,*) nmax
+!      if (verbose) call writeinput(6,' * ',' ','nmax')
       read(20,*) clustering
       if (verbose) call writeinput(6,' * ',' ','clustering')
       read(20,*) realwt
@@ -500,31 +562,79 @@ c---- read-in the technical parameters
       if (verbose) write(6,*)
       close(unit=20)
 
-      if ((etajetmin .lt. 0d0) .or. (etajetmax .lt. 0d0)) then
+      if ((etajetmin < 0._dp) .or. (etajetmax < 0._dp)) then
         write(6,*) 'etajetmin and etajetmax are absolute values,'
       write(6,*) ' please reset to a positive value.'
       stop
       endif
 
-c      if     (index(runstring,'mc1.3') .gt. 0) then
-c        mc=1.3d0
+c--- for W+2 jet and Z+2 jet processes, set aff equal to afi
+!      if ( ((nproc == 22) .or. (nproc == 27)
+!     &  .or.(nproc == 44) .or. (nproc == 46)) .or.
+!     &     ((kpart == knnlo) .and. ((nproc == 11)
+!     &         .or. (nproc == 16) .or. (nproc == 41)
+!     &         .or. (nproc == 42) .or. (nproc == 43))) ) then
+!        aff=afi
+!        if (rank == 0) then
+!          write(6,*) '>>> Over-riding input value of aff; aff = afi = ',afi
+!          write(6,*)
+!        endif
+!      endif
+
+c--- determine whether SCET is to be used for calculation
+      if ((kpart==knnlo) .or. (kpart==ksnlo)) then
+        usescet=.true.
+        abovecut=.false.
+        if (taucut < 0) then
+          write(6,*) 'Must specify taucut > 0 for SCET calculation'
+          stop
+        endif
+      else
+        usescet=.false.
+        abovecut=.false.
+      endif
+      
+      if     (runstring(1:4) == 'tau0') then
+        usescet=.true.
+        abovecut=.true.
+        ntau=0
+        if (rank == 0) then
+          write(6,*) 'WARNING: performing SCET calculation with tau0'
+        endif
+      elseif (runstring(1:4) == 'tau1') then
+        usescet=.true.
+        abovecut=.true.
+        ntau=1
+        if (rank == 0) then
+          write(6,*) 'WARNING: performing SCET calculation with tau1'
+        endif
+      endif
+
+      if (index(runstring,'toponly') > 0) then
+        toponly=.true.
+      else
+        toponly=.false.
+      endif
+      
+c      if     (index(runstring,'mc1.3') > 0) then
+c        mc=1.3_dp
 c      mcsq=mc**2
-c      elseif (index(runstring,'mc1.4') .gt. 0) then
-c        mc=1.4d0
+c      elseif (index(runstring,'mc1.4') > 0) then
+c        mc=1.4_dp
 c      mcsq=mc**2
-c      elseif (index(runstring,'mc1.5') .gt. 0) then
-c        mc=1.5d0
+c      elseif (index(runstring,'mc1.5') > 0) then
+c        mc=1.5_dp
 c      mcsq=mc**2
 c      endif
       
-c      if (runstring(1:3) .eq. 'mlm') then
+c      if (runstring(1:3) == 'mlm') then
 c        write(6,*) 'WARNING: cross sections divided by Ecm**2'
 c      write(6,*)
 c      endif
       
-c---  create logical variable dynamicscale for use in other routines
-      if (  (dynstring .eq. 'no') .or. (dynstring .eq. '.false.')
-     & .or. (dynstring .eq. 'none') ) then 
+c---  create logical:: variable dynamicscale for use in other routines
+      if (  (dynstring == 'no') .or. (dynstring == '.false.')
+     & .or. (dynstring == 'none') ) then 
          dynamicscale=.false. 
       else
          dynamicscale=.true. 
@@ -549,15 +659,15 @@ c--- print warning messages if some parton fluxes are not included
       endif
       
 c--- assign squared masses for b- and c-quarks
-      if (abs(mb) .gt. 1d-8) then
+      if (abs(mb) > 1.e-8_dp) then
         mbsq=mb**2
       else
-        mbsq=4.75d0**2
+        mbsq=4.75_dp**2
       endif
-      if (abs(mc) .gt. 1d-8) then
+      if (abs(mc) > 1.e-8_dp) then
         mcsq=mc**2
       else
-        mcsq=1.5d0**2
+        mcsq=1.5_dp**2
       endif
       
 c--- set-up the variables for the process we wish to consider
@@ -565,33 +675,36 @@ c--- set-up the variables for the process we wish to consider
 
 c--- set-up the random number generator with a negative seed
       idum=-abs(origij)
-      randummy=ran2()
+      randummy=ran2nr()
 
-c--- initialize masses for alpha_s routine
-      cmass=dsqrt(mcsq)
-      bmass=dsqrt(mbsq)
+c--- initialize masses for alpha_s routine ! this is now done in coupling2.f
+c      cmass=sqrt(mcsq)
+c      bmass=sqrt(mbsq)
 
 c--- E-M gauge invariance requires that delg1_g=0
-      delg1_g=0d0
+      delg1_g=0._dp
 
 c--- check that we have a valid value of 'part'
-      if ( (part .ne. 'lord') .and. (part .ne. 'real') .and.
-     .     (part .ne. 'virt') .and. (part .ne. 'tota') ) then
-        if    ( (part .eq. 'todk') .and.
-     .          ((case .eq. 'bq_tpq') .or. (case .eq. 't_bbar')
-     .      .or. (case .eq. 'W_twdk') .or. (case .eq. 'tt_bbl')
-     .      .or. (case .eq. 'tt_bbh') .or. (case .eq. '4ftwdk')
-     .      .or. (case .eq. 'HWW2lq') .or. (case .eq. 'qq_ttw')
-     .      .or. (case .eq. 'WWqqbr') .or. (case .eq. 'tt_bbu')) ) then
+      if ( (kpart.ne.klord) .and. (kpart.ne.kreal) .and.
+     &     (kpart.ne.kvirt) .and. (kpart.ne.ktota) ) then
+        if    ( (kpart==ktodk) .and.
+     &          ((kcase==kbq_tpq) .or. (kcase==kt_bbar)
+     &      .or. (kcase==kW_twdk) .or. (kcase==ktt_bbl)
+     &      .or. (kcase==ktt_bbh) .or. (kcase==k4ftwdk)
+     &      .or. (kcase==kHWW2lq) .or. (kcase==kqq_ttw)
+     &      .or. (kcase==kWWqqbr) .or. (kcase==ktt_bbu)
+     &      .or. (kcase==kWHbbar) .or. (kcase==kZHbbar)) ) then
 c--- this is an allowed combination
-        elseif ( (part .eq. 'frag') .and.
-     .          ((case .eq. 'Wgamma') .or. (case .eq. 'Zgamma')
-     &      .or. (case .eq. 'gamgam') .or. (case .eq. 'dirgam')
-     &      .or. (case .eq. 'dm_gam')
-     &      .or. (case .eq. 'gmgmjt') .or .(case .eq. 'trigam')
-     &      .or. (case .eq. 'fourga')
-     &      .or. (case .eq. 'Z_2gam') .or. (case .eq. 'Zgajet')
-     &      .or. (case .eq. 'W_2gam')) ) then
+        elseif ( (kpart==kfrag) .and.
+     &          ((kcase==kWgamma) .or. (kcase==kZgamma)
+     &      .or. (kcase==kgamgam) .or. (kcase==kgg2gam)
+     &      .or. (kcase==kdirgam) .or. (kcase==kdm_gam)
+     &      .or. (kcase==kgmgmjt) .or .(kcase==ktrigam)
+     &      .or. (kcase==kfourga)
+     &      .or. (kcase==kZ_2gam) .or. (kcase==kZgajet)
+     &      .or. (kcase==kW_2gam)) ) then
+c--- this is an allowed combination
+        elseif ((kpart==knnlo) .or. (kpart==ksnlo)) then 
 c--- this is an allowed combination
         else 
           write(6,*) 'part=',part,' is not a valid option'
@@ -600,45 +713,62 @@ c--- this is an allowed combination
         endif
       endif      
 
-
 c--- check that we are not trying to calculate radiation in decay at LO
-      if    ( (part .eq. 'lord') .and.
-     &       ((case .eq. 'WWqqdk') .or. (case .eq. 'HWWdkW')
-     &   .or. (case .eq. 'tt_ldk') .or. (case .eq. 'tt_udk')
-     &   .or. (case .eq. 'tt_hdk') .or. (case .eq. 'tthWdk')
-     &   .or. (case .eq. 'ttdkay') .or. (case .eq. 'Wtdkay')
-     &   .or. (case .eq. 'dk_4ft') .or. (case .eq. 'ttwldk')) ) then
+      if    ( (kpart==klord) .and.
+     &       ((kcase==kWWqqdk) .or. (kcase==kHWWdkW)
+     &   .or. (kcase==ktt_ldk) .or. (kcase==ktt_udk)
+     &   .or. (kcase==ktt_hdk) .or. (kcase==ktthWdk)
+     &   .or. (kcase==kttdkay) .or. (kcase==kWtdkay)
+     &   .or. (kcase==kdk_4ft) .or. (kcase==kttwldk)) ) then
           write(6,*) 'This process number cannot be used for'
           write(6,*) 'a LO calculation.'
           stop     
       endif
+
+c--- Assign choice of jet algorithm to integer variable
+      if     (algorithm == 'ktal') then
+        jetalgorithm=kt
+      elseif (algorithm == 'ankt') then
+        jetalgorithm=antikt
+      elseif (algorithm == 'cone') then
+        jetalgorithm=Rsepcone
+      elseif (algorithm == 'hqrk') then
+        jetalgorithm=hqrk
+      elseif (algorithm == 'none') then
+        jetalgorithm=noclustering
+      else
+        write(6,*) 'Invalid choice of jet algorithm: should be one of'
+        write(6,*) 'ktal, ankt, cone, hqrk, none'
+        stop
+      endif
+
 c--- set up the default choices of static scale, if required
-      if (scale .lt. 0d0) then
-      if     (scale .eq. -2d0) then
-        factor=0.25d0
-      elseif (scale .eq. -3d0) then
-        factor=0.5d0
-      elseif (scale .eq. -4d0) then
-        factor=0.75d0
-      elseif (scale .eq. -5d0) then
-        factor=1d0
-      elseif (scale .eq. -6d0) then
-        factor=2d0
-      elseif (scale .eq. -7d0) then
-        factor=4d0
+      if (scale < 0._dp) then
+      if     (scale == -2._dp) then
+        factor=0.25_dp
+      elseif (scale == -3._dp) then
+        factor=0.5_dp
+      elseif (scale == -4._dp) then
+        factor=0.75_dp
+      elseif (scale == -5._dp) then
+        factor=1._dp
+      elseif (scale == -6._dp) then
+        factor=2._dp
+      elseif (scale == -7._dp) then
+        factor=4._dp
         else
-        factor=1d0
+        factor=1._dp
       endif        
-        if ((n2+n3 .ne. 0) .or. (case .eq. 'tt_tot')) then
+        if ((n2+n3 .ne. 0) .or. (kcase==ktt_tot)) then
 c--- special case for t-tbar production
-        if (case .eq. 'tt_tot') then
+        if (kcase==ktt_tot) then
           scale=factor*mt
 c--- special cases where Higgs mass is neither mass2 nor mass3
-        elseif ((case(1:1) .eq. 'H') .or. (case .eq. 'WHbbar')
-     &     .or. (case .eq. 'ZHbbar') .or. (case .eq. 'qq_Hqq')) then
-          scale=factor*hmass
+c        elseif ((case(1:1) == 'H') .or. (kcase==kWHbbar)
+c     &     .or. (kcase==kZHbbar) .or. (kcase==kqq_Hqq)) then
+c          scale=factor*hmass
         else     
-          scale=factor*(dfloat(n2)*mass2+dfloat(n3)*mass3)/dfloat(n2+n3)
+          scale=factor*(n2*mass2+n3*mass3)/real(n2+n3,dp)
         endif
         as=alphas(scale,amz,nlooprun)
         ason2pi=as/twopi
@@ -661,33 +791,32 @@ c--- special cases where Higgs mass is neither mass2 nor mass3
         stop
         endif
       endif
-      if (facscale .lt. 0d0) then
-      if     (facscale .eq. -2d0) then
-        factor=0.25d0
-      elseif (facscale .eq. -3d0) then
-        factor=0.5d0
-      elseif (facscale .eq. -4d0) then
-        factor=0.75d0
-      elseif (facscale .eq. -5d0) then
-        factor=1d0
-      elseif (facscale .eq. -6d0) then
-        factor=2d0
-      elseif (facscale .eq. -7d0) then
-        factor=4d0
+      if (facscale < 0._dp) then
+      if     (facscale == -2._dp) then
+        factor=0.25_dp
+      elseif (facscale == -3._dp) then
+        factor=0.5_dp
+      elseif (facscale == -4._dp) then
+        factor=0.75_dp
+      elseif (facscale == -5._dp) then
+        factor=1._dp
+      elseif (facscale == -6._dp) then
+        factor=2._dp
+      elseif (facscale == -7._dp) then
+        factor=4._dp
         else
-        factor=1d0
+        factor=1._dp
       endif        
-        if ((n2+n3 .ne. 0) .or. (case .eq. 'tt_tot')) then
+        if ((n2+n3 .ne. 0) .or. (kcase==ktt_tot)) then
 c--- special case for t-tbar production
-        if (case .eq. 'tt_tot') then
+        if (kcase==ktt_tot) then
           facscale=factor*mt
 c--- special cases where Higgs mass is neither mass2 nor mass3
-        elseif ((case(1:1) .eq. 'H') .or. (case .eq. 'WHbbar')
-     &     .or. (case .eq. 'ZHbbar') .or. (case .eq. 'qq_Hqq')) then
-          facscale=factor*hmass
+c        elseif ((case(1:1) == 'H') .or. (kcase==kWHbbar)
+c     &     .or. (kcase==kZHbbar) .or. (kcase==kqq_Hqq)) then
+c          facscale=factor*hmass
         else     
-          facscale=factor*
-     &             (dfloat(n2)*mass2+dfloat(n3)*mass3)/dfloat(n2+n3)
+          facscale=factor*(n2*mass2+n3*mass3)/real(n2+n3,dp)
         endif
         write(6,*)
         write(6,*)'****************************************************'

@@ -17,7 +17,12 @@ c--- 4 dimensional array indexed by initial and final parton labels
 
       subroutine dipsfragx(nd,p,ip,jp,kp,sub,msq,msqx,subr_born) 
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ewcouple.f'
       include 'ptilde.f'
       include 'dynamicscale.f'
@@ -27,25 +32,25 @@ c--- 4 dimensional array indexed by initial and final parton labels
       include 'betacut.f'
       include 'lastphot.f'
       include 'incldip.f'
-      double precision p(mxpart,4),ptrans(mxpart,4),sub
-      double precision p_phys(mxpart,4),tmp
-      integer ipt
-      double precision z,omz,sij,sik,sjk,dot,u
-      double precision msq(-nf:nf,-nf:nf)
-      double precision mdum1(0:2,fn:nf,fn:nf) ! mqq
-      double precision msqx(0:2,-nf:nf,-nf:nf,-nf:nf,-nf:nf)
-      double precision mdum2(0:2,-nf:nf,-nf:nf) !msqx_cs
-      integer nd,ip,jp,kp,j,k
-      logical check_nv,phot_pass
+      real(dp):: p(mxpart,4),ptrans(mxpart,4),sub
+      real(dp):: p_phys(mxpart,4),tmp
+      integer:: ipt
+      real(dp):: z,omz,sij,sik,sjk,dot,u
+      real(dp):: msq(-nf:nf,-nf:nf)
+      real(dp):: mdum1(0:2,fn:nf,fn:nf) ! mqq
+      real(dp):: msqx(0:2,-nf:nf,-nf:nf,-nf:nf,-nf:nf)
+      real(dp):: mdum2(0:2,-nf:nf,-nf:nf) !msqx_cs
+      integer:: nd,ip,jp,kp,j,k
+      logical:: check_nv,phot_pass
       external subr_born
 
-      z=0d0
-      omz=1d0
-      u=0d0
-      sub=0d0
+      z=0._dp
+      omz=1._dp
+      u=0._dp
+      sub=0._dp
       do j=-nf,nf
          do k=-nf,nf
-            msq(j,k)=0d0
+            msq(j,k)=0._dp
          enddo
       enddo
       
@@ -61,21 +66,21 @@ c--- 4 dimensional array indexed by initial and final parton labels
 *******************************************************************************
 
 **** I === I not implemented (need photon PDFS rather than frags) need rapidity cuts to remove collinear sing 
-      if ((ip .le. 2) .and. (kp .le. 2)) return  
+      if ((ip <= 2) .and. (kp <= 2)) return  
 
 ******************************************************************************* 
 ************************ INITIAL - FINAL **************************************
 *******************************************************************************
 
 **** I === F not implemented (need photon PDFS rather than frags) need rapidity cuts to remove collinear sing
-      if ((ip .le. 2) .and. (kp .gt. 2)) return  
+      if ((ip <= 2) .and. (kp > 2)) return  
 
 ******************************************************************************* 
 ************************ FINAL - INITIAL  *************************************
 *******************************************************************************
 
       
-      if ((ip .gt. 2) .and. (kp .le. 2)) then
+      if ((ip > 2) .and. (kp <= 2)) then
          
      
          if(check_nv(p,ip,jp,kp).eqv..false.) then 
@@ -84,7 +89,7 @@ c--- 4 dimensional array indexed by initial and final parton labels
          endif
          call transformfrag(p,ptrans,z,ip,jp,kp)
          ipt=ip
-         if (ip .lt. lastphot) then
+         if (ip < lastphot) then
              do j=1,4
              tmp=ptrans(ip,j)
              ptrans(ip,j)=ptrans(lastphot,j)
@@ -124,7 +129,7 @@ c--- store z for use in isolation routine
 ************************ FINAL - FINAL ****************************************
 *******************************************************************************
          
-      elseif ((ip .gt. 2) .and. (kp .gt. 2)) then 
+      elseif ((ip > 2) .and. (kp > 2)) then 
       
 
         write(6,*) 'Final-final fragmentation dipole not implemented.'
@@ -135,7 +140,7 @@ c--- store z for use in isolation routine
          
          u=sij/(sij+sik) 
        
-         if(u.gt.bff) then
+         if(u>bff) then
             incldip(nd)=.false.
             return 
          endif

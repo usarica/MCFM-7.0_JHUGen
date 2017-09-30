@@ -1,17 +1,23 @@
-      double precision function ggtogagag()
+      function ggtogagag()
       implicit none
+      include 'types.f'
+      real(dp):: ggtogagag
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ewcouple.f'
       include 'ewcharge.f'
       include 'qcdcouple.f'
       include 'zprods_com.f'
-      double precision fac,Qsumsq
-      double complex Asum(2,2,2,2,2),
+      real(dp):: fac,Qsumsq
+      complex(dp):: Asum(2,2,2,2,2),
      & A1(2,2,2,2,2),A2(2,2,2,2,2),A3(2,2,2,2,2),
      & A4(2,2,2,2,2),A5(2,2,2,2,2),A6(2,2,2,2,2),
      & A7(2,2,2,2,2),A8(2,2,2,2,2),A9(2,2,2,2,2),
      & A10(2,2,2,2,2),A11(2,2,2,2,2),A12(2,2,2,2,2)
-      integer h1,h2,h3,h4,h5
+      integer:: h1,h2,h3,h4,h5
       Qsumsq=Q(1)**2+Q(2)**2+Q(3)**2+Q(4)**2+Q(5)**2
 C-----factor includes statistical factor and is averaged over initial colors and spins
 C-----cf hep-ph/0206194v2, Eq.(8)
@@ -33,7 +39,7 @@ c      call spinoru(5,p,za,zb)
       call Aboxfill(4,3,1,2,5,za,zb,A12)
 
 
-      ggtogagag=0d0
+      ggtogagag=0._dp
       do h1=1,2
       do h2=1,2
       do h3=1,2
@@ -44,7 +50,7 @@ c      call spinoru(5,p,za,zb)
      & +A4(h1,h2,h3,h4,h5)+A5(h1,h2,h3,h4,h5)+A6(h1,h2,h3,h4,h5)
      & +A7(h1,h2,h3,h4,h5)+A8(h1,h2,h3,h4,h5)+A9(h1,h2,h3,h4,h5)
      & +A10(h1,h2,h3,h4,h5)+A11(h1,h2,h3,h4,h5)+A12(h1,h2,h3,h4,h5)
-      ggtogagag=ggtogagag+cdabs(Asum(h1,h2,h3,h4,h5))**2
+      ggtogagag=ggtogagag+abs(Asum(h1,h2,h3,h4,h5))**2
 
       enddo
       enddo

@@ -1,5 +1,7 @@
       subroutine getggZZamps(p,dolight,dobottom,dotop,
      & Mloop_uptype,Mloop_dntype,Mloop_bquark,Mloop_tquark)
+      implicit none
+      include 'types.f'
 c--- Returns a series of arrays representing the dressed amp[itudes
 c--- for the process gg->ZZ; there are:
 c---        Mloop_uptype(h1,h2,h34,h56)   single massless up-type quark
@@ -9,7 +11,7 @@ c---        Mloop_tquark(h1,h2,h34,h56)   bottom quark mass=mb
 c---
 c--- The overall factor on the amplitude is:
 c---
-c---      4d0*esq*gsq/(16d0*pisq)*esq * delta(a,b)
+c---      4._dp*esq*gsq/(16._dp*pisq)*esq * delta(a,b)
 c---
 c--- apportioned as follows:
 c--- 8*e^2*gsq from gg->ZZ, extra esq from Z decays, 1/(16*pisq) from
@@ -23,8 +25,11 @@ c---        dotop    -> Mloop_tquark
 c---
 c--- An array that is identically zero is returned if the result is
 c--- expected to be unreliable, namely pt(Z)<ptZsafetycut set below
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'zcouple.f'
       include 'sprods_com.f'
@@ -33,13 +38,13 @@ c--- expected to be unreliable, namely pt(Z)<ptZsafetycut set below
       include 'docheck.f'
       include 'qlfirst.f'
       include 'first.f'
-      logical dolight,dobottom,dotop,ggZZuse6d
-      integer h1,h2,h34,h56,up,dn,om,nu
-      double precision p(mxpart,4),cvec(2),cax(2),cl1(2),cl2(2),
+      logical:: dolight,dobottom,dotop,ggZZuse6d
+      integer:: h1,h2,h34,h56,up,dn,om,nu
+      real(dp):: p(mxpart,4),cvec(2),cax(2),cl1(2),cl2(2),
      & ptZsafetycut_massless,ptZsafetycut_massive,ptZ,pttwo
-      double precision phi,muk,rho,ssig,csig,theta,
+      real(dp):: phi,muk,rho,ssig,csig,theta,
      & p1true(4),p2true(4),p3true(4),p4true(4),p5true(4),p6true(4)
-      double complex Avec(2,2,2,2),a64v,prop34,prop56,
+      complex(dp):: Avec(2,2,2,2),a64v,prop34,prop56,
      & AmtLL(2,2,2,2),AmtLR(2,2,2,2),AmbLL(2,2,2,2),AmbLR(2,2,2,2),
      & Mloop_uptype(2,2,2,2),Mloop_dntype(2,2,2,2),
      & Mloop_bquark(2,2,2,2),Mloop_tquark(2,2,2,2),
@@ -53,9 +58,9 @@ c     & AmtLL_new(2,2,2,2),AmtLR_new(2,2,2,2)
 c      ggZZuse6d=.false.  ! FALSE -> use 4d boxes, poorer numerical stability
 
 c--- omit u,d,s,c loops for pt(Z) < "ptZsafetycut_massless" (for num. stability)
-      ptZsafetycut_massless=0.1d0
+      ptZsafetycut_massless=0.1_dp
 c--- omit t,b quark loops for pt(Z) < "ptZsafetycut_massive"  (for num. stability)
-      ptZsafetycut_massive=0.1d0
+      ptZsafetycut_massive=0.1_dp
 
       if (first) then
         write(6,*)'****************************************************'
@@ -95,12 +100,12 @@ c--- if this variable (passed via common block) is true then
 c--- set the kinematics to a special point for numerical check
       if (docheck) then
         include 'kinpoint.f'
-        mu=1d0
+        mu=1._dp
         musq=mu**2
-        mt=0.4255266775d0
+        mt=0.4255266775_dp
         do nu=1,4
         om=nu-1
-        if (nu.eq.1) om=4
+        if (nu==1) om=4
         p(1,om)=p1true(nu)
         p(2,om)=p2true(nu)
         p(3,om)=p3true(nu)
@@ -141,7 +146,7 @@ c--- compute amplitudes with massless quarks
         Avec(1,1,2,2)=a64v('q+qb-g-g-',3,4,1,2,6,5,za,zb)*(-im)
 c--- a64v amplitudes have overall color factor delta(A,B);
 c--- put in factor of two to extract delta(A,B)/2 as in massive case
-        Avec(:,:,:,:)=2d0*Avec(:,:,:,:)
+        Avec(:,:,:,:)=two*Avec(:,:,:,:)
       endif
       
 c--- compute amplitudes with a massive bottom quark internal loop
@@ -175,8 +180,8 @@ c--- compute amplitudes with a massive top quark internal loop
       endif      
 
 c--- propagator factors
-      prop34=s(3,4)/dcmplx(s(3,4)-zmass**2,zmass*zwidth)
-      prop56=s(5,6)/dcmplx(s(5,6)-zmass**2,zmass*zwidth)
+      prop34=s(3,4)/cplx2(s(3,4)-zmass**2,zmass*zwidth)
+      prop56=s(5,6)/cplx2(s(5,6)-zmass**2,zmass*zwidth)
 
 c--- left and right-handed lepton couplings as an array
 c--- cl1 associated with Z(3+4), cl2 associated with Z(5+6)
@@ -213,8 +218,8 @@ c--- internal loops of massless down-type quarks
       
       if (dobottom) then
 c--- implementation of b-quark loop in terms of vector and axial couplings
-        Amb_vec=2d0*(AmbLL(h1,h2,h34,h56)+AmbLR(h1,h2,h34,h56))
-        Amb_ax =2d0*(AmbLL(h1,h2,h34,h56)-AmbLR(h1,h2,h34,h56))
+        Amb_vec=two*(AmbLL(h1,h2,h34,h56)+AmbLR(h1,h2,h34,h56))
+        Amb_ax =two*(AmbLL(h1,h2,h34,h56)-AmbLR(h1,h2,h34,h56))
         Mloop_bquark(h1,h2,h34,h56)=im*(
      &   Amb_vec*
      & (Qd*q1+cvec(dn)*cl1(h34)*prop34)*(Qd*q2+cvec(dn)*cl2(h56)*prop56)
@@ -225,8 +230,8 @@ c--- implementation of b-quark loop in terms of vector and axial couplings
       
       if (dotop) then
 c--- implementation of t-quark loop in terms of vector and axial couplings
-      Amt_vec=2d0*(AmtLL(h1,h2,h34,h56)+AmtLR(h1,h2,h34,h56))
-      Amt_ax =2d0*(AmtLL(h1,h2,h34,h56)-AmtLR(h1,h2,h34,h56))
+      Amt_vec=two*(AmtLL(h1,h2,h34,h56)+AmtLR(h1,h2,h34,h56))
+      Amt_ax =two*(AmtLL(h1,h2,h34,h56)-AmtLR(h1,h2,h34,h56))
       Mloop_tquark(h1,h2,h34,h56)=im*(
      & Amt_vec*
      & (Qu*q1+cvec(up)*cl1(h34)*prop34)*(Qu*q2+cvec(up)*cl2(h56)*prop56)
@@ -242,12 +247,12 @@ c--- implementation of t-quark loop in terms of vector and axial couplings
 
 c--- remove contributions if in unstable regions (pt(Z) small)          
       ptZ=pttwo(3,4,p)
-      if (ptZ .lt. ptZsafetycut_massless) then
+      if (ptZ < ptZsafetycut_massless) then
         Mloop_uptype(:,:,:,:)=czip
         Mloop_dntype(:,:,:,:)=czip
         Mloop_bquark(:,:,:,:)=czip
       endif  
-      if (ptZ .lt. ptZsafetycut_massive) then
+      if (ptZ < ptZsafetycut_massive) then
         Mloop_tquark(:,:,:,:)=czip
       endif  
             

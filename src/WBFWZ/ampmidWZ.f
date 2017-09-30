@@ -1,6 +1,9 @@
       subroutine ampmidWZ(p1,p2,p3,p4,p5,p6,p7,p8,za,zb,amp)
       implicit none
+      include 'types.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
       include 'zprods_decl.f'
       include 'sprods_com.f'
       include 'cmplxmass.f'
@@ -9,28 +12,29 @@
       include 'ewcharge.f'
       include 'zcouple.f'
       include 'WWbits.f'
-      integer jdu1,jdu2,i1,i2,i3,i4,
+      integer:: jdu1,jdu2,i1,i2,i3,i4,
      & p1,p2,p3,p4,p5,p6,p7,p8
-      double complex zab2,zba2,amp(2,2,2),sqwmass,rxw,cosW,
+      complex(dp):: zab2,zba2,amp(2,2,2),sqwmass,rxw,cosW,
      & propw34,propz56,propz28,propw17,
      & propw3456,proph1347,gamZ56ne(2,2),
      & gamZ56ee(2,2),gamZ28nq(2,2,2),gamZ28eq(2,2,2),gamZ28qW(2,2),
      & gamZ56eW(2),gamZ28eqZ(2,2,2),gamZ28nqZ(2,2,2)
-      double precision qn,t3,t4,s34,s56,s17,s28,s137,s147,s167,
+      real(dp):: qn,t3,t4,s34,s56,s17,s28,s137,s147,s167,
      & s238,s248,s258,s268,s456,s345,s356,s3456,s1347,
      & twop17Dp3456,twop34Dp3456,q3,q4,l3,l4
-      parameter(qn=0d0)
+      parameter(qn=zip)
 C-----Begin statement functions
       zab2(i1,i2,i3,i4)=za(i1,i2)*zb(i2,i4)+za(i1,i3)*zb(i3,i4)
       zba2(i1,i2,i3,i4)=zb(i1,i2)*za(i2,i4)+zb(i1,i3)*za(i3,i4)
       t3(i1,i2,i3)=s(i1,i2)+s(i2,i3)+s(i3,i1)
       t4(i1,i2,i3,i4)=s(i1,i2)+s(i1,i3)+s(i1,i4)
      &               +s(i2,i3)+s(i2,i4)+s(i3,i4)
+      include 'cplx.h'
 C-----end statement functions
 
 c--- special fix for Madgraph check
-      if (index(runstring,'mad') .gt. 0) then
-        sqwmass=dcmplx(wmass**2,0d0)
+      if (index(runstring,'mad') > 0) then
+        sqwmass=cplx2(wmass**2,zip)
       else
         sqwmass=cwmass2
       endif
@@ -57,7 +61,7 @@ c--- special fix for Madgraph check
       twop17Dp3456=s28-s17-s3456
       twop34Dp3456=s34-s56+s3456
 
-      proph1347=dcmplx(s1347-hmass**2,hmass*hwidth)
+      proph1347=cplx2(s1347-hmass**2,hmass*hwidth)
       propw34=s34-cwmass2
       propz56=s56-czmass2
       propw3456=s3456-cwmass2

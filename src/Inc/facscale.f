@@ -1,3 +1,3 @@
-      double precision facscale 
+      real(dp):: facscale 
       common/facscale/facscale
 !$omp threadprivate(/facscale/)

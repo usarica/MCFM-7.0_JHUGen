@@ -1,5 +1,7 @@
       subroutine dk2qqb_ttw_g(pin,msq)
       implicit none
+      include 'types.f'
+
 C***********************************************************************
 C     Author: R.K. Ellis                                               *
 C     May, 2012.                                                       *
@@ -13,6 +15,9 @@ C                         +W(l(p9)+a(p10))                             *
 C                                                                      *
 ************************************************************************
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ewcouple.f'
       include 'ckm.f'
       include 'zprods_com.f'
@@ -20,18 +25,18 @@ C                                                                      *
       include 'masses.f'
       include 'plabel.f'
 
-      integer j,k,nu,j1,j2,hb,hg,hc
-      double precision msq(-nf:nf,-nf:nf),pin(mxpart,4),p(mxpart,4),
+      integer:: j,k,nu,j1,j2,hb,hg,hc
+      real(dp):: msq(-nf:nf,-nf:nf),pin(mxpart,4),p(mxpart,4),
      & s34,fac,qqb,qbq,q(mxpart,4),
      & beta,betasq,bp,bm,s56,dot
-      double complex mqqbprod(2,2),mqbqprod(2,2),prop,
+      complex(dp):: mqqbprod(2,2),mqbqprod(2,2),prop,
      & mtotqqb(2,2,2),mtotqbq(2,2,2),
      & mtop(2,2),mantig(2,2,2)
 
 C-----Zero matrix element
       do j=-nf,nf
       do k=-nf,nf
-      msq(j,k)=0d0
+      msq(j,k)=0._dp
       enddo
       enddo
 
@@ -49,12 +54,12 @@ C--setup amplitudes for top decay
       enddo
 
 C calculate betap
-      s56=2d0*mt**2+2d0*dot(p,5,6)
-      betasq=1d0-4d0*mt**2/s56
-      if (betasq .ge. 0d0) then
-        beta=dsqrt(betasq)
-        bp=0.5d0*(1d0+beta)
-        bm=1d0-bp
+      s56=2._dp*mt**2+2._dp*dot(p,5,6)
+      betasq=1._dp-4._dp*mt**2/s56
+      if (betasq >= 0._dp) then
+        beta=sqrt(betasq)
+        bp=0.5_dp*(1._dp+beta)
+        bm=1._dp-bp
       else
         write(6,*) 'betasq < 0 in dk2qqb_ttw_g.f, betasq=',betasq
         call flush(6)
@@ -65,9 +70,9 @@ C calculate betap
 C---create rodrigo momenta
       do j=1,6
       do nu=1,4
-      if (j.eq.5) then
+      if (j==5) then
       q(j,nu)=(bp/beta)*p(5,nu)-(bm/beta)*p(6,nu)
-      elseif (j.eq.6) then
+      elseif (j==6) then
       q(j,nu)=(bp/beta)*p(6,nu)-(bm/beta)*p(5,nu)
       else
       q(j,nu)=p(j,nu)
@@ -75,7 +80,7 @@ C---create rodrigo momenta
       enddo
       enddo
 
-      s34=2d0*dot(q,3,4)
+      s34=2._dp*dot(q,3,4)
       call spinoru(6,q,za,zb)
       call ttWprod(1,2,mqqbprod)
       call ttWprod(2,1,mqbqprod)
@@ -97,22 +102,22 @@ C---create rodrigo momenta
       enddo
       enddo
 
-      prop=s34/dcmplx(s34-wmass**2,wmass*wwidth)
-     & /dcmplx(zip,mt*twidth)**2
+      prop=s34/cplx2(s34-wmass**2,wmass*wwidth)
+     & /cplx2(zip,mt*twidth)**2
       fac=gsq*V/xn
       fac=V*gwsq**6*gsq**2*abs(prop)**2*fac
 
 c--- include factor for hadronic decays of W
-      if (plabel(3) .eq. 'pp') fac=2d0*xn*fac
-      if (plabel(7) .eq. 'pp') fac=2d0*xn*fac
+      if (plabel(3) == 'pp') fac=2._dp*xn*fac
+      if (plabel(7) == 'pp') fac=2._dp*xn*fac
 
-      qqb=0d0
-      qbq=0d0
+      qqb=0._dp
+      qbq=0._dp
       do hc=1,2
       do hg=1,2
       do hb=1,2
-      qqb=qqb+fac*aveqq*cdabs(mtotqqb(hc,hg,hb))**2
-      qbq=qbq+fac*aveqq*cdabs(mtotqbq(hc,hg,hb))**2
+      qqb=qqb+fac*aveqq*abs(mtotqqb(hc,hg,hb))**2
+      qbq=qbq+fac*aveqq*abs(mtotqbq(hc,hg,hb))**2
       enddo
       enddo
       enddo
@@ -121,9 +126,9 @@ c--- include factor for hadronic decays of W
 C----set all elements to zero
       do j=-nf,nf
       do k=-nf,nf
-          if ((j .gt. 0) .and. (k .lt. 0)) then
+          if ((j > 0) .and. (k < 0)) then
             msq(j,k)=Vsq(j,k)*qqb
-          elseif ((j .lt. 0) .and. (k .gt. 0)) then
+          elseif ((j < 0) .and. (k > 0)) then
             msq(j,k)=Vsq(j,k)*qbq
           endif
       enddo

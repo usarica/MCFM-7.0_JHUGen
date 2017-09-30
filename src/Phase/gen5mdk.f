@@ -1,25 +1,30 @@
       subroutine gen5mdk(r,p,pswt,*)
+      implicit none
+      include 'types.f'
 c--- this routine is an extension of gen4 to include the decay
 c--- of one of the heavy particles
 
-      implicit none
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'mxdim.f'
       include 'masses.f'
       include 'zerowidth.f'
       include 'limits.f'
-      include 'process.f'
-      double precision r(mxdim)
-      double precision p(mxpart,4),pswt,smin
-      double precision p1(4),p2(4),p8(4),p9(4),p7(4),p6(4)
-      double precision p567(4),p56(4),p5(4),p3(4),p4(4)
-      double precision wt567,wt56
-      integer nu
-      double precision wt0
-      parameter(wt0=1d0/twopi**2)
+      include 'kprocess.f'
+      real(dp):: r(mxdim)
+      real(dp):: p(mxpart,4),pswt,smin
+      real(dp):: p1(4),p2(4),p8(4),p9(4),p7(4),p6(4)
+      real(dp):: p567(4),p56(4),p5(4),p3(4),p4(4)
+      real(dp):: wt567,wt56
+      integer:: nu
+      real(dp):: wt0
+      parameter(wt0=1._dp/twopi**2)
 
-      if ((case .eq. 'Z_tdkj') .or. (case .eq. 'H_tdkj')
-     &.or.(case .eq. 'Ztdk2j') ) then
+      if ((kcase==kZ_tdkj) .or. (kcase==kH_tdkj)
+     &.or.(kcase==kZtdk2j) ) then
       call gen5(r,p,pswt,*99)
 
       p1(:)=p(1,:)

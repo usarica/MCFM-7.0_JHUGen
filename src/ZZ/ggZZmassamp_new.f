@@ -1,5 +1,7 @@
       subroutine ggZZmassamp_new(p,za,zb,mt,AmassLL,AmassLR)
       implicit none
+      include 'types.f'
+      
 c--- Author: J. Campbell, September 2013
 c---
 c--- Given momentum p and spinor products za,zb, calculate contribution
@@ -8,11 +10,14 @@ c--- Returns amplitudes AmassLL, AmassLR indexed by
 c--- helicities (h1=gluon,h2=gluon,h34=Z(34),h56=Z(p56))
 c--- with LL and LR couplings in loop
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'docheck.f'
       include 'ggZZcomputemp.f'
-      double precision mt,p(mxpart,4)
-      double complex bub(2,2,2,2,-2:0),box(2,2,2,2,-2:0),
+      real(dp):: mt,p(mxpart,4)
+      complex(dp):: bub(2,2,2,2,-2:0),box(2,2,2,2,-2:0),
      & tri(2,2,2,2,-2:0),drat(2,2,2,2,3),totrat(2,2,2,2),
      & A(6),Xmp(2,2),Xpp(2,2),Xpm(2,2),Xmm(2,2),
      & AmassLL(2,2,2,2),AmassLR(2,2,2,2)

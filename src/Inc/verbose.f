@@ -1,2 +1,2 @@
-      logical verbose
+      logical:: verbose
       common/verbose/verbose

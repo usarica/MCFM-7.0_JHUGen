@@ -1,5 +1,7 @@
       subroutine ZZ_HZZ1(p,msq)
       implicit none
+      include 'types.f'
+
 c--- Weak Bosion Fusion by Z-Z exchange only
 c---Matrix element squared averaged over initial colors and spins
 c
@@ -9,14 +11,17 @@ c                           |
 c                           |
 c                           ---> Z(e-(p3)+e+(p4))+Z(mu-(p5)+mu+(p6))
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'ewcouple.f'
       include 'zcouple.f'
       include 'sprods_com.f'
-      integer j,k
-      double precision p(mxpart,4),fac,s3456,statfac
-      double precision msq(-nf:nf,-nf:nf),hdecay,
-     . ud_ud_LL,udb_udb_LL,ud_ud_LR,udb_udb_LR
+      integer:: j,k
+      real(dp):: p(mxpart,4),fac,s3456,statfac
+      real(dp):: msq(-nf:nf,-nf:nf),hdecay,
+     & ud_ud_LL,udb_udb_LL,ud_ud_LR,udb_udb_LR
       parameter(statfac=0.5d0)
       do j=-nf,nf
       do k=-nf,nf
@@ -51,22 +56,22 @@ c--- ub(1)+d(2) -> ub(7)+d(8)
 
       do j=-nf,nf
       do k=-nf,nf
-        if     ((j .gt. 0) .and. (k .lt. 0)) then
+        if     ((j > 0) .and. (k < 0)) then
           msq(j,k)=fac*(
-     .     +udb_udb_LL*((L(+j)*L(-k))**2+(R(+j)*R(-k))**2)
-     .     +udb_udb_LR*((L(+j)*R(-k))**2+(R(+j)*L(-k))**2))
-        elseif ((j .lt. 0) .and. (k .gt. 0)) then
+     &     +udb_udb_LL*((L(+j)*L(-k))**2+(R(+j)*R(-k))**2)
+     &     +udb_udb_LR*((L(+j)*R(-k))**2+(R(+j)*L(-k))**2))
+        elseif ((j < 0) .and. (k > 0)) then
           msq(j,k)=fac*(
-     .     +udb_udb_LL*((L(-j)*L(k))**2+(R(-j)*R(k))**2)
-     .     +udb_udb_LR*((L(-j)*R(k))**2+(R(-j)*L(k))**2))
-        elseif ((j .gt. 0) .and. (k .gt. 0)) then
+     &     +udb_udb_LL*((L(-j)*L(k))**2+(R(-j)*R(k))**2)
+     &     +udb_udb_LR*((L(-j)*R(k))**2+(R(-j)*L(k))**2))
+        elseif ((j > 0) .and. (k > 0)) then
           msq(j,k)=fac*(
-     .     +ud_ud_LL*((L(+j)*L(+k))**2+(R(+j)*R(+k))**2)
-     .     +ud_ud_LR*((L(+j)*R(+k))**2+(R(+j)*L(+k))**2))
-        elseif ((j .lt. 0) .and. (k .lt. 0)) then
+     &     +ud_ud_LL*((L(+j)*L(+k))**2+(R(+j)*R(+k))**2)
+     &     +ud_ud_LR*((L(+j)*R(+k))**2+(R(+j)*L(+k))**2))
+        elseif ((j < 0) .and. (k < 0)) then
           msq(j,k)=fac*(
-     .     +ud_ud_LL*((L(-j)*L(-k))**2+(R(-j)*R(-k))**2)
-     .     +ud_ud_LR*((L(-j)*R(-k))**2+(R(-j)*L(-k))**2))
+     &     +ud_ud_LL*((L(-j)*L(-k))**2+(R(-j)*R(-k))**2)
+     &     +ud_ud_LR*((L(-j)*R(-k))**2+(R(-j)*L(-k))**2))
         endif
       enddo
       enddo

@@ -4,10 +4,15 @@
       subroutine aaaa_MHV_b_init(i1,i2,i3,i4,i5,i6,za,zb,
      & aaaa_MHV_b)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
-      integer i1,i2,i3,i4,i5,i6
-      double complex aaaa_MHV_b(25), zab2
+      integer:: i1,i2,i3,i4,i5,i6
+      complex(dp):: aaaa_MHV_b(25), zab2
 
       zab2(i1,i2,i3,i4)=za(i1,i2)*zb(i2,i4)+za(i1,i3)*zb(i3,i4)
 

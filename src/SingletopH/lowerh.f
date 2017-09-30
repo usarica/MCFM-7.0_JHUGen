@@ -1,24 +1,29 @@
       subroutine lowerh(p,first,lowerbit)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'metric0.f'
       include 'masses.f'
       include 'scale.f'
       include 'TRydef.f' 
       include 'currentdecl.f'
       include 'tensordecl.f'
-      integer fi,nu,ro,si,ep
-      double complex prW,prt,string,lowerbit(-2:0),bit,
+      integer:: fi,nu,ro,si,ep
+      complex(dp):: prW,prt,string,lowerbit(-2:0),bit,
      & part4,part3,part2,part1,part0
-      double precision p(mxpart,4),vec,mtsq,epbit,Zm(-2:0),
+      real(dp):: p(mxpart,4),vec,mtsq,epbit,Zm(-2:0),
      & p1(4),p2(4),p3(4),p4(4),p5(4),p6(4),
      & p25(4),p34(4),p16(4),p345(4),p2345(4),s16,s34,s345
-      integer epmin
-      logical first
+      integer:: epmin
+      logical:: first
 c     
 c     statement functions
-      prW(s16)=cone/dcmplx(s16-wmass**2,zip)
-      prt(s16)=cone/dcmplx(s16-mt**2,zip)
+      prW(s16)=cone/cplx2(s16-wmass**2,zip)
+      prt(s16)=cone/cplx2(s16-mt**2,zip)
 c     end statement functions
 
       mtsq=mt**2
@@ -51,7 +56,7 @@ c     end statement functions
        
       Zm(-2)=0d0
       Zm(-1)=3d0
-      Zm( 0)=3d0*dlog(musq/mtsq)+5d0
+      Zm( 0)=3d0*log(musq/mtsq)+5d0
 
 c--- only compute poles for checking on first call
       if (first) then
@@ -59,11 +64,13 @@ c--- only compute poles for checking on first call
       else
          epmin=-1
       endif
+      
+      lowerbit(:)=czip
      
       do ep=epmin,0
      
       epbit=0d0
-      if (ep .eq. 0) epbit=1d0
+      if (ep == 0) epbit=1d0
 
       part4=czip
       do fi=1,4

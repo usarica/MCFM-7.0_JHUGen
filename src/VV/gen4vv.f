@@ -1,12 +1,17 @@
       subroutine gen4vv(r,p,wt4,*)
+      implicit none
+      include 'types.f'
 c--- Generates 2->4 phase space with either
 c--- Z(34) Z(56) or W(54) W(36)
-      implicit none
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'mxdim.f'
       include 'debug.f'
       include 'masses.f'
-      include 'process.f'
+      include 'kprocess.f'
       include 'phasemin.f'
       include 'breit.f'
       include 'interference.f'
@@ -14,32 +19,32 @@ c--- Z(34) Z(56) or W(54) W(36)
       include 'x1x2.f'
       include 'energy.f'
       include 'nproc.f'
-      integer nu,icount
-      double precision r(mxdim)
-      double precision wt4,p1(4),p2(4),p3(4),p4(4),p5(4),p6(4)
-      double precision p(mxpart,4)
-      double precision pswt,xjac,s34,s56,s45,s36,wt_ww,wt_zz
-      double precision tau,x1mx2,surd
-      double precision lntaum
+      integer:: nu,icount
+      real(dp):: r(mxdim)
+      real(dp):: wt4,p1(4),p2(4),p3(4),p4(4),p5(4),p6(4)
+      real(dp):: p(mxpart,4)
+      real(dp):: pswt,xjac,s34,s56,s45,s36,wt_ww,wt_zz
+      real(dp):: tau,x1mx2,surd
+      real(dp):: lntaum
 
-      wt4=0d0
+      wt4=0._dp
 
-      lntaum=dlog(taumin)
-      tau=dexp(lntaum*(one-r(9)))
+      lntaum=log(taumin)
+      tau=exp(lntaum*(one-r(9)))
       xjac=-lntaum*tau
 
       x1mx2=two*r(10)-one
-      surd=dsqrt(x1mx2**2+four*tau)
+      surd=sqrt(x1mx2**2+four*tau)
 
       xx(1)=half*(+x1mx2+surd)
       xx(2)=half*(-x1mx2+surd)
 
       xjac=xjac*two/surd
 
-      if   ((xx(1) .gt. 1d0)
-     & .or. (xx(2) .gt. 1d0)
-     & .or. (xx(1) .lt. xmin)
-     & .or. (xx(2) .lt. xmin)) return 1
+      if   ((xx(1) > 1._dp)
+     & .or. (xx(2) > 1._dp)
+     & .or. (xx(1) < xmin)
+     & .or. (xx(2) < xmin)) return 1
 
       p1(4)=-xx(1)*sqrts*half
       p1(1)=zip
@@ -51,7 +56,7 @@ c--- Z(34) Z(56) or W(54) W(36)
       p2(2)=zip
       p2(3)=+xx(2)*sqrts*half
 
-      if (ipsgen .eq. 1) then
+      if (ipsgen == 1) then
 c--- generating Z(34) Z(56)
         bw34_56=.true.
         mass2=zmass
@@ -69,10 +74,10 @@ c--- generating W(54) W(36)
         call phase4(r,p1,p2,p5,p4,p3,p6,pswt,*999)
       endif
 
-      s34=2d0*(p3(4)*p4(4)-p3(1)*p4(1)-p3(2)*p4(2)-p3(3)*p4(3))
-      s56=2d0*(p5(4)*p6(4)-p5(1)*p6(1)-p5(2)*p6(2)-p5(3)*p6(3))
-      s36=2d0*(p3(4)*p6(4)-p3(1)*p6(1)-p3(2)*p6(2)-p3(3)*p6(3))
-      s45=2d0*(p5(4)*p4(4)-p5(1)*p4(1)-p5(2)*p4(2)-p5(3)*p4(3))
+      s34=2._dp*(p3(4)*p4(4)-p3(1)*p4(1)-p3(2)*p4(2)-p3(3)*p4(3))
+      s56=2._dp*(p5(4)*p6(4)-p5(1)*p6(1)-p5(2)*p6(2)-p5(3)*p6(3))
+      s36=2._dp*(p3(4)*p6(4)-p3(1)*p6(1)-p3(2)*p6(2)-p3(3)*p6(3))
+      s45=2._dp*(p5(4)*p4(4)-p5(1)*p4(1)-p5(2)*p4(2)-p5(3)*p4(3))
 
 c--- weighting to suppress poorly-sampled regions;
 c--- wt_zz must also suppress possible photon pole for Z(34), in addition to BW
@@ -94,7 +99,7 @@ c--- wt_zz must also suppress possible photon pole for Z(34), in addition to BW
       p(4,nu)=p4(nu)
       p(5,nu)=p5(nu)
       p(6,nu)=p6(nu)
-      p(7,nu)=0d0
+      p(7,nu)=0._dp
       enddo
 
       wt4=xjac*pswt

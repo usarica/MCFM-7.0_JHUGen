@@ -13,7 +13,7 @@ c--- NOTE: this is just an extension to PR_new which includes the
 c---  possibility of distinguishing a heavy quark from a light quark
 c---  (b=2, rather than the usual q=1)
 
-      double precision 
-     . B1(-1:2,-1:2,-1:2,3),B2(-1:2,-1:2,-1:2,3)
+      real(dp):: 
+     & B1(-1:2,-1:2,-1:2,3),B2(-1:2,-1:2,-1:2,3)
       common/RP_stop/B1,B2
 !$omp threadprivate(/RP_stop/)

@@ -1,3 +1,3 @@
-      integer nuflav
+      integer:: nuflav
       common/nuflav/nuflav
 

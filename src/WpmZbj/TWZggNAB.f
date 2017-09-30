@@ -1,6 +1,11 @@
       subroutine TWZggNAB(p1,p2,p3,p4,p5,p6,p7,p8,NAB)
       implicit none
+      include 'types.f'
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_com.f'
       include 'sprods_com.f'
 C     Author: R.K. Ellis Feb, 2013
@@ -10,10 +15,10 @@ C     from 3 boson vertex off light line
 C     Calculation is performed for LH quark-line (perforce because of W)
 C     Calculation is performed for LH 56line
 C     The two indices of NAB are the gluon helicities
-      integer p1,p2,p3,p4,p5,p6,p7,p8
-      double precision s3,s4,s34,s56,s78,s278,s178,
+      integer:: p1,p2,p3,p4,p5,p6,p7,p8
+      real(dp):: s3,s4,s34,s56,s78,s278,s178,
      & s3456
-      double complex zab2,zba3,zba2,NAB(2,2),iza,izb
+      complex(dp):: zab2,zba3,zba2,NAB(2,2),iza,izb
 C     statement functions
       s3(p1,p2,p3)=s(p1,p2)+s(p1,p3)+s(p2,p3)
       s4(p1,p2,p3,p4)=s(p1,p2)+s(p1,p3)+s(p1,p4)

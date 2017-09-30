@@ -2,49 +2,54 @@
 !---- C. Williams July 11
       subroutine ATLAS_hww(p,failed_cuts)
       implicit none
+      include 'types.f'
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'first.f'
-      double precision p(mxpart,4)
-      logical failed_cuts
-      double precision pt,etarap,m45
-      double precision pt_l_hard,pt_l_soft,pttwo
-      double precision pts,pth,phimax,mllmax,etmiss,etmiss_min
-      double precision et_vec(4),r2,delphi,eta_max_h
-      double precision eta_max_s,eta_hard,eta_soft
-      double precision mtmin,mtmax,mt45,ptsq,p3456(2)
-      integer i
+      real(dp):: p(mxpart,4)
+      logical:: failed_cuts
+      real(dp):: pt,etarap,m45
+      real(dp):: pt_l_hard,pt_l_soft,pttwo
+      real(dp):: pts,pth,phimax,mllmax,etmiss,etmiss_min
+      real(dp):: et_vec(4),r2,delphi,eta_max_h
+      real(dp):: eta_max_s,eta_hard,eta_soft
+      real(dp):: mtmin,mtmax,mt45,ptsq,p3456(2)
+      integer:: i
       common/HWW_Cuts/pts,pth,mllmax,phimax,etmiss_min,
      &     eta_max_h,eta_max_s
-      double precision tiny
-      tiny=1d-4
+      real(dp):: tiny
+      tiny=1.e-4_dp
 
 !------- ETA DOESNT CHANGE -------------
-      eta_max_h=2.5d0
-      eta_max_s=2.5d0
+      eta_max_h=2.5_dp
+      eta_max_s=2.5_dp
 !----------------------------------------
 
 !------- PT of leptons doesn't change either
 
-      pts=15d0
-      pth=20d0
+      pts=15._dp
+      pth=20._dp
 
 !------- Neither does ETMiss
-      etmiss_min=30d0
+      etmiss_min=30._dp
 
 !----- m_ll_max delphi depend on m_h
       hmass=hmass-tiny
-      if(hmass.lt.170d0) then
-         mllmax=50d0
-         phimax=1.3d0 !-- in radians
+      if(hmass<170._dp) then
+         mllmax=50._dp
+         phimax=1.3_dp !-- in radians
       else
-         mllmax=60d0
-         phimax=1.8d0
+         mllmax=60._dp
+         phimax=1.8_dp
       endif
 !----- Reset hmass
       hmass=hmass+tiny
 
-      mtmin=0.75d0*hmass
+      mtmin=0.75_dp*hmass
       mtmax=hmass
 
 
@@ -68,10 +73,10 @@
 
       failed_cuts = .false.
       do i=1,4
-         et_vec(i)=0d0
+         et_vec(i)=zip
       enddo
 
-      if(pt(4,p).gt.pt(5,p)) then
+      if(pt(4,p)>pt(5,p)) then
          pt_l_hard=pt(4,p)
          eta_hard=etarap(4,p)
          pt_l_soft=pt(5,p)
@@ -86,19 +91,19 @@
 
 
 !---- pt cuts
-      if((pt_l_hard.lt.pth).or.(pt_l_soft.lt.pts)) then
+      if((pt_l_hard<pth).or.(pt_l_soft<pts)) then
          failed_cuts=.true.
          return
       endif
 
-       if(dabs(etmiss(p,et_vec)).lt.etmiss_min) then
+       if(abs(etmiss(p,et_vec))<etmiss_min) then
          failed_cuts=.true.
          return
       endif
 
 !---- eta_cuts
-      if((dabs(eta_hard).gt.eta_max_h).or.
-     &     ((dabs(eta_soft).gt.eta_max_s))) then
+      if((abs(eta_hard)>eta_max_h).or.
+     &     ((abs(eta_soft)>eta_max_s))) then
          failed_cuts=.true.
 !         write(6,*) eta_hard,eta_soft
          return
@@ -106,7 +111,7 @@
 
 
 !--- m_ll cut
-      m45=0d0
+      m45=zip
       do i=1,4
          if(i.ne.4) then
             m45=m45-(p(4,i)+p(5,i))**2
@@ -115,39 +120,39 @@
          endif
       enddo
 
-      if(dsqrt(max(m45,0d0)).gt.mllmax) then
+      if(sqrt(max(m45,zip))>mllmax) then
          failed_cuts=.true.
          return
       endif
 !----- Phi cut
       r2= (p(4,1)*p(5,1)+p(4,2)*p(5,2))
-     .     /dsqrt((p(4,1)**2+p(4,2)**2)*(p(5,1)**2+p(5,2)**2))
-      if (r2 .gt. +0.9999999D0) r2=+1D0
-      if (r2 .lt. -0.9999999D0) r2=-1D0
-      delphi=dacos(r2)
-      if(delphi.gt.phimax) then
+     &     /sqrt((p(4,1)**2+p(4,2)**2)*(p(5,1)**2+p(5,2)**2))
+      if (r2 > +0.9999999_dp) r2=+one
+      if (r2 < -0.9999999_dp) r2=-one
+      delphi=acos(r2)
+      if(delphi>phimax) then
          failed_cuts=.true.
          return
       endif
 
 
 !------mt cut (use m45=mt)
-      ptsq=0d0
+      ptsq=zip
       do i=1,2
-         p3456(i)=0d0
+         p3456(i)=zip
          p3456(i)=p(3,i)+p(4,i)+p(5,i)+p(6,i)
          ptsq=ptsq+p3456(i)**2
       enddo
 
 
-      mt45=0d0
-      mt45=(dsqrt(dsqrt(pttwo(4,5,p)**2+m45)+etmiss(p,et_vec))**2)
+      mt45=zip
+      mt45=(sqrt(sqrt(pttwo(4,5,p)**2+m45)+etmiss(p,et_vec))**2)
 !      write(6,*) mt45
- !     mt45=dsqrt(max(0d0,dsqrt(mt45-ptsq)))
+ !     mt45=sqrt(max(zip,sqrt(mt45-ptsq)))
  !     write(6,*) mt45
  !     pause
 !------ Mt cuts
-      if((mt45.lt.mtmin).or.(mt45.gt.mtmax)) then
+      if((mt45<mtmin).or.(mt45>mtmax)) then
          failed_cuts=.true.
          return
       endif

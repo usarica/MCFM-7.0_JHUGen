@@ -4,13 +4,17 @@
 ****************************************************************
       subroutine qqb_zaa(p,msq)
       implicit none
+      include 'types.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'sprods_com.f'
-      double precision p(mxpart,4),msq(-nf:nf,-nf:nf)
-      double complex a60h(4,16)
-      double precision qqb(2),qbq(2),pbdk(mxpart,4)
-      integer i,j,k
+      real(dp):: p(mxpart,4),msq(-nf:nf,-nf:nf)
+      complex(dp):: a60h(4,16)
+      real(dp):: qqb(2),qbq(2),pbdk(mxpart,4)
+      integer:: i,j,k
 c-----swap momenta
 c-----implemented (ala bdk)
 c----- 0 -> q(p1) + qb(p4) + gam(p2) + gam(p3) + lb(p5) + l(p6)
@@ -67,7 +71,12 @@ c-----donehere
 ***********************************************
       subroutine zaa_m60sq(qi,a60h,msq)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'sprods_com.f'
       include 'ewcouple.f'
@@ -76,144 +85,144 @@ c-----donehere
       include 'zcouple.f'
       include 'masses.f'
       include 'ipsgen.f'
-      double precision t
-      integer j1,j2,j3,j4,j5,j6
-      double complex a60h(4,16),m60hA(16),m60hB(16),m60hC(16),m60hD(16)
-      double complex propzQQ,propzLL,propzQL(3:4)
-      double precision m6sq0h(16),msq
-      double precision m6sq0hAA(16),m6sq0hBB(16),m6sq0hCC(16),
+      real(dp):: t
+      integer:: j1,j2,j3,j4,j5,j6
+      complex(dp)::a60h(4,16),m60hA(16),m60hB(16),m60hC(16),
+     & m60hD(16),propzQQ,propzLL,propzQL(3:4)
+      real(dp):: m6sq0h(16),msq
+      real(dp):: m6sq0hAA(16),m6sq0hBB(16),m6sq0hCC(16),
      .m6sq0hDD(16),m6sq0hAB(16),m6sq0hAC(16),m6sq0hAD(16),m6sq0hBC(16),
      .m6sq0hBD(16),m6sq0hCD(16)
-      double precision iwdth,iph,izz,qq1
-      integer qi,i,j,k
+      real(dp):: iwdth,iph,izz,qq1
+      integer:: qi,i,j,k
 c-----Z propagator
-      iwdth = 1D0
+      iwdth = 1._dp
 c-----QQ propagator
-      propzQQ=s(5,6)/Dcmplx(s(5,6)-zmass**2,iwdth*zwidth*zmass)
+      propzQQ=s(5,6)/cplx2(s(5,6)-zmass**2,iwdth*zwidth*zmass)
 c-----LL propagator
-      propzLL=s(1,4)/Dcmplx(s(1,4)-zmass**2,iwdth*zwidth*zmass)
+      propzLL=s(1,4)/cplx2(s(1,4)-zmass**2,iwdth*zwidth*zmass)
 c-----QL propagator (2,3)
-      propzQL(3)=t(1,4,2)/Dcmplx(t(1,4,2)-zmass**2,iwdth*zwidth*zmass)
+      propzQL(3)=t(1,4,2)/cplx2(t(1,4,2)-zmass**2,iwdth*zwidth*zmass)
 c-----QL propagator (3,2)
-      propzQL(4)=t(1,4,3)/Dcmplx(t(1,4,3)-zmass**2,iwdth*zwidth*zmass)
+      propzQL(4)=t(1,4,3)/cplx2(t(1,4,3)-zmass**2,iwdth*zwidth*zmass)
 c-----dress the amplitude with couplings etc.
 c-----iph,izz -> switches for photon/z contribution
       iph=one
       izz=one
 c-----qq1 -> choose electron/neutrino contributions
-      qq1=dabs(q1)
+      qq1=abs(q1)
 c-----M(+-xx-+)
       do i=1,4
          if (ipsgen .ne. 2) then
          m60hA(i)=four*esq**2*
-     .   (+Q(qi)**2*(q1*Q(qi)+r1*r(qi)*propzQQ)*a60h(1,i))
+     &   (+Q(qi)**2*(q1*Q(qi)+r1*r(qi)*propzQQ)*a60h(1,i))
          endif
          if (ipsgen .ne. 3) then
          m60hB(i)=four*esq**2*
-     .   (+qq1*(q1*Q(qi)*iph+izz*r1*r(qi)*propzLL)*a60h(2,i))
+     &   (+qq1*(q1*Q(qi)*iph+izz*r1*r(qi)*propzLL)*a60h(2,i))
          endif
-         if ((ipsgen .eq. 2) .or. (ipsgen .eq. 3)) then
+         if ((ipsgen == 2) .or. (ipsgen == 3)) then
          m60hC(i)=four*esq**2*
-     .   (-qq1*Q(qi)*(q1*Q(qi)+r1*r(qi)*propzQL(3))*a60h(3,i))
+     &   (-qq1*Q(qi)*(q1*Q(qi)+r1*r(qi)*propzQL(3))*a60h(3,i))
          endif
-         if ((ipsgen .eq. 3) .or. (ipsgen .eq. 4)) then
+         if ((ipsgen == 3) .or. (ipsgen == 4)) then
          m60hD(i)=four*esq**2*
-     .   (-qq1*Q(qi)*(q1*Q(qi)+r1*r(qi)*propzQL(4))*a60h(4,i))
+     &   (-qq1*Q(qi)*(q1*Q(qi)+r1*r(qi)*propzQL(4))*a60h(4,i))
          endif
       enddo
 c-----M(+-xx+-)
       do i=5,8
          if (ipsgen .ne. 2) then
          m60hA(i)=four*esq**2*
-     .   (+Q(qi)**2*(q1*Q(qi)+l1*r(qi)*propzQQ)*a60h(1,i))
+     &   (+Q(qi)**2*(q1*Q(qi)+l1*r(qi)*propzQQ)*a60h(1,i))
          endif
          if (ipsgen .ne. 3) then
          m60hB(i)=four*esq**2*
-     .   (+qq1*(q1*Q(qi)+l1*r(qi)*propzLL)*a60h(2,i))
+     &   (+qq1*(q1*Q(qi)+l1*r(qi)*propzLL)*a60h(2,i))
          endif
-         if ((ipsgen .eq. 2) .or. (ipsgen .eq. 3)) then
+         if ((ipsgen == 2) .or. (ipsgen == 3)) then
          m60hC(i)=four*esq**2*
-     .   (+qq1*Q(qi)*(q1*Q(qi)+l1*r(qi)*propzQL(3))*a60h(3,i))
+     &   (+qq1*Q(qi)*(q1*Q(qi)+l1*r(qi)*propzQL(3))*a60h(3,i))
          endif
-         if ((ipsgen .eq. 3) .or. (ipsgen .eq. 4)) then
+         if ((ipsgen == 3) .or. (ipsgen == 4)) then
          m60hD(i)=four*esq**2*
-     .   (+qq1*Q(qi)*(q1*Q(qi)+l1*r(qi)*propzQL(4))*a60h(4,i))
+     &   (+qq1*Q(qi)*(q1*Q(qi)+l1*r(qi)*propzQL(4))*a60h(4,i))
          endif
       enddo
 c-----(-+xx+-)
       do i=9,12
          if (ipsgen .ne. 2) then
          m60hA(i)=four*esq**2*
-     .   (+Q(qi)**2*(q1*Q(qi)+l1*l(qi)*propzQQ)*a60h(1,i))
+     &   (+Q(qi)**2*(q1*Q(qi)+l1*l(qi)*propzQQ)*a60h(1,i))
          endif
          if (ipsgen .ne. 3) then
          m60hB(i)=four*esq**2*
-     .   (+qq1*(q1*Q(qi)+l1*l(qi)*propzLL)*a60h(2,i))
+     &   (+qq1*(q1*Q(qi)+l1*l(qi)*propzLL)*a60h(2,i))
          endif
-         if ((ipsgen .eq. 2) .or. (ipsgen .eq. 3)) then
+         if ((ipsgen == 2) .or. (ipsgen == 3)) then
          m60hC(i)=four*esq**2*
-     .   (-qq1*Q(qi)*(q1*Q(qi)+l1*l(qi)*propzQL(3))*a60h(3,i))
+     &   (-qq1*Q(qi)*(q1*Q(qi)+l1*l(qi)*propzQL(3))*a60h(3,i))
          endif
-         if ((ipsgen .eq. 3) .or. (ipsgen .eq. 4)) then
+         if ((ipsgen == 3) .or. (ipsgen == 4)) then
          m60hD(i)=four*esq**2*
-     .   (-qq1*Q(qi)*(q1*Q(qi)+l1*l(qi)*propzQL(4))*a60h(4,i))
+     &   (-qq1*Q(qi)*(q1*Q(qi)+l1*l(qi)*propzQL(4))*a60h(4,i))
          endif
       enddo
 c-----(-+xx-+)
       do i=13,16
          if (ipsgen .ne. 2) then
          m60hA(i)=four*esq**2*
-     .   (+Q(qi)**2*(q1*Q(qi)+r1*l(qi)*propzQQ)*a60h(1,i))
+     &   (+Q(qi)**2*(q1*Q(qi)+r1*l(qi)*propzQQ)*a60h(1,i))
          endif
          if (ipsgen .ne. 3) then
          m60hB(i)=four*esq**2*
-     .   (+qq1*(q1*Q(qi)+r1*l(qi)*propzLL)*a60h(2,i))
+     &   (+qq1*(q1*Q(qi)+r1*l(qi)*propzLL)*a60h(2,i))
          endif
-         if ((ipsgen .eq. 2) .or. (ipsgen .eq. 3)) then
+         if ((ipsgen == 2) .or. (ipsgen == 3)) then
          m60hC(i)=four*esq**2*
-     .   (+qq1*Q(qi)*(q1*Q(qi)+r1*l(qi)*propzQL(3))*a60h(3,i))
+     &   (+qq1*Q(qi)*(q1*Q(qi)+r1*l(qi)*propzQL(3))*a60h(3,i))
          endif
-         if ((ipsgen .eq. 3) .or. (ipsgen .eq. 4)) then
+         if ((ipsgen == 3) .or. (ipsgen == 4)) then
          m60hD(i)=four*esq**2*
-     .   (+qq1*Q(qi)*(q1*Q(qi)+r1*l(qi)*propzQL(4))*a60h(4,i))
+     &   (+qq1*Q(qi)*(q1*Q(qi)+r1*l(qi)*propzQL(4))*a60h(4,i))
          endif
       enddo
 c-----square the helicity amplitudes
       do i=1,16
-         if (ipsgen .eq. 1) then
-         m6sq0hAA(i)=cdabs(m60hA(i))**2
-         m6sq0hAB(i)=2d0*dreal(m60hA(i)*dconjg(m60hB(i)))
+         if (ipsgen == 1) then
+         m6sq0hAA(i)=abs(m60hA(i))**2
+         m6sq0hAB(i)=2._dp*real(m60hA(i)*conjg(m60hB(i)))
          endif
-         if (ipsgen .eq. 2) then
-         m6sq0hBB(i)=cdabs(m60hB(i))**2
-         m6sq0hBC(i)=2d0*dreal(m60hB(i)*dconjg(m60hC(i)))
+         if (ipsgen == 2) then
+         m6sq0hBB(i)=abs(m60hB(i))**2
+         m6sq0hBC(i)=2._dp*real(m60hB(i)*conjg(m60hC(i)))
          endif
-         if (ipsgen .eq. 3) then
-         m6sq0hCC(i)=cdabs(m60hC(i))**2
-         m6sq0hAC(i)=2d0*dreal(m60hA(i)*dconjg(m60hC(i)))
-         m6sq0hCD(i)=2d0*dreal(m60hC(i)*dconjg(m60hD(i)))
+         if (ipsgen == 3) then
+         m6sq0hCC(i)=abs(m60hC(i))**2
+         m6sq0hAC(i)=2._dp*real(m60hA(i)*conjg(m60hC(i)))
+         m6sq0hCD(i)=2._dp*real(m60hC(i)*conjg(m60hD(i)))
          endif
-         if (ipsgen .eq. 4) then
-         m6sq0hDD(i)=cdabs(m60hD(i))**2
-         m6sq0hAD(i)=2d0*dreal(m60hA(i)*dconjg(m60hD(i)))
-         m6sq0hBD(i)=2d0*dreal(m60hB(i)*dconjg(m60hD(i)))
+         if (ipsgen == 4) then
+         m6sq0hDD(i)=abs(m60hD(i))**2
+         m6sq0hAD(i)=2._dp*real(m60hA(i)*conjg(m60hD(i)))
+         m6sq0hBD(i)=2._dp*real(m60hB(i)*conjg(m60hD(i)))
          endif
       enddo
       do i=1,16
 c---------commented pieces below only for crosscheck with old PSgen
 c         m6sq0h(i)= m6sq0hAA(i)+m6sq0hBB(i)+m6sq0hCC(i)+m6sq0hDD(i)
-c     .             +m6sq0hAB(i)+m6sq0hAC(i)+m6sq0hAD(i)+m6sq0hBC(i)
-c     .             +m6sq0hBD(i)+m6sq0hCD(i)
+c     &             +m6sq0hAB(i)+m6sq0hAC(i)+m6sq0hAD(i)+m6sq0hBC(i)
+c     &             +m6sq0hBD(i)+m6sq0hCD(i)
 c         m6sq0h(i)= m6sq0hAB(i)+m6sq0hAC(i)+m6sq0hAD(i)+m6sq0hBC(i)
-c     .             +m6sq0hBD(i)+m6sq0hCD(i)
-         if (ipsgen.eq.1) then
+c     &             +m6sq0hBD(i)+m6sq0hCD(i)
+         if (ipsgen==1) then
              m6sq0h(i)= m6sq0hAA(i)+m6sq0hAB(i) !AA+AB
-         elseif (ipsgen.eq.2) then
+         elseif (ipsgen==2) then
              m6sq0h(i)= m6sq0hBB(i)+m6sq0hBC(i) !BB+BC
-         elseif (ipsgen.eq.3) then
+         elseif (ipsgen==3) then
              m6sq0h(i)= m6sq0hCC(i)+m6sq0hAC(i)+m6sq0hCD(i) !CC+AC+CD
-         elseif (ipsgen.eq.4) then
-             m6sq0h(i)= m6sq0hDD(i)+m6sq0hAD(i)+m6sq0hBD(i) !DD+AD+BD
+         elseif (ipsgen==4) then
+             m6sq0h(i)= m6sq0hDD(i)+m6sq0hAD(i)+m6sq0hBD(i) !D.e+_dpA.e+_dpBD
          endif
       enddo
 c-----sum them up

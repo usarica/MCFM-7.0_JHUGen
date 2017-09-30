@@ -1,6 +1,11 @@
       subroutine upper_partbox(p,h3,upperbox,first)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'metric0.f'
       include 'alpha1.f'
       include 'masses.f'
@@ -9,18 +14,18 @@
       include 'currentdecl.f'
       include 'tensordecl.f'
       include 'decl_kininv.f'
-      integer fi,nu,ro,si,om,ep,h3
-      double complex prW,prq,string,upperbox(-2:0),bit,iprZ,
+      integer:: fi,nu,ro,si,om,ep,h3
+      complex(dp):: prW,prq,string,upperbox(-2:0),bit,iprZ,
      & part5,part3,part1,cprop
-      double complex facuLl,facdLl,facLdiff
-       double precision p(mxpart,4),mwsq,
+      complex(dp):: facuLl,facdLl,facLdiff
+       real(dp):: p(mxpart,4),mwsq,
      & omal,p1(4),p6(4)
-      integer epmin
-      logical first
+      integer:: epmin
+      logical:: first
 
 c     statement function
-      prW(s34)=cone/dcmplx(s34-wmass**2)
-      prq(s34)=cone/dcmplx(s34)
+      prW(s34)=cone/cplx1(s34-wmass**2)
+      prq(s34)=cone/cplx1(s34)
 c     end statement function
 
       omal=1d0-alpha1
@@ -30,15 +35,15 @@ c     end statement function
       p6(:)= p(6,:)
 
 c--- Implementation of Baur-Zeppenfeld treatment of Z width
-      cprop=dcmplx(1d0/dsqrt((s34-zmass**2)**2+(zmass*zwidth)**2))
-      iprZ=dcmplx(s34-zmass**2)
+      cprop=cplx1(1d0/sqrt((s34-zmass**2)**2+(zmass*zwidth)**2))
+      iprZ=cplx1(s34-zmass**2)
 
-      if (h3 .eq. -1) then
-        facuLl=dcmplx(Qu*q1)*iprZ/s34+dcmplx(L(2)*le)
-        facdLl=dcmplx(Qd*q1)*iprZ/s34+dcmplx(L(1)*le)
+      if (h3 == -1) then
+        facuLl=cplx1(Qu*q1)*iprZ/s34+cplx1(L(2)*le)
+        facdLl=cplx1(Qd*q1)*iprZ/s34+cplx1(L(1)*le)
       else
-        facuLl=dcmplx(Qu*q1)*iprZ/s34+dcmplx(L(2)*re)
-        facdLl=dcmplx(Qd*q1)*iprZ/s34+dcmplx(L(1)*re)
+        facuLl=cplx1(Qu*q1)*iprZ/s34+cplx1(L(2)*re)
+        facdLl=cplx1(Qd*q1)*iprZ/s34+cplx1(L(1)*re)
       endif
       facLdiff=facuLl-facdLl
 

@@ -1,35 +1,40 @@
       subroutine qqb_gmgmjt(p,msq)
+      implicit none
+      include 'types.f'
 c--- matrix element squared for the process
 c---    q(p1) + q~(p2) --> gam(p3) + gam(p4) + g(p5)
 c--- (and all crossings)
 c---
 c--- C. Williams, March 2013
-      implicit none
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'ewcharge.f'
       include 'ewcouple.f'
       include 'qcdcouple.f'
-      double precision p(mxpart,4),msq(-nf:nf,-nf:nf)
-      double complex qqbg(2,2,2,2),qbqg(2,2,2,2)
-      double complex qgqb(2,2,2,2),qbgq(2,2,2,2)
-      double complex gqqb(2,2,2,2),gqbq(2,2,2,2)
-      double precision qqbg_sum,qbqg_sum
-      double precision qgqb_sum,qbgq_sum
-      double precision gqbq_sum,gqqb_sum
-      integer h1,h2,h3,h4,j,k
-      double precision fac,statfac
-      parameter(statfac=0.5d0)
+      real(dp):: p(mxpart,4),msq(-nf:nf,-nf:nf)
+      complex(dp):: qqbg(2,2,2,2),qbqg(2,2,2,2)
+      complex(dp):: qgqb(2,2,2,2),qbgq(2,2,2,2)
+      complex(dp):: gqqb(2,2,2,2),gqbq(2,2,2,2)
+      real(dp):: qqbg_sum,qbqg_sum
+      real(dp):: qgqb_sum,qbgq_sum
+      real(dp):: gqbq_sum,gqqb_sum
+      integer:: h1,h2,h3,h4,j,k
+      real(dp):: fac,statfac
+      parameter(statfac=0.5_dp)
 
-      qqbg_sum=0d0
-      qgqb_sum=0d0
-      gqqb_sum=0d0
-c      qbqg_sum=0d0
-c      qbgq_sum=0d0
-c      gqbq_sum=0d0
-      msq(:,:)=0d0
+      qqbg_sum=0._dp
+      qgqb_sum=0._dp
+      gqqb_sum=0._dp
+c      qbqg_sum=0._dp
+c      qbgq_sum=0._dp
+c      gqbq_sum=0._dp
+      msq(:,:)=0._dp
 
-      fac=8d0*cf*xn*gsq*esq**2*statfac
+      fac=8._dp*cf*xn*gsq*esq**2*statfac
 
       call spinoru(5,p,za,zb)
       call amp_lord_gmgmjt(1,2,5,3,4,za,zb,qqbg)
@@ -44,12 +49,12 @@ c      call amp_lord_gmgmjt(5,2,1,3,4,za,zb,gqbq)
       do h3=1,2
       do h4=1,2
 
-        qqbg_sum=qqbg_sum+cdabs(qqbg(h1,h2,h3,h4))**2
-        qgqb_sum=qgqb_sum+cdabs(qgqb(h1,h2,h3,h4))**2
-        gqqb_sum=gqqb_sum+cdabs(gqqb(h1,h2,h3,h4))**2
-c        qbqg_sum=qbqg_sum+cdabs(qbqg(h1,h2,h3,h4))**2
-c        qbgq_sum=qbgq_sum+cdabs(qbgq(h1,h2,h3,h4))**2
-c        gqbq_sum=gqbq_sum+cdabs(gqbq(h1,h2,h3,h4))**2
+        qqbg_sum=qqbg_sum+abs(qqbg(h1,h2,h3,h4))**2
+        qgqb_sum=qgqb_sum+abs(qgqb(h1,h2,h3,h4))**2
+        gqqb_sum=gqqb_sum+abs(gqqb(h1,h2,h3,h4))**2
+c        qbqg_sum=qbqg_sum+abs(qbqg(h1,h2,h3,h4))**2
+c        qbgq_sum=qbgq_sum+abs(qbgq(h1,h2,h3,h4))**2
+c        gqbq_sum=gqbq_sum+abs(gqbq(h1,h2,h3,h4))**2
 
       enddo
       enddo
@@ -76,11 +81,16 @@ c--- use symmetry to avoid calculating half the matrix elements
 
       subroutine amp_lord_gmgmjt(i1,i2,i3,i4,i5,za,zb,amp)
       implicit none
+      include 'types.f'
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
-      integer i1,i2,i3,i4,i5
-      double complex amp(2,2,2,2)
-      double complex amp_2gam1g
+      integer:: i1,i2,i3,i4,i5
+      complex(dp):: amp(2,2,2,2)
+      complex(dp):: amp_2gam1g
 !===== default is for gluon MHV amplitude
 
       amp(:,:,:,:)=czip

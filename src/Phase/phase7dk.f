@@ -1,31 +1,34 @@
       subroutine phase7dk(r,p1,p2,p3,p4,p5,p6,p7,p8,p9,wt,*)
       implicit none
+      include 'types.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
       include 'masses.f'
       include 'mxdim.f'
       include 'zerowidth.f'
       include 'plabel.f'
-      include 'process.f'
+      include 'kprocess.f'
       include 'decay1q2a.f'
       include 'breit.f'
 c******* generate phase space for 2-->7 process
 c******* r(mxdim),p1(4),p2(4) are inputs reversed in sign from physical values 
 c---- phase space for -p1-p2 --> p3+p4+p5+p6+p7+p8+p9
 c---- with all 2 pi's (ie 1/(2*pi)^14)
-      logical oldzerowidth
-      integer j,nu
-      double precision r(mxdim)
-      double precision p1(4),p2(4),p5(4),p6(4),p3(4),p4(4),p7(4),p8(4),
+      logical:: oldzerowidth
+      integer:: j,nu
+      real(dp):: r(mxdim)
+      real(dp):: p1(4),p2(4),p5(4),p6(4),p3(4),p4(4),p7(4),p8(4),
      & p9(4)
-      double precision p12(4),p3459(4),p678(4),p78(4),p34(4),smin,
+      real(dp):: p12(4),p3459(4),p678(4),p78(4),p34(4),smin,
      & p59(4),p349(4)
-      double precision wt,wt0,wt12,wt678,wt3459,wt34,wt78,
+      real(dp):: wt,wt0,wt12,wt678,wt3459,wt34,wt78,
      & wt59,wt349,tmp
-      parameter(wt0=1d0/twopi**5)
+      parameter(wt0=1._dp/twopi**5)
 
 c--- alternate radiation between decay of top (=1) and antitop (=2) quarks;
 c--- use additional (always uniform) variable to determine choice
-      if (r(20) .lt. 0.5d0) then
+      if (r(20) < 0.5_dp) then
         decay1q2a=1
       else
         decay1q2a=2
@@ -37,7 +40,7 @@ c      decay1q2a=1 ! DEBUG: always radiation in top decay
 
       oldzerowidth=zerowidth
 
-      wt=0d0
+      wt=0._dp
       do j=1,4
       p12(j)=-p1(j)-p2(j)
       enddo
@@ -61,9 +64,9 @@ c--- specific to ttbar including radiation in decay
       mass3=wmass
       width3=wwidth
 
-      if (case .eq. 'tthWdk') then
+      if (kcase==ktthWdk) then
 c--- radiation from hadronic decay of W
-        if (plabel(3) .eq. 'pp') then
+        if (plabel(3) == 'pp') then
          decay1q2a=1
       else
          decay1q2a=2
@@ -90,10 +93,10 @@ c--- anti-top decay
         wt=wt0*wt12*wt3459*wt34*wt59*wt678*wt78      
 c--- multiply by a factor of two since we are including radiation
 c--- from top and anti-top quarks at the same time
-        wt=wt*2d0
+        wt=wt*2._dp
       endif
              
-      if (decay1q2a .eq. 2) then
+      if (decay1q2a == 2) then
 c--- perform swap (3,4,5) -> (8,7,6)
       do nu=1,4
       tmp=p3(nu)
@@ -109,7 +112,7 @@ c--- perform swap (3,4,5) -> (8,7,6)
       endif
  
       return
- 99   wt=0d0
+ 99   wt=0._dp
       zerowidth=oldzerowidth
       
       return 1

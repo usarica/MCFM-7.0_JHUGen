@@ -1,20 +1,24 @@
       subroutine qq4lggamp(i1,i2,i3,i4,i5,i6,i7,i8,
      & b7,b8,za,zb,amp78,amp87)
       implicit none
+      include 'types.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'cmplxmass.f'
       include 'zprods_decl.f'
       include 'sprods_com.f'
       include 'ewcharge.f'
       include 'zcouple.f'
-      integer jdu,j78,h34,h56,i1,i2,i3,i4,i5,i6,i7,i8,b7,b8,
+      integer:: jdu,j78,h34,h56,i1,i2,i3,i4,i5,i6,i7,i8,b7,b8,
      & p1,p2,p3,p4,p5,p6,p7,p8
-      double complex zab2,zba2,
+      complex(dp):: zab2,zba2,
      & amp78(2,2,2,2,2,2),amp87(2,2,2,2,2,2),
      & bmp78(2,2,2,2,2,2),bmp87(2,2,2,2,2,2),
      & propz34,propz56,propz3456,gamz3456(2,2,2),gamll56(2,2),
      & zab3,zba3,zab4,zba4,iza,izb,gamz34(2,2,2),gamz56(2,2,2)
-      double precision t3,t4,s356,s456,
+      real(dp):: t3,t4,s356,s456,
      & s34,s56,s18,s27,s78,s278,s178,s156,s234,s2347,s3456,
      & xq1,xq2,xl1,xl2,xr1,xr2
 C-----Begin statement functions

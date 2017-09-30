@@ -1,12 +1,14 @@
       subroutine BLC_pm(k1,k2,k3,k4,k5,k6,coeff,ampBLC)
+      implicit none
+      include 'types.f'
 c--- This is the leading colour amplitude in the notation
 c---  (q1, Qb2, Q3, qb4)
 
 c--- This routine makes use of the identity B(1,2,3,4)=-A(1,3,2,4)
-      implicit none
+
       include 'Wbbmlabels.f'
-      integer k1,k2,k3,k4,k5,k6
-      double complex ampBLC(2,2),coefftmp(0:4,20)
+      integer:: k1,k2,k3,k4,k5,k6
+      complex(dp):: ampBLC(2,2),coefftmp(0:4,20)
 
       call ALC_mp(k1,k3,k2,k4,k5,k6,coefftmp,ampBLC)
 

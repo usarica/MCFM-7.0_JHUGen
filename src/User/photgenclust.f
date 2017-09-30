@@ -6,21 +6,26 @@ c---- Takes in pin, which has passed frixione cuts will cluster partons and dete
 c---- any partons lie in cone Rij < delta_0
       subroutine photgenclust(pin,Rmin,pfinal,isub,ipow) 
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'jetcuts.f'
       include 'jetlabel.f'
       include 'plabel.f'
       include 'npart.f'
       include 'frag.f'
-      double precision pin(mxpart,4),Rmin,pjet(mxpart,4),
+      real(dp):: pin(mxpart,4),Rmin,pjet(mxpart,4),
      & pfinal(mxpart,4)
-      double precision dijmin,dkmin,aetarap,pt,Rgen
-      integer isub,i,nu,iter,ipow,nmin1,nmin2,maxjet,jetindex(mxpart) 
-      integer nk,ajet
-      logical jetmerge,insideacone,inclusive_inside_cone,
+      real(dp):: dijmin,dkmin,aetarap,pt,Rgen
+      integer:: isub,i,nu,iter,ipow,nmin1,nmin2,maxjet,jetindex(mxpart) 
+      integer:: nk,ajet
+      logical:: jetmerge,insideacone,inclusive_inside_cone,
      & is_hadronic,is_photon
-      integer photindex(npart),nphotons,j
-      integer softjet
+      integer:: photindex(npart),nphotons,j
+      integer:: softjet
       common/jetmerge/jetmerge
 !$omp threadprivate(/jetmerge/)
 
@@ -52,7 +57,7 @@ c---- Pick out jets
          endif
       enddo
 
-      if (maxjet .eq. 0 ) then 
+      if (maxjet == 0 ) then 
          do i =1,mxpart 
             do nu=1,4
                pfinal(i,nu)=pin(i,nu)
@@ -62,7 +67,7 @@ c---- Pick out jets
          return 
       endif
 
-      if (maxjet .eq. 1) goto 2
+      if (maxjet == 1) goto 2
 
       iter = 0
            
@@ -73,7 +78,7 @@ c---- Pick out jets
       call findminet(pin,pjet,iter,maxjet,dkmin,nk,ipow) 
       dkmin=dkmin*Rmin
 
-      if (dijmin .lt. dkmin) then 
+      if (dijmin < dkmin) then 
          jetmerge = .true. 
          call combine(pjet,nmin1,nmin2) 
          
@@ -86,13 +91,13 @@ c---- Pick out jets
          call swapjet(pjet,jetindex,jets,nk)
       endif
 
-      if (iter .lt. maxjet-1) goto 1
+      if (iter < maxjet-1) goto 1
 
 
  2    continue 
       jets=jets+1
 
-      pfinal(:,:)=0d0
+      pfinal(:,:)=0._dp
       do i=1,2
          do nu=1,4
             pfinal(i,nu)=pin(i,nu) 
@@ -101,7 +106,7 @@ c---- Pick out jets
 
       do i=3,npart+2
          do nu=1,4
-            pfinal(i,nu)=0d0
+            pfinal(i,nu)=0._dp
              if (is_hadronic(i) .eqv. .false.)then
                 pfinal(i,nu)=pin(i,nu)
              endif
@@ -110,7 +115,7 @@ c---- Pick out jets
        
       
 
-c       if(isub .eq. 0) then 
+c       if(isub == 0) then 
 c      write(*,*) 'AFTER CLUSTERING: Obtained ',jets,' jets'
 c      endif
        
@@ -126,20 +131,20 @@ c--- check to see whether parton is inside one of the photon cones
          do j=1,nphotons           
 
 c           write(6,*) i,j,Rgen(pjet,i,pin,photindex(j)),cone_ang
-           if(Rgen(pjet,i,pin,photindex(j)) .lt. cone_ang) then 
+           if(Rgen(pjet,i,pin,photindex(j)) < cone_ang) then 
            insideacone=.true.
            endif
          enddo
 
-         if (insideacone .and. inclusive_inside_cone) then             
+         if (insideacone .and. inclusive_inside_cone) then
 c--- if passed frix and is in isolation cone then do not apply cuts
 c--- will add to jet tally
            softjet=softjet+1
          else
-c--- if jet doesnt lie within photon cone apply cuts             
-           if ((pt(i,pjet) .ge. ptjetmin) .and. 
-     &         (aetarap(i,pjet) .ge. etajetmin) .and.
-     &         (aetarap(i,pjet) .le. etajetmax)) then                  
+c--- if jet doesnt lie within photon cone apply cuts
+           if ((pt(i,pjet) >= ptjetmin) .and. 
+     &         (aetarap(i,pjet) >= etajetmin) .and.
+     &         (aetarap(i,pjet) <= etajetmax)) then
              ajet=ajet+1
              do nu=1,4
                pfinal(jetindex(ajet),nu)=pjet(i,nu)
@@ -150,13 +155,13 @@ c--- if jet doesnt lie within photon cone apply cuts
        enddo
 
 c       write(6,*) 'isub,jets,ajet,softjet',isub,jets,ajet,softjet
-c       if (softjet .eq. 1) pause
+c       if (softjet == 1) pause
          
 c--- if no jets are removed by eta and pt cuts, then jets=ajet
-       if (ajet .lt. jets) then
+       if (ajet < jets) then
           do i=ajet+1,jets
              do nu=1,4
-                pfinal(jetindex(i),nu)=0d0
+                pfinal(jetindex(i),nu)=0._dp
              enddo
           enddo        
        endif

@@ -1,2 +1,2 @@
-      double precision md,mu,ms,mc,mb,mt
+      real(dp):: md,mu,ms,mc,mb,mt
       common/qmass/md,mu,ms,mc,mb,mt

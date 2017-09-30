@@ -1,13 +1,18 @@
       subroutine pol_real(p,i,f)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'swapxz.f'
 c     massless vector polarization  subroutine
 c     mcfm style momentum assignment
 c     polarization only has real component
-      integer i
-      double complex p(4),f(4)
-      double precision p0,px,py,pz,pv,ct,st,cphi,sphi
+      integer:: i
+      complex(dp):: p(4),f(4)
+      real(dp):: p0,px,py,pz,pv,ct,st,cphi,sphi
       logical,save::first
       data first/.true./
      
@@ -21,53 +26,53 @@ c     polarization only has real component
       endif
 
       if (swapxz) then
-      p0=dreal(p(4))
-      px=+dreal(p(3))
-      py=-dreal(p(2))
-      pz=+dreal(p(1))
+      p0=real(p(4))
+      px=+real(p(3))
+      py=-real(p(2))
+      pz=+real(p(1))
       else
-      p0=dreal(p(4))
-      px=dreal(p(1))
-      py=dreal(p(2))
-      pz=dreal(p(3))
+      p0=real(p(4))
+      px=real(p(1))
+      py=real(p(2))
+      pz=real(p(3))
       endif
 
-      pv=dsqrt(dabs(p0**2))
+      pv=sqrt(abs(p0**2))
       ct=pz/pv
-      st=dsqrt(dabs(1d0-ct**2))
+      st=sqrt(abs(1._dp-ct**2))
 
-      if (st.lt.1d-8) then 
-        cphi=1d0
-        sphi=0d0
+      if (st<1.e-8_dp) then 
+        cphi=1._dp
+        sphi=zip
       else
         cphi= px/pv/st
         sphi= py/pv/st
       endif
 
 
-      if (i .eq. 1) then
+      if (i == 1) then
       if (swapxz) then
-          f(4)=dcmplx(0d0,0d0)
-          f(3)=+dcmplx(ct*cphi,0d0)
-          f(2)=-dcmplx(ct*sphi,0d0)
-          f(1)=+dcmplx(-st,0d0)
+          f(4)=cplx2(zip,zip)
+          f(3)=+cplx2(ct*cphi,zip)
+          f(2)=-cplx2(ct*sphi,zip)
+          f(1)=+cplx2(-st,zip)
       else
-          f(4)=dcmplx(0d0,0d0)
-          f(1)=+dcmplx(ct*cphi,0d0)
-          f(2)=+dcmplx(ct*sphi,0d0)
-          f(3)=+dcmplx(-st,0d0)
+          f(4)=cplx2(zip,zip)
+          f(1)=+cplx2(ct*cphi,zip)
+          f(2)=+cplx2(ct*sphi,zip)
+          f(3)=+cplx2(-st,zip)
       endif
-      elseif (i .eq. -1) then
+      elseif (i == -1) then
       if (swapxz) then
-          f(4)=dcmplx(0d0,0d0)
-          f(3)=-dcmplx(sphi,0d0)
-          f(2)=-dcmplx(cphi,0d0)
-          f(1)=+dcmplx(0d0,0d0)
+          f(4)=cplx2(zip,zip)
+          f(3)=-cplx2(sphi,zip)
+          f(2)=-cplx2(cphi,zip)
+          f(1)=+cplx2(zip,zip)
       else
-          f(4)=dcmplx(0d0,0d0)
-          f(1)=-dcmplx(sphi,0d0)
-          f(2)=+dcmplx(cphi,0d0)
-          f(3)=+dcmplx(0d0,0d0)
+          f(4)=cplx2(zip,zip)
+          f(1)=-cplx2(sphi,zip)
+          f(2)=+cplx2(cphi,zip)
+          f(3)=+cplx2(zip,zip)
       endif
       endif
       return

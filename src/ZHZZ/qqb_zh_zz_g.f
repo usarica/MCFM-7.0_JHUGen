@@ -1,24 +1,29 @@
       subroutine qqb_zh_zz_g(P,msq)
+      implicit none
+      include 'types.f'
 c---Matrix element squared averaged over initial colors and spins
 c     q(-p1)+qbar(-p2) -->  H  + Z +g(p7)
 c                           |    |
 c                           |    --> fermion(p3)+antifermion(p4)
 c                           |
 c                           ---> Z(e^-(p5),e^+(p6)) Z(mu^-(p7),mu^+(p8))
-      implicit none
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zcouple.f'
       include 'sprods_com.f'
-      integer j,k
-      double precision P(mxpart,4),msq(-nf:nf,-nf:nf)
-      double precision radiLL_zz
-      double precision qqbZHgL,qbqZHgL,qgZHqL,gqZHqL,gqbZHqbL,qbgZHqbL
-      double precision qqbZHgR,qbqZHgR,qgZHqR,gqZHqR,gqbZHqbR,qbgZHqbR
+      integer:: j,k
+      real(dp):: P(mxpart,4),msq(-nf:nf,-nf:nf)
+      real(dp):: radiLL_zz
+      real(dp):: qqbZHgL,qbqZHgL,qgZHqL,gqZHqL,gqbZHqbL,qbgZHqbL
+      real(dp):: qqbZHgR,qbqZHgR,qgZHqR,gqZHqR,gqbZHqbR,qbgZHqbR
 
 
       do j=-nf,nf
       do k=-nf,nf
-      msq(j,k)=0d0
+      msq(j,k)=0._dp
       enddo
       enddo
 
@@ -44,26 +49,26 @@ c                           ---> Z(e^-(p5),e^+(p6)) Z(mu^-(p7),mu^+(p8))
       do k=-nf,nf
 
       if( j .ne. 0 .and. k .ne. 0 .and. j .ne. -k) goto 40
-      if ((j .eq. 0) .and. (k .eq. 0)) goto 40
+      if ((j == 0) .and. (k == 0)) goto 40
 
-      if     ((j .gt. 0) .and. (k .lt. 0)) then
+      if     ((j > 0) .and. (k < 0)) then
           msq(j,k)=((L(j)*l1)**2+(R(j)*r1)**2)*qqbZHgL
-     .            +((R(j)*l1)**2+(L(j)*r1)**2)*qqbZHgR
-      elseif ((j .lt. 0) .and. (k .gt. 0)) then
+     &            +((R(j)*l1)**2+(L(j)*r1)**2)*qqbZHgR
+      elseif ((j < 0) .and. (k > 0)) then
           msq(j,k)=((L(k)*l1)**2+(R(k)*r1)**2)*qbqZHgL
-     .            +((R(k)*l1)**2+(L(k)*r1)**2)*qbqZHgR
-      elseif ((j .gt. 0) .and. (k .eq. 0)) then
+     &            +((R(k)*l1)**2+(L(k)*r1)**2)*qbqZHgR
+      elseif ((j > 0) .and. (k == 0)) then
           msq(j,k)=((L(j)*l1)**2+(R(j)*r1)**2)*qgZHqL
-     .            +((R(j)*l1)**2+(L(j)*r1)**2)*qgZHqR
-      elseif ((j .lt. 0) .and. (k .eq. 0)) then
+     &            +((R(j)*l1)**2+(L(j)*r1)**2)*qgZHqR
+      elseif ((j < 0) .and. (k == 0)) then
           msq(j,k)=((L(-j)*l1)**2+(R(-j)*r1)**2)*qbgZHqbL
-     .            +((R(-j)*l1)**2+(L(-j)*r1)**2)*qbgZHqbR
-      elseif ((j .eq. 0) .and. (k .gt. 0)) then
+     &            +((R(-j)*l1)**2+(L(-j)*r1)**2)*qbgZHqbR
+      elseif ((j == 0) .and. (k > 0)) then
           msq(j,k)=((L(k)*l1)**2+(R(k)*r1)**2)*gqZHqL
-     .            +((R(k)*l1)**2+(L(k)*r1)**2)*gqZHqR
-      elseif ((j .eq. 0) .and. (k .lt. 0)) then
+     &            +((R(k)*l1)**2+(L(k)*r1)**2)*gqZHqR
+      elseif ((j == 0) .and. (k < 0)) then
           msq(j,k)=((L(-k)*l1)**2+(R(-k)*r1)**2)*gqbZHqbL
-     .            +((R(-k)*l1)**2+(L(-k)*r1)**2)*gqbZHqbR
+     &            +((R(-k)*l1)**2+(L(-k)*r1)**2)*gqbZHqbR
       endif
  40   continue
       enddo
@@ -72,17 +77,23 @@ c                           ---> Z(e^-(p5),e^+(p6)) Z(mu^-(p7),mu^+(p8))
       end
 
 
-      double precision function radiLL_zz(j1,j2,j3,j4,j5,j6,j7,j8,j9)
+      function radiLL_zz(j1,j2,j3,j4,j5,j6,j7,j8,j9)
       implicit none
+      include 'types.f'
+      real(dp):: radiLL_zz
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'qcdcouple.f'
       include 'masses.f'
       include 'sprods_com.f'
       include 'zcouple.f'
       include 'ewcouple.f'
-      integer j1,j2,j3,j4,j5,j6,j7,j8,j9
-      double precision s4567,s12,s13,s23,s123,prop
-      double precision fac,hdecay
+      integer:: j1,j2,j3,j4,j5,j6,j7,j8,j9
+      real(dp):: s4567,s12,s13,s23,s123,prop
+      real(dp):: fac,hdecay
 
       s4567=s(j4,j5)+s(j4,j6)+s(j4,j7)+s(j5,j6)+s(j5,j7)+s(j6,j7)
       s12=s(j1,j2)
@@ -93,8 +104,8 @@ c---calculate the 2 Z propagators
       prop=       ((s123-zmass**2)**2+(zmass*zwidth)**2)
       prop=prop*((s(j8,j9)-zmass**2)**2+(zmass*zwidth)**2)
 
-      fac=8d0*cf*xn*(xw/(1d0-xw))**2*gsq*gwsq**3*wmass**2/prop
-      hdecay=gwsq**3*zmass**2*4d0*xw**2/(one-xw)*
+      fac=8._dp*cf*xn*(xw/(1._dp-xw))**2*gsq*gwsq**3*wmass**2/prop
+      hdecay=gwsq**3*zmass**2*4._dp*xw**2/(one-xw)*
      & ( ((l1*l2)**2+(r1*r2)**2)*s(j4,j6)*s(j5,j7)
      &  +((r1*l2)**2+(r2*l1)**2)*s(j4,j7)*s(j5,j6))
       hdecay=hdecay/((s(j4,j5)-zmass**2)**2+(zmass*zwidth)**2)

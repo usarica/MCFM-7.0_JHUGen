@@ -1,5 +1,7 @@
       subroutine qqb_wbfromc_gvec(p,n,in,msq)
       implicit none
+      include 'types.f'
+      
 c----Matrix element for W production in association with a top quark
 C----averaged over initial colours and spins
 c    contracted with the vector v(mu)
@@ -12,49 +14,52 @@ c---ip emitter
 c---kp spectator
 c---in label of gluon which is contracted with n
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'qcdcouple.f'
       include 'ewcouple.f'
       include 'sprods_com.f'
       include 'nwz.f'
       include 'ckm.f'
       include 'nflav.f'
-      integer j,k,in
-      double precision msq(-nf:nf,-nf:nf),p(mxpart,4)
-      double precision wcjetn,p1p2(-1:1,-1:1),n(4)
+      integer:: j,k,in
+      real(dp):: msq(-nf:nf,-nf:nf),p(mxpart,4)
+      real(dp):: wcjetn,p1p2(-1:1,-1:1),n(4)
      
-      double precision FAC
+      real(dp):: FAC
 
       do j=-nf,nf
       do k=-nf,nf
-        msq(j,k)=0d0
+        msq(j,k)=0._dp
       enddo
       enddo
 
       do j=-1,+1
       do k=-1,+1
-        p1p2(j,k)=0d0
+        p1p2(j,k)=0._dp
       enddo
       enddo
 
-      fac=2d0*gsq*V*gwsq**2
+      fac=2._dp*gsq*V*gwsq**2
       call dotem(5,p,s)
 
-      if     (in .eq. 1) then
-        if (nwz .eq. -1) p1p2(0,-1)=-aveqg*fac*wcjetn(5,2,1,p,n)
-        if (nwz .eq. +1) p1p2(0,+1)=-aveqg*fac*wcjetn(2,5,1,p,n)
-      elseif (in .eq. 2) then
-        if (nwz .eq. +1) p1p2(+1,0)=-aveqg*fac*wcjetn(1,5,2,p,n)
-        if (nwz .eq. -1) p1p2(-1,0)=-aveqg*fac*wcjetn(5,1,2,p,n)
+      if     (in == 1) then
+        if (nwz == -1) p1p2(0,-1)=-aveqg*fac*wcjetn(5,2,1,p,n)
+        if (nwz == +1) p1p2(0,+1)=-aveqg*fac*wcjetn(2,5,1,p,n)
+      elseif (in == 2) then
+        if (nwz == +1) p1p2(+1,0)=-aveqg*fac*wcjetn(1,5,2,p,n)
+        if (nwz == -1) p1p2(-1,0)=-aveqg*fac*wcjetn(5,1,2,p,n)
       endif
       do j=-nflav,nflav
       do k=-nflav,nflav
-      if     (((j .eq. +2).or.(j .eq. +4)) .and. (k .eq. 0)) then
+      if     (((j == +2).or.(j == +4)) .and. (k == 0)) then
           msq(j,k)=Vsq(j,-5)*p1p2(+1,0)
-      elseif (((j .eq. -2).or.(j .eq. -4)) .and. (k .eq. 0)) then
+      elseif (((j == -2).or.(j == -4)) .and. (k == 0)) then
           msq(j,k)=Vsq(j,+5)*p1p2(-1,0)
-      elseif ((j .eq. 0) .and. ((k .eq. +2).or.(k .eq. +4))) then
+      elseif ((j == 0) .and. ((k == +2).or.(k == +4))) then
           msq(j,k)=Vsq(-5,k)*p1p2(0,+1)
-      elseif ((j .eq. 0) .and. ((k .eq. -2).or.(k .eq. -4))) then
+      elseif ((j == 0) .and. ((k == -2).or.(k == -4))) then
           msq(j,k)=Vsq(+5,k)*p1p2(0,-1)
       endif
 

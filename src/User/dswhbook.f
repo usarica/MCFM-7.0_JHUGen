@@ -7,32 +7,34 @@ c --- in this way rather than parse the standard mcfm
 c --- output files.
 
       subroutine dswhbook(n,titlex,dx,xmin,xmax)
+      implicit none
+      include 'types.f'
 c     ------------------------------------------------------------------
 c        1         2         3         4         5         6         7
-      implicit none
-      integer n
+      
+      integer:: n
       character titlex*8
-      real*8 dx,xmin,xmax
-      logical first
+      real(dp)::dx,xmin,xmax
+      logical:: first
       data first /.true./
       save first
       
-      integer NWPAWC
+      integer:: NWPAWC
       parameter(NWPAWC=10000000)
       real         HMEMOR(NWPAWC)
       common/PAWC/ HMEMOR
 
-      integer NHISTOMAX
+      integer:: NHISTOMAX
       parameter(NHISTOMAX=200)
-      integer BOOKED(NHISTOMAX)
+      integer:: BOOKED(NHISTOMAX)
       common/BOOKPATTERN/BOOKED
 
-      integer ISTAT,i
+      integer:: ISTAT,i
       character*100 outfile
 
       character*255 runname
-      integer lenocc
-      double precision savedx(200)
+      integer:: lenocc
+      real(dp):: savedx(200)
       common/runname/runname
       common/dswsavedx/savedx
 c     ------------------------------------------------------------------
@@ -67,17 +69,16 @@ c --- Book the histogram :
 c
 
       subroutine dswhfill(n,var,wgt)
-c     ------------------------------------------------------------------
-c        1         2         3         4         5         6         7
       implicit none
-      integer n
-      real*8 var,wgt
+      include 'types.f'
+      integer:: n
+      real(dp)::var,wgt
 
-      integer NWPAWC
+      integer:: NWPAWC
       parameter(NWPAWC=10000000)
       real         HMEMOR(NWPAWC)
       common/PAWC/ HMEMOR
-      double precision savedx(200)
+      real(dp):: savedx(200)
       common/dswsavedx/savedx
 c     ------------------------------------------------------------------
 
@@ -91,25 +92,27 @@ c --- Fill the histogram :
 c
 
       subroutine dswhrout
+      implicit none
+      include 'types.f'
 c     ------------------------------------------------------------------
 c        1         2         3         4         5         6         7
-      implicit none
+      
 
-      integer NWPAWC
+      integer:: NWPAWC
       parameter(NWPAWC=10000000)
       real         HMEMOR(NWPAWC)
       common/PAWC/ HMEMOR
 
-      integer NHISTOMAX
+      integer:: NHISTOMAX
       parameter(NHISTOMAX=200)
-      integer BOOKED(NHISTOMAX)
+      integer:: BOOKED(NHISTOMAX)
       common/BOOKPATTERN/BOOKED
 
 c --- Common block to control output
 c --- (histograms or ntuple)
       include 'outputflags.f'
 
-      integer ICYCLE,i
+      integer:: ICYCLE,i
 c     ------------------------------------------------------------------
 
       if (.NOT.creatent) then
@@ -147,16 +150,18 @@ c       endif
 c
 
       subroutine dswclose
+      implicit none
+      include 'types.f'
 c     ------------------------------------------------------------------
 c        1         2         3         4         5         6         7
-      implicit none
+      
 
-      integer NWPAWC
+      integer:: NWPAWC
       parameter(NWPAWC=10000000)
       real         HMEMOR(NWPAWC)
       common/PAWC/ HMEMOR
 
-      integer ICYCLE
+      integer:: ICYCLE
 c     ------------------------------------------------------------------
 
       call hrend('HISTOS')
@@ -172,17 +177,21 @@ c
 
       subroutine bookfill(tag,p,wt)
       implicit none
+      include 'types.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'maxwt.f'
-
-      character tag*4
-      double precision p(mxpart,4)
-      double precision wt 
+      integer tag
+      real(dp):: p(mxpart,4)
+      real(dp):: wt 
+      integer, parameter:: tagbook=1, tagplot=2
 
       if (.not.skipnt) then
-        if (tag.eq.'book') then
+        if (tag == tagbook) then
           call dswntuplebook
-        elseif (tag .eq. 'plot') then
+        elseif (tag == tagplot) then
           call dswntuplefill(p,wt)
         endif
       endif
@@ -192,44 +201,46 @@ c
 
 c
       subroutine dswntuplebook
+      implicit none
+      include 'types.f'
 c     ------------------------------------------------------------------
 c        1         2         3         4         5         6         7
-      implicit none
+      
 c--- Included for the extra code below
       include 'npart.f'
       include 'mxdim.f'
       include 'scale.f'
       include 'facscale.f'
       include 'PDFerrors.f'
-      include 'part.f'
+      include 'kpart.f'
 
-      double precision scale_store,facscale_store
+      real(dp):: scale_store,facscale_store
 
-      integer NWPAWC
+      integer:: NWPAWC
       parameter(NWPAWC=10000000)
       real         HMEMOR(NWPAWC)
       common/PAWC/ HMEMOR
-      integer IQUEST
+      integer:: IQUEST
       common/QUEST/IQUEST(100)
 
 c--- Added to keep track of number of momenta entries to be filled
 c--- Extra definitions to facilitate dummy call to lowint
-      double precision dummy,wgt,r(mxdim),lowint
-      integer ifill
-      integer imaxmom,ipdf
+      real(dp):: dummy,wgt,r(mxdim),lowint
+      integer:: ifill
+      integer:: imaxmom,ipdf
       common/iarray/imaxmom,ipdf
             
       include 'chtags.f'
       
-      integer ISTAT
+      integer:: ISTAT
       character*100 outfile
 
       character*255 runname
-      integer lenocc
+      integer:: lenocc
       common/runname/runname
 
-      logical first
-      integer batchno
+      logical:: first
+      integer:: batchno
       character*3 batchstr,getstr
       data first/.true./
       save first,batchno
@@ -239,7 +250,7 @@ c--- Need to ascertain the correct size for momenta n-tuples when this routine
 c--- is called for the first time, achieved via a dummy call to lowint
       if (first) then      
         do ifill=1,mxdim
-          r(ifill)=0.5d0
+          r(ifill)=0.5_dp
         enddo
 c--- Be careful that dynamic scale choices aren't ruined
 c--- (in versions 5.1 and before, this occured when calling lowint)
@@ -250,8 +261,8 @@ c--- (in versions 5.1 and before, this occured when calling lowint)
        facscale=facscale_store
        
         imaxmom=npart
-        if ((part.eq.'real').or.(part.eq.'tota').or.(part.eq.'todk'))
-     .    imaxmom=imaxmom+1
+        if ((kpart==kreal).or.(kpart==ktota).or.(kpart==ktodk))
+     &    imaxmom=imaxmom+1
          batchno=-1
          first=.false.
       endif
@@ -285,81 +296,81 @@ c --- Book an extremely simple row-wise ntuple. Make it explicitly
 c --- a disk resident ntuple by specifying the top directory name
 c --- of the previously opened RZ file in the 4th argument 
 c --- (see HBOOK manual, p.19) :
-      if     (ipdf .eq. 0) then
+      if     (ipdf == 0) then
 c--- don't need extra space for PDF sets
-        if     (imaxmom .eq. 2) then
+        if     (imaxmom == 2) then
           call hbookn(300,'MCFM',13,'//HISTOS',4096,CHTAGS4)
-        elseif (imaxmom .eq. 3) then
+        elseif (imaxmom == 3) then
           call hbookn(300,'MCFM',17,'//HISTOS',4096,CHTAGS5)
-        elseif (imaxmom .eq. 4) then
+        elseif (imaxmom == 4) then
           call hbookn(300,'MCFM',21,'//HISTOS',4096,CHTAGS6)
-        elseif (imaxmom .eq. 5) then
+        elseif (imaxmom == 5) then
           call hbookn(300,'MCFM',25,'//HISTOS',4096,CHTAGS7)
-        elseif (imaxmom .eq. 6) then
+        elseif (imaxmom == 6) then
           call hbookn(300,'MCFM',29,'//HISTOS',4096,CHTAGS8)
-        elseif (imaxmom .eq. 7) then
+        elseif (imaxmom == 7) then
           call hbookn(300,'MCFM',33,'//HISTOS',4096,CHTAGS9)
-        elseif (imaxmom .eq. 8) then
+        elseif (imaxmom == 8) then
           call hbookn(300,'MCFM',37,'//HISTOS',4096,CHTAGS10)
         else
           write(6,*) 'Problem in dswntuplebook - value npart=',npart
           write(6,*) 'not anticipated. Program halted.'
           stop
         endif
-      elseif (ipdf .eq. 30) then
-        if     (imaxmom .eq. 2) then
+      elseif (ipdf == 30) then
+        if     (imaxmom == 2) then
           call hbookn(300,'MCFM',43,'//HISTOS',4096,CHTAGS4p30)
-        elseif (imaxmom .eq. 3) then
+        elseif (imaxmom == 3) then
           call hbookn(300,'MCFM',47,'//HISTOS',4096,CHTAGS5p30)
-        elseif (imaxmom .eq. 4) then
+        elseif (imaxmom == 4) then
           call hbookn(300,'MCFM',51,'//HISTOS',4096,CHTAGS6p30)
-        elseif (imaxmom .eq. 5) then
+        elseif (imaxmom == 5) then
           call hbookn(300,'MCFM',55,'//HISTOS',4096,CHTAGS7p30)
-        elseif (imaxmom .eq. 6) then
+        elseif (imaxmom == 6) then
           call hbookn(300,'MCFM',59,'//HISTOS',4096,CHTAGS8p30)
-        elseif (imaxmom .eq. 7) then
+        elseif (imaxmom == 7) then
           call hbookn(300,'MCFM',63,'//HISTOS',4096,CHTAGS9p30)
-        elseif (imaxmom .eq. 8) then
+        elseif (imaxmom == 8) then
           call hbookn(300,'MCFM',67,'//HISTOS',4096,CHTAGS10p30)
         else
           write(6,*) 'Problem in dswntuplebook - value npart=',npart
           write(6,*) 'not anticipated. Program halted.'
           stop
         endif
-      elseif (ipdf .eq. 40) then
-        if     (imaxmom .eq. 2) then
+      elseif (ipdf == 40) then
+        if     (imaxmom == 2) then
           call hbookn(300,'MCFM',53,'//HISTOS',4096,CHTAGS4p40)
-        elseif (imaxmom .eq. 3) then
+        elseif (imaxmom == 3) then
           call hbookn(300,'MCFM',57,'//HISTOS',4096,CHTAGS5p40)
-        elseif (imaxmom .eq. 4) then
+        elseif (imaxmom == 4) then
           call hbookn(300,'MCFM',61,'//HISTOS',4096,CHTAGS6p40)
-        elseif (imaxmom .eq. 5) then
+        elseif (imaxmom == 5) then
           call hbookn(300,'MCFM',65,'//HISTOS',4096,CHTAGS7p40)
-        elseif (imaxmom .eq. 6) then
+        elseif (imaxmom == 6) then
           call hbookn(300,'MCFM',69,'//HISTOS',4096,CHTAGS8p40)
-        elseif (imaxmom .eq. 7) then
+        elseif (imaxmom == 7) then
           call hbookn(300,'MCFM',73,'//HISTOS',4096,CHTAGS9p40)
-        elseif (imaxmom .eq. 8) then
+        elseif (imaxmom == 8) then
           call hbookn(300,'MCFM',77,'//HISTOS',4096,CHTAGS10p40)
         else
           write(6,*) 'Problem in dswntuplebook - value npart=',npart
           write(6,*) 'not anticipated. Program halted.'
           stop
         endif
-      elseif (ipdf .eq. 44) then
-        if     (imaxmom .eq. 2) then
+      elseif (ipdf == 44) then
+        if     (imaxmom == 2) then
           call hbookn(300,'MCFM',57,'//HISTOS',4096,CHTAGS4p44)
-        elseif (imaxmom .eq. 3) then
+        elseif (imaxmom == 3) then
           call hbookn(300,'MCFM',61,'//HISTOS',4096,CHTAGS5p44)
-        elseif (imaxmom .eq. 4) then
+        elseif (imaxmom == 4) then
           call hbookn(300,'MCFM',65,'//HISTOS',4096,CHTAGS6p44)
-        elseif (imaxmom .eq. 5) then
+        elseif (imaxmom == 5) then
           call hbookn(300,'MCFM',69,'//HISTOS',4096,CHTAGS7p44)
-        elseif (imaxmom .eq. 6) then
+        elseif (imaxmom == 6) then
           call hbookn(300,'MCFM',73,'//HISTOS',4096,CHTAGS8p44)
-        elseif (imaxmom .eq. 7) then
+        elseif (imaxmom == 7) then
           call hbookn(300,'MCFM',77,'//HISTOS',4096,CHTAGS9p44)
-        elseif (imaxmom .eq. 8) then
+        elseif (imaxmom == 8) then
           call hbookn(300,'MCFM',81,'//HISTOS',4096,CHTAGS10p44)
         else
           write(6,*) 'Problem in dswntuplebook - value npart=',npart
@@ -377,32 +388,37 @@ c--- don't need extra space for PDF sets
 
 c
       subroutine dswntuplefill(p,wt)
+      implicit none
+      include 'types.f'
 c     ------------------------------------------------------------------
 c        1         2         3         4         5         6         7
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'wts_bypart.f'
       include 'PDFerrors.f'
       
-      double precision p(mxpart,4)
-      double precision wt 
+      real(dp):: p(mxpart,4)
+      real(dp):: wt 
 
-      integer NWPAWC
+      integer:: NWPAWC
       parameter(NWPAWC=10000000)
       real         HMEMOR(NWPAWC)
       common/PAWC/ HMEMOR
 
 c--- Extra common block to carry the information about maximum momenta entries
-      integer imaxmom,ipdf
+      integer:: imaxmom,ipdf
       common/iarray/imaxmom,ipdf
 
-      integer i
+      integer:: i
       real pfill(imaxmom*4+5+ipdf)
 
 c--- Variables to count the number of ntuples filled so far and set the
 c--- maximum number filled per batch; the current value is somewhat arbitrary
 c--- and may be modified by the user
-      integer icount,batchlimit
+      integer:: icount,batchlimit
       data icount/0/
       save icount
       
@@ -411,14 +427,14 @@ c--- and may be modified by the user
 c     ------------------------------------------------------------------
 
 c--- if the weight is zero, don't bother to add the n-tuple
-      if (wt .eq. 0d0) then
+      if (wt == 0._dp) then
         return
       endif
 
 c--- The n-tuple should be filled, but first check if the current batch
 c--- is already full; if so, close and then open a new one
       icount=icount+1
-      if (mod(icount,batchlimit) .eq. 0) then
+      if (mod(icount,batchlimit) == 0) then
         call dswhrout
         call dswclose
         call dswntuplebook
@@ -457,6 +473,8 @@ c
 c--- finalize the ntuple by producing output and closing file
       subroutine NTfinalize
       implicit none
+      include 'types.f'
+      
       
       call dswhrout
       call dswclose

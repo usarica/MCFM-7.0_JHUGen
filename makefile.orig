@@ -7,6 +7,9 @@ LHAPDFLIB   =
 
 # Flag for compiling with OpenMP (YES) or not (anything else)
 USEOMP = YES
+# Flag for compiling with MPI (YES) or not (anything else)
+# note: USEMPI -> YES automatically puts USEOMP -> YES
+USEMPI = NO
 ifeq ($(USEOMP),YES)
   OBJNAME=obj_omp
   OMPFLAG=-fopenmp
@@ -17,6 +20,15 @@ else
   OMPFLAG=
   LIBEXT=
   MAIN = mcfm.o
+endif
+ifeq ($(USEMPI),YES)
+  OBJNAME=obj_omp
+  OMPFLAG=-fopenmp
+  LIBEXT=_omp
+  MAIN = mcfm_mpi.o
+  MPIDUMMY=.
+else
+  MPIDUMMY=$(PWD)/src/mpidummy
 endif
 
 MCFMHOME        = $(PWD)
@@ -43,32 +55,49 @@ LINKONELOOP     = NO
 #   NATIVE -- internal routines
 #   PDFLIB -- PDFLIB v8.04
 #   LHAPDF -- Les Houches library
+#PDFROUTINES = LHAPDF
 PDFROUTINES = NATIVE
 
 # Set this to NO/YES/FROOT
 #   NO  -- no n-tuple output or unweighting is possible
-#   YES -- n-tuples, unweighting available - but only if CERNLIB exists
-#   FROOT -- n-tuples, unweighting available - but only if CERNLIB
-#            exists; output uses the FROOT package of P. Nadolsky.
+#   YES -- n-tuples, unweighting available - requires CERNLIB libraries
+#   FROOT -- n-tuples, unweighting available -- requires ROOT libraries;
+#            output uses the FROOT package of P. Nadolsky.
 NTUPLES = NO
 
-FC = gfortran
-F90 = gfortran
+ifeq ($(origin FC),environment)
+    $(info Inheriting FC, CXX from environment)
+    F90 = $(FC)
+    $(info FC = F90 = $(FC))
+    $(info CXX = $(CXX))
+else
+    ifeq ($(USEMPI),YES)
+      FC = /usr/local/openmpi/bin/mpifort
+      F90 = /usr/local/openmpi/bin/mpifort
+      CXX = /usr/local/openmpi/bin/mpic++
+    else
+      FC = gfortran
+      F90 = gfortran
+      CXX = g++
+    endif
+endif
+
 
 # Flags for compilation
-FFLAGS 	=  -fno-f2c $(OMPFLAG) -O2 -I$(INCPATH) -I$(TENSORREDDIR)/Include -I$(OBJNAME)
+FFLAGS 	= -Wunused-variable -fno-f2c -ffixed-line-length-none $(OMPFLAG) -O2 -I$(INCPATH) -I$(MPIDUMMY) -I$(TENSORREDDIR)/Include -I$(OBJNAME)
+# note: -static may be required if read/write libraries not found
+#FFLAGS += -static
+# -fimplicit-none
 F90FLAGS = -fno-f2c $(OMPFLAG) -I$(INCPATH) -I$(OBJNAME) -J$(OBJNAME)
 
 # If using FROOT package for ROOT ntuples, first specify C++ compiler:
-CXX = g++
 CXXFLAGS=$(CXXFLAGS0) -Wall $(DROOT) 
 # ROOTLIBS and ROOTINCLUDE are locations of ROOT libraries and header files.
-# Find the ROOT directory automatically by running root-config 
-# or specify it manually by editing the variable ROOTDIR 
-ROOTDIR= `root-config --prefix`
+# Find the ROOT libraries and include directory automatically by running root-config 
+# or specify them manually by providing values for ROOTLIBS and ROOTINCLUDE below
 DMYROOT= -DMYROOT
-ROOTLIBS     := `root-config --prefix=$(ROOTDIR)  --libs`
-ROOTINCLUDE     := -I `root-config --prefix=$(ROOTDIR) --incdir`
+ROOTLIBS     := $(shell root-config --libs)
+ROOTINCLUDE  := -I $(shell root-config --incdir)
 
 
 DIRS	=	$(MCFMHOME):\
@@ -85,6 +114,7 @@ DIRS	=	$(MCFMHOME):\
 		$(SOURCEDIR)/HWW:$(SOURCEDIR)/HZZ:$(SOURCEDIR)/Tau:\
 		$(SOURCEDIR)/Httbar:\
 		$(SOURCEDIR)/W:$(SOURCEDIR)/Z:\
+		$(SOURCEDIR)/qpW:\
 		$(SOURCEDIR)/W1jet:$(SOURCEDIR)/Z1jet:\
 		$(SOURCEDIR)/Wcjet:$(SOURCEDIR)/Wbfrmc:$(SOURCEDIR)/Wbjet:\
 		$(SOURCEDIR)/W2jet:$(SOURCEDIR)/W2jetvirt:\
@@ -109,18 +139,126 @@ DIRS	=	$(MCFMHOME):\
 		$(SOURCEDIR)/TopdkBSY:$(SOURCEDIR)/Topdecay:\
 		$(SOURCEDIR)/Frag:$(SOURCEDIR)/Zgamgam:$(SOURCEDIR)/Zgamjet:\
 		$(SOURCEDIR)/SingletopH:$(SOURCEDIR)/SingletopZ:\
-		$(SOURCEDIR)/WpmZbj:$(SOURCEDIR)/DM:$(SOURCEDIR)/DM/Monojet:\
-                $(SOURCEDIR)/DM/Vec_DM:$(SOURCEDIR)/DM/GG_DM:\
-                $(SOURCEDIR)/DM/Ax_DM:$(SOURCEDIR)/DM/Scal_DM:\
-                $(SOURCEDIR)/DM/PS_DM:$(SOURCEDIR)/Trigam:  \
-                $(SOURCEDIR)/VV:$(SOURCEDIR)/Fourgam:  \
-                $(SOURCEDIR)/Trigam/Mad:  \
+		$(SOURCEDIR)/WpmZbj:$(SOURCEDIR)/DM:$(SOURCEDIR)/Monojet:\
+                $(SOURCEDIR)/Vec_DM:$(SOURCEDIR)/GG_DM:\
+                $(SOURCEDIR)/Ax_DM:$(SOURCEDIR)/Scal_DM:\
+                $(SOURCEDIR)/PS_DM:$(SOURCEDIR)/Trigam:\
+                $(SOURCEDIR)/VV:$(SOURCEDIR)/Fourgam:\
+                $(SOURCEDIR)/SCET:$(SOURCEDIR)/TDHPL:\
+                $(SOURCEDIR)/SCET0j:\
+                $(SOURCEDIR)/Trigam/Mad:\
 		$(SOURCEDIR)/pwgplots:$(SOURCEDIR)/Multichan:$(SOURCEDIR)/TopH/Store/Mad\
 		$(SOURCEDIR)/UTools:$(SOURCEDIR)/WBFZZ\
-                $(SOURCEDIR)/WBFWW:$(SOURCEDIR)/WBFWpWp:$(SOURCEDIR)/WBFWZ
+                $(SOURCEDIR)/WBFWW:$(SOURCEDIR)/WBFWpWp:$(SOURCEDIR)/WBFWZ\
+                $(SOURCEDIR)/WH1jet:$(SOURCEDIR)/ZH1jet:$(SOURCEDIR)/QT:$(SOURCEDIR)/Mad\
+                $(SOURCEDIR)/QLFF
+
 
 # -----------------------------------------------------------------------------
 # Specify the object files. 
+
+WH1JETFILES = \
+WHqqbgg.o \
+qqb_WH1jet.o \
+qqb_WH1jet_g.o \
+qqb_WH1jet_gs.o \
+qqb_WH1jet_gvec.o \
+qqb_WH1jet_v.o \
+qqb_WH1jet_z.o \
+qqb_ZH1jet.o \
+qqb_ZH1jet_g.o \
+qqb_ZH1jet_gs.o \
+qqb_ZH_gvec.o \
+qqb_ZH1jet_v.o \
+qqb_ZH1jet_z.o \
+A51_VH.o\
+A52_VH.o\
+virt5_VH.o\
+virt5_VHtop.o\
+A5NLO_VH.o\
+A5NLO_VHtop.o\
+qqbgWH_topamp.o\
+virt5_ZHtop.o\
+A5NLO_ZHtop.o\
+qqbgZH_topamp.o\
+genclust_kt_ab.o\
+combine_ab.o\
+
+SCETFILES = \
+ap.o \
+auxfunctions.o \
+gen3taucut.o \
+gen4taucut.o \
+genparton.o \
+genpartonVj.o \
+genVH.o \
+genVHjjtaucut.o \
+genVHjtaucut.o \
+genVjtaucut.o \
+hardgg.o \
+hardqq.o \
+hplog.o \
+I1gg.o \
+I1qq.o \
+I2gg.o \
+I2qq.o \
+plus.o \
+qqcoeff.o \
+setupscet.o \
+xbeam1bis.o \
+xbeam2bis.o \
+xcdil.o \
+xspenz.o
+
+SCET0jFILES = \
+assemble.o \
+gamgamampsq.o \
+gamgamampsq_new.o \
+lumxmsq_gaga.o \
+lumxmsq_h.o \
+lumxmsq_w.o \
+lumxmsq_wh.o \
+lumxmsq_z.o \
+lumxmsq_zh.o \
+qqb_gamgam_vbis.o \
+softggbis.o \
+softqqbis.o
+
+SCET1jFILES = \
+ampgggpmm.o \
+ampgggppp.o \
+assemblejet.o \
+averageoverW.o \
+averageoverZ.o \
+checkfjp.o \
+computeIijm.o \
+gg_hgbis.o \
+gg_hg_vbis.o \
+Hampgggsq.o \
+hel_H.o \
+hel_V.o \
+I0JSTW.o \
+I1JSTW.o \
+jet.o \
+lumxmsq_h1jet.o \
+lumxmsq_w1jet.o \
+lumxmsq_z1jet.o \
+qqb_w1jet_vbis.o \
+qqb_z1jet_vbis.o \
+soft_ab_ggg.o \
+soft_ab_qag.o \
+soft_ab_qgq.o \
+soft_nab_ggg.o \
+soft_nab_qag.o \
+soft_nab_qgq.o \
+Wampqqbgsq.o \
+Zampgggsq.o \
+Zampqqbgsq.o
+
+QTFILES = \
+qtint.o \
+coeffqt.o \
+auxfuncqt.o
 
 WBFFILES = \
 getvbfpoint.o \
@@ -342,7 +480,7 @@ dipolesfragx.o \
 dopols.o \
 fragdriver.o \
 int_dips_ga.o \
-locate.o \
+locatemcfm.o \
 transformfrag.o
 
 WPWP2JFILES = \
@@ -463,6 +601,7 @@ qqb_hflgam_z.o \
 qqb_2jnogg.o \
 qqb_dirgam_swap.o \
 qqb_dirgam.o \
+qqb_twojet.o\
 qqb_2jet.o\
 qqb_2jet_swap.o\
 qqb_dirgam_frag_comb.o\
@@ -474,7 +613,46 @@ qqb_dirgam_z.o \
 small.o \
 Bigagam.o \
 Bigbgam.o \
-Bigcgam.o 
+Bigcgam.o \
+gagaAGTYassemble.o \
+gagaAGTYassemble1loop.o \
+gagaOneloopsq.o \
+AGTYassemble_new.o \
+AGTYtest.o \
+AGTYAs.o \
+AGTYAu.o \
+AGTYBs.o \
+AGTYBu.o \
+AGTYCs.o \
+AGTYCu.o \
+AGTYD1s.o \
+AGTYD1u.o \
+AGTYD2s.o \
+AGTYD2u.o \
+AGTYE1s.o \
+AGTYE1u.o \
+AGTYE2s.o \
+AGTYE2u.o \
+AGTYE3s.o \
+AGTYE3u.o \
+AGTYF1s.o \
+AGTYF1u.o \
+AGTYG1s.o \
+AGTYG1u.o \
+AGTYG2s.o \
+AGTYG2u.o \
+AGTYG3s.o \
+AGTYG3u.o \
+AGTYX1s.o \
+AGTYX1u.o \
+AGTYX2s.o \
+AGTYX2u.o \
+AGTYX3s.o \
+AGTYX3u.o \
+Finite0x2qqgagas.o \
+Finite0x2qqgagau.o \
+Finite1x1qqgagas.o \
+Finite1x1qqgagau.o \
 
 DMFILES=\
 gg_dm_monojet_top.o\
@@ -536,6 +714,7 @@ qqb_dm_gg_Axamps.o\
 qqb_dm_qq_Axamps.o\
 
 GAMGAMFILES = \
+gggaga_mt.o\
 qqb_gamgam.o \
 qqb_gamgam_frag.o \
 qqb_gamgam_fragdips.o \
@@ -544,6 +723,13 @@ qqb_gamgam_gs.o \
 qqb_gamgam_gvec.o \
 qqb_gamgam_v.o \
 qqb_gamgam_z.o \
+gg_2gam.o \
+gg_2gam_g.o \
+gg_2gam_gs.o \
+gg_2gam_gvec.o \
+gg_2gam_v.o \
+gg_2gam_z.o \
+qqbgnfsq.o \
 Cgamgam.o \
 A51ppppp.o \
 A51mpppp.o \
@@ -571,6 +757,7 @@ gg_hgamgam_gvec.o \
 gg_hgamgam_v.o \
 gg_hgamgam_z.o \
 msqgamgam.o \
+msqhgamgam.o \
 Ftriangle.o
 
 GGHZGAFILES = \
@@ -609,7 +796,7 @@ h4q.o \
 h4g.o \
 hjetfill.o 
 
-GGHGGrealFILES = \
+GGHGGREALFILES = \
 Appppp.o \
 nAmpppp.o \
 nAmmppp.o \
@@ -747,6 +934,7 @@ mbook.o \
 tmpmbook.o \
 ran0.o \
 ran1.o \
+ran2nr.o \
 rn.o
 
 LIBFILES = \
@@ -771,6 +959,10 @@ pol_real.o \
 cdot.o
 
 NEEDFILES = \
+qlinit.o \
+ffinit_mine.o \
+maketaucut.o \
+maketaucut_bb.o \
 mcfm_writelhe.o \
 write_gg_lhe.o \
 hbbdecay.o \
@@ -805,6 +997,7 @@ dipoles_mass.o \
 dipolesub.o \
 dipolesubx.o \
 dipolesubxx.o \
+dipolesubx_new.o \
 donothing_gvec.o \
 dot.o \
 dotem.o \
@@ -822,14 +1015,17 @@ itransform.o \
 includedipole.o \
 interpolate_hto.o \
 is_functions.o \
+kcasestring.o \
+kpartstring.o \
 masscuts.o \
 mcfmmain.o \
 mcfmsub.o \
 mcfm_exit.o \
 mcfm_init.o \
 mcfm_vegasnr.o \
+mcfm_vegas_nnlo.o \
 vegasnr.o \
-mfrun.o \
+massfrun.o \
 ptyrap.o \
 r.o \
 read_jetcuts.o \
@@ -837,6 +1033,7 @@ read_dm_params.o\
 readcoup.o \
 reader_input.o \
 realhistos.o \
+reset_aem.o \
 Rgen.o \
 scaleset.o \
 scaleset_m34.o \
@@ -851,11 +1048,14 @@ scaleset_m34sqsumptjsq.o \
 scaleset_ptphoton.o \
 scaleset_HT.o \
 scaleset_ddis.o \
+scaleset_mVpmH.o\
 sethparams.o \
 setmb_msbar.o \
 setrunname.o \
+setuptau.o \
 setvdecay.o \
 smalls.o \
+smalltau.o \
 smarthistos.o \
 spinork.o \
 spinoru.o \
@@ -982,7 +1182,8 @@ gen_lops.o \
 gen_realps.o \
 lowint.o \
 realint.o \
-virtint.o
+virtint.o \
+scetint.o 
 
 QQHFILES = \
 qq_Hqq_g.o \
@@ -1156,6 +1357,17 @@ tautauww.o \
 dotks.o \
 std.o
 
+TDHPLFILES = \
+fillcoeff2dhpl210.o \
+fillcoeff2dhpl320e.o \
+fillcoeff2dhpl321u.o \
+fillcoeff2dhpl310.o \
+fillcoeff2dhpl321.o \
+fillcoeff2dhplaux.o \
+fillcoeff2dhpl320.o \
+fillcoeff2dhpl321e.o \
+tdhpl.o
+
 TOPFILES = \
 qqb_QQb.o \
 qqb_QQb_g.o \
@@ -1283,8 +1495,12 @@ genclust_cone.o \
 genclustphotons.o \
 gencuts.o \
 gencuts_input.o \
+gencuts_ATLAS_gaga.o \
+gencuts_ATLAS_gaga2.o \
 gencuts_Zt.o \
 gencuts_WZjj.o \
+gencuts_VHbb.o\
+gencuts_VHWW.o\
 genplots.o \
 getet.o \
 hwwcuts.o \
@@ -1313,6 +1529,8 @@ nplotter_ttw.o \
 nplotter_ttZ.o \
 nplotter_Vgamma.o \
 nplotter_VV.o \
+nplotter_VHbbar.o \
+nplotter_VHbbarHXSWG.o \
 nplotter_W_only.o \
 nplotter_Z_only.o \
 nplotter_Wbbmas.o \
@@ -1322,9 +1540,12 @@ nplotter_WPWP.o \
 nplotter_WWjet.o \
 nplotter_zgamgam.o \
 nplotter_zgamjet.o \
+nplotter_Zbbbar.o \
 nplotter_Ztj.o \
 nplotter_Ztjdk.o \
 nplotter_ZZlept.o \
+nplotter_VHgaga.o\
+nplotter_VHWW.o\
 fasthist.o \
 idjet.o \
 photo_iso.o \
@@ -1361,6 +1582,7 @@ gen4hvv.o
 WFILES = \
 qqb_w.o \
 qqb_w_g.o \
+ampqqbgll.o \
 qqb_w_gs.o \
 qqb_w_v.o \
 qqb_w_z.o
@@ -1373,8 +1595,8 @@ qqb_w1jet_gs.o \
 qqb_w1jet_v.o \
 qqb_w1jet_z.o \
 qqb_w_gvec.o \
-virt5.o
-
+virt5.o 
+ 
 WBJETFILES = \
 addhel_wbj.o \
 qqb_wbjet.o \
@@ -1405,13 +1627,21 @@ qqb_w2jet_g.o \
 qqb_wp2jet_g.o \
 qqb_wm2jet_g.o \
 qqb_w2jet_gs.o \
+qqb_w2jet_gs_new.o \
 qqb_wp2jet_gs.o \
+qqb_wp2jet_gs_new.o \
 qqb_wm2jet_gs.o \
+qqb_wm2jet_gs_new.o \
 qqb_w2jet_gvec.o \
 qqb_w2jet_gvecx.o \
+qqb_w2jet_gvecx_new.o \
+qqb_wp2jet_gvecx_new.o \
+qqb_wm2jet_gvecx_new.o \
 qqb_w2jet_v.o \
 qqb_w2jet_z.o \
 qqb_w2jetx.o \
+qqb_wp2jetx_new.o \
+qqb_wm2jetx_new.o \
 qqbw2j_loop.o \
 storecsv_px.o \
 storecsv_qx.o \
@@ -1454,11 +1684,16 @@ vvg.o
 WHBBARFILES = \
 GammaHbb0.o \
 GammaHbb1.o \
+dkqqb_wh_g.o \
+dkqqb_wh_gs.o \
+dkqqb_wh_v.o \
+dkqqb_wh_v_massless.o \
 qqb_wh.o \
 qqb_wh_g.o \
 qqb_wh_gs.o \
 qqb_wh_v.o \
-qqb_wh_z.o
+qqb_wh_z.o\
+qqb_wh_HtopEFT.o\
 
 WHGAGAFILES = \
 qqb_wh_gaga.o \
@@ -1681,12 +1916,16 @@ qqb_z_v.o \
 qqb_z_z.o
 
 Z1JETFILES = \
+F1anom.o \
 qqb_z1jet_gs.o \
 qqb_z1jet_v.o \
 qqb_z1jet_z.o \
 qqb_z_gvec.o
 
 Z2JETFILES = \
+qqb_z2jetx_new.o \
+qqb_z2jet_gvecx_new.o \
+qqb_z2jet_gs_new.o \
 fmtfull.o \
 tloop.o \
 Bdiff.o \
@@ -1832,8 +2071,17 @@ coeff_mp_QuQd_s25.o \
 checkpiDpjk.o
 
 ZHBBARFILES = \
+ggHZ_mp_box.o\
+ggHZ_pp_box.o\
+gg_HZ_box.o\
+gg_HZ_tri.o\
+gg_zh.o\
 dkqqb_zh_g.o \
+dkqqb_zh_gs.o \
 dkqqb_zh_v.o \
+dkqqb_zh_v_massless.o\
+qqb_ZH_VIItop.o\
+qqb_ZH_VItop.o\
 qqb_zh.o \
 qqb_zh_g.o \
 qqb_zh_gs.o \
@@ -1867,7 +2115,6 @@ gg_ZZ_all.o \
 ggZZcapture.o \
 gg_ZZ.o \
 gg_ZZ_Hpi.o \
-gg_ZZ_int.o \
 ggZZmassamp.o \
 ggZZmassamp_new.o \
 ggZZparsecheck.o \
@@ -1900,7 +2147,8 @@ ZZmassivetri.o \
 ZZmbc.o \
 ZZtri12_34LL.o \
 ZZtri1_2LL.o \
-ZZtri1_34LL.o
+ZZtri1_34LL.o \
+gg_ZZ_int.o 
 
 ZQFILES = \
 gQ_zQ.o \
@@ -1935,13 +2183,7 @@ usercode_f77.o
 
 # Check NTUPLES flag
 ifeq ($(NTUPLES),FROOT)
-  ifeq ($(CERNLIB),)
-    ERRORMSG=Please specify the path to CERNLIB to use FROOT n-tuples
-    $(error $(ERRORMSG))
-  endif
   USERFILES += mcfm_froot.o froot.co
-  LIBDIR=$(CERNLIB)
-  LIBFLAGS += -lmathlib -lpacklib -lkernlib
   LIBFLAGS += $(ROOTLIBS)
   NTUPMSG='   ----> MCFM compiled with FROOT n-tuple output <----'
  else
@@ -1993,6 +2235,7 @@ ifeq ($(PDFROUTINES),NATIVE)
    PARTONFILES += \
    alfamz.o \
    CT10Pdf.o \
+   CT14Pdf.o \
    POLINT4F.o \
    Ctq4Fn.o \
    Ctq5Par.o \
@@ -2015,6 +2258,7 @@ ifeq ($(PDFROUTINES),NATIVE)
    mrst2004f4.o \
    mstwpdf.o \
    mt.o \
+   NNPDFDriver.o \
    eks98r.o \
    fdist_linux.o \
    pdfwrap_linux.o
@@ -2034,8 +2278,9 @@ else
   NONLIBOMP += olo_dummy.o
 endif
 
+#LIBDIR += -L~/Madgraph/madgraph_1.10/lib
 # Master program.
-# extra lines: -L$(CRNLIB) -L/home/johnmc/madgraph/lib/ 
+# extra lines: -L$(CRNLIB) -L~/Madgraph/madgraph_1.10/lib
 #              -ldhelas
 
 #LIBFLAGS += -ldhelas
@@ -2054,7 +2299,7 @@ OURCODE = $(LIBFILES) $(NEEDFILES)  $(PROCDEPFILES) $(SPINORFILES) \
           $(TAUTAUFILES) $(HTTBARFILES) \
           $(BBHIGGSFILES) $(WBBFILES) $(ZBBFILES) \
           $(QQHFILES) $(QQHWWFILES) $(QQHZZFILES) $(GGHFILES) $(GGHGFILES) \
-          $(GGHGGrealFILES) $(GGHGGvirtFILES) $(H4PCODEFILES) \
+          $(GGHGGREALFILES) $(GGHGGvirtFILES) $(H4PCODEFILES) \
 	  $(TOPFILES) $(ZQFILES) $(ZQJETFILES) $(WTFILES) $(HWWJETFILES) \
 	  $(WHWWFILES) $(ZHWWFILES) $(WHZZFILES) $(ZHZZFILES) \
 	  $(WHGAGAFILES) $(ZHGAGAFILES) $(QQHGAGAHFILES) \
@@ -2068,7 +2313,8 @@ OURCODE = $(LIBFILES) $(NEEDFILES)  $(PROCDEPFILES) $(SPINORFILES) \
 	  $(DMFILES) $(TRIGAMFILES) $(FOURGAMFILES) \
 	  $(WPMZBJFILES) $(MULTICHANFILES) \
 	  $(PWGPLOTSFILES) \
-	  $(CHECKINGFILES) $(UTOOLSFILES) $(WBFFILES)
+	  $(CHECKINGFILES) $(UTOOLSFILES) $(WBFFILES) \
+          $(SCETFILES)  $(SCET0jFILES) $(TDHPLFILES) $(WH1JETFILES)
           
 OTHER = $(INTEGRATEFILES) $(PARTONFILES) $(WPWP2JFILES) $(F90FILES) 
 
@@ -2076,7 +2322,11 @@ ALLMCFM = $(OURCODE) $(OTHER) $(NONLIB)
 ALLMCFMOMP = $(OURCODE) $(OTHER) $(NONLIBOMP)
 MCFMLIB = $(OURCODE) $(OTHER) 
 
-          
+ifeq ($(USEMPI),YES)
+else
+  OURCODE += mpi_stubs.o
+endif
+
 
 # CERNLIB libraries for PDFLIB: -lpdflib804 -lmathlib -lpacklib 
 
@@ -2157,7 +2407,7 @@ check:      $(PRJS)
 PRJSF =      $(OURCODE:.o=.f) 
 
 checkf:      
-		$(FORCHKPATH)/forchk -I $(INCPATH) $(PRJSF)
+		$(FORCHKPATH)/forchk -allc -I $(INCPATH) $(PRJSF)
 
 clean:
 	- rm -f *.o obj/*.o obj/*.mod obj_omp/*.o obj_omp/*.mod Bin/mcfm QCDLoop/*/*.o *.s *.prj *~ core

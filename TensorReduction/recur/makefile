@@ -1,4 +1,8 @@
-FC = gfortran
+ifeq ($(origin FC),environment)
+    $(info Inheriting FC from environment: $(FC))
+else
+    FC = gfortran
+endif
 FFLAGS 	= -g
 
 recurdir:

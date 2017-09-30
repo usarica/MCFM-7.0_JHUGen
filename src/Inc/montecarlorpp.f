@@ -1,4 +1,4 @@
-      integer
+      integer::
      & dq_pdg,uq_pdg,sq_pdg,cq_pdg,bq_pdg,tq_pdg,
      & db_pdg,ub_pdg,sb_pdg,cb_pdg,bb_pdg,tb_pdg,
      & el_pdg,ml_pdg,tl_pdg,
@@ -13,6 +13,6 @@
      & ea_pdg=-11,ma_pdg=-13,ta_pdg=-15,
      & nel_pdg=+12,nml_pdg=+14,ntl_pdg=+16,
      & nea_pdg=-12,nma_pdg=-14,nta_pdg=-16,
-     & g0_pdg=0,g_pdg=21,z0_pdg=23,wp_pdg=+24,wm_pdg=-24,h_pdg=25
+     & g0_pdg=22,g_pdg=21,z0_pdg=23,wp_pdg=+24,wm_pdg=-24,h_pdg=25
      & )
      

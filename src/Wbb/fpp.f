@@ -1,12 +1,18 @@
-      double complex function fpp(j1,j2,j3,j4,j5,j6,za,zb)
+      function fpp(j1,j2,j3,j4,j5,j6,za,zb)
       implicit none
+      include 'types.f'
+      complex(dp):: fpp
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'sprods_com.f'
-      integer j1,j2,j3,j4,j5,j6
-      double complex L0,L1,Lsm1,Lsm1_2mht
-      double complex t0,s1,s2,s3
-      double precision t
+      integer:: j1,j2,j3,j4,j5,j6
+      complex(dp):: L0,L1,Lsm1,Lsm1_2mht
+      complex(dp):: t0,s1,s2,s3
+      real(dp):: t
       s2 = -2*(-za(j1,j3)*zb(j1,j6)-za(j2,j3)*zb(j2,j6))/(za(j1,j2)*zb(j
      #2,j4)+za(j1,j3)*zb(j3,j4))/zb(j5,j6)*(L0(-s(j2,j3),-t(j1,j2,j3))*z
      #b(j1,j2)*(za(j1,j2)*zb(j2,j6)+za(j1,j3)*zb(j3,j6))/t(j1,j2,j3)**2+

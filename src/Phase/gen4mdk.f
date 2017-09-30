@@ -1,32 +1,37 @@
       subroutine gen4mdk(r,p,pswt,*)
+      implicit none
+      include 'types.f'
 c--- this routine is an extension of gen4 to include the decay
 c--- of one of the heavy particles
 
-      implicit none
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'mxdim.f'
       include 'masses.f'
       include 'zerowidth.f'
       include 'limits.f'
       include 'phasemin.f'
       include 'breit.f'
-      include 'process.f'
+      include 'kprocess.f'
       include 'x1x2.f'
-      double precision r(mxdim)
-      double precision p(mxpart,4),pswt,smin
-      double precision p1(4),p2(4),p12(4),p8(4),p34567(4),
+      real(dp):: r(mxdim)
+      real(dp):: p(mxpart,4),pswt,smin
+      real(dp):: p1(4),p2(4),p12(4),p8(4),p34567(4),
      & p7(4),p3456(4),p345(4),p6(4),wt12,wt34567,wt3456
-      double precision p567(4),p56(4),p34(4),p5(4),p3(4),p4(4)
-      double precision mtbsq,wt345,wt34,wt567,wt56
-      integer nu
-      double precision xjac,p1ext(4),p2ext(4),wt0
-      double precision tau,x1mx2,surd,lntaum,tmin
+      real(dp):: p567(4),p56(4),p34(4),p5(4),p3(4),p4(4)
+      real(dp):: mtbsq,wt345,wt34,wt567,wt56
+      integer:: nu
+      real(dp):: xjac,p1ext(4),p2ext(4),wt0
+      real(dp):: tau,x1mx2,surd,lntaum,tmin
       common/pext/p1ext,p2ext
       include 'energy.f'
-      parameter(wt0=1d0/twopi**2)
+      parameter(wt0=1._dp/twopi**2)
 !$omp threadprivate(/pext/)
 
-      if ((case .eq. 'Z_tdkj') .or. (case .eq. 'H_tdkj')) then
+      if ((kcase==kZ_tdkj) .or. (kcase==kH_tdkj)) then
       call gen4(r,p,pswt,*99)
 
       p1(:)=p(1,:)
@@ -55,20 +60,20 @@ c--- decay W -> e n
       tmin=mtbsq/sqrts**2
 
 c--- this part is taken from gen4
-      lntaum=dlog(tmin)
-      tau=dexp(lntaum*(one-r(14)))
+      lntaum=log(tmin)
+      tau=exp(lntaum*(one-r(14)))
       xjac=-lntaum*tau
 
       x1mx2=two*r(15)-one
-      surd=dsqrt(x1mx2**2+four*tau)
+      surd=sqrt(x1mx2**2+four*tau)
 
       xx(1)=half*(+x1mx2+surd)
       xx(2)=half*(-x1mx2+surd)
 
       pswt=xjac*two/surd
 
-      if   ((xx(1) .gt. 1d0)  .or. (xx(2) .gt. 1d0)
-     & .or. (xx(1) .lt. xmin) .or. (xx(2) .lt. xmin)) return 1
+      if   ((xx(1) > 1._dp)  .or. (xx(2) > 1._dp)
+     & .or. (xx(1) < xmin) .or. (xx(2) < xmin)) return 1
 
       do nu=1,4
       p1(nu)=xx(1)*p1ext(nu)
@@ -81,20 +86,20 @@ c--- these must be set this way for this part
       n3=0
 
 c--- taken from phase4
-cc      r(1)=1d0-r(1)/1d2 ! soft p8
-      call phi1_2m(0d0,r(1),r(2),r(3),mtbsq,p12,p8,p34567,wt12,*99)
-cc      p8(4)=10d0+1d-3/abs(p1(4))
-cc      p8(3)=-10d0
-cc      p8(1)=0d0
-cc      p8(2)=dsqrt(p8(4)**2-p8(3)**2)
+cc      r(1)=1._dp-r(1)/1d2 ! soft p8
+      call phi1_2m(0._dp,r(1),r(2),r(3),mtbsq,p12,p8,p34567,wt12,*99)
+cc      p8(4)=10._dp+1.e-3_dp/abs(p1(4))
+cc      p8(3)=-10._dp
+cc      p8(1)=0._dp
+cc      p8(2)=sqrt(p8(4)**2-p8(3)**2)
 cc      do nu=1,4
 cc      p34567(nu)=p12(nu)-p8(nu)
 cc      enddo
-      call phi1_2m(0d0,r(4),r(5),r(6),mtbsq,p34567,p7,p3456,wt34567,*99)
+      call phi1_2m(0._dp,r(4),r(5),r(6),mtbsq,p34567,p7,p3456,wt34567,*99)
       call phi3m(r(7),r(8),p3456,p345,p6,mt,mb,wt3456,*99)
       pswt=pswt*wt0*wt12*wt34567*wt3456
 c--- alternative
-cc      r(2)=r(2)*1d-5 ! DEBUG: s78 small
+cc      r(2)=r(2)*1.e-5_dp ! DEBUG: s78 small
 c      call phi1_2(r(1),r(2),r(3),r(4),p12,p3456,p78,wt12,*99)
 c      call phi3m0(r(5),r(6),p78,p7,p8,wt78,*99)
 c      call phi3m(r(7),r(8),p3456,p345,p6,mt,mb,wt3456,*99)

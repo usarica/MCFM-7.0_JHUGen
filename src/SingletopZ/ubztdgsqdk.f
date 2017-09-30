@@ -1,6 +1,8 @@
       subroutine ubztdgsqdk(p1,p2,pl,pa,k5,p6,p7,e5,
      &  mdecay,ampsq16,ampsq25)
       implicit none
+      include 'types.f'
+
 C     Matrix element squared for
 C     split into two contributions:
 C     radiation from 16 and 25 lines (ampsq16 and ampsq25)
@@ -8,25 +10,28 @@ C      u(-p1)+b(p2) -> e^-(p3)+e^+(p4)+t(nu(p5)+e(p6)+b(p7))+d(p8)+g(p9)
 C     Matrix element is constructed so that dependence on p5
 C     only enters through k5 and e5 in wave function
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'ewcouple.f'
       include 'zcouple.f'
       include 'sprods_com.f'
       include 'zprods_com.f'
-      integer p1,p2,p3,p4,p5,k5,p6,p7,e5,jl,jg,icol,t16,t25,pl,pa,j
+      integer:: p1,p2,p3,p4,p5,k5,p6,p7,e5,jl,jg,icol,t16,t25,pl,pa,j
       parameter(t16=1,t25=2)
-      double precision s34,s1467,s16,s167,s1346,s13467,s12346,s126,s1267
-      double precision s146,s134,s234,s1347,s2347,mton2mwsq,ampsq
-      double precision s346,s3467,theta,cprop,ampsq16,ampsq25
-      double complex prW,prt,iza,izb,Amp(2,2,2),nr(2,2)
-      double complex zab2,zab3,zab4,mdecay
-      double complex facuLl,facuRl,facdLl,iprZ
-      double complex prWs16,prWs167,prWs1346,prWs13467,
+      real(dp):: s34,s1467,s16,s167,s1346,s13467,s12346,s126,s1267
+      real(dp):: s146,s134,s234,s1347,s2347,mton2mwsq,ampsq
+      real(dp):: s346,s3467,theta,cprop,ampsq16,ampsq25
+      complex(dp):: prW,prt,iza,izb,Amp(2,2,2),nr(2,2)
+      complex(dp):: zab2,zab3,zab4,mdecay
+      complex(dp):: facuLl,facuRl,facdLl,iprZ
+      complex(dp):: prWs16,prWs167,prWs1346,prWs13467,
      & prts126,prts1267,prts12346
 c--- definitions of propagators
       theta(s34)=half+half*sign(one,s34)
-      prW(s34)=cone/dcmplx(s34-wmass**2,theta(s34)*wmass*wwidth)
-      prt(s34)=cone/dcmplx(s34-mt**2,zip)
+      prW(s34)=cone/cplx2(s34-wmass**2,theta(s34)*wmass*wwidth)
+      prt(s34)=cone/cplx2(s34-mt**2,zip)
       iza(p1,p2)=cone/za(p1,p2)
       izb(p1,p2)=cone/zb(p1,p2)
 c--- definitions of compound spinors
@@ -83,23 +88,23 @@ C   End statement functions
 
 c--- Implementation of Baur-Zeppenfeld treatment of Z width
       cprop=1d0/((s34-zmass**2)**2+(zmass*zwidth)**2)
-      iprZ=dcmplx(s34-zmass**2)
+      iprZ=cplx1(s34-zmass**2)
 
       cprop=cprop/(mt*twidth)**2
 
       do j=1,2
-      if (j .eq. 1) then
+      if (j == 1) then
         p3=pl
         p4=pa
-        facuLl=dcmplx(Qu*q1)*iprZ+dcmplx(L(2)*le)*s34
-        facuRl=dcmplx(Qu*q1)*iprZ+dcmplx(R(2)*le)*s34
-        facdLl=dcmplx(Qd*q1)*iprZ+dcmplx(L(1)*le)*s34
+        facuLl=cplx1(Qu*q1)*iprZ+cplx1(L(2)*le)*s34
+        facuRl=cplx1(Qu*q1)*iprZ+cplx1(R(2)*le)*s34
+        facdLl=cplx1(Qd*q1)*iprZ+cplx1(L(1)*le)*s34
       else
         p3=pa
         p4=pl
-        facuLl=dcmplx(Qu*q1)*iprZ+dcmplx(L(2)*re)*s34
-        facuRl=dcmplx(Qu*q1)*iprZ+dcmplx(R(2)*re)*s34
-        facdLl=dcmplx(Qd*q1)*iprZ+dcmplx(L(1)*re)*s34
+        facuLl=cplx1(Qu*q1)*iprZ+cplx1(L(2)*re)*s34
+        facuRl=cplx1(Qu*q1)*iprZ+cplx1(R(2)*re)*s34
+        facdLl=cplx1(Qd*q1)*iprZ+cplx1(L(1)*re)*s34
       endif
 
       s146=s(p1,p4)+s(p1,p6)+s(p4,p6)
@@ -423,8 +428,8 @@ c--- Non-resonant diagrams for left-handed lepton helicity only
       ampsq25=0d0
       do jl=1,2
       do jg=1,2
-      ampsq16=ampsq16+cdabs(Amp(jl,jg,t16)*mdecay)**2
-      ampsq25=ampsq25+cdabs(Amp(jl,jg,t25)*mdecay)**2
+      ampsq16=ampsq16+abs(Amp(jl,jg,t16)*mdecay)**2
+      ampsq25=ampsq25+abs(Amp(jl,jg,t25)*mdecay)**2
       enddo
       enddo
       ampsq16=ampsq16*cprop

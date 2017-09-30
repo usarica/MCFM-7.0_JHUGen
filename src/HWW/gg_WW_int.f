@@ -1,5 +1,7 @@
       subroutine gg_ww_int(p,msq)
       implicit none
+      include 'types.f'
+
 c--- Author: R. K. Ellis, May 2011
 c--- For now, work in the approximation of two massless isodoublets
 c--- Box contributions are then complete
@@ -7,6 +9,9 @@ c--- Triangle (vector) pieces always vanish
 c--- Triangle (axial) pieces cancel for massless isodoublets
 
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ewcouple.f'
       include 'qcdcouple.f'
       include 'masses.f'
@@ -16,23 +21,23 @@ c--- Triangle (axial) pieces cancel for massless isodoublets
       include 'scale.f'
       include 'noglue.f'
       include 'anom_higgs.f'
-      include 'process.f'
+      include 'kprocess.f'
       include 'docheck.f'
       include 'first.f'
-      integer h1,h2,nu,i,j,k,om,del1,del2,k12h,k34h,k56h11,k34h11,e
-      double precision p(mxpart,4),msq(fn:nf,fn:nf),msqgg,fac
-      double precision mfsq,tau,tauinv,rt,pttwo,rescale
-      double complex Avec(2,2),Ahiggs(2,2),Agen3(2,2),Atot(2,2),
+      integer:: h1,h2,nu,i,j,k,om,del1,del2,k12h,k34h,k56h11,k34h11,e
+      real(dp):: p(mxpart,4),msq(fn:nf,fn:nf),msqgg,fac
+      real(dp):: mfsq,tau,tauinv,rt,pttwo,rescale
+      complex(dp):: Avec(2,2),Ahiggs(2,2),Agen3(2,2),Atot(2,2),
      & faccont,fachiggs,amphiggs,f,e3De4,sum(2,2,-2:0)
 
-      double precision phi,muk,rho,ssig,csig,theta,
+      real(dp):: phi,muk,rho,ssig,csig,theta,
      & p1true(4),p2true(4),p3true(4),p4true(4),p5true(4),p6true(4),
      & dot,s12,s34,s56,dot1256,afac,bfac,gden,delta,
      & dot1234,dot3456,pmax,ptWsafetycut_massive,ptWsafetycut_massless
-      double complex fvs,fvf,box(2,2,-2:0),triang(2,2,-2:0),
+      complex(dp):: fvs,fvf,box(2,2,-2:0),triang(2,2,-2:0),
      & bub(2,2,-2:0)
       character*9 pp,pm
-      logical includegens1and2,includegen3,
+      logical:: includegens1and2,includegen3,
      & caseggWW4l,caseHWWHpI,caseHWWint
       parameter(pp='q+qb-g+g+',pm='q+qb-g+g-')
       parameter(del1=7,del2=8)
@@ -46,10 +51,10 @@ c--- set this to true to include 3rd generation of quarks (t,b)
       includegen3=.true.
 
 c--- omit massive loops for pt(W) < "ptWsafetycut_massive" (for num. stability)
-      ptWsafetycut_massive=2d0
+      ptWsafetycut_massive=2._dp
 
 c--- omit massless loops for pt(W) < "ptWsafetycut_massless" (for num. stability)
-      ptWsafetycut_massless=0.05d0
+      ptWsafetycut_massless=0.05_dp
 
       if (first) then
         write(6,*)'****************************************************'
@@ -71,10 +76,10 @@ c--- omit massless loops for pt(W) < "ptWsafetycut_massless" (for num. stability
         caseggWW4l=.false.
         caseHWWHpI=.false.
         caseHWWint=.false.
-        if ((case .eq. 'ggWW4l')
-     & .or. (case .eq. 'WWqqbr')) caseggWW4l=.true.
-        if (case .eq. 'HWWH+i') caseHWWHpI=.true.
-        if (case .eq. 'HWWint') caseHWWint=.true.
+        if ((kcase==kggWW4l)
+     & .or. (kcase==kWWqqbr)) caseggWW4l=.true.
+        if (kcase==kHWWHpi) caseHWWHpI=.true.
+        if (kcase==kHWWint) caseHWWint=.true.
       endif
 
 c--- if neither contribution is included print warning message and stop
@@ -89,7 +94,7 @@ c--- if noglue print warning message and stop
          stop
       endif
 
-c--- logical variable "docheck"
+c--- logical:: variable "docheck"
 c---   .true .  --> print out coefficients of integrals at special point
 c---   .false.  --> run as normal
       docheck=.false.
@@ -101,22 +106,22 @@ c---  e.g. entering interference
       elseif ((caseHWWHpi) .or. (caseHWWint)) then
         Higgsint=.true.
       else
-        write(6,*) 'Unexpected case in gg_WW_int: ',case
+        write(6,*) 'Unexpected case in gg_WW_int: ',kcase
         stop
       endif
 
       do j=-nf,nf
       do k=-nf,nf
-      msq(j,k)=0d0
+      msq(j,k)=0._dp
       enddo
       enddo
 
 c--- rescale
       pmax=abs(p(1,4))
       do i=2,6
-      if (abs(p(i,4)) .gt. pmax) pmax=abs(p(i,4))
+      if (abs(p(i,4)) > pmax) pmax=abs(p(i,4))
       enddo
-      pmax=1d0
+      pmax=1._dp
       do i=1,6
       do j=1,4
       p(i,j)=p(i,j)/pmax
@@ -130,14 +135,14 @@ c--- These lines set up the point for the numerical check
          Higgsint=.false.
          includegen3=.true.
          include 'kinpoint.f'
-         mt=0.5d0
-         hmass=5.6d0
-         hwidth=3.21d0
-         zmass=0.53342d0
-         zwidth=0.3414523523d0
+         mt=0.5_dp
+         hmass=5.6_dp
+         hwidth=3.21_dp
+         zmass=0.53342_dp
+         zwidth=0.3414523523_dp
          do nu=1,4
          om=nu-1
-         if (nu.eq.1) om=4
+         if (nu==1) om=4
          p(1,om)=p1true(nu)
          p(2,om)=p2true(nu)
          p(3,om)=p3true(nu)
@@ -150,10 +155,10 @@ c--- These lines set up the point for the numerical check
 c--- if computing 3rd generation, set up extra flattened vectors
       if (includegen3) then
 C--- define flattened vectors (k12 and k56)
-      s12=2d0*dot(p,1,2)
-      s56=2d0*dot(p,5,6)
-      s34=2d0*dot(p,3,4)
-      dot1256=0.5d0*(s34-s12-s56)
+      s12=2._dp*dot(p,1,2)
+      s56=2._dp*dot(p,5,6)
+      s34=2._dp*dot(p,3,4)
+      dot1256=0.5_dp*(s34-s12-s56)
       delta=dot1256**2-s12*s56
       gden=dot1256+sqrt(delta)
       afac=s12/gden
@@ -167,7 +172,7 @@ C--- define flattened vectors (k12 and k56)
       enddo
 
 C--- define flattened vectors (k12 and k34)
-      dot1234=0.5d0*(s56-s12-s34)
+      dot1234=0.5_dp*(s56-s12-s34)
       delta=dot1234**2-s12*s34
       gden=dot1234+sqrt(delta)
       afac=s12/gden
@@ -181,7 +186,7 @@ C--- define flattened vectors (k12 and k34)
       enddo
 
 C--- define flattened vectors (k56 and k34)
-      dot3456=0.5d0*(s12-s56-s34)
+      dot3456=0.5_dp*(s12-s56-s34)
       delta=dot3456**2-s56*s34
       gden=dot3456+sqrt(delta)
       afac=s56/gden
@@ -217,10 +222,10 @@ c      Avec(2,1)=a64v(mp,3,4,1,2,6,5,zb,za)*(-half*im)
 c      Avec(1,2)=a64v(pm,3,4,1,2,6,5,zb,za)*(-half*im)
 c      Avec(1,1)=a64v(pp,3,4,1,2,6,5,zb,za)*(-half*im)
 
-c      write(6,*) 'Avec(1,1)',Avec(1,1)*2d0
-c      write(6,*) 'Avec(1,2)',Avec(1,2)*2d0
-c      write(6,*) 'Avec(2,1)',Avec(2,1)*2d0
-c      write(6,*) 'Avec(2,2)',Avec(2,2)*2d0
+c      write(6,*) 'Avec(1,1)',Avec(1,1)*2._dp
+c      write(6,*) 'Avec(1,2)',Avec(1,2)*2._dp
+c      write(6,*) 'Avec(2,1)',Avec(2,1)*2._dp
+c      write(6,*) 'Avec(2,2)',Avec(2,2)*2._dp
 c      write(6,*)
 
 C A simpler way of doing the same thing
@@ -245,7 +250,7 @@ c      write(6,*) 'Avec(2,1)',Avec(2,1)
 c      write(6,*) 'Avec(2,2)',Avec(2,2)
 
 c--- factor two for complete massless isodoublets
-      faccont=dcmplx(2d0)
+      faccont=ctwo
 
 c--- fill amplitudes used for 3rd generation
       if (includegen3) then
@@ -297,26 +302,26 @@ c--- rescale back
 
 c--- fill amplitudes with contributions of Higgs: top loop
       mfsq=mt**2
-      tau=s(1,2)/(4d0*mfsq)
-      tauinv=1d0/tau
-      fachiggs=cone/dcmplx(s(1,2)-hmass**2,hmass*hwidth)
+      tau=s(1,2)/(4._dp*mfsq)
+      tauinv=1._dp/tau
+      fachiggs=cone/cplx2(s(1,2)-hmass**2,hmass*hwidth)
 c--- shat-dependent width
-c      fachiggs=cone/dcmplx(s(1,2)-hmass**2,hwidth*s(1,2)/hmass)
+c      fachiggs=cone/cplx2(s(1,2)-hmass**2,hwidth*s(1,2)/hmass)
 c--- piece proportional to hmass*hwidth
 c      fachiggs=im*imag(fachiggs)
 c--- piece proportional to (s(1,2)-hmass**2)
 c      fachiggs=real(fachiggs)
 
-      if (tau .le. 1d0) then
-         f=dcmplx(dasin(sqrt(tau))**2)
-      elseif (tau .gt. 1d0) then
-         rt=sqrt(1d0-tauinv)
-         f=-0.25d0*(dcmplx(log((1d0+rt)/(1d0-rt)))-im*pi)**2
+      if (tau <= 1._dp) then
+         f=cplx1(asin(sqrt(tau))**2)
+      elseif (tau > 1._dp) then
+         rt=sqrt(1._dp-tauinv)
+         f=-0.25_dp*(cplx1(log((1._dp+rt)/(1._dp-rt)))-im*pi)**2
       else
          f=czip
       endif
-      e3De4=2d0*za(3,5)*zb(6,4)/(s(3,4)*s(5,6))
-      amphiggs=mfsq*(cone+(cone-dcmplx(tauinv))*f)*im*e3De4
+      e3De4=2._dp*za(3,5)*zb(6,4)/(s(3,4)*s(5,6))
+      amphiggs=mfsq*(cone+(cone-cplx1(tauinv))*f)*im*e3De4
       Ahiggs(1,1)=fachiggs*amphiggs*za(1,2)/zb(2,1)
       Ahiggs(1,2)=czip
       Ahiggs(2,1)=czip
@@ -324,18 +329,18 @@ c      fachiggs=real(fachiggs)
 
 c--- fill amplitudes with contributions of Higgs: bottom loop
       mfsq=mb**2
-      tau=s(1,2)/(4d0*mfsq)
-      tauinv=1d0/tau
+      tau=s(1,2)/(4._dp*mfsq)
+      tauinv=1._dp/tau
 
-      if (tau .le. 1d0) then
-         f=dcmplx(dasin(sqrt(tau))**2)
-      elseif (tau .gt. 1d0) then
-         rt=sqrt(1d0-tauinv)
-         f=-0.25d0*(dcmplx(log((1d0+rt)/(1d0-rt)))-im*pi)**2
+      if (tau <= 1._dp) then
+         f=cplx1(asin(sqrt(tau))**2)
+      elseif (tau > 1._dp) then
+         rt=sqrt(1._dp-tauinv)
+         f=-0.25_dp*(cplx1(log((1._dp+rt)/(1._dp-rt)))-im*pi)**2
       else
          f=czip
       endif
-      amphiggs=mfsq*(cone+(cone-dcmplx(tauinv))*f)*im*e3De4
+      amphiggs=mfsq*(cone+(cone-cplx1(tauinv))*f)*im*e3De4
 
       Ahiggs(1,1)=Ahiggs(1,1)+fachiggs*amphiggs*za(1,2)/zb(2,1)
       Ahiggs(2,2)=Ahiggs(2,2)+fachiggs*amphiggs*zb(1,2)/za(2,1)
@@ -358,7 +363,7 @@ c        pause
 
 c--- ensure numerical stability: set massive loops to zero
 c--- for pt(W) < "ptWsafetycut_massive" GeV
-      if (pttwo(3,4,p) .lt. ptWsafetycut_massive) then
+      if (pttwo(3,4,p) < ptWsafetycut_massive) then
         do h1=1,2
         do h2=1,2
           Agen3(h1,h2)=czip
@@ -368,7 +373,7 @@ c--- for pt(W) < "ptWsafetycut_massive" GeV
 
 c--- ensure numerical stability: set massless loops to zero
 c--- for pt(W) < "ptWsafetycut_massless" GeV
-      if (pttwo(3,4,p) .lt. ptWsafetycut_massless) then
+      if (pttwo(3,4,p) < ptWsafetycut_massless) then
         do h1=1,2
         do h2=1,2
           Avec(h1,h2)=czip
@@ -382,26 +387,26 @@ c--- Rescale for width study
          Ahiggs(:,:)=Ahiggs(:,:)*rescale
       endif
 
-      msqgg=0d0
+      msqgg=0._dp
       do h1=1,2
       do h2=1,2
       Atot(h1,h2)=faccont*Avec(h1,h2)+Agen3(h1,h2)+Ahiggs(h1,h2)
 
       if     (caseggWW4l) then
 c--- This accumulates total contributions
-        msqgg=msqgg+cdabs(Atot(h1,h2))**2
+        msqgg=msqgg+abs(Atot(h1,h2))**2
       elseif (caseHWWHpi) then
 c--- This only accumulates contributions containing the Higgs diagram,
 c---  i.e. the Higgs diagrams squared and the interference
-        msqgg=msqgg+cdabs(Atot(h1,h2))**2
-     &             -cdabs(faccont*Avec(h1,h2)+Agen3(h1,h2))**2
+        msqgg=msqgg+abs(Atot(h1,h2))**2
+     &             -abs(faccont*Avec(h1,h2)+Agen3(h1,h2))**2
       elseif (caseHWWint) then
 c--- This only accumulates the interference
-        msqgg=msqgg+cdabs(Atot(h1,h2))**2
-     &             -cdabs(faccont*Avec(h1,h2)+Agen3(h1,h2))**2
-     &             -cdabs(Ahiggs(h1,h2))**2
+        msqgg=msqgg+abs(Atot(h1,h2))**2
+     &             -abs(faccont*Avec(h1,h2)+Agen3(h1,h2))**2
+     &             -abs(Ahiggs(h1,h2))**2
       else
-        write(6,*) 'Unexpected case in gg_WW_int: ',case
+        write(6,*) 'Unexpected case in gg_WW_int: ',kcase
         stop
       endif
 
@@ -409,7 +414,7 @@ c--- This only accumulates the interference
       enddo
 
 c--- overall factor from diagrams
-      fac=avegg*V*(2d0*gwsq*gsq/(16d0*pisq)*gwsq/2d0)**2
+      fac=avegg*V*(2._dp*gwsq*gsq/(16._dp*pisq)*gwsq/2._dp)**2
      & *s(3,4)**2/((s(3,4)-wmass**2)**2+(wwidth*wmass)**2)
      & *s(5,6)**2/((s(5,6)-wmass**2)**2+(wwidth*wmass)**2)
       fac=fac/pmax**4

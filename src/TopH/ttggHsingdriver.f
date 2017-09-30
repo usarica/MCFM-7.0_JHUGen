@@ -1,10 +1,15 @@
       subroutine ttggHsingdriver(q,ampsq)
       implicit none
+      include 'types.f'
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'epinv.f'
-      double precision q(mxpart,4),ampsq
-      integer h1,h2,h3,h4
-      double complex cab(-2:-1),cba(-2:-1),c00ab(-2:-1),c00ba(-2:-1),
+      real(dp):: q(mxpart,4),ampsq
+      integer:: h1,h2,h3,h4
+      complex(dp):: cab(-2:-1),cba(-2:-1),c00ab(-2:-1),c00ba(-2:-1),
      & ampAB(2,2,2,2),ampBA(2,2,2,2),
      & ampABs(2,2,2,2),ampBAs(2,2,2,2),ampABd(2,2,2,2),ampBAd(2,2,2,2),
      & tmp
@@ -57,12 +62,12 @@ c  -V/xn * (1/4*cba*mba*(mbaC+mabC)
 c          +1/4*cab*mab*(mbaC+mabC));
 C-----Factor of V*xn/4 removed
       ampsq=ampsq
-     & +dble(ampABs(h1,h2,h3,h4)*Dconjg(ampAB(h1,h2,h3,h4)))
-     & +dble(ampBAs(h1,h2,h3,h4)*Dconjg(ampBA(h1,h2,h3,h4)))
-     & +2d0/xn*dble((ampABd(h1,h2,h3,h4)+ampBAd(h1,h2,h3,h4))
-     &  *Dconjg(ampAB(h1,h2,h3,h4)+ampBA(h1,h2,h3,h4)))
-     & -1d0/xn**2*dble((ampABs(h1,h2,h3,h4)+ampBAs(h1,h2,h3,h4))
-     &  *Dconjg(ampAB(h1,h2,h3,h4)+ampBA(h1,h2,h3,h4)))
+     & +real(ampABs(h1,h2,h3,h4)*conjg(ampAB(h1,h2,h3,h4)))
+     & +real(ampBAs(h1,h2,h3,h4)*conjg(ampBA(h1,h2,h3,h4)))
+     & +2d0/xn*real((ampABd(h1,h2,h3,h4)+ampBAd(h1,h2,h3,h4))
+     &  *conjg(ampAB(h1,h2,h3,h4)+ampBA(h1,h2,h3,h4)))
+     & -1d0/xn**2*real((ampABs(h1,h2,h3,h4)+ampBAs(h1,h2,h3,h4))
+     &  *conjg(ampAB(h1,h2,h3,h4)+ampBA(h1,h2,h3,h4)))
       enddo
       enddo
       enddo

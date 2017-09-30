@@ -1,19 +1,25 @@
-      double complex function BSYARggppmphp(e1,p2,p3,e4,za,zb,zab,zba)
+      function BSYARggppmphp(e1,p2,p3,e4,za,zb,zab,zba)
       implicit none
+      include 'types.f'
+      complex(dp):: BSYARggppmphp
+
 C-----Authors: John Campbell and Keith Ellis, November 2011
 C---- arXiv:1101.5947 [hep-ph], Eq. (95)
 C---- higher-point (3- and 4-point) contributions only
 C---- (These are twiddle functions, c.f.arXiv:1101.5947[hep-ph],Eq.(91))
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'zprods_decl.f'
       include 'sprods_com.f'
       include 'zabprods_decl.f'
       include 'qdef.f'
       include 'massiveintegrals.f'
-      double precision xbeta2,s12,s23,mt2,mt3
-      double complex BSYA0ggppmp,AT0ggppmp,tmp
-      integer e1,p2,p3,e4,j
+      real(dp):: xbeta2,s12,s23,mt2,mt3
+      complex(dp):: BSYA0ggppmp,AT0ggppmp,tmp
+      integer:: e1,p2,p3,e4,j
       j=p2-1
       mt2=mt**2
       mt3=mt**3

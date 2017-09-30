@@ -1,11 +1,15 @@
       subroutine extend_trans_wt(pold,p,ptrans,pext)
       implicit none
 c--- take vector 
+      include 'types.f'
       include 'constants.f'
-      double precision pold(mxpart,4),p(mxpart,4),ptrans(mxpart,4),
-     . pext(mxpart,4),p5(4),p6(4),p7(4),pt(4),ptt(4),
-     . p5out(4),p6out(4),p7out(4)
-      integer j,nu
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      real(dp):: pold(mxpart,4),p(mxpart,4),ptrans(mxpart,4),
+     & pext(mxpart,4),p5(4),p6(4),p7(4),pt(4),ptt(4),
+     & p5out(4),p6out(4),p7out(4)
+      integer:: j,nu
       
       do nu=1,4
         pt(nu)=p(5,nu)
@@ -28,7 +32,7 @@ c--- take vector
         pext(6,nu)=p6out(nu)
         pext(7,nu)=p7out(nu)
         do j=8,mxpart
-        pext(j,nu)=0d0
+        pext(j,nu)=zero
         enddo
       enddo
             

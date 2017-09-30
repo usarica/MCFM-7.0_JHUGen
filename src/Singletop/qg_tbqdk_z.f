@@ -1,4 +1,6 @@
       subroutine qg_tbqdk_z(p,z)
+      implicit none
+      include 'types.f'
 ************************************************************************
 *     Virtual ct's for t-channel single top, with explicit b-quark     *
 *                                                                      *
@@ -12,18 +14,21 @@
 *    Modified so that off-diagonal subtractions are initial-final      *
 *                                                                      *
 ************************************************************************
-      implicit none
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'agq.f'
       include 'PR_new.f'
       include 'noglue.f'
       include 'stopscales.f'
       include 'masses.f'
-      double precision z,p(mxpart,4),k(mxpart,4),dot,metric,Q34sq,
+      real(dp):: z,p(mxpart,4),k(mxpart,4),dot,metric,Q34sq,
      & xl13,xl14,xl23,xl24,xl34,xl15,xl25,xl15h,xl25h,
      & mbar13,mbar14,mbar23,mbar24,mbar34a,mbar34b,tempgq1,tempgq2,
      & if_mgg,fi_mqq,ff_2mqq,if_qg,if_gq,if_qq,fi_qq,ason4pi_H,ason4pi_L
-      integer is,nu
+      integer:: is,nu
 
 c--- define momentum array k from p, such that the identities
 c--- below are the same ones as in qg_tbq_z.f, with p replaced by k
@@ -35,31 +40,31 @@ c--- below are the same ones as in qg_tbq_z.f, with p replaced by k
       k(5,nu)=p(7,nu)
       enddo
 
-      Q34sq=0d0
-      metric=1d0
+      Q34sq=0._dp
+      metric=1._dp
       do nu=4,1,-1
       Q34sq=Q34sq+metric*(k(3,nu)+k(4,nu))*(k(3,nu)+k(4,nu))
-      metric=-1d0
+      metric=-1._dp
       enddo
 
 CDTS (5.45,5.77)
-      mbar13=mt/dsqrt(-2d0*dot(k,1,3))
-      mbar14=mb/dsqrt(-2d0*dot(k,1,4))
-      mbar23=mt/dsqrt(-2d0*dot(k,2,3))
-      mbar24=mb/dsqrt(-2d0*dot(k,2,4))
+      mbar13=mt/sqrt(-2._dp*dot(k,1,3))
+      mbar14=mb/sqrt(-2._dp*dot(k,1,4))
+      mbar23=mt/sqrt(-2._dp*dot(k,2,3))
+      mbar24=mb/sqrt(-2._dp*dot(k,2,4))
 CDTS (5.5)
-      mbar34a=mt/dsqrt(Q34sq)
-      mbar34b=mb/dsqrt(Q34sq)
+      mbar34a=mt/sqrt(Q34sq)
+      mbar34b=mb/sqrt(Q34sq)
 
-      xl15=dlog(-2d0*dot(k,1,5)/renscale_L**2)
-      xl25=dlog(-2d0*dot(k,2,5)/renscale_L**2)
-      xl13=dlog(-2d0*dot(k,1,3)/renscale_H**2)
-      xl14=dlog(-2d0*dot(k,1,4)/renscale_H**2)
-      xl23=dlog(-2d0*dot(k,2,3)/renscale_H**2)
-      xl24=dlog(-2d0*dot(k,2,4)/renscale_H**2)
-      xl15h=dlog(-2d0*dot(k,1,5)/renscale_H**2)
-      xl25h=dlog(-2d0*dot(k,2,5)/renscale_H**2)
-      xl34=dlog(Q34sq/renscale_H**2)
+      xl15=log(-2._dp*dot(k,1,5)/renscale_L**2)
+      xl25=log(-2._dp*dot(k,2,5)/renscale_L**2)
+      xl13=log(-2._dp*dot(k,1,3)/renscale_H**2)
+      xl14=log(-2._dp*dot(k,1,4)/renscale_H**2)
+      xl23=log(-2._dp*dot(k,2,3)/renscale_H**2)
+      xl24=log(-2._dp*dot(k,2,4)/renscale_H**2)
+      xl15h=log(-2._dp*dot(k,1,5)/renscale_H**2)
+      xl25h=log(-2._dp*dot(k,2,5)/renscale_H**2)
+      xl34=log(Q34sq/renscale_H**2)
 
       ason4pi_H=as_H/fourpi
       ason4pi_L=as_L/fourpi
@@ -102,8 +107,8 @@ c--- counterterms for extra gluon emission
       endif
 
 c--- counterterms for the splitting g->qq~ on the light quark line
-      Q1(q,g,g,is)=ason4pi_L*2d0*tr*if_qg(z,xl15,is)
-      Q2(q,g,g,is)=ason4pi_L*2d0*tr*if_qg(z,xl25,is)
+      Q1(q,g,g,is)=ason4pi_L*2._dp*tr*if_qg(z,xl15,is)
+      Q2(q,g,g,is)=ason4pi_L*2._dp*tr*if_qg(z,xl25,is)
 
       tempgq1=ason4pi_H*two*cf*if_gq(z,xl15h,is)
       tempgq2=ason4pi_H*two*cf*if_gq(z,xl25h,is)

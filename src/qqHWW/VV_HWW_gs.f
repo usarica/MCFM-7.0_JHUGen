@@ -1,5 +1,7 @@
       subroutine VV_HWW_gs(p,msqc)
       implicit none
+      include 'types.f'
+
 c--- Weak Bosion Fusion : sums up WW and VV contributions
 ************************************************************************
 *     Author: J. M. Campbell                                           *
@@ -16,10 +18,13 @@ c--- Weak Bosion Fusion : sums up WW and VV contributions
 *                                                                      *
 ************************************************************************
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ptilde.f'
-      double precision p(mxpart,4),msqc(maxd,-nf:nf,-nf:nf),
-     . msqc_ww(maxd,-nf:nf,-nf:nf),msqc_zz(maxd,-nf:nf,-nf:nf)
-      integer j,k,nd
+      real(dp):: p(mxpart,4),msqc(maxd,-nf:nf,-nf:nf),
+     & msqc_ww(maxd,-nf:nf,-nf:nf),msqc_zz(maxd,-nf:nf,-nf:nf)
+      integer:: j,k,nd
 
       call WW_HWW_gs(p,msqc_ww)
       call ZZ_HWW_gs(p,msqc_zz)

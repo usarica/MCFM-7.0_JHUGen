@@ -1,4 +1,4 @@
-      FUNCTION LENOCC (CHV)
+      function LENOCC (CHV)
 C
 C CERN PROGLIB# M507    LENOCC          .VERSION KERNFOR  4.21  890323
 C ORIG. March 85, A.Petrilli, re-write 21/02/89, JZ

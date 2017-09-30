@@ -1,14 +1,14 @@
       block data reader_data
-      implicit none
       include 'impsample.f'
-      logical msbar
+      logical:: msbar
       common/msbar/msbar
       data impsample/.false./
       data msbar/.false./
       end
 
       subroutine reader
-      implicit none  
+      implicit none
+      include 'types.f'
       include 'masses.f'
       include 'scale.f'
       include 'debug.f'
@@ -27,24 +27,24 @@
       include 'gridinfo.f'
       include 'maxwt.f'
       include 'verbose.f'
-      include 'process.f'
+      include 'kprocess.f'
       include 'limits.f'
       include 'pdlabel.f'
-      include 'part.f'
+      include 'kpart.f'
       include 'outputflags.f'
       include 'runstring.f'
       include 'energy.f'
       include 'nproc.f'
-      integer ih1,ih2,itmx1,itmx2,ncall1,ncall2,idum,nmin,nmax
-      integer nargs
-      double precision Rcut,randummy,ran2
-      double precision cmass,bmass
+      include 'iterat.f'
+      integer:: ih1,ih2,idum,nmin,nmax
+      integer:: nargs
+      real(dp):: Rcut,randummy,ran2
+      real(dp):: cmass,bmass
       character*72 optionsfile
-      logical makecuts,dryrun
-      logical spira
-      double precision rtsmin
-      double precision mbbmin,mbbmax,Mwmin,Mwmax
-      common/iterat/itmx1,ncall1,itmx2,ncall2
+      logical:: makecuts,dryrun
+      logical:: spira
+      real(dp):: rtsmin
+      real(dp):: mbbmin,mbbmax,Mwmin,Mwmax
       common/spira/spira
       common/ranno/idum
       common/Rcut/Rcut
@@ -62,7 +62,7 @@
       
  
       nargs=iargc()
-      if (nargs .ge. 1) then
+      if (nargs >= 1) then
       call getarg(1,optionsfile)
       else
       optionsfile='options.DAT'
@@ -186,10 +186,10 @@ c--- read in grid options file
       read(21,99) ingridfile
       read(21,99) outgridfile
 
-      if (ingridfile .eq. '') then
+      if (ingridfile == '') then
         ingridfile=case//'_'//part//'_grid'
       endif
-      if (outgridfile .eq. '') then
+      if (outgridfile == '') then
         outgridfile=case//'_'//part//'_grid'
       endif
 
@@ -247,8 +247,8 @@ c--- set-up the random number generator with a negative seed
       randummy=ran2()
 
 c---initialize masses for alpha_s routine
-      cmass=dsqrt(mcsq)
-      bmass=dsqrt(mbsq)
+      cmass=sqrt(mcsq)
+      bmass=sqrt(mbsq)
 
 
       bbsqmin=mbbmin**2
@@ -260,7 +260,7 @@ c---initialize masses for alpha_s routine
 c
 
 c-----stange-marciano formula for resolution
-c      deltam=dsqrt(0.64d0*hmass+0.03d0**2*hmass**2)
+c      deltam=sqrt(0.64_dp*hmass+0.03_dp**2*hmass**2)
 c      if (verbose) write(6,*) 'delta m',deltam
 
   99  format(a16)
@@ -271,10 +271,10 @@ c      if (verbose) write(6,*) 'delta m',deltam
       write(6,*) 'Problem reading mcfmmode.DAT'
       write(6,*)
       write(6,*) 'Required format is:'
-      write(6,*) 'logical     [evtgen]'
-      write(6,*) 'logical     [creatent]'
-      write(6,*) 'logical     [skipnt]'
-      write(6,*) 'logical     [dswhisto]'
+      write(6,*) 'logical::     [evtgen]'
+      write(6,*) 'logical::     [creatent]'
+      write(6,*) 'logical::     [skipnt]'
+      write(6,*) 'logical::     [dswhisto]'
       write(6,*)
       stop
 
@@ -282,13 +282,13 @@ c      if (verbose) write(6,*) 'delta m',deltam
       write(6,*) 'Problem reading gridinfo.DAT'
       write(6,*)
       write(6,*) 'Required format is:'
-      write(6,*) 'logical     [readin]'
-      write(6,*) 'logical     [writeout]'
+      write(6,*) 'logical::     [readin]'
+      write(6,*) 'logical::     [writeout]'
       write(6,*) 'char*16     [ingridfile]'
       write(6,*) 'char*16     [outgridfile]'
       write(6,*)
       write(6,*) 'READIN/WRITEOUT = True/False specify whether'
-      write(6,*) 'a grid should be read-in and/or written-out'
+      write(6,*) 'a grid should be rea.e-_dpin and/or written-out'
       write(6,*) 'INGRIDFILE/OUTGRIDFILE specify the names of the'
       write(6,*) 'files read/written, but may be left blank for default'
       write(6,*)

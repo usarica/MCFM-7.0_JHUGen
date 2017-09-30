@@ -1,6 +1,11 @@
       subroutine gg_hg_v(p,msq)
       implicit none
+      include 'types.f'
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'ewcouple.f'
       include 'qcdcouple.f'
@@ -9,10 +14,10 @@
       include 'hdecaymode.f'
 C     (Taken from Ravindran, Smith, van Neerven hep-ph/0201114)
 C     Modified by overall factors
-      integer iglue,j,k
-      double precision p(mxpart,4),msq(fn:nf,fn:nf)
-      double precision ss,tt,uu,s34,msqgamgam,
-     . virtgg,virtqa,virtaq,virtqg,virtgq,hdecay,Asq,fac
+      integer:: iglue,j,k
+      real(dp):: p(mxpart,4),msq(fn:nf,fn:nf)
+      real(dp):: ss,tt,uu,s34,msqhgamgam,
+     & virtgg,virtqa,virtaq,virtqg,virtgq,hdecay,Asq,fac
       parameter(iglue=5)
 
       scheme='tH-V'
@@ -22,7 +27,7 @@ C     Modified by overall factors
       tt=s(1,iglue)
       uu=s(2,iglue)
 
-      Asq=(as/(3d0*pi))**2/vevsq
+      Asq=(as/(3._dp*pi))**2/vevsq
 
       s34=(p(3,4)+p(4,4))**2
      & -(p(3,1)+p(4,1))**2-(p(3,2)+p(4,2))**2-(p(3,3)+p(4,3))**2
@@ -33,7 +38,7 @@ C   Deal with Higgs decay
       elseif (hdecaymode == 'bqba') then
           call hbbdecay(p,3,4,hdecay)
       elseif (hdecaymode == 'gaga') then
-          hdecay=msqgamgam(hmass)
+          hdecay=msqhgamgam(s34)
       else
       write(6,*) 'Unimplemented process in gg_hg_v'
       stop
@@ -45,12 +50,12 @@ C   Deal with Higgs decay
 
       do j=-nf,nf
       do k=-nf,nf
-      msq(j,k)=0d0
-      if ((j.eq.0).and.(k.eq.0)) msq(j,k)=avegg*fac*virtgg
-      if ((j.gt.0).and.(k.eq.-j)) msq(j,k)=aveqq*fac*virtqa
-      if ((j.lt.0).and.(k.eq.-j)) msq(j,k)=aveqq*fac*virtaq
-      if ((j.eq.0).and.(k.ne.0)) msq(j,k)=aveqg*fac*virtgq
-      if ((j.ne.0).and.(k.eq.0)) msq(j,k)=aveqg*fac*virtqg
+      msq(j,k)=0._dp
+      if ((j==0).and.(k==0)) msq(j,k)=avegg*fac*virtgg
+      if ((j>0).and.(k==-j)) msq(j,k)=aveqq*fac*virtqa
+      if ((j<0).and.(k==-j)) msq(j,k)=aveqq*fac*virtaq
+      if ((j==0).and.(k.ne.0)) msq(j,k)=aveqg*fac*virtgq
+      if ((j.ne.0).and.(k==0)) msq(j,k)=aveqg*fac*virtqg
       enddo
       enddo
 

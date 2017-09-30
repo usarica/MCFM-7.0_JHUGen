@@ -1,30 +1,33 @@
-      double precision function vol_mass(decaymass,s)
+      function vol_mass(decaymass,s)
       implicit none
-      double precision decaymass,b0,bp,bm,s,vol,ro,ddilog
+      include 'types.f'
+      real(dp):: vol_mass
       
-      ro=4d0*decaymass**2/s
-      b0=dsqrt(1d0-ro)
-      bp=0.5d0*(1d0+b0)      
-      bm=0.5d0*(1d0-b0)      
+      real(dp):: decaymass,b0,bp,bm,s,vol,ro,ddilog
+      
+      ro=4._dp*decaymass**2/s
+      b0=sqrt(1._dp-ro)
+      bp=0.5_dp*(1._dp+b0)      
+      bm=0.5_dp*(1._dp-b0)      
 
-c      temp=(4d0*b0*(27d0 - 26d0*b0**2 + 3d0*b0**4)
-c     . + 3d0*(-1d0 + b0**2)**2*dlog((-1d0 + b0)**2)**2 + 
-c     . 6d0*(-1d0 + b0**2)**2*dlog(1d0-b0)*(1d0-4d0*dlog(1d0 + b0))+ 
-c     . 6d0*(-1d0 + b0**2)*dlog(1d0 + b0)*
-c     . (9d0 - b0**4 + (-1d0 + b0**2)*dlog(16d0)
-c     . - 2d0*(-1d0 + b0**2)*dlog(1d0 + b0)) 
-c     . + 3d0*(-1d0 + b0**2)*dlog((-1d0 + b0)**2)*
-c     . (-8d0 + b0**4 + dlog(16d0) - b0**2*(1d0 + dlog(16d0)) + 
-c     . 4d0*(-1d0 + b0**2)*dlog(1d0 + b0)) + 
-c     . 24d0*(-1d0 + b0**2)**2*Ddilog((1d0 - b0)/2d0) - 
-c     . 24d0*(-1d0 + b0**2)**2*Ddilog((1d0 + b0)/2d0))/192d0
+c      temp=(4._dp*b0*(27._dp - 26._dp*b0**2 + 3._dp*b0**4)
+c     & + 3._dp*(-1._dp + b0**2)**2*log((-1._dp + b0)**2)**2 + 
+c     & 6._dp*(-1._dp + b0**2)**2*log(1._dp-b0)*(1._dp-4._dp*log(1._dp + b0))+ 
+c     & 6._dp*(-1._dp + b0**2)*log(1._dp + b0)*
+c     & (9._dp - b0**4 + (-1._dp + b0**2)*log(16._dp)
+c     & - 2._dp*(-1._dp + b0**2)*log(1._dp + b0)) 
+c     & + 3._dp*(-1._dp + b0**2)*log((-1._dp + b0)**2)*
+c     & (-8._dp + b0**4 + log(16._dp) - b0**2*(1._dp + log(16._dp)) + 
+c     & 4._dp*(-1._dp + b0**2)*log(1._dp + b0)) + 
+c     & 24._dp*(-1._dp + b0**2)**2*Ddilog((1._dp - b0)/2._dp) - 
+c     & 24._dp*(-1._dp + b0**2)**2*Ddilog((1._dp + b0)/2._dp))/192._dp
 c     
 c--- normalize to massless case (1/12)
-c      temp=temp/(1d0/12d0)
+c      temp=temp/(1._dp/12._dp)
  
-      vol_mass=b0*(1d0+5d0*ro+0.75d0*ro**2)
-     . +1.5d0*ro**2*(Ddilog(bm)-Ddilog(bp))
-     . -ro*dlog(bp/bm)*(24d0+6d0*ro-3d0*ro**2+6d0*ro*dlog(bp*bm))/8d0
+      vol_mass=b0*(1._dp+5._dp*ro+0.75_dp*ro**2)
+     & +1.5_dp*ro**2*(Ddilog(bm)-Ddilog(bp))
+     & -ro*log(bp/bm)*(24._dp+6._dp*ro-3._dp*ro**2+6._dp*ro*log(bp*bm))/8._dp
       vol_mass=vol_mass*vol(s,4)
       
       return

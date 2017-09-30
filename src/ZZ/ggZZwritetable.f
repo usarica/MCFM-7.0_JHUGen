@@ -1,11 +1,13 @@
       subroutine ggZZwritetable
-c--- routine to write out contents of res common block
       implicit none
+      include 'types.f'
+c--- routine to write out contents of res common block
+      
       include 'blabels.f'
       include 'ZZclabels.f'
       include 'ZZdlabels.f'
-      integer imt0,imt2,imt4,imp,ipp,iunit
-      double complex res(2,4,10,3)
+      integer:: imt0,imt2,imt4,imp,ipp,iunit
+      complex(dp):: res(2,4,10,3)
       parameter(imt0=1,imt2=2,imt4=3)
       parameter(ipp=1,imp=2)
       common/ggZZcaptureres/res

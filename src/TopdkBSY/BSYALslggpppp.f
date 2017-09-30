@@ -1,18 +1,24 @@
-      double complex function BSYALslggpppp(e1,p2,e4,p3,za,zb,zab,zba)
+      function BSYALslggpppp(e1,p2,e4,p3,za,zb,zab,zba)
       implicit none
+      include 'types.f'
+      complex(dp):: BSYALslggpppp
+
 C-----Authors: John Campbell and Keith Ellis, March 2012
 C---- arXiv:1101.5947 [hep-ph], Eq. (96)
 C---- Modification wrt published version
 C---- (These are twiddle functions, c.f.arXiv:1101.5947[hep-ph],Eq.(91))
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'zprods_decl.f'
       include 'sprods_com.f'
       include 'zabprods_decl.f'
       include 'qdef.f'
       include 'massiveintegrals.f'
-      double precision s23,mt3
-      integer e1,p2,p3,e4,j
+      real(dp):: s23,mt3
+      integer:: e1,p2,p3,e4,j
       j=p2-1
       mt3=mt**3
       s23=s(p2,p3)

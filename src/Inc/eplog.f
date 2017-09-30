@@ -1,2 +1,2 @@
-      double precision eplog,epsqlog
+      real(dp):: eplog,epsqlog
       common/eplogKM/eplog,epsqlog

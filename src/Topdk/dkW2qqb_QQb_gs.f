@@ -1,5 +1,7 @@
       subroutine dkW2qqb_QQb_gs(p,msqc)
       implicit none
+      include 'types.f'
+
 ************************************************************************
 *     Author: R.K. Ellis                                               *
 *     November, 2011.                                                  *
@@ -14,18 +16,21 @@
 *                                                                      *
 ************************************************************************
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'ptilde.f'
       include 'qcdcouple.f'
       include 'alfacut.f'
       include 'qqgg.f'
       include 'incldip.f'
-      double precision msqc(maxd,-nf:nf,-nf:nf),
+      real(dp):: msqc(maxd,-nf:nf,-nf:nf),
      & p(mxpart,4)
-      double precision
+      real(dp)::
      & msq79_8(-nf:nf,-nf:nf),msq89_7(-nf:nf,-nf:nf),
      & dummyv(-nf:nf,-nf:nf),sub79_8(4),sub89_7(4),dsubv
-      integer j,k,nd
+      integer:: j,k,nd
       external qqb_QQbdk,donothing_gvec
 
       ndmax=2
@@ -33,7 +38,7 @@
       do j=-nf,nf
       do k=-nf,nf
       do nd=1,ndmax
-        msqc(nd,j,k)=0d0
+        msqc(nd,j,k)=0._dp
         incldip(nd)=.true.
       enddo
       enddo
@@ -45,8 +50,8 @@
      & qqb_QQbdk,donothing_gvec)
       do j=-nf,nf
         k=-j
-        msqc(1,j,k)=sub79_8(qq)*msq79_8(j,k)*2d0*cf
-        msqc(2,j,k)=sub89_7(qq)*msq89_7(j,k)*2d0*cf
+        msqc(1,j,k)=sub79_8(qq)*msq79_8(j,k)*2._dp*cf
+        msqc(2,j,k)=sub89_7(qq)*msq89_7(j,k)*2._dp*cf
       enddo
 
       return

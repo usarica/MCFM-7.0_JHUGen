@@ -1,14 +1,19 @@
       subroutine swapjet(pjet,jetindex,i,j)
-c--- swaps jets i..j in pjet
       implicit none
+      include 'types.f'
+c--- swaps jets i..j in pjet
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'jetlabel.f'
-      integer i,j,k,jetindex(mxpart)
-      double precision pjet(mxpart,4),tmp
+      integer:: i,j,k,jetindex(mxpart)
+      real(dp):: pjet(mxpart,4),tmp
       character*2 chartmp
  
 c--- escape if we're trying to swap the same jets
-      if (i .eq. j) return
+      if (i == j) return
 
       do k=1,4
         tmp=pjet(i,k)

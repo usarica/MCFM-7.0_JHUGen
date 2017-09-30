@@ -1,9 +1,12 @@
-      double complex function li2(x)
+      function li2(x)
+      implicit none
+      include 'types.f'
+      complex(dp):: li2
 c--complex dilogarithm (spence-function)
-      implicit double precision (a-h,o-z)
+      implicit real(dp) (a-h,o-z)
       include 'first.f'
-      double complex x,y,cli2
-      double precision zeta2,zeta3
+      complex(dp):: x,y,cli2
+      real(dp):: zeta2,zeta3
       common/const/zeta2,zeta3
 
       if (first) then
@@ -11,52 +14,55 @@ c--complex dilogarithm (spence-function)
       call bernini
       endif
 
-      zero=1.d-8
-      xr=dble(x)
-      xi=dimag(x)
+      tiny=1.e-8_dp
+      xr=real(x)
+      xi=aimag(x)
       r2=xr*xr+xi*xi
-      li2=dcmplx(0d0,0d0)
-      if(r2.le.zero)then
-        li2=x+x**2/4.d0
+      li2=cplx2(0._dp,0._dp)
+      if(r2<=tiny)then
+        li2=x+x**2/4._dp
         return
       endif
       rr=xr/r2
-      if ((r2.eq.1.d0) .and. (xi.eq.0.d0)) then
-        if (xr.eq.1.d0) then
-          li2=dcmplx(zeta2)
+      if ((r2==1._dp) .and. (xi==0._dp)) then
+        if (xr==1._dp) then
+          li2=cplx2(zeta2)
         else
-          li2=-dcmplx(zeta2/2.d0)
+          li2=-cplx2(zeta2/2._dp)
         endif
         return
-      elseif ((r2.gt.1.d0) .and. (rr.gt.0.5d0)) then
-        y=(x-1.d0)/x
-        li2=cli2(y)+zeta2-cdlog(x)*cdlog(1.d0-x)+0.5d0*cdlog(x)**2
+      elseif ((r2>1._dp) .and. (rr>0.5_dp)) then
+        y=(x-1._dp)/x
+        li2=cli2(y)+zeta2-log(x)*log(1._dp-x)+0.5_dp*log(x)**2
         return
-      elseif ((r2.gt.1.d0) .and. (rr.le.0.5d0))then
-        y=1.d0/x
-        li2=-cli2(y)-zeta2-0.5d0*cdlog(-x)**2
+      elseif ((r2>1._dp) .and. (rr<=0.5_dp))then
+        y=1._dp/x
+        li2=-cli2(y)-zeta2-0.5_dp*log(-x)**2
         return
-      elseif ((r2.le.1.d0) .and. (xr.gt.0.5d0)) then
-        y=1.d0-x
-        li2=-cli2(y)+zeta2-cdlog(x)*cdlog(1.d0-x)
+      elseif ((r2<=1._dp) .and. (xr>0.5_dp)) then
+        y=1._dp-x
+        li2=-cli2(y)+zeta2-log(x)*log(1._dp-x)
        return
-      elseif ((r2.le.1.d0) .and. (xr.le.0.5d0)) then
+      elseif ((r2<=1._dp) .and. (xr<=0.5_dp)) then
         y=x
         li2=cli2(y)
         return
       endif
       end
 
-      double complex function cli2(x)
+      function cli2(x)
+      implicit none
+      include 'types.f'
+      complex(dp):: cli2
 c--taylor-expansion for complex dilogarithm (spence-function)
-      implicit double precision (a-h,o-z)
+      implicit real(dp) (a-h,o-z)
       parameter(nber=18)
-      double precision b2(nber)
-      double complex x,z
+      real(dp):: b2(nber)
+      complex(dp):: x,z
       common/bernoulli/b2
 
       n=nber-1
-      z=-cdlog(1.d0-x)
+      z=-log(1._dp-x)
       cli2=b2(nber)
       do 111 i=n,1,-1
         cli2=z*cli2+b2(i)
@@ -65,48 +71,56 @@ c--taylor-expansion for complex dilogarithm (spence-function)
       return
       end
 
-      double precision function facult(n)
-c--double precision version of faculty
-      implicit double precision (a-h,o-z)
-      facult=1.d0
-      if(n.eq.0)return
+      function facult(n)
+      implicit none
+      include 'types.f'
+      real(dp):: facult
+c--real(dp):: version of faculty
+      implicit real(dp) (a-h,o-z)
+      facult=1._dp
+      if(n==0)return
       do 999 i=1,n
-        facult=facult*dfloat(i)
+        facult=facult*real(i,dp)
 999   continue
       return
       end
 
       subroutine bernini
-c--initialization of coefficients for polylogarithms
       implicit none
+      include 'types.f'
+c--initialization of coefficients for polylogarithms
+
       include 'constants.f'
-      integer nber,i
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      integer:: nber,i
       parameter(nber=18)
-      double precision b(nber),b2(nber),zeta2,zeta3,facult
+      real(dp):: b(nber),b2(nber),zeta2,zeta3,facult
       common/bernoulli/b2
       common/const/zeta2,zeta3
 
 
-      b(1)=-1.d0/2.d0
-      b(2)=1.d0/6.d0
-      b(3)=0.d0
-      b(4)=-1.d0/30.d0
-      b(5)=0.d0
-      b(6)=1.d0/42.d0
-      b(7)=0.d0
-      b(8)=-1.d0/30.d0
-      b(9)=0.d0
-      b(10)=5.d0/66.d0
-      b(11)=0.d0
-      b(12)=-691.d0/2730.d0
-      b(13)=0.d0
-      b(14)=7.d0/6.d0
-      b(15)=0.d0
-      b(16)=-3617.d0/510.d0
-      b(17)=0.d0
-      b(18)=43867.d0/798.d0
-      zeta2=pi**2/6.d0
-      zeta3=1.202056903159594d0
+      b(1)=-1._dp/2._dp
+      b(2)=1._dp/6._dp
+      b(3)=0._dp
+      b(4)=-1._dp/30._dp
+      b(5)=0._dp
+      b(6)=1._dp/42._dp
+      b(7)=0._dp
+      b(8)=-1._dp/30._dp
+      b(9)=0._dp
+      b(10)=5._dp/66._dp
+      b(11)=0._dp
+      b(12)=-691._dp/2730._dp
+      b(13)=0._dp
+      b(14)=7._dp/6._dp
+      b(15)=0._dp
+      b(16)=-3617._dp/510._dp
+      b(17)=0._dp
+      b(18)=43867._dp/798._dp
+      zeta2=pi**2/6._dp
+      zeta3=1.202056903159594_dp
 
       do 995 i=1,nber
         b2(i)=b(i)/facult(i+1)

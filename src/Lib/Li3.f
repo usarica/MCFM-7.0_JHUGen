@@ -1,13 +1,16 @@
-      double precision function Li3(x)
+      function Li3(x)
       implicit none
-C     returns Li_3(x) for real x, minf < x < 1
-      double precision x
-      double complex wgplg
+      include 'types.f'
+      real(dp):: Li3
 
-      if (x .gt. 1d0) then
+C     returns Li_3(x) for real x, minf < x < 1
+      real(dp):: x
+      complex(dp):: wgplg
+
+      if (x > 1._dp) then
         write(6,*) 'x>1 in Li3 function, src/Lib/Li3.f'
         stop
       endif
 
-      Li3 = dble(wgplg(2,1,x))
+      Li3 = real(wgplg(2,1,x))
       end

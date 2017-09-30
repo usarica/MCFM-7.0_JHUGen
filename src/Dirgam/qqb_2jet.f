@@ -1,17 +1,22 @@
 !====== NEW routine for dirgam fragmentation dipoles
-!====== fragmenting photon will be placed in position 3    implicit none
+!====== fragmenting photon will be placed in position 3
       subroutine qqb_2jet(p,msq)
+      implicit none
+      include 'types.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'qcdcouple.f'
       include 'sprods_com.f'
       include 'msqbits.f'
-      integer j,k
-      double precision msq(-nf:nf,-nf:nf),p(mxpart,4),fac,
-     .  qqij_ij,aaij_ij,
-     .  qaij_ij,aqij_ij,aqii_jj,qaii_jj,
-     .  qqii_ii,aaii_ii,aqii_ii,qaii_ii,
-     .  aq_gg,gq_qg,ga_ag,qg_qg,ag_ag,gg_qa,qa_gg,ss,tt,uu,
-     .  smalla,smallb,smallc
+      integer:: j,k
+      real(dp):: msq(-nf:nf,-nf:nf),p(mxpart,4),fac,
+     &  qqij_ij,aaij_ij,
+     &  qaij_ij,aqij_ij,aqii_jj,qaii_jj,
+     &  qqii_ii,aaii_ii,aqii_ii,qaii_ii,
+     &  aq_gg,gq_qg,ga_ag,qg_qg,ag_ag,gg_qa,qa_gg,ss,tt,uu,
+     &  smalla,smallb,smallc
       call dotem(4,p,s)
       fac=gsq**2
       ss=s(1,2)
@@ -67,53 +72,53 @@ c--- contributions in gmgmjt process
       do j=-nf,nf
       do k=-nf,nf
 c--set msq=0 to initalize
-      msq(j,k)=0d0
+      msq(j,k)=0._dp
 C--qq
-      if ((j .gt. 0) .and. (k .gt. 0)) then
-          if (j .eq. k) then
+      if ((j > 0) .and. (k > 0)) then
+          if (j == k) then
             msq(j,k)=qqii_ii
           else
             msq(j,k)=qqij_ij
           endif
 
 C--qa
-      elseif ((j .gt. 0) .and. (k .lt. 0)) then
-          if (j .eq. -k) then
-            msq(j,k)=qaii_ii+dfloat(nf-1)*qaii_jj+qa_gg
+      elseif ((j > 0) .and. (k < 0)) then
+          if (j == -k) then
+            msq(j,k)=qaii_ii+real(nf-1,dp)*qaii_jj+qa_gg
           else
             msq(j,k)=qaij_ij
           endif
 
 C--aa
-      elseif ((j .lt. 0) .and. (k .lt. 0)) then
-          if (j .eq. k) then
+      elseif ((j < 0) .and. (k < 0)) then
+          if (j == k) then
             msq(j,k)=aaii_ii
           else
             msq(j,k)=aaij_ij
           endif
 
 C--aq
-      elseif ((j .lt. 0) .and. (k .gt. 0)) then
-          if (j .eq. -k) then
-            msq(j,k)=aqii_ii+dfloat(nf-1)*aqii_jj+aq_gg
+      elseif ((j < 0) .and. (k > 0)) then
+          if (j == -k) then
+            msq(j,k)=aqii_ii+real(nf-1,dp)*aqii_jj+aq_gg
           else
             msq(j,k)=aqij_ij
           endif
 
 C--qg_qg
-      elseif ((j .gt. 0) .and. (k .eq. 0)) then
+      elseif ((j > 0) .and. (k == 0)) then
             msq(j,k)=qg_qg
 C--ag
-      elseif ((j .lt. 0) .and. (k .eq. 0)) then
+      elseif ((j < 0) .and. (k == 0)) then
             msq(j,k)=ag_ag
 C--gq_gq
-      elseif ((j .eq. 0) .and. (k .gt. 0)) then
+      elseif ((j == 0) .and. (k > 0)) then
             msq(j,k)=gq_qg
 C--ga
-      elseif ((j .eq. 0) .and. (k .lt. 0)) then
+      elseif ((j == 0) .and. (k < 0)) then
             msq(j,k)=ga_ag
 C--gg
-      elseif ((j .eq. 0) .and. (k .eq. 0)) then
+      elseif ((j == 0) .and. (k == 0)) then
             msq(j,k)=gg_qa
       endif
 

@@ -1,2 +1,2 @@
-      integer nwz
+      integer:: nwz
       common/nwz/nwz

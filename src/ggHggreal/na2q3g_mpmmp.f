@@ -1,19 +1,25 @@
-      double complex function na2q3g_mpmmp(j2,j3,j4,j5,j1,zb,za)
-c--- Caclculation of the amplitudes using results of S. Badger
+      function na2q3g_mpmmp(j2,j3,j4,j5,j1,zb,za)
+c--- Calculation of the amplitudes using results of S. Badger
 c--- as adapted from routines written by F. Caola      
 C  Arguments in call are strange because 
 C this has been created from A0Hqbqggg_mp_mpp
+      
+      include 'types.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      complex(dp)::na2q3g_mpmmp
       include 'zprods_decl.f'
       include 'sprods_com.f'
-      integer j1,j2,j3,j4,j5
-      double precision :: qsq
-      double precision :: sH1, sH4, sH5, s125, s123, s234, s345
-      double complex zab_1_pH_4, zab_5_pH_1, zab_5_pH_4, zab_3_pH_4, 
+      integer::j1,j2,j3,j4,j5
+      real(dp)::qsq
+      real(dp)::sH1, sH4, sH5, s125, s123, s234, s345
+      complex(dp)::zab_1_pH_4, zab_5_pH_1, zab_5_pH_4, zab_3_pH_4, 
      & zab_1_pH5_4, zab_3_pH4_5,zab_1_23_4, zab_3_45_2,  zab_5_34_2
-      double complex zbb_2_pH34_pH_4, zbb_4_pH_15_2
-      double complex zab2, zab3
-      double precision  s3, s4
+      complex(dp)::zbb_2_pH34_pH_4, zbb_4_pH_15_2
+      complex(dp)::zab2, zab3
+      real(dp):: s3, s4
 
 c--- begin statement functions
       zab2(j1,j2,j3,j4)=za(j1,j2)*zb(j2,j4)+za(j1,j3)*zb(j3,j4)

@@ -1,4 +1,6 @@
       subroutine nplotter(p,wt,wt2,nd)
+      implicit none
+      include 'types.f'
 c--- Variable passed in to this routine:
 c
 c---      p:  4-momenta of leptons and jets in the format p(i,4)
@@ -9,13 +11,18 @@ c---     wt:  weight of this event
 c
 c---    wt2:  weight^2 of this event
 c
-c---     nd:  an integer specifying the dipole number of this contribution
+c---     nd:  an integer:: specifying the dipole number of this contribution
 c---          (if applicable), otherwise equal to zero
-      implicit none
+      
       include 'constants.f'
-      include 'process.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      include 'kprocess.f'
       include 'nplot.f'
       include 'nproc.f'
+      include 'first.f'
+      include 'taucut.f'
 
 c--- APPLgrid - use of grids
 c      include 'ptilde.f'
@@ -23,8 +30,10 @@ c      include 'APPLinclude.f'
 c--- APPLgrid - end
 
 
-      double precision p(mxpart,4),wt,wt2
-      integer switch,nd
+      real(dp):: p(mxpart,4),wt,wt2
+      integer:: switch,nd
+      integer, save :: plotindex
+!$omp threadprivate(plotindex)
       
 c--- This routine simply picks out a process-specific plotting routine
 c---  (if available) and falls back to the generic routine otherwise.
@@ -39,103 +48,205 @@ c---  keeping track of the plot index across different files (GPS)
 c---  first allow for user plots
       call userplotter(p,wt,wt2,nd)
 
-c--- switch:  an integer equal to either 0 or 1, depending on the type of event
+c--- switch:  an integer:: equal to either 0 or 1, depending on the type of event
 c---                0  --> lowest order, virtual or real radiation
 c---                1  --> counterterm for real radiation
-      if (nd.gt.0) then 
+      if (nd>0) then 
          switch=1
       else
          switch=0
       endif
          
 c--- Special plotting routine for WW -> leptons
-      if((nproc.eq.61).or.(nproc.eq.126).or.(nproc.eq.127)) then 
+      if((nproc==61).or.(nproc==126).or.(nproc==127)) then 
          call nplotter_VV(p,wt,wt2,switch,0)
          return 
       endif
 
-      if     (case .eq. 'W_only') then
-        call nplotter_W_only(p,wt,wt2,switch)
-      elseif (case .eq. 'Z_only') then
-        call nplotter_Z_only(p,wt,wt2,switch)
-      elseif (case .eq. 'W_cjet') then
-        call nplotter_Wbbmas(p,wt,wt2,switch)
-      elseif (case .eq. 'Wbbbar') then
-        call nplotter_Wbbmas(p,wt,wt2,switch)
-      elseif ((case .eq. 'Wbbmas') .or. (case .eq. 'W_bjet')) then
-        call nplotter_Wbbmas(p,wt,wt2,switch)
-      elseif ((case .eq. 'WpWp2j') .or. (case .eq. 'WpWp3j'))then
-        call nplotter_WpWp(p,wt,wt2,switch)
-      elseif ((case.eq.'W_1jet') .or. (case.eq.'W_2jet') 
-     &   .or. (case.eq.'W_3jet')) then
-        call nplotter_Wjets(p,wt,wt2,switch)
-      elseif ((case.eq.'HWW_4l') .or. (case.eq.'HWW_tb') 
-     &   .or. (case.eq.'HWW2lq') .or. (case.eq.'HWWint') 
-     &   .or. (case.eq.'HWWH+i') .or. (case.eq.'ggWW4l')
-     &   .or. (case.eq.'WWqqbr') .or. (case.eq.'ggWWbx')) then
-        call nplotter_VV(p,wt,wt2,switch,0)
-      elseif ((case .eq. 'WW_jet') .or. (case .eq. 'WW2jet')) then
-        call nplotter_WW_jet(p,wt,wt2,switch)
+!----- special plotting routine for VHgaga 
+      if((nproc==93).or.(nproc==98).or.(nproc==104)
+     &   .or.(nproc==612).or.(nproc==617).or.(nproc==622)
+     &   .or.(nproc==370).or.(nproc==371).or.(nproc==301)) then 
+         call nplotter_VHgaga(p,wt,wt2,switch,nd) 
+         return
+      endif
+
+!====== special plotting routine for VHWW
+      if((nproc==94).or.(nproc==99).or.(nproc==106)
+     &   .or.(nproc==613).or.(nproc==618).or.(nproc==623)) then 
+         call nplotter_VHWW(p,wt,wt2,switch,nd) 
+         return
+      endif
+      
+c--- work out which plotting routine to use when first called
+c-----> saves string comparison in general and important for combining SCET
+      if (first) then
+        first=.false.
+        if     (kcase==kW_only) then
+c          plotindex=1
+          plotindex=1000 ! revert to default plotting routine
+        elseif (kcase==kZ_only) then
+          plotindex=2
+        elseif (kcase==kW_cjet) then
+          plotindex=3
+        elseif (kcase==kWbbbar) then
+          plotindex=4
+        elseif ((kcase==kWbbmas) .or. (kcase==kW_bjet)) then
+          plotindex=5
+        elseif ((kcase==kWpWp2j) .or. (kcase==kWpWp3j))then
+          plotindex=6
+        elseif ((kcase==kW_1jet) .or. (kcase==kW_2jet) 
+     &     .or. (kcase==kW_3jet)) then
+          plotindex=7
+        elseif ((kcase==kHWW_4l) .or. (kcase==kHWW_tb) 
+     &     .or. (kcase==kHWW2lq) .or. (kcase==kHWWint) 
+     &     .or. (kcase==kHWWHpi) .or. (kcase==kggWW4l)
+     &     .or. (kcase==kWWqqbr) .or. (kcase==kggWWbx)) then
+          plotindex=8
+        elseif ((kcase==kWW_jet) .or. (kcase==kWW2jet)) then
+          plotindex=9
 c--- photon processes also need to know the dipole number
-      elseif ((case.eq.'Wgamma') .or. (case.eq.'Zgamma')
-     &   .or. (case.eq.'Wgajet') .or. (case.eq.'Zgajet')) then
+        elseif ((kcase==kWgamma) .or. (kcase==kZgamma)
+     &     .or. (kcase==kWgajet) .or. (kcase==kZgajet)) then
+          plotindex=10
+        elseif ((kcase==kgamgam) .or. (kcase==kgg2gam)) then
+          plotindex=11
+        elseif (kcase==kgmgmjt) then
+          if (usescet) then
+            plotindex=11 ! same routine below and above cut for SCET
+          else
+            plotindex=12
+          endif
+        elseif (kcase==kdirgam) then 
+          plotindex=13
+        elseif (kcase==ktrigam) then 
+          plotindex=14
+        elseif (kcase==kW_2gam)  then
+          plotindex=15
+        elseif (kcase==kZ_2gam)  then
+          plotindex=16
+        elseif (kcase==kZgajet)  then
+          plotindex=17
+        elseif ((kcase==ktt_bbl) .or. (kcase==ktt_ldk)
+     &     .or. (kcase==ktt_bbh) .or. (kcase==ktt_bbu)
+     &     .or. (kcase==ktt_hdk) .or. (kcase==ktthWdk)
+     &     .or. (kcase==ktt_udk)) then
+          plotindex=18
+        elseif ((kcase==k4ftwdk) .or. (kcase==kdk_4ft)) then
+          plotindex=19
+        elseif ((kcase==kt_bbar) .or. (kcase==ktdecay)) then
+          plotindex=20
+        elseif (kcase==kqq_ttw) then
+          plotindex=21
+        elseif ((kcase==kH_tjet) .or. (kcase==kZ_tjet)) then
+          plotindex=22
+        elseif ((kcase==kH_tdkj) .or. (kcase==kZ_tdkj)) then
+          plotindex=23
+        elseif (kcase==kqqtthz) then
+          plotindex=24
+        elseif ((kcase==kdm_jet).or.(kcase==kdm2jet)) then 
+          plotindex=25
+        elseif ((kcase==kdm_gam).or.(kcase==kdm_gaj)) then 
+          plotindex=26
+        elseif ((kcase==kqqZZqq).or.(kcase==kqqWWqq) 
+     &     .or. (kcase==kqqVVqq).or.(kcase==kqqWWss)
+     &     .or. (kcase==kqqWZqq).or.(kcase==kWpmZjj)
+     &     .or.(kcase==kqq_ttg)) then 
+          plotindex=27
+        elseif ((kcase==kHZZ_4l)
+     &    .or.  (kcase==kHZZ_tb)
+     &    .or.  (kcase==kHZZint)
+     &    .or.  (kcase==kHZZHpi)
+     &    .or.  (kcase==kggZZ4l) 
+     &    .or.  (kcase==kggZZbx) 
+     &    .or.  (kcase==kHZZqgI) 
+     &    .or.  (kcase==kZZlept)
+     &    .or.  (kcase==kggVV4l) 
+     &    .or.  (kcase==kggVVbx) 
+     &    .or.  (kcase==kHVV_tb)) then 
+           plotindex=28
+        elseif((kcase.eq.kWHbbar).or.(kcase.eq.kZHbbar)
+     &     .or.(kcase.eq.kWH1jet).or.(kcase.eq.kZH1jet)
+     &     .or.(kcase.eq.kWHbbdk).or.(kcase.eq.kZHbbdk)
+     &          ) then
+           plotindex=29
+        elseif (kcase==kZbbbar) then
+           plotindex=30
+        else
+          plotindex=1000
+        endif
+      endif
+
+      select case (plotindex)
+      case (1)
+        call nplotter_W_only(p,wt,wt2,switch)
+      case (2)
+        call nplotter_Z_only(p,wt,wt2,switch)
+      case (3)
+        call nplotter_Wbbmas(p,wt,wt2,switch)
+      case (4)
+        call nplotter_Wbbmas(p,wt,wt2,switch)
+      case (5)
+        call nplotter_Wbbmas(p,wt,wt2,switch)
+      case (6)
+        call nplotter_WpWp(p,wt,wt2,switch)
+      case (7)
+        call nplotter_Wjets(p,wt,wt2,switch)
+      case (8)
+        call nplotter_VV(p,wt,wt2,switch,0)
+      case (9)
+        call nplotter_WW_jet(p,wt,wt2,switch)
+      case (10)
         call nplotter_Vgamma(p,wt,wt2,switch,nd)
-      elseif (case.eq.'gamgam') then
+      case (11)
         call nplotter_gamgam(p,wt,wt2,switch,nd)
-      elseif (case .eq. 'gmgmjt') then
+      case (12)
         call nplotter_gmgmjt(p,wt,wt2,switch)
-      elseif (case.eq.'dirgam') then 
+      case (13)
         call nplotter_dirgam(p,wt,wt2,switch,nd)
-      elseif (case.eq.'trigam') then 
+      case (14)
         call nplotter_trigam(p,wt,wt2,switch)
-      elseif (case.eq.'W_2gam')  then
+      case (15)
         call nplotter_wgamgam(p,wt,wt2,switch,nd)
-      elseif (case.eq.'Z_2gam')  then
+      case (16)
         call nplotter_zgamgam(p,wt,wt2,switch,nd)
-      elseif (case.eq.'Zgajet')  then
+      case (17)
         call nplotter_zgamjet(p,wt,wt2,switch,nd) 
-      elseif ((case.eq.'tt_bbl') .or. (case.eq.'tt_ldk')
-     &   .or. (case.eq.'tt_bbh') .or. (case.eq.'tt_bbu')
-     &   .or. (case.eq.'tt_hdk') .or. (case.eq.'tthWdk')
-     &   .or. (case.eq.'tt_udk')) then
+      case (18)
         call nplotter_ttbar(p,wt,wt2,switch)
-      elseif ((case.eq.'4ftwdk') .or. (case.eq.'dk_4ft')) then
+      case (19)
         call nplotter_4ftwdk(p,wt,wt2,switch)
-      elseif ((case.eq.'t_bbar') .or. (case.eq.'tdecay')) then
+      case (20)
         call nplotter_tbbar(p,wt,wt2,switch)
-      elseif (case.eq.'qq_ttw') then
+      case (21)
         call nplotter_ttw(p,wt,wt2,switch)
-      elseif ((case .eq. 'H_tjet') .or. (case .eq. 'Z_tjet')) then
-          call nplotter_Ztj(p,wt,wt2,switch)
-      elseif ((case .eq. 'H_tdkj') .or. (case .eq. 'Z_tdkj')) then
-           call nplotter_Ztjdk(p,wt,wt2,switch)
-      elseif (case .eq. 'qqtthz') then
-            call nplotter_ttZ(p,wt,wt2,switch)
-      elseif ((case .eq. 'dm_jet').or.(case.eq.'dm2jet')) then 
+      case (22)
+        call nplotter_Ztj(p,wt,wt2,switch)
+      case (23)
+        call nplotter_Ztjdk(p,wt,wt2,switch)
+      case (24)
+        call nplotter_ttZ(p,wt,wt2,switch)
+      case (25)
          call nplotter_dm_monj(p,wt,wt2,switch)
-      elseif ((case .eq. 'dm_gam').or.(case.eq.'dm_gaj')) then 
+      case (26)
          call nplotter_dm_mongam(p,wt,wt2,switch,nd)
-      elseif ((case.eq.'qqZZqq').or.(case.eq.'qqWWqq') 
-     &   .or. (case.eq.'qqVVqq').or.(case.eq.'qqWWss')
-     &   .or. (case.eq.'qqWZqq').or.(case.eq.'WpmZjj')
-     &   .or.(case.eq.'qq_ttg')) then 
+      case (27)
          call nplotter_qqZZqq(p,wt,wt2,switch)
-      elseif ((case .eq. 'HZZ_4l')
-     & .or.   (case .eq. 'HZZ_tb')
-     & .or.   (case .eq. 'HZZint')
-     & .or.   (case .eq. 'HZZH+i')
-     & .or.   (case .eq. 'ggZZ4l') 
-     & .or.   (case .eq. 'ggZZbx') 
-     & .or.   (case .eq. 'HZZqgI') 
-     & .or.   (case .eq. 'ZZlept')
-     & .or.   (case .eq. 'ggVV4l') 
-     & .or.   (case .eq. 'ggVVbx') 
-     & .or.   (case .eq. 'HVV_tb')) then 
+      case (28)
          call nplotter_ZZlept(p,wt,wt2,switch)
-      else
+      case (29)
+c         call nplotter_VHbbar(p,wt,wt2,switch,nd)
+         call nplotter_VHbbarHXSWG(p,wt,wt2,switch,nd)
+      case (30)
+         call nplotter_Zbbbar(p,wt,wt2,switch,nd) 
+c         call nplotter_VHgaga(p,wt,wt2,switch,nd) 
+      case (1000)
          call nplotter_auto(p,wt,wt2)
 c         call nplotter_generic(p,wt,wt2,switch)
-      endif
+      case DEFAULT
+        write(6,*) 'unexpected plotindex in nplotter =',plotindex
+        stop
+      end select
       
 c--- APPLgrid - filling applgrid
 c      if (creategrid) call fill_grid(p)

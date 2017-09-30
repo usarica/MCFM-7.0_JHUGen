@@ -4,54 +4,59 @@
      & ASLmp,ASLpm,ASLmm,ASLpp,
      & Afmp,Afpm,Afmm,Afpp)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
-      integer j
-      double complex 
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      integer:: j
+      complex(dp):: 
      & A6treemp,A6treepm,A6treemm,A6treepp,
      & ALCmp(-2:0),ALCpm(-2:0),ALCmm(-2:0),ALCpp(-2:0),
      & ASLmp(-2:0),ASLpm(-2:0),ASLmm(-2:0),ASLpp(-2:0),
      & Afmp(-2:0),Afpm(-2:0),Afmm(-2:0),Afpp(-2:0)
-      double precision p(mxpart,4),wmass,mb
+      real(dp):: p(mxpart,4),wmass,mb
       
       do j=-2,0
       ALCmp(j)=ALCmp(j)/A6treemp
       ALCpm(j)=ALCpm(j)/A6treepm
       ALCmm(j)=ALCmm(j)/A6treemm
       ALCpp(j)=ALCpp(j)/A6treepp
-      if (abs(dimag(ALCmp(j))).lt.1d-15) 
-     & ALCmp(j)=Dcmplx(dreal(ALCmp(j)),0d0)
-      if (abs(dimag(ALCpm(j))).lt.1d-15) 
-     & ALCpm(j)=Dcmplx(dreal(ALCpm(j)),0d0)
-      if (abs(dimag(ALCmm(j))).lt.1d-15) 
-     & ALCmm(j)=Dcmplx(dreal(ALCmm(j)),0d0)
-      if (abs(dimag(ALCpp(j))).lt.1d-15) 
-     & ALCpp(j)=Dcmplx(dreal(ALCpp(j)),0d0)
+      if (abs(aimag(ALCmp(j)))<1e-15_dp) 
+     & ALCmp(j)=cplx2(real(ALCmp(j)),zip)
+      if (abs(aimag(ALCpm(j)))<1e-15_dp) 
+     & ALCpm(j)=cplx2(real(ALCpm(j)),zip)
+      if (abs(aimag(ALCmm(j)))<1e-15_dp) 
+     & ALCmm(j)=cplx2(real(ALCmm(j)),zip)
+      if (abs(aimag(ALCpp(j)))<1e-15_dp) 
+     & ALCpp(j)=cplx2(real(ALCpp(j)),zip)
 
       ASLmp(j)=ASLmp(j)/A6treemp
       ASLpm(j)=ASLpm(j)/A6treepm
       ASLmm(j)=ASLmm(j)/A6treemm
       ASLpp(j)=ASLpp(j)/A6treepp
-      if (abs(dimag(ASLmp(j))).lt.1d-15) 
-     & ASLmp(j)=Dcmplx(dreal(ASLmp(j)),0d0)
-      if (abs(dimag(ASLpm(j))).lt.1d-15) 
-     & ASLpm(j)=Dcmplx(dreal(ASLpm(j)),0d0)
-      if (abs(dimag(ASLmm(j))).lt.1d-15) 
-     & ASLmm(j)=Dcmplx(dreal(ASLmm(j)),0d0)
-      if (abs(dimag(ASLpp(j))).lt.1d-15) 
-     & ASLpp(j)=Dcmplx(dreal(ASLpp(j)),0d0)
+      if (abs(aimag(ASLmp(j)))<1e-15_dp) 
+     & ASLmp(j)=cplx2(real(ASLmp(j)),zip)
+      if (abs(aimag(ASLpm(j)))<1e-15_dp) 
+     & ASLpm(j)=cplx2(real(ASLpm(j)),zip)
+      if (abs(aimag(ASLmm(j)))<1e-15_dp) 
+     & ASLmm(j)=cplx2(real(ASLmm(j)),zip)
+      if (abs(aimag(ASLpp(j)))<1e-15_dp) 
+     & ASLpp(j)=cplx2(real(ASLpp(j)),zip)
 
       Afmp(j)=Afmp(j)/A6treemp
       Afpm(j)=Afpm(j)/A6treepm
       Afmm(j)=Afmm(j)/A6treemm
       Afpp(j)=Afpp(j)/A6treepp
-      if (abs(dimag(Afmp(j))).lt.1d-15) 
-     & Afmp(j)=Dcmplx(dreal(Afmp(j)),0d0)
-      if (abs(dimag(Afpm(j))).lt.1d-15) 
-     & Afpm(j)=Dcmplx(dreal(Afpm(j)),0d0)
-      if (abs(dimag(Afmm(j))).lt.1d-15) 
-     & Afmm(j)=Dcmplx(dreal(Afmm(j)),0d0)
-      if (abs(dimag(Afpp(j))).lt.1d-15) 
-     & Afpp(j)=Dcmplx(dreal(Afpp(j)),0d0)
+      if (abs(aimag(Afmp(j)))<1e-15_dp) 
+     & Afmp(j)=cplx2(real(Afmp(j)),zip)
+      if (abs(aimag(Afpm(j)))<1e-15_dp) 
+     & Afpm(j)=cplx2(real(Afpm(j)),zip)
+      if (abs(aimag(Afmm(j)))<1e-15_dp) 
+     & Afmm(j)=cplx2(real(Afmm(j)),zip)
+      if (abs(aimag(Afpp(j)))<1e-15_dp) 
+     & Afpp(j)=cplx2(real(Afpp(j)),zip)
       enddo
       open(unit=66,file='table1.tex',status='unknown')
       open(unit=67,file='table2.tex',status='unknown')
@@ -72,56 +77,56 @@
       write(66,*) '&$1/\\e^2$ & $1/\e$ & $\\e^0$ \\\\'
       write(66,*) '\\hline'
       write(66,*) '\\hline $A_6^{\\rm tree}$ '
-      write(66,88) 0d0,0d0,dreal(A6treemp),0d0,0d0,dreal(A6treepm),
-     &             0d0,0d0,dimag(A6treemp),0d0,0d0,dimag(A6treepm)
+      write(66,88) zip,zip,real(A6treemp),zip,zip,real(A6treepm),
+     &             zip,zip,aimag(A6treemp),zip,zip,aimag(A6treepm)
       write(66,*) '\\hline $A/A_6^{\\rm tree}$'
       write(66,88) 
-     & dreal(ALCmp(-2)),
-     & dreal(ALCmp(-1)),
-     & dreal(ALCmp( 0)),
-     & dreal(ALCpm(-2)),
-     & dreal(ALCpm(-1)),
-     & dreal(ALCpm( 0)),
-     & dimag(ALCmp(-2)),
-     & dimag(ALCmp(-1)),
-     & dimag(ALCmp( 0)),
-     & dimag(ALCpm(-2)),
-     & dimag(ALCpm(-1)),
-     & dimag(ALCpm( 0))
+     & real(ALCmp(-2)),
+     & real(ALCmp(-1)),
+     & real(ALCmp( 0)),
+     & real(ALCpm(-2)),
+     & real(ALCpm(-1)),
+     & real(ALCpm( 0)),
+     & aimag(ALCmp(-2)),
+     & aimag(ALCmp(-1)),
+     & aimag(ALCmp( 0)),
+     & aimag(ALCpm(-2)),
+     & aimag(ALCpm(-1)),
+     & aimag(ALCpm( 0))
       write(66,*) '\\hline $A^{sl}/A_6^{\\rm tree}$'
       write(66,88) 
-     & dreal(ASLmp(-2)),
-     & dreal(ASLmp(-1)),
-     & dreal(ASLmp( 0)),
-     & dreal(ASLpm(-2)),
-     & dreal(ASLpm(-1)),
-     & dreal(ASLpm( 0)),
-     & dimag(ASLmp(-2)),
-     & dimag(ASLmp(-1)),
-     & dimag(ASLmp( 0)),
-     & dimag(ASLpm(-2)),
-     & dimag(ASLpm(-1)),
-     & dimag(ASLpm( 0))
+     & real(ASLmp(-2)),
+     & real(ASLmp(-1)),
+     & real(ASLmp( 0)),
+     & real(ASLpm(-2)),
+     & real(ASLpm(-1)),
+     & real(ASLpm( 0)),
+     & aimag(ASLmp(-2)),
+     & aimag(ASLmp(-1)),
+     & aimag(ASLmp( 0)),
+     & aimag(ASLpm(-2)),
+     & aimag(ASLpm(-1)),
+     & aimag(ASLpm( 0))
 
       write(66,*) '\\hline $A^f/A_6^{\\rm tree}$ '
       write(66,88) 
-     & dreal(Afmp(-2)),
-     & dreal(Afmp(-1)),
-     & dreal(Afmp( 0)),
-     & dreal(Afpm(-2)),
-     & dreal(Afpm(-1)),
-     & dreal(Afpm( 0)),
-     & dimag(Afmp(-2)),
-     & dimag(Afmp(-1)),
-     & dimag(Afmp( 0)),
-     & dimag(Afpm(-2)),
-     & dimag(Afpm(-1)),
-     & dimag(Afpm( 0))
+     & real(Afmp(-2)),
+     & real(Afmp(-1)),
+     & real(Afmp( 0)),
+     & real(Afpm(-2)),
+     & real(Afpm(-1)),
+     & real(Afpm( 0)),
+     & aimag(Afmp(-2)),
+     & aimag(Afmp(-1)),
+     & aimag(Afmp( 0)),
+     & aimag(Afpm(-2)),
+     & aimag(Afpm(-1)),
+     & aimag(Afpm( 0))
 
       write(66,*) '\\hline'
 
    88 format(6('& $',f19.11,'   $ '),'\\\\ \n',
-     .                   6('& $',f19.11,'\\,i$ '),'\\\\ \n')   
+     &                   6('& $',f19.11,'\\,i$ '),'\\\\ \n')   
       write(66,*) '\\hline'
       write(66,*) '\\end{tabular}'
       write(66,*) '\\caption{Numerical values',
@@ -148,51 +153,51 @@
       write(67,*) '&$1/\\e^2$ & $1/\e$ & $\\e^0$ \\\\'
       write(67,*) '\\hline'
       write(67,*) '\\hline $A_6^{\\rm tree}$ '
-      write(67,88) 0d0,0d0,dreal(A6treemm),0d0,0d0,dreal(A6treepp),
-     &             0d0,0d0,dimag(A6treemm),0d0,0d0,dimag(A6treepp)
+      write(67,88) zip,zip,real(A6treemm),zip,zip,real(A6treepp),
+     &             zip,zip,aimag(A6treemm),zip,zip,aimag(A6treepp)
       write(67,*) '\\hline $A/A_6^{\\rm tree}$'
       write(67,88) 
-     & dreal(ALCmm(-2)),
-     & dreal(ALCmm(-1)),
-     & dreal(ALCmm( 0)),
-     & dreal(ALCpp(-2)),
-     & dreal(ALCpp(-1)),
-     & dreal(ALCpp( 0)),
-     & dimag(ALCmm(-2)),
-     & dimag(ALCmm(-1)),
-     & dimag(ALCmm( 0)),
-     & dimag(ALCpp(-2)),
-     & dimag(ALCpp(-1)),
-     & dimag(ALCpp( 0))
+     & real(ALCmm(-2)),
+     & real(ALCmm(-1)),
+     & real(ALCmm( 0)),
+     & real(ALCpp(-2)),
+     & real(ALCpp(-1)),
+     & real(ALCpp( 0)),
+     & aimag(ALCmm(-2)),
+     & aimag(ALCmm(-1)),
+     & aimag(ALCmm( 0)),
+     & aimag(ALCpp(-2)),
+     & aimag(ALCpp(-1)),
+     & aimag(ALCpp( 0))
       write(67,*) '\\hline $A^{sl}/A_6^{\\rm tree}$'
       write(67,88) 
-     & dreal(ASLmm(-2)),
-     & dreal(ASLmm(-1)),
-     & dreal(ASLmm( 0)),
-     & dreal(ASLpp(-2)),
-     & dreal(ASLpp(-1)),
-     & dreal(ASLpp( 0)),
-     & dimag(ASLmm(-2)),
-     & dimag(ASLmm(-1)),
-     & dimag(ASLmm( 0)),
-     & dimag(ASLpp(-2)),
-     & dimag(ASLpp(-1)),
-     & dimag(ASLpp( 0))
+     & real(ASLmm(-2)),
+     & real(ASLmm(-1)),
+     & real(ASLmm( 0)),
+     & real(ASLpp(-2)),
+     & real(ASLpp(-1)),
+     & real(ASLpp( 0)),
+     & aimag(ASLmm(-2)),
+     & aimag(ASLmm(-1)),
+     & aimag(ASLmm( 0)),
+     & aimag(ASLpp(-2)),
+     & aimag(ASLpp(-1)),
+     & aimag(ASLpp( 0))
 
       write(67,*) '\\hline $A^f/A_6^{\\rm tree}$ '
       write(67,88) 
-     & dreal(Afmm(-2)),
-     & dreal(Afmm(-1)),
-     & dreal(Afmm( 0)),
-     & dreal(Afpp(-2)),
-     & dreal(Afpp(-1)),
-     & dreal(Afpp( 0)),
-     & dimag(Afmm(-2)),
-     & dimag(Afmm(-1)),
-     & dimag(Afmm( 0)),
-     & dimag(Afpp(-2)),
-     & dimag(Afpp(-1)),
-     & dimag(Afpp( 0))
+     & real(Afmm(-2)),
+     & real(Afmm(-1)),
+     & real(Afmm( 0)),
+     & real(Afpp(-2)),
+     & real(Afpp(-1)),
+     & real(Afpp( 0)),
+     & aimag(Afmm(-2)),
+     & aimag(Afmm(-1)),
+     & aimag(Afmm( 0)),
+     & aimag(Afpp(-2)),
+     & aimag(Afpp(-1)),
+     & aimag(Afpp( 0))
 
       write(67,*) '\\hline'
 

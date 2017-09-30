@@ -1,5 +1,7 @@
       subroutine qqb_QQbdkBSY(p,msq)
       implicit none
+      include 'types.f'
+
 ************************************************************************
 *     Author: R.K. Ellis                                               *
 *     October, 2011.                                                   *
@@ -13,24 +15,27 @@
 *                                                                      *
 ************************************************************************
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ewcouple.f'
       include 'qcdcouple.f'
       include 'masses.f'
-      include 'process.f'
+      include 'kprocess.f'
       include 'sprods_com.f'
       include 'zprods_com.f'
       include 'zabprods_decl.f'
       include 'msq_cs.f'
       include 'etadef.f'
       include 'qdef.f'
-      integer j,k,nu,cs,j1,j3
-      double precision msq(-nf:nf,-nf:nf),p(mxpart,4),q(mxpart,4)
-      double precision fac,qqb,c1,c4,ss,s34,s35,s45,s67,s68,s78
-      double complex  amp(2),prop,loab(2,2),loba(2,2),loqed(2,2)
-      double complex  BSYA0qqppmp,BSYA0ggpppp,BSYA0ggppmp
+      integer:: j,k,nu,cs,j1,j3
+      real(dp):: msq(-nf:nf,-nf:nf),p(mxpart,4),q(mxpart,4)
+      real(dp):: fac,qqb,c1,c4,ss,s34,s35,s45,s67,s68,s78
+      complex(dp)::  amp(2),prop,loab(2,2),loba(2,2),loqed(2,2)
+      complex(dp)::  BSYA0qqppmp,BSYA0ggpppp,BSYA0ggppmp
       external BSYA0qqppmp,BSYA0ggpppp,BSYA0ggppmp
       ss(j,k)=2d0
-     . *(p(j,4)*p(k,4)-p(j,1)*p(k,1)-p(j,2)*p(k,2)-p(j,3)*p(k,3))
+     & *(p(j,4)*p(k,4)-p(j,1)*p(k,1)-p(j,2)*p(k,2)-p(j,3)*p(k,3))
 
       s34=ss(3,4)
       s35=ss(3,5)
@@ -49,12 +54,12 @@ C----set all elements to zero
       enddo
       enddo
 
-      prop=dcmplx(s34-wmass**2,wmass*wwidth)
-     .    *dcmplx(s78-wmass**2,wmass*wwidth)
-     .    *dcmplx(zip,mt*twidth)**2
+      prop=cplx2(s34-wmass**2,wmass*wwidth)
+     &    *cplx2(s78-wmass**2,wmass*wwidth)
+     &    *cplx2(zip,mt*twidth)**2
       fac=V*gwsq**4*gsq**2/abs(prop)**2*s35*s68
 C--include factor for hadronic decays
-      if ((case .eq. 'tt_bbh') .or. (case .eq. 'tt_hdk')) fac=2d0*xn*fac
+      if ((kcase==ktt_bbh) .or. (kcase==ktt_hdk)) fac=2d0*xn*fac
 
 C-----make top and topb massless wrt e+(4) and e-(7) momentum
       c1=mt**2/(s34+s45)
@@ -82,8 +87,8 @@ C---currently s(1,2) and s(1,3) are given as s(1f,2) and s(1f,3)
 C---but we want the full s(1,2) and s(1,3)
 C---hence restore them
 
-      s(1,2)=dble(zab(2,q1,2))
-      s(1,3)=dble(zab(3,q1,3))
+      s(1,2)=real(zab(2,q1,2))
+      s(1,3)=real(zab(3,q1,3))
       s(2,1)=s(1,2)
       s(3,1)=s(1,3)
 
@@ -117,13 +122,13 @@ c---  but this does correspond to the filling in qqb_QQb.f
 
 C---fill qb-q, gg and q-qb elements
       do j=-nf,nf
-      if ((j .lt. 0) .or. (j .gt. 0)) then
+      if ((j < 0) .or. (j > 0)) then
           msq(j,-j)=qqb
 C Division of quark into color structures is arbitrary
           msq_cs(1,j,-j)=qqb/3d0
           msq_cs(2,j,-j)=qqb/3d0
           msq_cs(0,j,-j)=qqb/3d0
-      elseif (j .eq. 0) then
+      elseif (j == 0) then
           msq(0,0)=msq_cs(1,0,0)+msq_cs(2,0,0)+msq_cs(0,0,0)
       endif
       enddo

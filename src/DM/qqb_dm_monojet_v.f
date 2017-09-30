@@ -1,35 +1,40 @@
       subroutine qqb_dm_monojet_v(p,msq) 
+      implicit none
+      include 'types.f'
 !----- routine for calcuating the virtual corrections to monojet production 
-      implicit none 
-      include 'constants.f' 
+       
+      include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h' 
       include 'dm_params.f' 
       include 'scheme.f' 
       include 'qcdcouple.f'
       include 'epinv.f' 
       include 'nflav.f' 
-      double precision  qqbg(2),qbqg(2)
-      double precision qbgq(2),qgqb(2)
-      double precision gqqb(2),gqbq(2) 
-      double precision  qqbg_nf(2),qbqg_nf(2)
-      double precision qbgq_nf(2),qgqb_nf(2)
-      double precision gqqb_nf(2),gqbq_nf(2) 
-      double precision qqbg_sum(nf),qbqg_sum(nf) 
-      double precision qgqb_sum(nf),qbgq_sum(nf) 
-      double precision gqqb_sum(nf),gqbq_sum(nf) 
-      double precision p(mxpart,4),msq(-nf:nf,-nf:nf) 
-      integer j,k 
-      double precision msq0(-nf:nf,-nf:nf),fac,subuv 
-!      logical check_QED 
+      real(dp)::  qqbg(2),qbqg(2)
+      real(dp):: qbgq(2),qgqb(2)
+      real(dp):: gqqb(2),gqbq(2) 
+      real(dp)::  qqbg_nf(2),qbqg_nf(2)
+      real(dp):: qbgq_nf(2),qgqb_nf(2)
+      real(dp):: gqqb_nf(2),gqbq_nf(2) 
+      real(dp):: qqbg_sum(nf),qbqg_sum(nf) 
+      real(dp):: qgqb_sum(nf),qbgq_sum(nf) 
+      real(dp):: gqqb_sum(nf),gqbq_sum(nf) 
+      real(dp):: p(mxpart,4),msq(-nf:nf,-nf:nf) 
+      integer:: j,k 
+      real(dp):: msq0(-nf:nf,-nf:nf),fac,subuv 
+!      logical:: check_QED 
 !      common/check_QED/check_QED
-      double precision fac_dm,s34
-      double complex cprop
-      double precision propsq
+      real(dp):: fac_dm,s34
+      complex(dp):: cprop
+      real(dp):: propsq
 
 !      check_QED=.false. 
       
 !      if(check_QED) then 
 !------ make factor into photon propogator for testing 
-!         s34=2d0*(p(3,4)*p(4,4)-p(3,3)*p(4,3)
+!         s34=two*(p(3,4)*p(4,4)-p(3,3)*p(4,3)
 !     &        -p(3,2)*p(4,2)-p(3,1)*p(4,1))
 !         fac_dm=esq**2/s34**2 
 !         do j=1,nf 
@@ -43,9 +48,9 @@
 
       
 !------ Fix Med-width 
-!      if((medwidth.eq.1d0).and.(first)) then 
+!      if((medwidth==1d0).and.(first)) then 
 !         medwidth=medmass/8d0/pi 
-!      elseif((medwidth.eq.0d0).and.(first)) then
+!      elseif((medwidth==0d0).and.(first)) then
 !         medwidth=medmass/3d0
 !      endif
 !      if(first.and.(effective_th.eqv..false.)) then 
@@ -63,8 +68,8 @@
      &        -(p(3,1)+p(4,1))**2
      &        -(p(3,2)+p(4,2))**2
      &        -(p(3,3)+p(4,3))**2         
-         cprop=cone/Dcmplx((s34-medmass**2),medmass*medwidth)
-         propsq=cdabs(cprop)**2 
+         cprop=cone/cplx2((s34-medmass**2),medmass*medwidth)
+         propsq=abs(cprop)**2 
          fac_dm=propsq*g_dmq**2*g_dmx**2
       endif
 
@@ -89,19 +94,20 @@
       call qqb_dm_monojet(p,msq0) 
 !------ UV counterterm contains the finite renormalization to arrive at the MS bar scheme (V,A check for S) 
 
-      subuv=ason2pi*xn*(epinv*(11d0-2d0*dble(nflav)/xn)-1d0)/6d0
+      subuv=ason2pi*xn
+     & *(epinv*(11._dp-two*real(nflav,dp)/xn)-1._dp)/6._dp
 
       fac=8d0*cf*xnsq*gsq*fac_dm
     
 
-      if(dm_mediator.eq.'vector') then 
+      if(dm_mediator=='vector') then 
          call qqb_dm_monojet_v_Vamps(p,1,2,5,3,4,qgqb)  
          call qqb_dm_monojet_v_Vamps(p,5,2,1,3,4,qbgq)
          call qqb_dm_monojet_v_Vamps(p,1,5,2,3,4,qqbg)  
          call qqb_dm_monojet_v_Vamps(p,2,5,1,3,4,qbqg)
          call qqb_dm_monojet_v_Vamps(p,2,1,5,3,4,gqqb)  
          call qqb_dm_monojet_v_Vamps(p,5,1,2,3,4,gqbq)
-      elseif(dm_mediator.eq.'axvect') then 
+      elseif(dm_mediator=='axvect') then 
          call qqb_dm_monojet_v_Axamps(p,1,2,5,3,4,qgqb)  
          call qqb_dm_monojet_v_Axamps(p,5,2,1,3,4,qbgq)
          call qqb_dm_monojet_v_Axamps(p,1,5,2,3,4,qqbg)  
@@ -115,7 +121,7 @@
          call qqb_dm_monojet_nf_ax(p,2,5,1,3,4,qbqg_nf)
          call qqb_dm_monojet_nf_ax(p,2,1,5,3,4,gqqb_nf)  
          call qqb_dm_monojet_nf_ax(p,5,1,2,3,4,gqbq_nf)  
-      elseif(dm_mediator.eq.'scalar') then 
+      elseif(dm_mediator=='scalar') then 
          call qqb_dm_monojet_v_Samps(p,1,2,5,3,4,qgqb)  
          call qqb_dm_monojet_v_Samps(p,5,2,1,3,4,qbgq)
          call qqb_dm_monojet_v_Samps(p,1,5,2,3,4,qqbg)  
@@ -123,7 +129,7 @@
          call qqb_dm_monojet_v_Samps(p,2,1,5,3,4,gqqb)  
          call qqb_dm_monojet_v_Samps(p,5,1,2,3,4,gqbq)
          fac=fac/4d0
-      elseif(dm_mediator.eq.'pseudo') then 
+      elseif(dm_mediator=='pseudo') then 
          call qqb_dm_monojet_v_PSamps(p,1,2,5,3,4,qgqb)  
          call qqb_dm_monojet_v_PSamps(p,5,2,1,3,4,qbgq)
          call qqb_dm_monojet_v_PSamps(p,1,5,2,3,4,qqbg)  
@@ -131,7 +137,7 @@
          call qqb_dm_monojet_v_PSamps(p,2,1,5,3,4,gqqb)  
          call qqb_dm_monojet_v_PSamps(p,5,1,2,3,4,gqbq)
          fac=fac/4d0   
-      elseif(dm_mediator.eq.'gluonO') then 
+      elseif(dm_mediator=='gluonO') then 
          call gg_dm_monojet_v(p,msq) 
          return 
       endif
@@ -175,24 +181,24 @@
          do k=-nf,nf 
            if( (j .ne. 0) .and. (k .ne. 0) .and. (j .ne. -k)) goto 20
 
-           if((j.eq.0).and.(k.eq.0)) then 
+           if((j==0).and.(k==0)) then 
               msq(j,k)=0d0 
-           elseif((j.gt.0).and.(k.lt.0)) then 
+           elseif((j>0).and.(k<0)) then 
               msq(j,k)=aveqq*qqbg_sum(j)*fac 
      &            -subuv*msq0(j,k)
-           elseif((j.gt.0).and.(k.eq.0)) then 
+           elseif((j>0).and.(k==0)) then 
               msq(j,k)=aveqg*qgqb_sum(j)*fac
      &            -subuv*msq0(j,k)
-           elseif((j.eq.0).and.(k.gt.0)) then 
+           elseif((j==0).and.(k>0)) then 
               msq(j,k)=aveqg*gqqb_sum(k)*fac
      &            -subuv*msq0(j,k)
-           elseif((j.eq.0).and.(k.lt.0)) then 
+           elseif((j==0).and.(k<0)) then 
               msq(j,k)=aveqg*gqbq_sum(abs(k))*fac 
      &            -subuv*msq0(j,k)
-           elseif((j.lt.0).and.(k.gt.0)) then 
+           elseif((j<0).and.(k>0)) then 
               msq(j,k)=aveqq*qbqg_sum(k)*fac
      &            -subuv*msq0(j,k)
-           elseif((j.lt.0).and.(k.eq.0)) then 
+           elseif((j<0).and.(k==0)) then 
               msq(j,k)=aveqg*qbgq_sum(abs(j))*fac
      &            -subuv*msq0(j,k)
            endif

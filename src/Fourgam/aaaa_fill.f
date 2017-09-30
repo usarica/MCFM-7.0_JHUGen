@@ -3,13 +3,17 @@
 ! q(j1) qb(j2) a(j3) a(j4) a(j5) a(j6)
       subroutine aaaa_fill(j1,j2,j3,j4,j5,j6,za,zb,aaaa,aaaa_lo,ord)
       implicit none
+      include 'types.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
-      integer j1,j2,j3,j4,j5,j6,ord
-      double complex aaaa(2,2,2,2,2), aaaa_lo(2,2,2,2,2)
-      double complex Boxint(195), Triint(90), Bubint(25), Ratint
-      double complex dcoeffs(195), ccoeffs(90), bcoeffs(25), rats
-      double complex aaaa_MHV_lo, aaaa_NMHV_lo
+      integer:: j1,j2,j3,j4,j5,j6,ord
+      complex(dp):: aaaa(2,2,2,2,2), aaaa_lo(2,2,2,2,2)
+      complex(dp):: Boxint(195), Triint(90), Bubint(25), Ratint
+      complex(dp):: dcoeffs(195), ccoeffs(90), bcoeffs(25), rats
+      complex(dp):: aaaa_MHV_lo, aaaa_NMHV_lo
 
 ! aaaa and aaaa_lo are dimension 5 arrays, aaaa(hel(j1),hel(j3),...) etc
 ! because helicity of quark line is conserved
@@ -242,10 +246,15 @@
       subroutine aaaa_MHV_init(j1,j2,j3,j4,j5,j6,za,zb,
      & dcoeffs,ccoeffs,bcoeffs,rats)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
-      integer j1,j2,j3,j4,j5,j6
-      double complex dcoeffs(195), ccoeffs(90), bcoeffs(25), rats
+      integer:: j1,j2,j3,j4,j5,j6
+      complex(dp):: dcoeffs(195), ccoeffs(90), bcoeffs(25), rats
       call aaaa_MHV_d_init(j1,j2,j3,j4,j5,j6,za,zb,dcoeffs)
       call aaaa_MHV_c_init(j1,j2,j3,j4,j5,j6,za,zb,ccoeffs)
       call aaaa_MHV_b_init(j1,j2,j3,j4,j5,j6,za,zb,bcoeffs)
@@ -257,10 +266,15 @@
       subroutine aaaa_NMHV_init(j1,j2,j3,j4,j5,j6,za,zb,
      & dcoeffs,ccoeffs,bcoeffs,rats)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
-      integer j1,j2,j3,j4,j5,j6
-      double complex dcoeffs(195), ccoeffs(90), bcoeffs(25), rats
+      integer:: j1,j2,j3,j4,j5,j6
+      complex(dp):: dcoeffs(195), ccoeffs(90), bcoeffs(25), rats
       call aaaa_NMHV_d_init(j1,j2,j3,j4,j5,j6,za,zb,dcoeffs)
       call aaaa_NMHV_c_init(j1,j2,j3,j4,j5,j6,za,zb,ccoeffs)
       call aaaa_NMHV_b_init(j1,j2,j3,j4,j5,j6,za,zb,bcoeffs)
@@ -271,11 +285,17 @@
 
 
 
-      double complex function aaaa_MHV_lo(i1,i2,i3,i4,i5,i6,za,zb)
+      function aaaa_MHV_lo(i1,i2,i3,i4,i5,i6,za,zb)
       implicit none
+      include 'types.f'
+      complex(dp):: aaaa_MHV_lo
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
-      integer i1,i2,i3,i4,i5,i6
+      integer:: i1,i2,i3,i4,i5,i6
       aaaa_MHV_lo =
      &  (2*im*za(i1,i2)**2*za(i1,i3)**2*za(i2,i3))/
      & (za(i1,i4)*za(i1,i5)*za(i1,i6)*za(i3,i2)*za(i4,i2)*za(i5,i2)*
@@ -284,14 +304,20 @@
       end
 
 
-      double complex function aaaa_NMHV_lo(i1,i2,i3,i4,i5,i6,za,zb)
+      function aaaa_NMHV_lo(i1,i2,i3,i4,i5,i6,za,zb)
       implicit none
+      include 'types.f'
+      complex(dp):: aaaa_NMHV_lo
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'sprods_com.f'
-      integer i1,i2,i3,i4,i5,i6
-      double complex zab2
-      double precision t
+      integer:: i1,i2,i3,i4,i5,i6
+      complex(dp):: zab2
+      real(dp):: t
       zab2(i1,i2,i3,i4) = za(i1,i2)*zb(i2,i4)+za(i1,i3)*zb(i3,i4)
       t(i1,i2,i3) = s(i1,i2)+s(i2,i3)+s(i3,i1)
       aaaa_NMHV_lo =

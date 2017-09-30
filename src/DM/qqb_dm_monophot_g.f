@@ -1,28 +1,33 @@
 
       subroutine qqb_dm_monophot_g(p,msq) 
-      implicit none 
+      implicit none
+      include 'types.f'
+       
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'dm_params.f'
       include 'qcdcouple.f'
       include 'ewcharge.f' 
       include 'ewcouple.f' 
       include 'first.f' 
-      double precision p(mxpart,4),msq(-nf:nf,-nf:nf)
-      double complex qqbg(2,2,2,2,2),qbqg(2,2,2,2,2)
-      double complex qgqb(2,2,2,2,2),qbgq(2,2,2,2,2)
-      double complex gqqb(2,2,2,2,2),gqbq(2,2,2,2,2)
-      double precision qqbg_sum(nf),qbqg_sum(nf)
-      double precision qgqb_sum(nf),qbgq_sum(nf)
-      double precision gqbq_sum(nf),gqqb_sum(nf)
-      double precision fac 
-      integer h2,h3,h4,h5 
-      integer j,k
+      real(dp):: p(mxpart,4),msq(-nf:nf,-nf:nf)
+      complex(dp):: qqbg(2,2,2,2,2),qbqg(2,2,2,2,2)
+      complex(dp):: qgqb(2,2,2,2,2),qbgq(2,2,2,2,2)
+      complex(dp):: gqqb(2,2,2,2,2),gqbq(2,2,2,2,2)
+      real(dp):: qqbg_sum(nf),qbqg_sum(nf)
+      real(dp):: qgqb_sum(nf),qbgq_sum(nf)
+      real(dp):: gqbq_sum(nf),gqqb_sum(nf)
+      real(dp):: fac 
+      integer:: h2,h3,h4,h5 
+      integer:: j,k
       
-      double precision s34 
-      double complex cprop
-      double precision propsq
+      real(dp):: s34 
+      complex(dp):: cprop
+      real(dp):: propsq
   
-      logical check_QED 
+      logical:: check_QED 
       common/check_QED/check_QED 
 !$omp threadprivate(/check_QED/)
 
@@ -34,7 +39,7 @@
 !------ make factor into photon propogator for testing 
          s34=2d0*(p(3,4)*p(4,4)-p(3,3)*p(4,3)
      &        -p(3,2)*p(4,2)-p(3,1)*p(4,1))
-         dm_lam=dsqrt(s34/esq)
+         dm_lam=sqrt(s34/esq)
          do j=1,nf 
             dmL(j)=Q(j)
             dmR(j)=Q(j) 
@@ -50,8 +55,8 @@
          s34=(p(3,4)+p(4,4))**2
      &        -(p(3,1)+p(4,1))**2
      &        -(p(3,2)+p(4,2))**2-(p(3,3)+p(4,3))**2         
-         cprop=cone/Dcmplx((s34-medmass**2),medmass*medwidth)
-         propsq=cdabs(cprop)**2 
+         cprop=cone/cplx2((s34-medmass**2),medmass*medwidth)
+         propsq=abs(cprop)**2 
          fac=16d0*esq*cf*xn*gsq*propsq*g_dmq**2*g_dmx**2
       endif
 
@@ -65,21 +70,21 @@
 
       msq(:,:)=0
 !------- wrapper for separte operators
-      if(dm_mediator.eq.'vector') then 
+      if(dm_mediator=='vector') then 
          call qqb_dm_monophot_g_Vamps(p,1,2,6,5,3,4,qgqb)  
          call qqb_dm_monophot_g_Vamps(p,6,2,1,5,3,4,qbgq)
          call qqb_dm_monophot_g_Vamps(p,1,6,2,5,3,4,qqbg)  
          call qqb_dm_monophot_g_Vamps(p,2,6,1,5,3,4,qbqg)
          call qqb_dm_monophot_g_Vamps(p,2,1,6,5,3,4,gqqb)  
          call qqb_dm_monophot_g_Vamps(p,6,1,2,5,3,4,gqbq)
-      elseif(dm_mediator.eq.'axvect') then 
+      elseif(dm_mediator=='axvect') then 
          call qqb_dm_monophot_g_Axamps(p,1,2,6,5,3,4,qgqb)  
          call qqb_dm_monophot_g_Axamps(p,6,2,1,5,3,4,qbgq)
          call qqb_dm_monophot_g_Axamps(p,1,6,2,5,3,4,qqbg)  
          call qqb_dm_monophot_g_Axamps(p,2,6,1,5,3,4,qbqg)
          call qqb_dm_monophot_g_Axamps(p,2,1,6,5,3,4,gqqb)  
          call qqb_dm_monophot_g_Axamps(p,6,1,2,5,3,4,gqbq) 
-      elseif(dm_mediator.eq.'scalar') then 
+      elseif(dm_mediator=='scalar') then 
          call qqb_dm_monophot_g_Samps(p,1,2,6,5,3,4,qgqb)  
          call qqb_dm_monophot_g_Samps(p,6,2,1,5,3,4,qbgq)
          call qqb_dm_monophot_g_Samps(p,1,6,2,5,3,4,qqbg)  
@@ -87,7 +92,7 @@
          call qqb_dm_monophot_g_Samps(p,2,1,6,5,3,4,gqqb)  
          call qqb_dm_monophot_g_Samps(p,6,1,2,5,3,4,gqbq) 
          fac=fac/4d0
-      elseif(dm_mediator.eq.'pseudo') then 
+      elseif(dm_mediator=='pseudo') then 
          call qqb_dm_monophot_g_PSamps(p,1,2,6,5,3,4,qgqb)  
          call qqb_dm_monophot_g_PSamps(p,6,2,1,5,3,4,qbgq)
          call qqb_dm_monophot_g_PSamps(p,1,6,2,5,3,4,qqbg)  
@@ -105,23 +110,23 @@
             do h4=1,2 
                do h5=1,2
                qqbg_sum(j)=qqbg_sum(j)
-     &              +cdabs(dmL(j)*qqbg(1,h2,h3,h4,h5))**2
-     &              +cdabs(dmR(j)*qqbg(2,h2,h3,h4,h5))**2
+     &              +abs(dmL(j)*qqbg(1,h2,h3,h4,h5))**2
+     &              +abs(dmR(j)*qqbg(2,h2,h3,h4,h5))**2
                qbqg_sum(j)=qbqg_sum(j)
-     &              +cdabs(dmL(j)*qbqg(1,h2,h3,h4,h5))**2
-     &              +cdabs(dmR(j)*qbqg(2,h2,h3,h4,h5))**2
+     &              +abs(dmL(j)*qbqg(1,h2,h3,h4,h5))**2
+     &              +abs(dmR(j)*qbqg(2,h2,h3,h4,h5))**2
                qgqb_sum(j)=qgqb_sum(j)
-     &              +cdabs(dmL(j)*qgqb(1,h2,h3,h4,h5))**2
-     &              +cdabs(dmR(j)*qgqb(2,h2,h3,h4,h5))**2
+     &              +abs(dmL(j)*qgqb(1,h2,h3,h4,h5))**2
+     &              +abs(dmR(j)*qgqb(2,h2,h3,h4,h5))**2
                qbgq_sum(j)=qbgq_sum(j)
-     &              +cdabs(dmL(j)*qbgq(1,h2,h3,h4,h5))**2
-     &              +cdabs(dmR(j)*qbgq(2,h2,h3,h4,h5))**2
+     &              +abs(dmL(j)*qbgq(1,h2,h3,h4,h5))**2
+     &              +abs(dmR(j)*qbgq(2,h2,h3,h4,h5))**2
                gqqb_sum(j)=gqqb_sum(j)
-     &              +cdabs(dmL(j)*gqqb(1,h2,h3,h4,h5))**2
-     &              +cdabs(dmR(j)*gqqb(2,h2,h3,h4,h5))**2
+     &              +abs(dmL(j)*gqqb(1,h2,h3,h4,h5))**2
+     &              +abs(dmR(j)*gqqb(2,h2,h3,h4,h5))**2
                gqbq_sum(j)=gqbq_sum(j)
-     &              +cdabs(dmL(j)*gqbq(1,h2,h3,h4,h5))**2
-     &              +cdabs(dmR(j)*gqbq(2,h2,h3,h4,h5))**2
+     &              +abs(dmL(j)*gqbq(1,h2,h3,h4,h5))**2
+     &              +abs(dmR(j)*gqbq(2,h2,h3,h4,h5))**2
             enddo
          enddo
          enddo
@@ -133,19 +138,19 @@
          do k=-nf,nf 
            if( (j .ne. 0) .and. (k .ne. 0) .and. (j .ne. -k)) goto 20
 
-           if((j.eq.0).and.(k.eq.0)) then 
+           if((j==0).and.(k==0)) then 
               msq(j,k)=0d0 
-           elseif((j.gt.0).and.(k.lt.0)) then 
+           elseif((j>0).and.(k<0)) then 
               msq(j,k)=aveqq*qqbg_sum(j)*fac*Q(j)**2
-           elseif((j.gt.0).and.(k.eq.0)) then 
+           elseif((j>0).and.(k==0)) then 
               msq(j,k)=aveqg*qgqb_sum(j)*fac*Q(j)**2
-           elseif((j.eq.0).and.(k.gt.0)) then 
+           elseif((j==0).and.(k>0)) then 
               msq(j,k)=aveqg*gqqb_sum(k)*fac*Q(k)**2
-           elseif((j.eq.0).and.(k.lt.0)) then 
+           elseif((j==0).and.(k<0)) then 
               msq(j,k)=aveqg*gqbq_sum(abs(k))*fac*Q(-k)**2 
-           elseif((j.lt.0).and.(k.gt.0)) then 
+           elseif((j<0).and.(k>0)) then 
               msq(j,k)=aveqq*qbqg_sum(k)*fac*Q(k)**2
-           elseif((j.lt.0).and.(k.eq.0)) then 
+           elseif((j<0).and.(k==0)) then 
               msq(j,k)=aveqg*qbgq_sum(abs(j))*fac*Q(-j)**2
            endif
 

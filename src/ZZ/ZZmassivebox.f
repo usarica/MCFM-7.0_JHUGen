@@ -1,12 +1,17 @@
       subroutine ZZmassivebox(j1,j2,j3,j4,j5,j6,za,zb,mt,box,drat)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'ggZZintegrals.f'
       include 'ZZdlabels.f'
-      integer j1,j2,j3,j4,j5,j6,h1,h2,h3,h4,j
-      double precision mt
-      double complex Xpp(2,2),Xmp(2,2),Xpm(2,2),Xmm(2,2),
+      integer:: j1,j2,j3,j4,j5,j6,h1,h2,h3,h4,j
+      real(dp):: mt
+      complex(dp):: Xpp(2,2),Xmp(2,2),Xpm(2,2),Xmm(2,2),
      & box(2,2,2,2,-2:0),d(2,2,2,2,3),
      & Xrat(2,2,2,2),drat(2,2,2,2,3)
       
@@ -50,15 +55,15 @@ c      write(6,*) 'Xrat(1,1,1,1)',Xrat(1,1,1,1)
 c--- These integrals are now initialized in ZZintegraleval      
 c      do e=-2,0
 c      Dint(1,e)
-c     & =qlI4(s34,0d0,0d0,s56,s134,s12,mtsq,mtsq,mtsq,mtsq,musq,e)
+c     & =qlI4(s34,zip,zip,s56,s134,s12,mtsq,mtsq,mtsq,mtsq,musq,e)
 c      enddo
 c      do e=-2,0
 c      Dint(2,e)
-c     & =qlI4(s56,0d0,0d0,s34,s156,s12,mtsq,mtsq,mtsq,mtsq,musq,e)
+c     & =qlI4(s56,zip,zip,s34,s156,s12,mtsq,mtsq,mtsq,mtsq,musq,e)
 c      enddo
 c      do e=-2,0
 c      Dint(3,e)
-c     & =qlI4(s56,0d0,s34,0d0,s156,s134,mtsq,mtsq,mtsq,mtsq,musq,e)
+c     & =qlI4(s56,zip,s34,zip,s156,s134,mtsq,mtsq,mtsq,mtsq,musq,e)
 c      enddo
 
 c      write(6,*) 'check',D0(d2_1_34)/Dint(1,0)

@@ -1,11 +1,17 @@
-      double complex function ttbqqbrqpp(k1,k2,k3,k4,k5,k6,k7)
+      function ttbqqbrqpp(k1,k2,k3,k4,k5,k6,k7)
       implicit none
+      include 'types.f'
+      complex(dp):: ttbqqbrqpp
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'sprods_com.f'
       include 'zprods_com.f'
       include 'masses.f'
-      integer k1,k2,k3,k4,k5,k6,k7
-      double precision s3459,s6789,mtsq
+      integer:: k1,k2,k3,k4,k5,k6,k7
+      real(dp):: s3459,s6789,mtsq
       s3459=s(k4,k3)+s(k5,k3)
       s6789=s(k3,k6)+s(k3,k7)
       mtsq=mt**2

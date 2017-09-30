@@ -1,15 +1,17 @@
 
       
       subroutine mboost(m,vec,beta,vin,vout)
+      implicit none
+      include 'types.f'
 c     boosts the m vectors vin(0:3,m) into the vectors vout(0:3,m) (that can
 c     be the same) in the direction of vec(3) (|vec|=1) with velocity
 c     beta.  Lorents convention: (t,x,y,z).
-      implicit none
-      integer m
+      
+      integer:: m
       real * 8 vec(3),beta,vin(0:3,m),vout(0:3,m)
       real * 8 betav,gamma
       real * 8 vdotb
-      integer ipart,idim
+      integer:: ipart,idim
       gamma=1/sqrt(1-beta**2)
       do ipart=1,m
          vdotb=vin(1,ipart)*vec(1)
@@ -25,12 +27,14 @@ c     beta.  Lorents convention: (t,x,y,z).
 
 
       subroutine mrotate(dir,sinphi,cosphi,vec)
+      implicit none
+      include 'types.f'
 c Rotates vector vec counterclockwise around the direction
 c dir (|dir|=1) with angle phi, given sin phi and cos phi.
-      implicit none
+      
       real * 8 sinphi,cosphi,dir(3),vec(3)
       real * 8 dircrossvec(3),dirdotvec
-      integer i
+      integer:: i
       dircrossvec(1)=dir(2)*vec(3)-dir(3)*vec(2)
       dircrossvec(2)=dir(3)*vec(1)-dir(1)*vec(3)
       dircrossvec(3)=dir(1)*vec(2)-dir(2)*vec(1)

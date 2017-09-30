@@ -1,24 +1,29 @@
       subroutine qqb_dm_monojet_z(p,z)
+      implicit none
+      include 'types.f'
 ************************************************************************
 !---- Modified for DM by CW Nov 2012 based upon Z1jet routine by 
 *     Authors: R.K. Ellis and John M. Campbell                         *
 *     November, 2001.                                                  *
 ************************************************************************
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'qcdcouple.f'
       include 'scale.f'
       include 'PR_new.f'
       include 'agq.f'
-      integer is
-      double precision z,xl12,xl15,xl25,p(mxpart,4),dot
-      double precision ii_qq,ii_qg,ii_gq,ii_gg,
-     .                 if_qq,if_gg,
-     .                 fi_qq,fi_gg
+      integer:: is
+      real(dp):: z,xl12,xl15,xl25,p(mxpart,4),dot
+      real(dp):: ii_qq,ii_qg,ii_gq,ii_gg,
+     &                 if_qq,if_gg,
+     &                 fi_qq,fi_gg
 
-      xl12=dlog(+two*dot(p,1,2)/musq)
-      xl15=dlog(-two*dot(p,1,5)/musq)
-      xl25=dlog(-two*dot(p,2,5)/musq)
+      xl12=log(+two*dot(p,1,2)/musq)
+      xl15=log(-two*dot(p,1,5)/musq)
+      xl25=log(-two*dot(p,2,5)/musq)
 
 c--- sum over regular and plus terms
       do is=1,3

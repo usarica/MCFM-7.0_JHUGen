@@ -1,5 +1,7 @@
       subroutine qqb_totttH_gvec(p,n,in,msqv)
       implicit none
+      include 'types.f'
+      
 ************************************************************************
 *     Author: R.K. Ellis                                               *
 *     May, 2013.                                                       *
@@ -13,9 +15,12 @@
 *                                                                      *
 ************************************************************************
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'qcdcouple.f'
       include 'ewcouple.f'
-      include 'part.f'
+      include 'kpart.f'
       include 'couple.f'
       include 'masses.f'
       include 'msbarmasses.f'
@@ -23,14 +28,14 @@
       include 'msqv_cs.f'
       include 'first.f'
 C in is the label of the contracted line
-      integer j,k,in,icol
-      double precision msqv(-nf:nf,-nf:nf),p(mxpart,4),res(0:2)
-      double precision n(4),fac,massfrun,mt_eff,ytsq
+      integer:: j,k,in,icol
+      real(dp):: msqv(-nf:nf,-nf:nf),p(mxpart,4),res(0:2)
+      real(dp):: n(4),fac,massfrun,mt_eff,ytsq
       save mt_eff
 !$omp threadprivate(mt_eff)
       if (first) then
 c--- run mt to appropriate scale
-        if (part .eq. 'lord') then
+        if (kpart==klord) then
           mt_eff=massfrun(mt_msbar,hmass,amz,1)
         else
           mt_eff=massfrun(mt_msbar,hmass,amz,2)

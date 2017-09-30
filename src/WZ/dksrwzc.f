@@ -1,11 +1,16 @@
       subroutine dksrwzc(p1,p2,p3,p4,p5,p6,p7,cc11,cc12)
       implicit none
+      include 'types.f'
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'sprods_com.f'
       include 'zprods_com.f'
-      integer p1,p2,p3,p4,p5,p6,p7
-      double precision s12,s34,s126,s345
-      double complex iza,izb,cc11,cc12
+      integer:: p1,p2,p3,p4,p5,p6,p7
+      real(dp):: s12,s34,s126,s345
+      complex(dp):: iza,izb,cc11,cc12
       iza(p1,p2)=cone/za(p1,p2)
       izb(p1,p2)=cone/zb(p1,p2)
       s126=s(p1,p2)+s(p1,p6)+s(p2,p6)

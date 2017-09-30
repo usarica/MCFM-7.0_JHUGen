@@ -7,38 +7,43 @@
 
 
       subroutine transformfrag(p,q,z,ip,jp,kp) 
-      implicit none 
+      implicit none
+      include 'types.f'
+       
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'npart.f' 
-      double precision p(mxpart,4),q(mxpart,4),z,omz
-      integer ip,jp,kp,j,nu,ipart
-      double precision n(4),idn,jdn,kdn
-      double precision pdotp,pdot_ar
-      double precision kt(4),ks(4),k(4),kdk,ksdks
-      double precision kdp(mxpart),ksdp(mxpart)
+      real(dp):: p(mxpart,4),q(mxpart,4),z,omz
+      integer:: ip,jp,kp,j,nu,ipart
+      real(dp):: n(4),idn,jdn,kdn
+      real(dp):: pdotp,pdot_ar
+      real(dp):: kt(4),ks(4),k(4),kdk,ksdks
+      real(dp):: kdp(mxpart),ksdp(mxpart)
     
       
 
       do j=1,npart+2
          do nu=1,4
-            q(j,nu)=0d0
+            q(j,nu)=0._dp
          enddo
       enddo
 
      
 c---- Intial-Initial not coded
-      if((ip .le. 2) .and. (kp .le. 2)) return 
+      if((ip <= 2) .and. (kp <= 2)) return 
       
 c---- Initial-Final not coded
-      if((ip .le. 2) .and. (kp .gt. 2)) return 
+      if((ip <= 2) .and. (kp > 2)) return 
      
 c---- Final-Initial 
      
-      if((ip .gt. 2) .and. (kp .le. 2)) then 
+      if((ip > 2) .and. (kp <= 2)) then 
          
-         idn=0d0
-         jdn=0d0
-         kdn=0d0
+         idn=0._dp
+         jdn=0._dp
+         kdn=0._dp
          do nu=1,4
             n(nu)=-p(1,nu)-p(2,nu)-p(ip,nu)
             if(nu .ne. 4) then 
@@ -60,7 +65,7 @@ c---- Final-Initial
          omz=one-z
             
 
-         if (npart .eq. 3) then 
+         if (npart == 3) then 
            
 c---- for 3 particles in the final state have i==photon j=final state emitted and one other FS mom 
 c---- Need to keep kp fixed so FS mom gets shifted to conserve momentum 
@@ -72,11 +77,11 @@ c---- Need to keep kp fixed so FS mom gets shifted to conserve momentum
             ipart=3
             do j=3,npart+2
                
-               if (j .eq. ip) then 
+               if (j == ip) then 
                   do nu=1,4
                      q(ipart,nu) = (one/z)*p(ip,nu)
                   enddo           
-               elseif (j .eq. jp) then 
+               elseif (j == jp) then 
                   goto 131 
                else
                   do nu=1,4
@@ -90,12 +95,12 @@ c
          else 
            
                                 
-            k=0d0
-            kt=0d0
-            ks=0d0
+            k=0._dp
+            kt=0._dp
+            ks=0._dp
             
             
-            kdk=0d0
+            kdk=0._dp
      
             do nu=1,4
                q(1,nu)=p(1,nu)
@@ -118,9 +123,9 @@ c
             ipart=3
             do j=3,npart+2
               
-               if(j .eq. jp) then 
+               if(j == jp) then 
                   goto 19
-               elseif(j .eq. ip) then 
+               elseif(j == ip) then 
                   do nu=1,4
                      q(ipart,nu)=one/z*p(ip,nu)
                   enddo
@@ -129,7 +134,7 @@ c
                   ksDp(j)=pdot_ar(ks,p,j)
                   do nu=1,4
                      q(ipart,nu)=p(j,nu)-two*ksDp(j)*ks(nu)/ksDks
-     .                 +two*kdp(j)*kt(nu)/kdk                     
+     &                 +two*kdp(j)*kt(nu)/kdk                     
                   enddo              
                endif
                ipart=ipart+1
@@ -141,22 +146,22 @@ c
          
 c---  Final-Final 
 
-      elseif((ip .gt. 2) .and. (kp .gt. 2)) then 
+      elseif((ip > 2) .and. (kp > 2)) then 
 
-         if(npart.eq.3) then 
+         if(npart==3) then 
 
 !----- SPECIAL FORM FOR 2=>3 DIPOLE 
          ipart=1
       
       
          do j=1,npart+2
-            if (j .eq. ip) then 
+            if (j == ip) then 
                do nu=1,4
                   q(ipart,nu) = (one/z)*p(ip,nu)
                enddo           
-            elseif (j .eq. jp) then 
+            elseif (j == jp) then 
                goto 13
-            elseif (j .eq. kp) then 
+            elseif (j == kp) then 
                do nu=1,4
                   q(ipart,nu)=p(jp,nu)+p(kp,nu)-(omz/z)*p(ip,nu)
                enddo
@@ -183,11 +188,14 @@ c---  Final-Final
       return 
       end
 
-      double precision function pdotp(p1,p2)
+      function pdotp(p1,p2)
       implicit none
-      double precision p1(4),p2(4)
-      integer j
-      pdotp=0d0
+      include 'types.f'
+      real(dp):: pdotp
+      
+      real(dp):: p1(4),p2(4)
+      integer:: j
+      pdotp=0._dp
       do j=1,3
          pdotp=pdotp-p1(j)*p2(j)
       enddo
@@ -195,12 +203,18 @@ c---  Final-Final
       return 
       end 
 
-      double precision function pdot_ar(p1,p2,k)
+      function pdot_ar(p1,p2,k)
       implicit none
+      include 'types.f'
+      real(dp):: pdot_ar
+      
       include 'constants.f'
-      integer k,j
-      double precision p1(4),p2(mxpart,4)
-      pdot_ar=0d0
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      integer:: k,j
+      real(dp):: p1(4),p2(mxpart,4)
+      pdot_ar=0._dp
       do j=1,3
          pdot_ar=pdot_ar-p1(j)*p2(k,j)
       enddo
@@ -209,21 +223,27 @@ c---  Final-Final
       end
 
 
-      logical function checkv(p,ip,jp,kp)
-      implicit none
+      function checkv(p,ip,jp,kp)
+       implicit none
+      include 'types.f'
+      logical:: checkv
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'betacut.f'
-      double precision p(mxpart,4),idj,idn
-      double precision vt,n(4),z,n_sq,omz,jdn,az
-      integer ip,jp,nu,kp
+      real(dp):: p(mxpart,4),idj,idn
+      real(dp):: vt,n(4),z,n_sq,omz,jdn,az
+      integer:: ip,jp,nu,kp
       
       checkv=.true.
       
     
       
-      idn=0d0
-      jdn=0d0
-      idj=0d0
+      idn=0._dp
+      jdn=0._dp
+      idj=0._dp
      
       do nu=1,4
          n(nu)=-p(1,nu)-p(2,nu)-p(ip,nu)
@@ -240,7 +260,7 @@ c---  Final-Final
          endif
       enddo
 
-      n_sq=0d0
+      n_sq=0._dp
       do nu=1,4
          if(nu.ne.4) then 
             n_sq=n_sq-n(nu)*n(nu)
@@ -262,7 +282,7 @@ c---  Final-Final
       
      
       
-      if(vt .lt. az*bfi) then 
+      if(vt < az*bfi) then 
          checkv=.true. 
       else
          checkv=.false. 
@@ -273,21 +293,27 @@ c---  Final-Final
 
 
       
-      logical function check_nv(p,ip,jp,kp)
-      implicit none
+      function check_nv(p,ip,jp,kp)
+       implicit none
+      include 'types.f'
+      logical:: check_nv
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'betacut.f'
-      double precision p(mxpart,4),idj,idn
-      double precision vt,n(4),n_sq,jdn 
-      integer ip,jp,nu,kp
+      real(dp):: p(mxpart,4),idj,idn
+      real(dp):: vt,n(4),n_sq,jdn 
+      integer:: ip,jp,nu,kp
       
       check_nv=.true.
       
     
       
-      idn=0d0
-      jdn=0d0
-      idj=0d0
+      idn=0._dp
+      jdn=0._dp
+      idj=0._dp
      
       do nu=1,4
          n(nu)=-p(1,nu)-p(2,nu)-p(ip,nu)
@@ -304,7 +330,7 @@ c---  Final-Final
          endif
       enddo
 
-      n_sq=0d0
+      n_sq=0._dp
       do nu=1,4
          if(nu.ne.4) then 
             n_sq=n_sq-n(nu)*n(nu)
@@ -317,7 +343,7 @@ c---  Final-Final
       
       
 
-      if(vt.gt.bfi) then 
+      if(vt>bfi) then 
          check_nv =.false.
          return 
       else

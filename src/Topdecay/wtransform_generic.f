@@ -1,4 +1,6 @@
       subroutine wtransform_generic(p,n3,n4,n5,nmax,q,pbDpg,ptDpg,ptDpb)
+      implicit none
+      include 'types.f'
 c---  Author: J. Campbell, Nov. 2011
 c---  input momenta p, top decay products W(->n3+n4) + b(n5)
 c---  nmax is the gluon momentum label and the last momentum considered
@@ -6,19 +8,22 @@ c---  output momenta q and dot products pbDpg,ptDpg,ptDpb
 c---  q == p for all momenta except n3,n4,n5 and q(nmax) absent
 c---- form of Lorentz transformation given in Section IV of arxiv:hep-ph/0408158
 c---- Updated: February 24, 2012 to allow for a non-zero b-quark mass
-      implicit none
-      include 'constants.f'
-      double precision p(mxpart,4),pw(4),pt(4),lDt(12),lDw(12)
-      double precision ptDpt,pwDpw,ptDpw,q(mxpart,4),root,hsin,hcos,a,b
-      double precision ptDpg,pbDpg,ptDpb,pbDpb,rtlambda
-      integer j,nu,n3,n4,n5,nmax
       
-      if (nmax .gt. 12) then
+      include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      real(dp):: p(mxpart,4),pw(4),pt(4),lDt(12),lDw(12)
+      real(dp):: ptDpt,pwDpw,ptDpw,q(mxpart,4),root,hsin,hcos,a,b
+      real(dp):: ptDpg,pbDpg,ptDpb,pbDpb,rtlambda
+      integer:: j,nu,n3,n4,n5,nmax
+      
+      if (nmax > 12) then
         write(6,*) 'Routine wtransform_generic fails, limit nmax=12'
         stop
       endif
       
-      if (n3.gt. n4) then
+      if (n3> n4) then
         write(6,*) 'Routine wtransform_generic fails, n3>n4',n3,n4
         stop
       endif
@@ -41,14 +46,14 @@ c---- Updated: February 24, 2012 to allow for a non-zero b-quark mass
       pwDpw=pw(4)**2-pw(1)**2-pw(2)**2-pw(3)**2
       pbDpb=p(n5,4)**2-p(n5,1)**2-p(n5,2)**2-p(n5,3)**2
       root=sqrt(ptDpw**2-ptDpt*pwDpw)
-      rtlambda=dsqrt((ptDpt-pwDpw-pbDpb)**2-4d0*pwDpw*pbDpb)
-      hsin=0.5d0/(ptDpt*pwDpw)*(-rtlambda*ptDpw
+      rtlambda=sqrt((ptDpt-pwDpw-pbDpb)**2-4._dp*pwDpw*pbDpb)
+      hsin=0.5_dp/(ptDpt*pwDpw)*(-rtlambda*ptDpw
      &                          +(ptDpt+pwDpw-pbDpb)*root)
-      hcos=0.5d0/(ptDpt*pwDpw)*(+(ptDpt+pwDpw-pbDpb)*ptDpw
+      hcos=0.5_dp/(ptDpt*pwDpw)*(+(ptDpt+pwDpw-pbDpb)*ptDpw
      &                          -rtlambda*root)
 C---calculate coefficients of lorentz transformation
       a=hsin/root
-      b=(hcos-1d0)/root**2
+      b=(hcos-1._dp)/root**2
 c---dot t and w into decay products of w
       do j=n3,n4
          lDt(j)=p(j,4)*pt(4)-p(j,1)*pt(1)-p(j,2)*pt(2)-p(j,3)*pt(3)

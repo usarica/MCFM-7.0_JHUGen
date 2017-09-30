@@ -1,74 +1,79 @@
       subroutine gen7(r,q,wt7,*)
       implicit none
+      include 'types.f'
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'mxdim.f'
-      include 'process.f'
+      include 'kprocess.f'
       include 'phasemin.f'
       include 'debug.f'
       include 'masses.f'
       include 'jetcuts.f'
       include 'x1x2.f'
-      integer nu
-      double precision r(mxdim)
-      double precision wt7,q(mxpart,4)
-      double precision p1(4),p2(4),p3(4),p4(4),p5(4),p6(4),p7(4),p8(4),
-     . p9(4),pswt,xjac
-      double precision tau,y,vs,vsqmax,vsqmin,s34,rtshat,
-     . ymax,yave
+      integer:: nu
+      real(dp):: r(mxdim)
+      real(dp):: wt7,q(mxpart,4)
+      real(dp):: p1(4),p2(4),p3(4),p4(4),p5(4),p6(4),p7(4),p8(4),
+     & p9(4),pswt,xjac
+      real(dp):: tau,y,vs,vsqmax,vsqmin,s34,rtshat,
+     & ymax,yave
       include 'energy.f'
-      wt7=0d0
+      wt7=0._dp
 
-      if     (((case .eq. 'HWW2jt') .or. (case .eq. 'HZZ2jt')
-     &     .or.(case .eq. 'HWW3jt') .or. (case .eq. 'HZZ3jt'))
-     &  .and. (hmass .lt. 201d0)) then
+      if     (((kcase==kHWW2jt) .or. (kcase==kHZZ2jt)
+     &     .or.(kcase==kHWW3jt) .or. (kcase==kHZZ3jt))
+     &  .and. (hmass < 201._dp)) then
 c--- Higgs production with WW or ZZ decay, small Higgs width
 c--- (small error induced if zerowidth false, of order (hwidth/hmass))
-        vsqmax=1d0/(hmass*(hmass+4d0*ptjetmin))
-        vsqmin=1d0/sqrts**2
+        vsqmax=1._dp/(hmass*(hmass+4._dp*ptjetmin))
+        vsqmin=1._dp/sqrts**2
         xmin=vsqmin/vsqmax
         vs=(vsqmax-vsqmin)*r(9)+vsqmin
-        s34=1d0/vs
-        rtshat=dsqrt(s34)
-        ymax=dlog(sqrts/rtshat)
-        yave=ymax*(two*r(10)-1d0)
+        s34=1._dp/vs
+        rtshat=sqrt(s34)
+        ymax=log(sqrts/rtshat)
+        yave=ymax*(two*r(10)-1._dp)
         xx(1)=rtshat/sqrts*exp(+yave)
         xx(2)=rtshat/sqrts*exp(-yave)
         xjac=(vsqmax-vsqmin)*s34**2/sqrts**2*two*ymax
-      elseif ((case .eq. 'tt_ldk') .or. (case .eq. 'tt_hdk')
-     &   .or. (case .eq. 'tt_udk') .or. (case .eq. 'tthWdk')) then
+      elseif ((kcase==ktt_ldk) .or. (kcase==ktt_hdk)
+     &   .or. (kcase==ktt_udk) .or. (kcase==ktthWdk)) then
 c--- top production with radiation in decay
-        vsqmax=1d0/(4d0*mt**2)
-        vsqmin=1d0/sqrts**2
+        vsqmax=1._dp/(4._dp*mt**2)
+        vsqmin=1._dp/sqrts**2
         xmin=vsqmin/vsqmax
         vs=(vsqmax-vsqmin)*r(9)+vsqmin
         s34=1/vs
-        rtshat=dsqrt(s34)
-        ymax=dlog(sqrts/rtshat)
-        yave=ymax*(two*r(10)-1d0)
+        rtshat=sqrt(s34)
+        ymax=log(sqrts/rtshat)
+        yave=ymax*(two*r(10)-1._dp)
         xx(1)=rtshat/sqrts*exp(+yave)
         xx(2)=rtshat/sqrts*exp(-yave)
         xjac=(vsqmax-vsqmin)*s34**2/sqrts**2*two*ymax
       else
 c--- generic process
-        tau=dexp(dlog(taumin)*r(9))
-        y=0.5d0*dlog(tau)*(1d0-2d0*r(10))
-        xjac=dlog(taumin)*tau*dlog(tau)
-        xx(1)=dsqrt(tau)*dexp(+y)
-        xx(2)=dsqrt(tau)*dexp(-y)
+        tau=exp(log(taumin)*r(9))
+        y=0.5_dp*log(tau)*(1._dp-2._dp*r(10))
+        xjac=log(taumin)*tau*log(tau)
+        xx(1)=sqrt(tau)*exp(+y)
+        xx(2)=sqrt(tau)*exp(-y)
       endif
 
 c--- phase space volume only checked for x1=x2=1
-      if ((case .eq. 'vlchwg') .or. (case .eq. 'vlchwh')) then
-        xx(1)=1d0
-        xx(2)=1d0
-        xjac=1d0
+      if ((kcase==kvlchwg) .or. (kcase==kvlchwh)) then
+        xx(1)=1._dp
+        xx(2)=1._dp
+        xjac=1._dp
       endif
 
 c---if x's out of normal range alternative return
-      if   ((xx(1) .gt. 1d0)
-     & .or. (xx(2) .gt. 1d0)
-     & .or. (xx(1) .lt. xmin)
-     & .or. (xx(2) .lt. xmin)) return 1
+      if   ((xx(1) > 1._dp)
+     & .or. (xx(2) > 1._dp)
+     & .or. (xx(1) < xmin)
+     & .or. (xx(2) < xmin)) return 1
 
       p1(4)=-xx(1)*sqrts*half
       p1(1)=zip
@@ -80,17 +85,18 @@ c---if x's out of normal range alternative return
       p2(2)=zip
       p2(3)=+xx(2)*sqrts*half
 
-      if  ((case .eq. 'qq_HWW') .or. (case .eq. 'qq_HZZ')
-     ..or. (case .eq. 'HWW2jt') .or. (case .eq. 'HZZ2jt')
-     ..or. (case .eq. 'HWW3jt') .or. (case .eq. 'HZZ3jt')
-     ..or. (case .eq. 'WpWp3j')) then
+      if  ((kcase==kqq_HWW) .or. (kcase==kqq_HZZ)
+     ..or. (kcase==kHWW2jt) .or. (kcase==kHZZ2jt)
+     ..or. (kcase==kHWW3jt) .or. (kcase==kHZZ3jt)
+     ..or. (kcase==kWpWp3j)) then
         call  phase7a(r,p1,p2,p3,p4,p5,p6,p7,p8,p9,pswt,*999)
-      elseif ((case .eq. 'WH__WW') .or. (case .eq. 'ZH__WW')) then
+      elseif ((kcase==kWH__WW) .or. (kcase==kZH__WW)
+     &   .or. (kcase==kWH1jet) .or. (kcase==KZH1jet)) then
         call  phase7b(r,p1,p2,p3,p4,p5,p6,p7,p8,p9,pswt,*999)
-      elseif ((case .eq. 'WH__ZZ') .or. (case .eq. 'ZH__ZZ')) then
+      elseif ((kcase==kWH__ZZ) .or. (kcase==kZH__ZZ)) then
         call  phase7b(r,p1,p2,p3,p4,p5,p6,p7,p8,p9,pswt,*999)
-      elseif ((case .eq. 'tt_ldk') .or. (case .eq. 'tt_hdk')
-     &   .or. (case .eq. 'tt_udk') .or. (case .eq. 'tthWdk')) then
+      elseif ((kcase==ktt_ldk) .or. (kcase==ktt_hdk)
+     &   .or. (kcase==ktt_udk) .or. (kcase==ktthWdk)) then
         call  phase7dk(r,p1,p2,p3,p4,p5,p6,p7,p8,p9,pswt,*999)
       else
         write(6,*) 'Unanticipated process in gen7.f!'
@@ -115,8 +121,8 @@ c---if x's out of normal range alternative return
 
       return
 
- 999  wt7=0d0
-      q(:,:)=0d0
+ 999  wt7=0._dp
+      q(:,:)=0._dp
       return 1
       end
 

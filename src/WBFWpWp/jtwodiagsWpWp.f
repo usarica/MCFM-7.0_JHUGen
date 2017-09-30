@@ -1,12 +1,15 @@
       subroutine amptwodiagsWpWp(p1,p2,p3,p4,p5,p6,p7,p8,za,zb,amp)
       implicit none
+      include 'types.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
       include 'cmplxmass.f'
       include 'zprods_decl.f'
       include 'sprods_com.f'
-      integer p1,p2,p3,p4,p5,p6,p7,p8
-      double complex amp,propW34,propW56,propw28,propw17,zba2
-      double precision t3,s34,s56,s17,s28,
+      integer:: p1,p2,p3,p4,p5,p6,p7,p8
+      complex(dp):: amp,propW34,propW56,propw28,propw17,zba2
+      real(dp):: t3,s34,s56,s17,s28,
      & s134,s234,s156,s256,s347,s348,s567,s568
 C-----Begin statement functions
       zba2(p1,p2,p3,p4)=zb(p1,p2)*za(p2,p4)+zb(p1,p3)*za(p3,p4)

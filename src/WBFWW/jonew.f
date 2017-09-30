@@ -1,14 +1,17 @@
       subroutine jonew(p7,p3,p4,p1,za,zb,zab,jZ,jg)
       implicit none
+      include 'types.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
       include 'cmplxmass.f'
       include 'zprods_decl.f'
       include 'sprods_com.f'
       include 'zcouple.f'
-      integer p1,p2,p3,p4,p7,ro
-      double complex zab(mxpart,4,mxpart),zab2,jZ(2,4),jg(2,4),
+      integer:: p1,p2,p3,p4,p7,ro
+      complex(dp):: zab(mxpart,4,mxpart),zab2,jZ(2,4),jg(2,4),
      & rxw,propw34,propw17
-      double precision qn,p17(4),p34(4),t3,s134,s347,
+      real(dp):: qn,p17(4),p34(4),t3,s134,s347,
      & s34,s137,s147,s17,q3,q4,l3,l4
       parameter(qn=0d0)
 C-----Begin statement functions
@@ -23,14 +26,14 @@ C-----end statement functions
       s137=t3(p1,p3,p7)
       s147=t3(p1,p4,p7)
       s347=t3(p3,p4,p7)
-      p17(:)=0.5d0*dble(zab(p1,:,p1)+zab(p7,:,p7))
-      p34(:)=0.5d0*dble(zab(p3,:,p3)+zab(p4,:,p4))
+      p17(:)=0.5d0*real(zab(p1,:,p1)+zab(p7,:,p7))
+      p34(:)=0.5d0*real(zab(p3,:,p3)+zab(p4,:,p4))
 
       propw17=s17-cwmass2
       propw34=s34-cwmass2
 
 c--- determine correct couplings from calling parameters
-      if (p3 .eq. 3) then
+      if (p3 == 3) then
         q3=qe
         l3=le
         q4=qn

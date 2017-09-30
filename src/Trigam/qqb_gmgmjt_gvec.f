@@ -1,4 +1,6 @@
       subroutine qqb_gmgmjt_gvec(p,n,in,msq)
+      implicit none
+      include 'types.f'
 C***********************************************************************
 *    Author: J.M. Campbell                                             *
 *    March, 2013.                                                      *
@@ -7,8 +9,11 @@ c     averaged over initial colours and spins                          *
 c     contracted with the vector n(mu) (orthogonal to p5)              *
 c     q(-p1)+qbar(-p2) --> gamma(p3) + gamma(p4) + g(p5)               *
 C***********************************************************************
-      implicit none
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'qcdcouple.f'
       include 'masses.f'
       include 'ewcouple.f'
@@ -17,33 +22,33 @@ C***********************************************************************
       include 'sprods_com.f'
       include 'nflav.f'
       include 'zprods_com.f'
-      integer j,k,in
+      integer:: j,k,in
 C--in is the label of the parton dotted with n
-      double precision msq(-nf:nf,-nf:nf),p(mxpart,4),cfac
-      double precision gmgmjetn,fac,qqb,qbq,qg,gq,qbg,gqb,n(4)
-      double complex zanb(mxpart,mxpart),zbna(mxpart,mxpart)
+      real(dp):: msq(-nf:nf,-nf:nf),p(mxpart,4),cfac
+      real(dp):: gmgmjetn,fac,qqb,qbq,qg,gq,qbg,gqb,n(4)
+      complex(dp):: zanb(mxpart,mxpart),zbna(mxpart,mxpart)
 
       do j=-nf,nf
       do k=-nf,nf
-      msq(j,k)=0d0
+      msq(j,k)=0._dp
       enddo
       enddo
 
       call dotem(5,p,s)
 
-      fac=4d0*cf*xn*esq**2*gsq
+      fac=4._dp*cf*xn*esq**2*gsq
       call spinoru(5,p,za,zb)
       call spinork(5,p,zanb,zbna,n)
 
-      if (in .eq. 1) then
+      if (in == 1) then
         call checkndotp(p,n,1)
         gqb=aveqg*fac*gmgmjetn(zanb,5,2,1,3,4)
         gq=aveqg*fac*gmgmjetn(zanb,2,5,1,3,4)
-      elseif (in .eq. 2) then
+      elseif (in == 2) then
         call checkndotp(p,n,2)
         qg=aveqg*fac*gmgmjetn(zanb,1,5,2,3,4)
         qbg=aveqg*fac*gmgmjetn(zanb,5,1,2,3,4)
-      elseif (in .eq. 5) then
+      elseif (in == 5) then
         call checkndotp(p,n,5)
         qbq=+aveqq*fac*gmgmjetn(zanb,2,1,5,3,4)
         qqb=+aveqq*fac*gmgmjetn(zanb,1,2,5,3,4)

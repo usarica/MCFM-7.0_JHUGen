@@ -1,4 +1,4 @@
-**********************************************************************
+C**********************************************************************
 C    SIMPLE HISTOGRAMMING PACKAGE --  SIMPLIFIED VERSION OF HBOOK
 C    BY Michelangelo Mangano    NOVEMBER 1988
 C    LAST REVISED NOVEMBER 9, 1988  
@@ -86,8 +86,10 @@ c Empty histograms are not put out by MTOP.
 C--------------------------------------------------------------------------
 
       SUBROUTINE MBOOK(N,TIT,DEL,XMIN,XMAX)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      IMPLICIT INTEGER (I-N)
+      implicit none
+      include 'types.f'
+      real(dp) DEL,XMIN,XMAX
+      integer N,I,NNBIN
       CHARACTER*(*) TIT
       include 'histo.f'
       NHIST=MAX(N,NHIST)
@@ -99,24 +101,26 @@ C--------------------------------------------------------------------------
       NNBIN=INT((XMAX+1d-8-XMIN)/DEL)
       IF (NNBIN .GT. 100) THEN
       WRITE(6,*) XMAX,XMIN,DEL,NNBIN,' BIN SIZE TOO LARGE'
-      DEL=(XMAX-XMIN)/99.d0
+      DEL=(XMAX-XMIN)/99._dp
       NNBIN=INT((XMAX-XMIN)/DEL)
       ENDIF
       NBIN(N)=NNBIN
       IENT(N)=0
       IUSCORE(N)=0
       IOSCORE(N)=0
-      HAVG(N)=0.d0
-      HINT(N)=0.d0
+      HAVG(N)=0._dp
+      HINT(N)=0._dp
       DO 1 I=1,NBIN(N)
-      XHIS(N,I)=HMIN(N)+HDEL(N)*(DFLOAT(I)-0.5d0)
+      XHIS(N,I)=HMIN(N)+HDEL(N)*(real(I,dp)-0.5_dp)
       IHIS(N,I)=0
-   1  HIST(N,I)=0.d0
+   1  HIST(N,I)=0._dp
       END
 
       SUBROUTINE MFILL(N,X,Y)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      IMPLICIT INTEGER (I-N)
+      implicit none
+      include 'types.f'
+      integer N,I,K,L
+      real(dp) X,Y,Yadd
       include 'histo.f'
       I=INT((X-HMIN(N))/HDEL(N)+1)
       IF(I.GT.0.AND.I.LE.NBIN(N))  THEN
@@ -138,8 +142,10 @@ c     we are renormalising the weights by the bin width
       END
 
       SUBROUTINE MOPERA(I,OPER,J,K,X,Y)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      IMPLICIT INTEGER (I-N)
+      implicit none
+      include 'types.f'
+      integer I,J,K,L
+      real(dp) XAVG,XSQAVG,XNORM,X,Y
       CHARACTER OPER*1
       include 'histo.f'
       IF(NBIN(I).NE.NBIN(J).AND.(OPER.EQ.'+'.OR.OPER.EQ.'-'.OR.OPER.EQ.
@@ -152,37 +158,37 @@ c     we are renormalising the weights by the bin width
       ELSEIF(OPER.EQ.'*') THEN
       HIST(K,L)=X*HIST(I,L) * Y*HIST(J,L)
       ELSEIF(OPER.EQ.'/') THEN
-        IF(Y.EQ.0.d0.OR.HIST(J,L).EQ.0.d0) THEN
-          HIST(K,L)=0.d0
+        IF(Y.EQ.0._dp.OR.HIST(J,L).EQ.0._dp) THEN
+          HIST(K,L)=0._dp
           ELSE
           HIST(K,L)=X*HIST(I,L) / (Y*HIST(J,L))
         ENDIF
       ELSEIF(OPER.EQ.'F') THEN
       HIST(K,L)=X*HIST(I,L)
       ELSEIF(OPER.EQ.'R') THEN
-        IF(HIST(I,L).GT.0.d0) THEN
+        IF(HIST(I,L).GT.0._dp) THEN
         HIST(K,L)=X*SQRT(HIST(I,L))
         ELSE
-        HIST(K,L)=0.d0
+        HIST(K,L)=0._dp
         ENDIF
       ELSEIF(OPER.EQ.'S') THEN
       HIST(K,L)=X*HIST(I,L)**2
       ELSEIF(OPER.EQ.'l') THEN
-        IF(HIST(I,L).EQ.0.d0.OR.J.EQ.0) THEN
-             HIST(K,L)=0.d0
+        IF(HIST(I,L).EQ.0._dp.OR.J.EQ.0) THEN
+             HIST(K,L)=0._dp
              ELSE
              HIST(K,L)=X*LOG10(Y*HIST(I,L))
         ENDIF
       ELSEIF(OPER.EQ.'M') THEN
         IF(I.NE.J) XNORM=HIST(I,L)
-        IF(I.EQ.J) XNORM=DFLOAT(IHIS(J,L))
-        IF(XNORM.NE.0.d0) THEN
+        IF(I.EQ.J) XNORM=real(IHIS(J,L),dp)
+        IF(XNORM.NE.0._dp) THEN
         XAVG=HIST(J,L)/XNORM
-        HIST(K,L)=DSQRT(ABS(-XAVG**2+HIST(K,L)/XNORM)/DFLOAT(IHIS(I,L)))
+        HIST(K,L)=sqrt(ABS(-XAVG**2+HIST(K,L)/XNORM)/real(IHIS(I,L),dp))
         HIST(J,L)=XAVG 
         ELSE
-        HIST(K,L)=0.d0
-        HIST(J,L)=0.d0                           
+        HIST(K,L)=0._dp
+        HIST(J,L)=0._dp                           
         ENDIF
       ELSEIF(OPER.EQ.'V') THEN                 
         XAVG=HIST(I,L)*X
@@ -190,11 +196,11 @@ c     we are renormalising the weights by the bin width
 c--- need extra factor to account for renormalization by bin width
         XSQAVG=XSQAVG/hdel(i)
         XNORM=(IENT(I)+IUSCORE(I)+IOSCORE(I))*X
-        IF(XNORM.NE.0.d0) THEN
-        HIST(K,L)=DSQRT(X*ABS(XSQAVG-XAVG**2/XNORM))
+        IF(XNORM.NE.0._dp) THEN
+        HIST(K,L)=sqrt(X*ABS(XSQAVG-XAVG**2/XNORM))
         HIST(I,L)=XAVG
         ELSE
-        HIST(K,L)=0.d0
+        HIST(K,L)=0._dp
         ENDIF
       ELSEIF(OPER.EQ.'U') THEN ! same as 'V', but write errors only   
         XAVG=HIST(I,L)*X
@@ -202,11 +208,11 @@ c--- need extra factor to account for renormalization by bin width
 c--- need extra factor to account for renormalization by bin width
         XSQAVG=XSQAVG/hdel(i)
         XNORM=(IENT(I)+IUSCORE(I)+IOSCORE(I))*X
-        IF(XNORM.NE.0.d0) THEN
-        HIST(K,L)=DSQRT(X*ABS(XSQAVG-XAVG**2/XNORM))
+        IF(XNORM.NE.0._dp) THEN
+        HIST(K,L)=sqrt(X*ABS(XSQAVG-XAVG**2/XNORM))
 c        HIST(I,L)=XAVG ! removed from 'V'
         ELSE
-        HIST(K,L)=0.d0
+        HIST(K,L)=0._dp
         ENDIF
       ELSE
       WRITE(98,5) OPER
@@ -221,39 +227,43 @@ c        HIST(I,L)=XAVG ! removed from 'V'
       END
      
       SUBROUTINE MZERO(N)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      IMPLICIT INTEGER (I-N)
+      implicit none
+      include 'types.f'
+      integer N,I
       include 'histo.f'
       BOOK(N)='RES'
       IENT(N)=0
       IUSCORE(N)=0
       IOSCORE(N)=0
-      HAVG(N)=0.d0
-      HINT(N)=0.d0
+      HAVG(N)=0._dp
+      HINT(N)=0._dp
       DO 1 I=1,NBIN(N)
       IHIS(N,I)=0
-   1  HIST(N,I)=0.d0
+   1  HIST(N,I)=0._dp
       END
 
       SUBROUTINE MRESET(N)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      IMPLICIT INTEGER (I-N)
+      implicit none
+      include 'types.f'
+      integer N
       include 'histo.f'
       BOOK(N)='RES'
       END
 
       SUBROUTINE MFINAL(N)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      IMPLICIT INTEGER (I-N)
+      implicit none
+      include 'types.f'
+      real(dp) AVG,XIN
+      integer N,J
       include 'histo.f'
       IF(BOOK(N).NE.'YES') RETURN
-      AVG=0.d0
-      XIN=0.d0                                
-c      SIG=0.d0
+      AVG=0._dp
+      XIN=0._dp                                
+c      SIG=0._dp
       DO 1, J=1,NBIN(N)
       AVG=AVG+HIST(N,J)*XHIS(N,J)
    1  XIN=XIN+HIST(N,J)
-      IF(XIN.EQ.0.d0) GO TO 10
+      IF(XIN.EQ.0._dp) GO TO 10
       HAVG(N)=AVG/XIN
 c      DO 2, J=1,NBIN(N)
 c   2  SIG=HIST(N,J)*(XHIS(N,J)-HAVG(N))**2+SIG
@@ -264,8 +274,10 @@ c      IF(SIG.GE.0.)HSIG(N)=SQRT(SIG/XIN)
       END               
 
       SUBROUTINE MNORM(N,X)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      IMPLICIT INTEGER (I-N)
+      implicit none
+      include 'types.f'
+      real(dp) X
+      integer N,I
       include 'histo.f'
       IF(BOOK(N).NE.'YES')RETURN
       DO 1, I=1,NBIN(N)
@@ -274,11 +286,12 @@ c      IF(SIG.GE.0.)HSIG(N)=SQRT(SIG/XIN)
       END
 
       SUBROUTINE MPRINT(N,L)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      IMPLICIT INTEGER (I-N)
+      implicit none
+      include 'types.f'
+      integer N,L,I
       include 'histo.f'
       logical scaleplots                  
-      double precision scalefac
+      real(dp) scalefac
       common/scaleplots/scalefac,scaleplots
 c      DATA INI/0/
 c      IF(INI.EQ.0) THEN
@@ -311,8 +324,9 @@ c    7 FORMAT(4X,'HIST = ',I3,'   19',I2,'-',I2,'-',I2,1X,A5/)
       END
 
       SUBROUTINE MTOP(N,M,BTIT,LTIT,SCALE)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      IMPLICIT INTEGER (I-N)
+      implicit none
+      include 'types.f'
+      integer N,M,J
       CHARACTER*(*) LTIT,BTIT,SCALE
       include 'histo.f'
 c--- added these variables to scale plots at intermediate steps
@@ -339,7 +353,7 @@ c     &' TITLE BOTTOM ','"',A50,'"',/1X,
 c     &' TITLE LEFT ','"',A50,'"',/1X,
 c     &' SET SCALE Y ',A5,/1X,
 c     &' (SET TICKS TOP OFF)   '/1x,     
-c     &' SET LIMITS X ',F10.5,' ',F10.5,/1X,
+c     &' SET LIMITS X ',F12.5,' ',F12.5,/1X,
 c     &' SET ORDER X Y DY ')
   100 FORMAT( /1x,                               
      &' SET WINDOW Y 2.5 TO 7.'/,1X,
@@ -350,7 +364,7 @@ c     &' SET ORDER X Y DY ')
      &' TITLE LEFT ','"',A50,'"',/1X,
      &' SET SCALE Y ',A5,/1X,
      &' (SET TICKS TOP OFF)   '/1x,     
-     &' SET LIMITS X ',F10.5,' ',F10.5,/1X,
+     &' SET LIMITS X ',F12.5,' ',F12.5,/1X,
      &' SET ORDER X Y DY')
   101 FORMAT( /1x,                               
      &' SET WINDOW Y 2.5 TO 7.'/,1X,
@@ -362,7 +376,7 @@ c     &' SET ORDER X Y DY ')
      &' CASE       ','" G"',/1X,
      &' SET SCALE Y ',A5,/1X,
      &' (SET TICKS TOP OFF)   '/1x,     
-     &' SET LIMITS X ',F10.5,' ',F10.5,/1X,
+     &' SET LIMITS X ',F12.5,' ',F12.5,/1X,
      &' SET ORDER X Y DY')
       DO 1 J=1,NBIN(N)
 c      IF(HIST(N,J).EQ.0.) GO TO 1
@@ -415,8 +429,9 @@ C*******************************************************************
 c--F  Add gnuplot output
       
       SUBROUTINE MGNUPLOT(N,M,BTIT,LTIT,SCALE)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      IMPLICIT INTEGER (I-N)
+      implicit none
+      include 'types.f'
+      integer N,M,idlength,LEN_TRIM,J,istring
       CHARACTER*(*) LTIT,BTIT,SCALE
       include 'histo.f'
 c--- added these variables to scale plots at intermediate steps
@@ -456,11 +471,11 @@ c--- added these variables to scale plots at intermediate steps
 
 
 
-c--F  Add root output
-      
+c-- Root output (works in versions <=5)
       SUBROUTINE MROOTPLOT5(N,M,BTIT,LTIT)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      IMPLICIT INTEGER (I-N)
+      implicit none
+      include 'types.f'
+      integer N,M,idlength,LEN_TRIM,J,istring
       CHARACTER*(*) LTIT,BTIT
       CHARACTER*5 histoid
       include 'histo.f'
@@ -528,8 +543,9 @@ C     &        XHIS(N,J), ', ', HIST(N,J), ');'
 
 c-- Root output (works in versions >=5)
       SUBROUTINE MROOTPLOT(N,M,BTIT,LTIT)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      IMPLICIT INTEGER (I-N)
+      implicit none
+      include 'types.f'
+      integer N,M,J,idlength,LEN_TRIM,istring
       CHARACTER*(*) LTIT,BTIT
       CHARACTER*5 histoid
       include 'histo.f'

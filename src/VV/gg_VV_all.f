@@ -1,5 +1,7 @@
       subroutine gg_VV_all(p,msq)
       implicit none
+      include 'types.f'
+      
 c--- Author: J. M. Campbell, April 2014
 c--- Matrix element squared for gg -> e- e+ ve ve~  Higgs signal process
 c--- and gg -> ZZ NNLO contribution to continuum background
@@ -8,21 +10,24 @@ c--- Effects of massive quarks in the third generation may be included
 c--- with contributions from both ZZ and WW intermediate states
 c--- (default: included)
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ewcouple.f'
       include 'qcdcouple.f'
       include 'docheck.f'
       include 'runstring.f'
       include 'nuflav.f'
-      logical includegens1and2,includebottom,includetop,includegen3
-      integer h1,h2,h34,h56
-      double precision p(mxpart,4),pswap(mxpart,4),msq(fn:nf,fn:nf),
+      logical:: includegens1and2,includebottom,includetop,includegen3
+      integer:: h1,h2,h34,h56
+      real(dp):: p(mxpart,4),pswap(mxpart,4),msq(fn:nf,fn:nf),
      & msqgg,fac,pttwo
-      double complex 
+      complex(dp):: 
      & Mloop_uptype(2,2,2,2),Mloop_dntype(2,2,2,2),
      & Mloop_bquark(2,2,2,2),Mloop_tquark(2,2,2,2),
      & Mlight(2,2,2,2),Mgen3(2,2,2,2),
      & Mamp,faczz,facww
-      double complex ggHZZ_bquark(2,2,2,2),ggHZZ_tquark(2,2,2,2),
+      complex(dp):: ggHZZ_bquark(2,2,2,2),ggHZZ_tquark(2,2,2,2),
      & ggHWW_bquark(2,2,2,2),ggHWW_tquark(2,2,2,2)
 
 c--- set this to true to include generations 1 and 2 of (light) quarks
@@ -48,11 +53,11 @@ c--- this is the swap to get to the right configuration for the WW call
       pswap(6,:)=p(6,:)
       
 c--- overall factor from getggZZamps.f that is not common
-      faczz=4d0*esq**2
+      faczz=4._dp*esq**2
 c--- overall factor from getggWWamps.f that is not common
       facww=gwsq**2
 
-      msq(:,:)=0d0
+      msq(:,:)=0._dp
       
       Mlight(:,:,:,:)=czip
       Mgen3(:,:,:,:)=czip
@@ -69,23 +74,23 @@ c--- compute all gg->H->WW and gg->H->ZZ amplitudes
       call getggHZZamps(p,ggHZZ_bquark,ggHZZ_tquark)
 
 c--- pt cut to reproduce Kauer paper
-      if (pttwo(3,4,p) .lt. 1d0) then
+      if (pttwo(3,4,p) < 1._dp) then
         Mloop_uptype=czip
         Mloop_dntype=czip
         Mloop_bquark=czip
         Mloop_tquark=czip
         Mloop_uptype=czip
       endif
-      if (pttwo(4,5,p) .lt. 1d0) then
+      if (pttwo(4,5,p) < 1._dp) then
         Mlight=czip
         Mgen3=czip
       endif
       
 c--- Hack to isolate different pieces depending on runstring
-      if(index(runstring,'_ww') .gt. 0) faczz=czip
-      if(index(runstring,'_zz') .gt. 0) facww=czip
+      if(index(runstring,'_ww') > 0) faczz=czip
+      if(index(runstring,'_zz') > 0) facww=czip
       
-      msqgg=0d0
+      msqgg=0._dp
       do h1=1,2
       do h2=1,2
       do h34=1,2
@@ -93,25 +98,25 @@ c--- Hack to isolate different pieces depending on runstring
       
 c--- compute total amplitude: note relative sign in interference
       Mamp=
-     &  (2d0*Mloop_uptype(h1,h2,h34,h56)
-     &  +2d0*Mloop_dntype(h1,h2,h34,h56)
+     &  (2._dp*Mloop_uptype(h1,h2,h34,h56)
+     &  +2._dp*Mloop_dntype(h1,h2,h34,h56)
      &      +Mloop_bquark(h1,h2,h34,h56)
      &      +Mloop_tquark(h1,h2,h34,h56)
      &      +ggHZZ_bquark(h1,h2,h34,h56)
      &      +ggHZZ_tquark(h1,h2,h34,h56))*faczz
 
 c--- add contribution from vmu,vtau if necessary
-      if (nuflav .gt. 1) then
-        msqgg=msqgg+dfloat(nuflav-1)*cdabs(Mamp)**2        
+      if (nuflav > 1) then
+        msqgg=msqgg+real(nuflav-1,dp)*abs(Mamp)**2        
       endif
      
       Mamp=Mamp
-     & -(2d0*Mlight(h1,h2,h34,h56)
+     & -(2._dp*Mlight(h1,h2,h34,h56)
      &      +Mgen3(h1,h2,h34,h56)
      &      +ggHWW_bquark(h1,h2,h34,h56)
      &      +ggHWW_tquark(h1,h2,h34,h56))*facww
           
-      msqgg=msqgg+cdabs(Mamp)**2
+      msqgg=msqgg+abs(Mamp)**2
 
       enddo
       enddo
@@ -119,7 +124,7 @@ c--- add contribution from vmu,vtau if necessary
       enddo
       
 c--- overall common factor extracted (c.f. getggZZamps.f and getggWWamps.f)
-      fac=avegg*V*(gsq/(16d0*pisq))**2
+      fac=avegg*V*(gsq/(16._dp*pisq))**2
       
       msqgg=msqgg*fac
       

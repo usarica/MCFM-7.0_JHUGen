@@ -1,2 +1,2 @@
-      logical alwayscheckpoles, sponly
+      logical:: alwayscheckpoles, sponly
       common/alwayscheckpoles/alwayscheckpoles,sponly

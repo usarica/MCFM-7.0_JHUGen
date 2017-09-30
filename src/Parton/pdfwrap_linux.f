@@ -1,8 +1,11 @@
       subroutine pdfwrap
       implicit none
+      include 'types.f'
       include 'nlooprun.f'
       include 'pdlabel.f'
       include 'couple.f'
+      character*40 TableFile
+      character*100 gridname
       double precision cmass,bmass
       COMMON/QMASS/CMASS,BMASS
 
@@ -14,6 +17,15 @@
       nlooprun=2
       elseif     (pdlabel .eq. 'mstw8nn') then
       amz=0.11707d0
+      nlooprun=3
+      elseif     (pdlabel .eq. 'MMHT_lo') then
+      amz=0.135d0
+      nlooprun=1
+      elseif     (pdlabel .eq. 'MMHT_nl') then
+      amz=0.120d0
+      nlooprun=2
+      elseif     (pdlabel .eq. 'MMHT_nn') then
+      amz=0.118d0
       nlooprun=3
       elseif     (pdlabel .eq. 'mrs4nf3') then
       amz=0.1083d0
@@ -302,43 +314,104 @@ C   10     CTEQ4LQ  Low Q0                  0.114        0.7      cteq4lq.tbl
       amz=0.130d0
       Call SetCtq6(4)
       nlooprun=1
-
       elseif (pdlabel .eq. 'CT10.00') then
       amz=0.118d0
       call SetCT10(100)
       nlooprun=2
+      elseif (pdlabel .eq. 'CT14.LL') then
+      TableFile='CT14llo.pds'
+      call SetCT14(TableFile)
+      amz=0.130d0
+      nlooprun=1
+      elseif (pdlabel .eq. 'CT14.NL') then
+      TableFile='CT14n.00.pds'
+      call SetCT14(TableFile)
+      amz=0.118d0
+      nlooprun=2
+      elseif (pdlabel .eq. 'CT14.NN') then
+      TableFile='CT14nn.00.pds'
+      call SetCT14(TableFile)
+      amz=0.118d0
+      nlooprun=3
 
+      elseif (pdlabel .eq. 'NN2.3NL') then
+      gridname='Pdfdata/NNPDF23_nlo_as_0118.LHgrid'
+      amz=0.118d0
+      nlooprun=2
+      call NNPDFDriver(gridname)
+      call NNinitPDF(0)
+      elseif (pdlabel .eq. 'NN2.3NN') then
+      gridname='Pdfdata/NNPDF23_nnlo_as_0118.LHgrid'
+      amz=0.118d0
+      nlooprun=3
+      call NNPDFDriver(gridname)
+      call NNinitPDF(0)
+
+      elseif (pdlabel .eq. 'NN3.0LO') then
+      gridname='Pdfdata/NNPDF30_lo_as_0118.LHgrid'
+      amz=0.118d0
+      nlooprun=1
+      call NNPDFDriver(gridname)
+      call NNinitPDF(0)
+      elseif (pdlabel .eq. 'NN3.0NL') then
+      gridname='Pdfdata/NNPDF30_nlo_as_0118.LHgrid'
+      amz=0.118d0
+      nlooprun=2
+      call NNPDFDriver(gridname)
+      call NNinitPDF(0)
+      elseif (pdlabel .eq. 'NN3.0NN') then
+      gridname='Pdfdata/NNPDF30_nnlo_as_0118.LHgrid'
+      amz=0.118d0
+      nlooprun=3
+      call NNPDFDriver(gridname)
+      call NNinitPDF(0)
 
 c--- NEW ATTEMPT
       elseif (pdlabel .eq. 'mtungb1') then
 c--- need a value here: Lambda = 200 MeV
       amz=0.109d0
       else
-          write(6,*) 'Unimplemented distribution= ',pdlabel
-          write(6,*) 'Implemented are: ',
-     .'mstw8lo,','mstw8nl,','mstw8nn,',
-     .'mrs4nf3,','mrs4lf3,','mrs4nf4,','mrs4lf4,',
-     .'mrs02nl,','mrs02nn,',
-     .'mrs0119,','mrs0117,','mrs0121,','mrs01_j,','mrs01lo,',
-     .'mrs99_1,','mrs99_2,','mrs99_3,','mrs99_4,','mrs99_5,','mrs99_6,',
-     .'mrs99_7,','mrs99_8,','mrs99_9,','mrs9910,','mrs9911,','mrs9912,',
-     .'mrs98z1,','mrs98z2,','mrs98z3,','mrs98z4,','mrs98z5,','mrs98ht,',
-     .'mrs98l1,','mrs98l2,','mrs98l3,','mrs98l4,','mrs98l5,',
-     .'mrs96r1,','mrs96r2,','mrs96r3,','mrs96r4,',
-     .'hmrs90e,','hmrs90b,',
-     .'mrs95ap,','mrs95_g,',
-     .'cteq3_m,','cteq3_l,','cteq3_d,',
-     .'cteq4_m,','cteq4_d,','cteq4_l,','cteq4a1,','cteq4a2,',
-     .'cteq4a3,','cteq4a4,','cteq4a5,','cteq4hj,','cteq4lq,',
-     .'cteq5_m,','cteq5_d,','cteq5_l,','cteq5hj,','cteq5hq,',
-     .'cteq5f3,','cteq5f4,','cteq5m1,','ctq5hq1,','cteq5l1,',
-     .'cteq6_m,','cteq6_d,','cteq6_l,','cteq6l1,',
-     .'cteq61m,','cteq66m,',
-     .'CT10.00,',
-     .'mtungb1'
+        write(6,*) 'Unimplemented distribution= ',pdlabel
+        write(6,*) 'Recommended are: '
+        write(6,*) '    mstw8lo      (LO)'
+        write(6,*) '    mstw8nl      (NLO)'
+        write(6,*) '    mstw8nn      (NNLO)'
+        write(6,*) '    MMHT_lo      (LO)'
+        write(6,*) '    MMHT_nl      (NLO)'
+        write(6,*) '    MMHT_nn      (NNLO)'
+        write(6,*) '    CT10.00      (NLO)'
+        write(6,*) '    CT14.LL      (LO)'
+        write(6,*) '    CT14.NL      (NLO)'
+        write(6,*) '    CT14.NN      (NNLO)'
+        write(6,*) '    NN2.3NL      (NLO)'
+        write(6,*) '    NN2.3NN      (NNLO)'
+        write(6,*) '    NN3.0LO      (LO)'
+        write(6,*) '    NN3.0NL      (NLO)'
+        write(6,*) '    NN3.0NN      (NNLO)' 
+        write(6,*) 'Please refer to manual for further details.' 
+!     .'mstw8lo,','mstw8nl,','mstw8nn,',
+!     .'mrs4nf3,','mrs4lf3,','mrs4nf4,','mrs4lf4,',
+!     .'mrs02nl,','mrs02nn,',
+!     .'mrs0119,','mrs0117,','mrs0121,','mrs01_j,','mrs01lo,',
+!     .'mrs99_1,','mrs99_2,','mrs99_3,','mrs99_4,','mrs99_5,','mrs99_6,',
+!     .'mrs99_7,','mrs99_8,','mrs99_9,','mrs9910,','mrs9911,','mrs9912,',
+!     .'mrs98z1,','mrs98z2,','mrs98z3,','mrs98z4,','mrs98z5,','mrs98ht,',
+!     .'mrs98l1,','mrs98l2,','mrs98l3,','mrs98l4,','mrs98l5,',
+!     .'mrs96r1,','mrs96r2,','mrs96r3,','mrs96r4,',
+!     .'hmrs90e,','hmrs90b,',
+!     .'mrs95ap,','mrs95_g,','mtungb1',
+!     .'cteq3_m,','cteq3_l,','cteq3_d,',
+!     .'cteq4_m,','cteq4_d,','cteq4_l,','cteq4a1,','cteq4a2,',
+!     .'cteq4a3,','cteq4a4,','cteq4a5,','cteq4hj,','cteq4lq,',
+!     .'cteq5_m,','cteq5_d,','cteq5_l,','cteq5hj,','cteq5hq,',
+!     .'cteq5f3,','cteq5f4,','cteq5m1,','ctq5hq1,','cteq5l1,',
+!     .'cteq6_m,','cteq6_d,','cteq6_l,','cteq6l1,',
+!     .'cteq61m,','cteq66m,',
+!     .'CT10.00,','CT14.LL,','CT14.NL,','CT14.NN,',
+!     .'NN2.3NL,','NN2.3NN'
 
       stop
-      endif      
+      endif
       return
       end
  

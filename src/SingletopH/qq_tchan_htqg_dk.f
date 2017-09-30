@@ -1,29 +1,34 @@
       subroutine qq_tchan_htqg_dk(p,msq)
+      implicit none
+      include 'types.f'
 c---Matrix element squared averaged over initial colors and spins
 c     u(-p1)+b(p2)->h(p3,p4)+t(nu(p5)+e(p6)+b(p7))+d(p8)+g(p9)
-      implicit none
+      
       include 'ewcouple.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'qcdcouple.f'
       include 'hdecaymode.f'
       include 'masses.f'
       include 'nwz.f'
       include 'zprods_com.f'
-      integer nu,eta,e5
-      double precision p(mxpart,4),q(mxpart,4),q5Deta,s34,hdecay,
+      integer:: nu,eta,e5
+      real(dp):: p(mxpart,4),q(mxpart,4),q5Deta,s34,hdecay,
      & msq(-nf:nf,-nf:nf),msqgamgam,fac,ampsqL,ampsqH,
      & b_u,u_b,db_b,b_db,d_bb,ub_bb,bb_d,bb_ub,
      & db_g,g_b,u_g,g_db,b_g,g_u,
      & d_g,g_bb,ub_g,g_d,bb_g,g_ub,tpropsq
-      double complex mdecaymb(2,2),mdecay
+      complex(dp):: mdecaymb(2,2),mdecay
 
 c -- mb set to zero for rest of code, needs to be zero here too, so this is to be sure
 c -- tdecay assumes a massive b, hence 4 polarizations -- we only need one
       mb=0d0
-      if (nwz .eq. 1) then
+      if (nwz == 1) then
       call tdecay(p,5,6,7,mdecaymb)
       mdecay=mdecaymb(1,1)
-      elseif (nwz .eq. -1) then
+      elseif (nwz == -1) then
       call adecay(p,5,6,7,mdecaymb)
       mdecay=mdecaymb(2,2)
       endif
@@ -68,7 +73,7 @@ C -- zero all components of msq
 
       tpropsq=1d0/(mt*twidth)**2
       fac=xn**2*(2d0*CF)*gwsq**5*gsq*hdecay*tpropsq
-      if (nwz .eq. 1) then
+      if (nwz == 1) then
       call spinoru(8,q,za,zb) 
 
       call ubhtdgsqdk(1,2,3,4,5,6,7,e5,mdecay,ampsqL,ampsqH)
@@ -116,7 +121,7 @@ c--- In g-q diagrams, remove corrections on light line
       msq(0,-3)=g_db
       msq(5,0)=b_g
 
-      elseif(nwz .eq. -1) then
+      elseif(nwz == -1) then
       call spinoru(8,q,zb,za) 
 
       call ubhtdgsqdk(1,2,4,3,5,6,7,e5,mdecay,ampsqL,ampsqH)

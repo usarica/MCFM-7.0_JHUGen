@@ -1,4 +1,6 @@
       subroutine qqb_ttw_v(p,msqv)
+      implicit none
+      include 'types.f'
 ************************************************************************
 *     Author: R. K. Ellis                                              *
 *     March, 2012.                                                     *
@@ -12,8 +14,11 @@
 *                                                                      *
 *                                                                      *
 ************************************************************************
-      implicit none
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ckm.f'
       include 'masses.f'
       include 'sprods_com.f'
@@ -23,14 +28,14 @@
       include 'momwbbm.f'
       include 'scheme.f'
       include 'plabel.f'
-      integer j,k,nu,j1,j2,hb,hc
-      double precision p(mxpart,4),q(mxpart,4),msqv(-nf:nf,-nf:nf)
-      double precision qqb,qbq,dot
-      double precision fac,mQsq,s56,betasq
-      double complex a6treemm,a6treemp,a6treepm,a6treepp,
+      integer:: j,k,nu,j1,j2,hb,hc
+      real(dp):: p(mxpart,4),q(mxpart,4),msqv(-nf:nf,-nf:nf)
+      real(dp):: qqb,qbq,dot
+      real(dp):: fac,mQsq,s56,betasq
+      complex(dp):: a6treemm,a6treemp,a6treepm,a6treepp,
      & mtop(2,2),manti(2,2),a61mm,a61mp,a61pm,a61pp,a61(2,2),a6(2,2),
      & loqbq(2,2),hoqbq(2,2),loqqb(2,2),hoqqb(2,2)
-      logical numcheck
+      logical:: numcheck
       common/numcheck/numcheck
 !$omp threadprivate(/numcheck/)
 
@@ -38,7 +43,7 @@
 
       do j=-nf,nf
       do k=-nf,nf
-      msqv(j,k)=0d0
+      msqv(j,k)=0._dp
       enddo
       enddo
 
@@ -81,19 +86,19 @@ c--- construct the massless momenta a la Rodrigo
       mom(j,nu)=q(j,nu)
       enddo
       enddo
-      s56=2d0*dot(q,5,6)+2d0*mQsq
-      betasq=1d0-4d0*mQsq/s56
-      if (betasq .ge. 0d0) then
-        bp=0.5d0*(1d0+dsqrt(betasq))
-        bm=1d0-bp
+      s56=2._dp*dot(q,5,6)+2._dp*mQsq
+      betasq=1._dp-4._dp*mQsq/s56
+      if (betasq >= 0._dp) then
+        bp=0.5_dp*(1._dp+sqrt(betasq))
+        bm=1._dp-bp
       else
         write(6,*) 'betasq < 0 in qqb_ttw_v.f, betasq=',betasq
         call flush(6)
         stop
       endif
       do nu=1,4
-      mom(5,nu)=(bp*q(5,nu)-bm*q(6,nu))/dsqrt(betasq)
-      mom(6,nu)=(bp*q(6,nu)-bm*q(5,nu))/dsqrt(betasq)
+      mom(5,nu)=(bp*q(5,nu)-bm*q(6,nu))/sqrt(betasq)
+      mom(6,nu)=(bp*q(6,nu)-bm*q(5,nu))/sqrt(betasq)
       enddo
 
       call tdecayrod(p,3,4,5,6,7,8,0,mtop)
@@ -107,8 +112,8 @@ c--- overall factor
       fac=fac*s(3,4)**2/((s(3,4)-wmass**2)**2+(wmass*wwidth)**2)
 
 c--- include factor for hadronic decays of W
-      if (plabel(3) .eq. 'pp') fac=2d0*xn*fac
-      if (plabel(7) .eq. 'pp') fac=2d0*xn*fac
+      if (plabel(3) == 'pp') fac=2._dp*xn*fac
+      if (plabel(7) == 'pp') fac=2._dp*xn*fac
 
 c--- QBQ: compute 1-loop and tree amplitudes
       call a61mass(1,6,5,2,4,3,mQsq,a61mm,a61mp,a61pm,a61pp,
@@ -122,7 +127,7 @@ c--- QBQ: compute 1-loop and tree amplitudes
       a6(2,1)=a6treepm
       a6(2,2)=a6treepp
 
-      qbq=0d0
+      qbq=0._dp
       do hb=1,2
       do hc=1,2
       hoqbq(hb,hc)=czip
@@ -133,7 +138,7 @@ c--- QBQ: compute 1-loop and tree amplitudes
       hoqbq(hb,hc)=hoqbq(hb,hc)+mtop(hb,j1)*a61(j1,j2)*manti(j2,hc)
       enddo
       enddo
-      qbq=qbq+fac*dble(loqbq(hb,hc)*dconjg(hoqbq(hb,hc)))
+      qbq=qbq+fac*real(loqbq(hb,hc)*conjg(hoqbq(hb,hc)))
       enddo
       enddo
 
@@ -152,7 +157,7 @@ c--- QQB: compute 1-loop and tree amplitudes
       a6(2,1)=a6treepm
       a6(2,2)=a6treepp
 
-      qqb=0d0
+      qqb=0._dp
       do hb=1,2
       do hc=1,2
       hoqqb(hb,hc)=czip
@@ -165,15 +170,15 @@ c--- QQB: compute 1-loop and tree amplitudes
      & mtop(hb,j1)*a61(j1,j2)*manti(j2,hc)
       enddo
       enddo
-      qqb=qqb+fac*dble(loqqb(hb,hc)*dconjg(hoqqb(hb,hc)))
+      qqb=qqb+fac*real(loqqb(hb,hc)*conjg(hoqqb(hb,hc)))
       enddo
       enddo
 
       do j=-nf,nf
       do k=-nf,nf
-      if     ((j .gt. 0) .and. (k .lt. 0)) then
+      if     ((j > 0) .and. (k < 0)) then
                msqv(j,k)=Vsq(j,k)*qqb
-      elseif ((j .lt. 0) .and. (k .gt. 0)) then
+      elseif ((j < 0) .and. (k > 0)) then
                msqv(j,k)=Vsq(j,k)*qbq
       endif
       enddo

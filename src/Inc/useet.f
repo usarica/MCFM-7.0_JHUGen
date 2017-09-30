@@ -3,5 +3,5 @@
 *         useEt=.false.    transverse momentum [previous default]      *
 *         useEt=.true.     transverse energy                           *
 ************************************************************************
-      logical useEt
+      logical:: useEt
       common/useEt/useEt

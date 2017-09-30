@@ -1,4 +1,7 @@
-      double complex function amp_3gam1g_mppppm(j1,j2,j3,j4,j5,j6,za,zb)
+      function amp_3gam1g_mppppm(j1,j2,j3,j4,j5,j6,za,zb)
+      implicit none
+      include 'types.f'
+      complex(dp):: amp_3gam1g_mppppm
 c--- -i*Amplitude for the process
 c---       0  -->  qb(j5) + q(j6) + g(j1) + gam(j2) + gam(j3) + gam(j4)
 c--- helicities:     +       -      -         +         +         +
@@ -6,10 +9,13 @@ c---
 c--- Taken from "Multi-Photon Amplitudes for Next-to-Leading Order QCD"
 c---  V. Del Duca, W. Kilgore and F. Maltoni, hep-ph/9910253
 c---
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
-      integer j1,j2,j3,j4,j5,j6
+      integer:: j1,j2,j3,j4,j5,j6
 
 c--- Equation (2.9) with r=1, m=3 and labels permuted appropriately
 c--- negative helicity gluon i=1
@@ -23,7 +29,10 @@ c--- negative helicity gluon i=1
       end
 
       
-      double complex function amp_3gam1g_pmpppm(j1,j2,j3,j4,j5,j6,za,zb)
+      function amp_3gam1g_pmpppm(j1,j2,j3,j4,j5,j6,za,zb)
+      implicit none
+      include 'types.f'
+      complex(dp):: amp_3gam1g_pmpppm
 c--- -i*Amplitude for the process
 c---       0  -->  qb(j5) + q(j6) + g(j1) + gam(j2) + gam(j3) + gam(j4)
 c--- helicities:     +       -      +         -         +         +
@@ -31,10 +40,13 @@ c---
 c--- Taken from "Multi-Photon Amplitudes for Next-to-Leading Order QCD"
 c---  V. Del Duca, W. Kilgore and F. Maltoni, hep-ph/9910253
 c---
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
-      integer j1,j2,j3,j4,j5,j6
+      integer:: j1,j2,j3,j4,j5,j6
 
 c--- Equation (2.9) with r=1, m=3 and labels permuted appropriately
 c--- negative helicity photon i=2
@@ -48,7 +60,10 @@ c--- negative helicity photon i=2
       end
 
       
-      double complex function amp_3gam1g_ppmppm(j1,j2,j3,j4,j5,j6,za,zb)
+      function amp_3gam1g_ppmppm(j1,j2,j3,j4,j5,j6,za,zb)
+      implicit none
+      include 'types.f'
+      complex(dp):: amp_3gam1g_ppmppm
 c--- -i*Amplitude for the process
 c---       0  -->  qb(j5) + q(j6) + g(j1) + gam(j2) + gam(j3) + gam(j4)
 c--- helicities:     +       -      +         +         -         +
@@ -56,10 +71,13 @@ c---
 c--- Taken from "Multi-Photon Amplitudes for Next-to-Leading Order QCD"
 c---  V. Del Duca, W. Kilgore and F. Maltoni, hep-ph/9910253
 c---
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
-      integer j1,j2,j3,j4,j5,j6
+      integer:: j1,j2,j3,j4,j5,j6
 
 c--- Equation (2.9) with r=1, m=3 and labels permuted appropriately
 c--- negative helicity photon i=3
@@ -73,7 +91,10 @@ c--- negative helicity photon i=3
       end
 
       
-      double complex function amp_3gam1g_pppmpm(j1,j2,j3,j4,j5,j6,za,zb)
+      function amp_3gam1g_pppmpm(j1,j2,j3,j4,j5,j6,za,zb)
+      implicit none
+      include 'types.f'
+      complex(dp):: amp_3gam1g_pppmpm
 c--- -i*Amplitude for the process
 c---       0  -->  qb(j5) + q(j6) + g(j1) + gam(j2) + gam(j3) + gam(j4)
 c--- helicities:     +       -      +         +         +         -
@@ -81,10 +102,13 @@ c---
 c--- Taken from "Multi-Photon Amplitudes for Next-to-Leading Order QCD"
 c---  V. Del Duca, W. Kilgore and F. Maltoni, hep-ph/9910253
 c---
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
-      integer j1,j2,j3,j4,j5,j6
+      integer:: j1,j2,j3,j4,j5,j6
 
 c--- Equation (2.9) with r=1, m=3 and labels permuted appropriately
 c--- negative helicity photon i=4
@@ -98,7 +122,10 @@ c--- negative helicity photon i=4
       end
 
       
-      double complex function amp_3gam1g_mmpppm(j1,j2,j3,j4,j5,j6,za,zb)
+      function amp_3gam1g_mmpppm(j1,j2,j3,j4,j5,j6,za,zb)
+      implicit none
+      include 'types.f'
+      complex(dp):: amp_3gam1g_mmpppm
 c--- -i*Amplitude for the process
 c---       0  -->  qb(j5) + q(j6) + g(j1) + gam(j2) + gam(j3) + gam(j4)
 c--- helicities:     +       -      -         -         +         +
@@ -106,12 +133,15 @@ c---
 c--- Taken from "Multi-Photon Amplitudes for Next-to-Leading Order QCD"
 c---  V. Del Duca, W. Kilgore and F. Maltoni, hep-ph/9910253
 c---
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'sprods_com.f'
       include 'zprods_decl.f'
-      integer j1,j2,j3,j4,j5,j6,k1(2),k2(2),k3(2),k4(2),i12,i34
-      double precision t
+      integer:: j1,j2,j3,j4,j5,j6,k1(2),k2(2),k3(2),k4(2),i12,i34
+      real(dp):: t
       
 c--- Equation (5.1)
       amp_3gam1g_mmpppm=      

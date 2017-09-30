@@ -1,3 +1,3 @@
-      logical nfonly,caonly 
+      logical:: nfonly,caonly 
       common/colstruc/nfonly,caonly
 

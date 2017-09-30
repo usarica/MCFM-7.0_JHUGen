@@ -1,4 +1,6 @@
       subroutine qq_tbg_gvec(p,n,in,msq)
+      implicit none
+      include 'types.f'
 ************************************************************************
 *     Lowest order s-channel single top + jet                          *
 *       (contracted with vector n)                                     *
@@ -15,29 +17,32 @@
 *                                                                      *
 ************************************************************************
 c     u + g  ->  c + s + d  (t-channel single-charm)
-      implicit none
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ewcouple.f'
       include 'sprods_com.f'
       include 'nwz.f'
       include 'stopscales.f'
-      double precision p(mxpart,4),fac,msq_qqbar
-      double precision msq(-nf:nf,-nf:nf),gsq_H
-      double precision qg_tbqn,n(4)
-      integer j,k,in,i3,i4
+      real(dp):: p(mxpart,4),fac,msq_qqbar
+      real(dp):: msq(-nf:nf,-nf:nf),gsq_H
+      real(dp):: qg_tbqn,n(4)
+      integer:: j,k,in,i3,i4
 
       do j=-nf,nf
       do k=-nf,nf
-      msq(j,k)=0d0
+      msq(j,k)=0._dp
       enddo
       enddo
 
       gsq_H=fourpi*as_H
-      fac=aveqq*2d0*xn**2*Cf*gsq_H*gwsq**2
+      fac=aveqq*2._dp*xn**2*Cf*gsq_H*gwsq**2
       call dotem(5,p,s)
 
 c--- set labels of quark and antiquark according to nwz
-      if (nwz .eq. +1) then
+      if (nwz == +1) then
         i3=3
         i4=4
       else
@@ -45,9 +50,9 @@ c--- set labels of quark and antiquark according to nwz
         i4=3
       endif
 
-      msq_qqbar=0d0
-c      msq_qbarq=0d0
-      if     (in .eq. 5) then
+      msq_qqbar=0._dp
+c      msq_qbarq=0._dp
+      if     (in == 5) then
         msq_qqbar=+qg_tbqn(i3,i4,1,2,5,p,n)
 c        msq_qbarq=+qg_tbqn(i3,i4,2,1,5,p,n)
       else
@@ -61,9 +66,9 @@ c--- put result in msq(0,0) element for convenience
 c--- fill matrix elements
 c      do j=-4,4
 c      do k=-4,4
-c        if     ((j .gt. 0) .and. (k .lt. 0)) then
+c        if     ((j > 0) .and. (k < 0)) then
 c          msq(j,k)=fac*Vsq(j,k)*msq_qqbar
-c        elseif ((j .lt. 0) .and. (k .gt. 0)) then
+c        elseif ((j < 0) .and. (k > 0)) then
 c          msq(j,k)=fac*Vsq(j,k)*msq_qbarq
 c        endif
 c      enddo

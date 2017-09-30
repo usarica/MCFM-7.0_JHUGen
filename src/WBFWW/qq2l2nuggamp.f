@@ -1,7 +1,9 @@
-      subroutine qq2l2nuggamp(i1,i2,i3,i4,i5,i6,i7,i8,
-     & za,zb,msq)
+      subroutine qq2l2nuggamp(i1,i2,i3,i4,i5,i6,i7,i8,za,zb,msq)
       implicit none
+      include 'types.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
       include 'cmplxmass.f'
       include 'zprods_decl.f'
       include 'sprods_com.f'
@@ -9,14 +11,15 @@
       include 'ewcouple.f'
       include 'qcdcouple.f'
       include 'zcouple.f'
-      integer jdu,j78,i1,i2,i3,i4,i5,i6,i7,i8,
+      integer:: jdu,j78,i1,i2,i3,i4,i5,i6,i7,i8,
      & p1,p2,p3,p4,p5,p6,p7,p8,h1,h7,h8
-      double complex ratxw,zab2,zba2,coupel(2,2),coupnu(2,2),coupw(2,2),
+      complex(dp)::ratxw,zab2,zba2,coupel(2,2),coupnu(2,2),
+     & coupw(2,2),
      & adr78(2,2,2,2),adr87(2,2,2,2),a78(2,2,2,2),
      & asr78(2,2,2,2),asr87(2,2,2,2),a87(2,2,2,2),aq(2,2,2,2),
      & propw34,propw56,propz3456,propa3456,
      & zba3,zba4,iza,izb,sign
-      double precision t3,t4,s356,s456,s34,s56,
+      real(dp):: t3,t4,s356,s456,s34,s56,
      & s278,s178,s156,s234,s345,s346,s2347,s3456,msq(2)
 C-----Begin statement functions
       iza(i1,i2)=cone/za(i1,i2)
@@ -2257,9 +2260,9 @@ C-----end statement functions
       do h8=1,2
 C23456789012345678901234567890123456789012345678901234567890123456789012
       msq(jdu)=msq(jdu)+gsq**2*esq**4*V*xn*(
-     & +dble(a78(jdu,h1,h7,h8)*Dconjg(a78(jdu,h1,h7,h8)))
-     & +dble(a87(jdu,h1,h7,h8)*Dconjg(a87(jdu,h1,h7,h8)))
-     & -dble(aq(jdu,h1,h7,h8)*Dconjg(aq(jdu,h1,h7,h8)))
+     & +real(a78(jdu,h1,h7,h8)*conjg(a78(jdu,h1,h7,h8)))
+     & +real(a87(jdu,h1,h7,h8)*conjg(a87(jdu,h1,h7,h8)))
+     & -real(aq(jdu,h1,h7,h8)*conjg(aq(jdu,h1,h7,h8)))
      &  /xn**2)
       enddo
       enddo

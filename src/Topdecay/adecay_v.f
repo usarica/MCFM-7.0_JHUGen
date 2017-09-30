@@ -1,13 +1,15 @@
 c--- File written by FORM program adecay_v.frm on Thu Mar  1 14:02:57 CST 2012
       subroutine adecay_v(p,pqq,pqb,pc,m)
       implicit none
+      include 'types.f'
+      
 ************************************************************************
 *     Author: R.K. Ellis, January 2012                                 *
 *     Virtual corrections to                                           *
 *     antitop decay  a --> qq(pqq)+qb(pqb)+bbar(pc)                    *
 *     with bottom and top masses (and no radiation)                    *
 *     in massless spinor notation                                      *
-*     pqq,pqb,pc are integers that point to                            *
+*     pqq,pqb,pc are integer::s that point to                            *
 *     the appropriate four-momenta in p                                *
 *     pqq=electron                                                     *
 *     pqb=antineutrino                                                 *
@@ -17,15 +19,18 @@ c--- File written by FORM program adecay_v.frm on Thu Mar  1 14:02:57 CST 2012
 *     returned m(apol,cpol)                                            *
 ************************************************************************
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'sprods_com.f'
       include 'masses.f'
       include 'qcdcouple.f'
-      double precision p(mxpart,4),q(mxpart,4),dot,sw,ala,alc,ctm,
+      real(dp):: p(mxpart,4),q(mxpart,4),dot,sw,ala,alc,ctm,
      & nloratiotopdecay,corr
-      double complex m(2,2),cprop,
+      complex(dp):: m(2,2),cprop,
      & c0L,C0R,C1L,C1R,C1Lon2,C1Ron2,iza,izb
-      integer qb,a,c,qq,si,pc,pqq,pqb,aa,bb
+      integer:: qb,a,c,qq,si,pc,pqq,pqb,aa,bb
       parameter(a=1,qq=3,qb=4,c=2)
       iza(aa,bb)=cone/za(aa,bb)
       izb(aa,bb)=cone/zb(aa,bb)
@@ -37,8 +42,8 @@ c--- File written by FORM program adecay_v.frm on Thu Mar  1 14:02:57 CST 2012
       q(qb,si)=p(pqb,si)
       q(c,si)=p(pc,si)
       enddo
-      ala=mt**2/(2d0*dot(q,a,qq))
-      alc=mb**2/(2d0*dot(q,c,qb))
+      ala=mt**2/(2._dp*dot(q,a,qq))
+      alc=mb**2/(2._dp*dot(q,c,qb))
       do si=1,4
       q(a,si)=q(a,si)-ala*q(qq,si)
       q(c,si)=q(c,si)-alc*q(qb,si)
@@ -46,10 +51,10 @@ c--- File written by FORM program adecay_v.frm on Thu Mar  1 14:02:57 CST 2012
       call spinoru(4,q,za,zb)
       sw=s(qq,qb)
       call coefsdkmass(sw,mt,mb,ctm,c0L,c0R,c1L,C1R)
-      c0L=c0L+dcmplx(ctm)-corr
-      c1Lon2=c1L/2d0
-      c1Ron2=c1R/2d0
-      cprop=dcmplx(sw-wmass**2,wmass*wwidth)
+      c0L=c0L+cplx1(ctm)-corr
+      c1Lon2=c1L/2._dp
+      c1Ron2=c1R/2._dp
+      cprop=cplx2(sw-wmass**2,wmass*wwidth)
 C---order of polarizations is m(apol,cpol)
       m(1,1)= + cprop**(-1)*mt**(-1)*mb * ( za(qq,c)*zb(qb,a)*c1Ron2 )
       m(1,1) = m(1,1) + cprop**(-1) * ( za(qq,c)**2*zb(qb,c)*iza(qq,a)*

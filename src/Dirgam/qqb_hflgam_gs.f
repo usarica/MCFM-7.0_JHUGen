@@ -1,4 +1,6 @@
       subroutine qqb_hflgam_gs(p,msq)
+      implicit none
+      include 'types.f'
 ************************************************************************
 *     Author: J.M. Campbell                                            *
 *     January, 2013.                                                   *
@@ -8,8 +10,11 @@
 *     f(-p1) + f(-p2) -->  gamma(p3) + parton(p4) + parton(p5)         *
 ************************************************************************
 
-      implicit none 
+       
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ptilde.f'
       include 'qqgg.f'
       include 'ewcharge.f'
@@ -17,10 +22,10 @@
       include 'heavyflav.f'
       include 'masses.f'
       include 'phot_dip.f'
-      integer j,k,nd,n3,n4,n5,n6
+      integer:: j,k,nd,n3,n4,n5,n6
 c --- remember: nd will count the dipoles
-      double precision p(mxpart,4),msq(maxd,-nf:nf,-nf:nf),dot
-      double precision 
+      real(dp):: p(mxpart,4),msq(maxd,-nf:nf,-nf:nf),dot
+      real(dp):: 
 c     & msq14_2(-nf:nf,-nf:nf),msq24_1(-nf:nf,-nf:nf),
      & msq15_2(-nf:nf,-nf:nf),msq25_1(-nf:nf,-nf:nf),
 c     & msq14_5(-nf:nf,-nf:nf),
@@ -66,31 +71,31 @@ c-- change of names
 
 c--- calculate all the initial-initial dipoles
 c      call dips(1,p,1,4,2,sub14_2,sub14_2v,msq14_2,msq14_2v,
-c     . qqb_hflgam,qqb_hflgam_gvec)
+c     & qqb_hflgam,qqb_hflgam_gvec)
 c      call dips(2,p,2,4,1,sub24_1,sub24_1v,msq24_1,msq24_1v,
-c     . qqb_hflgam,qqb_hflgam_gvec)
+c     & qqb_hflgam,qqb_hflgam_gvec)
       call dips(n3,p,1,5,2,sub15_2,sub15_2v,msq15_2,msq15_2v,
-     . qqb_hflgam,qqb_hflgam_gvec)
+     & qqb_hflgam,qqb_hflgam_gvec)
       call dips(n4,p,2,5,1,sub25_1,sub25_1v,msq25_1,msq25_1v,
-     . qqb_hflgam,qqb_hflgam_gvec)
+     & qqb_hflgam,qqb_hflgam_gvec)
 
 c--- now the basic initial final ones
 c      call dips(n5,p,1,4,5,sub14_5,sub14_5v,msq14_5,msq14_5v,
-c     . qqb_hflgam,qqb_hflgam_gvec)
+c     & qqb_hflgam,qqb_hflgam_gvec)
 c--- called for final initial the routine only supplies 
 c----new values for
 c--- sub... and sub...v and msqv
       call dips(n5,p,4,5,1,sub45_1,sub45_1v,msq45_1,msq45_1v,
-     . qqb_hflgam,qqb_hflgam_gvec)
+     & qqb_hflgam,qqb_hflgam_gvec)
       call dips(n5,p,1,5,4,sub15_4,sub15_4v,msq15_4,msq15_4v,
-     . qqb_hflgam,qqb_hflgam_gvec)
+     & qqb_hflgam,qqb_hflgam_gvec)
 
 c      call dips(n6,p,2,4,5,sub24_5,sub24_5v,msq24_5,msq24_5v,
-c     . qqb_hflgam,qqb_hflgam_gvec)
+c     & qqb_hflgam,qqb_hflgam_gvec)
       call dips(n6,p,4,5,2,sub45_2,sub45_2v,msq45_2,msq45_2v,
-     . qqb_hflgam,qqb_hflgam_gvec)
+     & qqb_hflgam,qqb_hflgam_gvec)
       call dips(n6,p,2,5,4,sub25_4,sub25_4v,msq25_4,msq25_4v,
-     . qqb_hflgam,qqb_hflgam_gvec)
+     & qqb_hflgam,qqb_hflgam_gvec)
 
 C------debug
       frag=.false.
@@ -114,7 +119,7 @@ C------debug
       do j=-nf,nf
       do k=-nf,nf      
       do nd=1,ndmax
-        msq(nd,j,k)=0d0
+        msq(nd,j,k)=0._dp
       enddo
       enddo
       enddo
@@ -127,27 +132,27 @@ C------debug
 c      if ((j .ne. 0) .and. (k .ne. 0) .and. (j.ne.-k)) goto 19
 
 c--- do only q-qb and qb-q cases      
-c      if (  ((j .gt. 0).and.(k .lt. 0))
-c     . .or. ((j .lt. 0).and.(k .gt. 0))) then
+c      if (  ((j > 0).and.(k < 0))
+c     & .or. ((j < 0).and.(k > 0))) then
 C-----half=statistical factor
 c      msq(1,j,k)=-half*msq14_2(j,k)*sub14_2(qq)/xn
 c      msq(2,j,k)=-half*msq24_1(j,k)*sub24_1(qq)/xn
 c      msq(3,j,k)=-half*msq15_2(j,k)*sub15_2(qq)/xn
 c      msq(4,j,k)=-half*msq25_1(j,k)*sub25_1(qq)/xn
 c      msq(5,j,k)=half*xn*(
-c     .  msq14_5(j,k)*(sub14_5(qq)+zip*0.5d0*sub45_1(gg))
-c     . +0.5d0*msq45_1v(j,k)*sub45_1v
-c     . +msq14_5(j,k)*(sub15_4(qq)+0.5d0*sub45_1(gg))
-c     . +0.5d0*msq45_1v(j,k)*sub45_1v)
+c     &  msq14_5(j,k)*(sub14_5(qq)+zip*0.5_dp*sub45_1(gg))
+c     & +0.5_dp*msq45_1v(j,k)*sub45_1v
+c     & +msq14_5(j,k)*(sub15_4(qq)+0.5_dp*sub45_1(gg))
+c     & +0.5_dp*msq45_1v(j,k)*sub45_1v)
 c      msq(6,j,k)=half*xn*(
-c     .  msq25_4(j,k)*(sub25_4(qq)+zip*0.5d0*sub45_2(gg))
-c     . +0.5d0*msq45_2v(j,k)*sub45_2v
-c     . +msq25_4(j,k)*(sub24_5(qq)+0.5d0*sub45_2(gg))
-c     . +0.5d0*msq45_2v(j,k)*sub45_2v)
+c     &  msq25_4(j,k)*(sub25_4(qq)+zip*0.5_dp*sub45_2(gg))
+c     & +0.5_dp*msq45_2v(j,k)*sub45_2v
+c     & +msq25_4(j,k)*(sub24_5(qq)+0.5_dp*sub45_2(gg))
+c     & +0.5_dp*msq45_2v(j,k)*sub45_2v)
 
-      if ((k .eq. 0).and.(j.ne.0)) then
+      if ((k == 0).and.(j.ne.0)) then
 c--- q-g and qb-g cases
-c      msq(2,j,k)=2d0*tr*msq24_1(j,-j)*sub24_1(qg)
+c      msq(2,j,k)=2._dp*tr*msq24_1(j,-j)*sub24_1(qg)
       msq(n3,j,k)=xn*msq15_2(j,k)*sub15_2(qq)
       msq(n4,j,k)=xn*(msq25_1(j,k)*sub25_1(gg)+msq25_1v(j,k)*sub25_1v)
       msq(n5,j,k)=-(msq15_4(j,k)*sub15_4(qq)+msq15_4(j,k)*sub45_1(qq))
@@ -159,9 +164,9 @@ c      msq(2,j,k)=2d0*tr*msq24_1(j,-j)*sub24_1(qg)
       msq(7,j,k)=Q(abs(j))**2*msq34_1(j,k)*sub34_1
       endif
 
-      elseif ((j .eq. 0).and.(k.ne.0)) then
+      elseif ((j == 0).and.(k.ne.0)) then
 c--- g-q and g-qb cases
-c      msq(1,j,k)=2d0*tr*msq14_2(-k,k)*sub14_2(qg)
+c      msq(1,j,k)=2._dp*tr*msq14_2(-k,k)*sub14_2(qg)
       msq(n3,j,k)=xn*(msq15_2(j,k)*sub15_2(gg)+msq15_2v(j,k)*sub15_2v)
       msq(n4,j,k)=xn*msq25_1(j,k)*sub25_1(qq)
       msq(n5,j,k)=xn*(msq15_4(j,k)*sub15_4(gg)+msq15_4v(j,k)*sub15_4v
@@ -173,21 +178,21 @@ c      msq(1,j,k)=2d0*tr*msq14_2(-k,k)*sub14_2(qg)
          msq(8,j,k)=Q(abs(k))**2*msq34_2(j,k)*sub34_2
       endif
 
-      elseif ((j .eq. 0).and.(k .eq. 0)) then
+      elseif ((j == 0).and.(k == 0)) then
 c--- g-g case (real process is g(p1)+g(p2) --> gamma(p3)+q(p4)+qb(p5)
 c---Hence 14 split multiplies qb(14)+g(p2) --> gamma(p3)+qb(p5)
 c---Hence 24 split multiplies g(p1)+qb(p24) --> gamma(p3)+qb(p5)
 c      msq(1,j,k)=(msq14_2(-1,k)+msq14_2(-2,k)+msq14_2(-3,k)
-c     .           +msq14_2(-4,k)+msq14_2(-5,k))*sub14_2(qg)*2d0*tr
+c     &           +msq14_2(-4,k)+msq14_2(-5,k))*sub14_2(qg)*2._dp*tr
 c      msq(2,j,k)=(msq24_1(k,-1)+msq24_1(k,-2)+msq24_1(k,-3)
-c     .           +msq24_1(k,-4)+msq24_1(k,-5))*sub24_1(qg)*2d0*tr
-      msq(n3,j,k)=msq15_2(flav,k)*sub15_2(qg)*2d0*tr
-      msq(n4,j,k)=msq25_1(k,flav)*sub25_1(qg)*2d0*tr
+c     &           +msq24_1(k,-4)+msq24_1(k,-5))*sub24_1(qg)*2._dp*tr
+      msq(n3,j,k)=msq15_2(flav,k)*sub15_2(qg)*2._dp*tr
+      msq(n4,j,k)=msq25_1(k,flav)*sub25_1(qg)*2._dp*tr
       
       if (frag) then 
-      msq(9,j,k)=(dfloat(nf-2)*Q(1)**2+2d0*Q(2)**2)
+      msq(9,j,k)=(real(nf-2,dp)*Q(1)**2+2._dp*Q(2)**2)
      &  *msq34_5(j,k)*sub34_5
-      msq(10,j,k)=(dfloat(nf-2)*Q(1)**2+2d0*Q(2)**2)
+      msq(10,j,k)=(real(nf-2,dp)*Q(1)**2+2._dp*Q(2)**2)
      &  *msq35_4(j,k)*sub35_4
       endif
 
@@ -201,19 +206,19 @@ c 19   continue
       do j=-nf,nf
       do k=-nf,nf      
 
-         if (((j .gt. 0).and.(k .gt. 0))
-c     . .or. ((j .lt. 0).and.(k .lt. 0))
-     .       ) then
+         if (((j > 0).and.(k > 0))
+c     & .or. ((j < 0).and.(k < 0))
+     &       ) then
 c---  q-q or qb-qb
-            if ((j .eq. flav) .and. (k. eq. flav)) then
-c               msq(1,j,k)=msq(1,j,k)+0.5d0*(xn-1d0/xn)
-c     .              *(msq14_2(0,k)*sub14_2(gq)+msq14_2v(0,k)*sub14_2v)
-c               msq(2,j,k)=msq(2,j,k)+0.5d0*(xn-1d0/xn)
-c     .              *(msq24_1(j,0)*sub24_1(gq)+msq24_1v(j,0)*sub24_1v)
-               msq(n3,j,k)=msq(n3,j,k)+0.5d0*(xn-1d0/xn)
-     .              *(msq15_2(0,k)*sub15_2(gq)+msq15_2v(0,k)*sub15_2v)
-               msq(n4,j,k)=msq(n4,j,k)+0.5d0*(xn-1d0/xn)
-     .              *(msq25_1(j,0)*sub25_1(gq)+msq25_1v(j,0)*sub25_1v)
+            if ((j == flav) .and. (k. eq. flav)) then
+c               msq(1,j,k)=msq(1,j,k)+0.5_dp*(xn-1._dp/xn)
+c     &              *(msq14_2(0,k)*sub14_2(gq)+msq14_2v(0,k)*sub14_2v)
+c               msq(2,j,k)=msq(2,j,k)+0.5_dp*(xn-1._dp/xn)
+c     &              *(msq24_1(j,0)*sub24_1(gq)+msq24_1v(j,0)*sub24_1v)
+               msq(n3,j,k)=msq(n3,j,k)+0.5_dp*(xn-1._dp/xn)
+     &              *(msq15_2(0,k)*sub15_2(gq)+msq15_2v(0,k)*sub15_2v)
+               msq(n4,j,k)=msq(n4,j,k)+0.5_dp*(xn-1._dp/xn)
+     &              *(msq25_1(j,0)*sub25_1(gq)+msq25_1v(j,0)*sub25_1v)
                
                if(frag) then 
                   msq(7,j,k)=Q(abs(j))**2*msq34_1(j,k)*sub34_1
@@ -221,15 +226,15 @@ c     .              *(msq24_1(j,0)*sub24_1(gq)+msq24_1v(j,0)*sub24_1v)
                endif
 
             else
-c               msq(1,j,k)=msq(1,j,k)+(xn-1d0/xn)
-c     .              *(msq14_2(0,k)*sub14_2(gq)+msq14_2v(0,k)*sub14_2v)
-               if (j .eq. flav) then
-               msq(n4,j,k)=msq(n4,j,k)+(xn-1d0/xn)
-     .              *(msq25_1(j,0)*sub25_1(gq)+msq25_1v(j,0)*sub25_1v)
+c               msq(1,j,k)=msq(1,j,k)+(xn-1._dp/xn)
+c     &              *(msq14_2(0,k)*sub14_2(gq)+msq14_2v(0,k)*sub14_2v)
+               if (j == flav) then
+               msq(n4,j,k)=msq(n4,j,k)+(xn-1._dp/xn)
+     &              *(msq25_1(j,0)*sub25_1(gq)+msq25_1v(j,0)*sub25_1v)
                endif
-               if (k .eq. flav) then
-               msq(n3,j,k)=msq(n3,j,k)+(xn-1d0/xn)
-     .              *(msq15_2(0,k)*sub15_2(gq)+msq15_2v(0,k)*sub15_2v)
+               if (k == flav) then
+               msq(n3,j,k)=msq(n3,j,k)+(xn-1._dp/xn)
+     &              *(msq15_2(0,k)*sub15_2(gq)+msq15_2v(0,k)*sub15_2v)
                endif
                
                if(frag) then 
@@ -240,36 +245,36 @@ c     .              *(msq14_2(0,k)*sub14_2(gq)+msq14_2v(0,k)*sub14_2v)
                
 
             endif
-         elseif ((j .gt. 0).and.(k .lt. 0)) then
+         elseif ((j > 0).and.(k < 0)) then
 
 c--- q-qbar
-            if (j.eq.-k) then
-c               msq(n1,j,k)=msq(n1,j,k)+(xn-1d0/xn)
-c     .              *(msq14_2(0,k)*sub14_2(gq)+msq14_2v(0,k)*sub14_2v)
-               msq(n4,j,k)=msq(n4,j,k)+(xn-1d0/xn)
-     .              *(msq25_1(j,0)*sub25_1(gq)+msq25_1v(j,0)*sub25_1v)
-c               msq(n6,j,k)=msq(n6,j,k)+2d0*tr*dfloat(nf)
-c     .              *(msq25_4(j,k)*sub45_2(gq)-msq45_2v(j,k)*sub45_2v)
+            if (j==-k) then
+c               msq(n1,j,k)=msq(n1,j,k)+(xn-1._dp/xn)
+c     &              *(msq14_2(0,k)*sub14_2(gq)+msq14_2v(0,k)*sub14_2v)
+               msq(n4,j,k)=msq(n4,j,k)+(xn-1._dp/xn)
+     &              *(msq25_1(j,0)*sub25_1(gq)+msq25_1v(j,0)*sub25_1v)
+c               msq(n6,j,k)=msq(n6,j,k)+2._dp*tr*real(nf,dp)
+c     &              *(msq25_4(j,k)*sub45_2(gq)-msq45_2v(j,k)*sub45_2v)
 
                   
                if(frag) then    
 !-----Initial-final dipoles (t channel) 
                   msq(7,j,k)=Q(abs(j))**2*msq34_1(j,k)*sub34_1
-!                  msq(8,j,k)=0d0*Q(abs(k))**2*msq34_2(j,k)*sub34_2
+!                  msq(8,j,k)=0._dp*Q(abs(k))**2*msq34_2(j,k)*sub34_2
                   msq(11,j,k)=Q(abs(j))**2*msq35_1(j,k)*sub35_1
-!                  msq(12,j,k)=0d0*Q(abs(k))**2*msq35_2(j,k)*sub35_2
+!                  msq(12,j,k)=0._dp*Q(abs(k))**2*msq35_2(j,k)*sub35_2
 !-----Final-final dipoles (nf s-channel) 
-                  msq(9,j,k)=(dfloat(nf-2)*Q(1)**2+2d0*Q(2)**2)
+                  msq(9,j,k)=(real(nf-2,dp)*Q(1)**2+2._dp*Q(2)**2)
      &                 *msq34_5(j,k)*sub34_5
-                  msq(10,j,k)=(dfloat(nf-2)*Q(1)**2+2d0*Q(2)**2)
+                  msq(10,j,k)=(real(nf-2,dp)*Q(1)**2+2._dp*Q(2)**2)
      &                 *msq35_4(j,k)*sub35_4                    
                endif
                
             else 
-c               msq(1,j,k)=msq(1,j,k)+(xn-1d0/xn)
-c     .              *(msq14_2(0,k)*sub14_2(gq)+msq14_2v(0,k)*sub14_2v)
-               msq(n4,j,k)=msq(n4,j,k)+(xn-1d0/xn)
-     .              *(msq25_1(j,0)*sub25_1(gq)+msq25_1v(j,0)*sub25_1v)
+c               msq(1,j,k)=msq(1,j,k)+(xn-1._dp/xn)
+c     &              *(msq14_2(0,k)*sub14_2(gq)+msq14_2v(0,k)*sub14_2v)
+               msq(n4,j,k)=msq(n4,j,k)+(xn-1._dp/xn)
+     &              *(msq25_1(j,0)*sub25_1(gq)+msq25_1v(j,0)*sub25_1v)
                
                if(frag) then 
                   msq(7,j,k)=Q(abs(j))**2*msq34_1(j,k)*sub34_1
@@ -280,14 +285,14 @@ c     .              *(msq14_2(0,k)*sub14_2(gq)+msq14_2v(0,k)*sub14_2v)
  
 
 c--- qbar-q
-         elseif ((j .lt. 0).and.(k .gt. 0)) then
-            if (j.eq.-k) then               
-c               msq(n2,j,k)=msq(2,j,k)+(xn-1d0/xn)
-c     .              *(msq24_1(j,0)*sub24_1(gq)+msq24_1v(j,0)*sub24_1v)
-               msq(n3,j,k)=msq(3,j,k)+(xn-1d0/xn)
-     .              *(msq15_2(0,k)*sub15_2(gq)+msq15_2v(0,k)*sub15_2v)
-c               msq(n6,j,k)=msq(6,j,k)+2d0*tr*dfloat(nf)
-c     .              *(msq25_4(j,k)*sub45_2(gq)-msq45_2v(j,k)*sub45_2v)
+         elseif ((j < 0).and.(k > 0)) then
+            if (j==-k) then               
+c               msq(n2,j,k)=msq(2,j,k)+(xn-1._dp/xn)
+c     &              *(msq24_1(j,0)*sub24_1(gq)+msq24_1v(j,0)*sub24_1v)
+               msq(n3,j,k)=msq(3,j,k)+(xn-1._dp/xn)
+     &              *(msq15_2(0,k)*sub15_2(gq)+msq15_2v(0,k)*sub15_2v)
+c               msq(n6,j,k)=msq(6,j,k)+2._dp*tr*real(nf,dp)
+c     &              *(msq25_4(j,k)*sub45_2(gq)-msq45_2v(j,k)*sub45_2v)
                
                if(frag) then    
 !----- Initial-final dipoles (t channel) 
@@ -296,24 +301,24 @@ c     .              *(msq25_4(j,k)*sub45_2(gq)-msq45_2v(j,k)*sub45_2v)
                   msq(11,j,k)=Q(abs(j))**2*msq35_1(j,k)*sub35_1
 !                  msq(12,j,k)=Q(abs(k))**2*msq35_2(j,k)*sub35_2
 !-----Final-final dipoles (nf s-channel) 
-                  if(mod(abs(j),2).eq.1) then 
-                     msq(9,j,k)=(dfloat(nf-2)*Q(1)**2+2d0*Q(2)**2)
+                  if(mod(abs(j),2)==1) then 
+                     msq(9,j,k)=(real(nf-2,dp)*Q(1)**2+2._dp*Q(2)**2)
      &                    *msq34_5(j,k)*sub34_5
-                     msq(10,j,k)=(dfloat(nf-2)*Q(1)**2+2d0*Q(2)**2)
+                     msq(10,j,k)=(real(nf-2,dp)*Q(1)**2+2._dp*Q(2)**2)
      &                    *msq35_4(j,k)*sub35_4      
                   else
-                     msq(9,j,k)=(dfloat(nf-2)*Q(1)**2+2d0*Q(2)**2)
+                     msq(9,j,k)=(real(nf-2,dp)*Q(1)**2+2._dp*Q(2)**2)
      &                    *msq34_5(j,k)*sub34_5
-                     msq(10,j,k)=(dfloat(nf-2)*Q(1)**2+2d0*Q(2)**2)
+                     msq(10,j,k)=(real(nf-2,dp)*Q(1)**2+2._dp*Q(2)**2)
      &                    *msq35_4(j,k)*sub35_4 
                   endif
                endif
                
             else 
-c               msq(n2,j,k)=msq(2,j,k)+(xn-1d0/xn)
-c     .              *(msq24_1(j,0)*sub24_1(gq)+msq24_1v(j,0)*sub24_1v)
-               msq(n3,j,k)=msq(3,j,k)+(xn-1d0/xn)
-     .              *(msq15_2(0,k)*sub15_2(gq)+msq15_2v(0,k)*sub15_2v)
+c               msq(n2,j,k)=msq(2,j,k)+(xn-1._dp/xn)
+c     &              *(msq24_1(j,0)*sub24_1(gq)+msq24_1v(j,0)*sub24_1v)
+               msq(n3,j,k)=msq(3,j,k)+(xn-1._dp/xn)
+     &              *(msq15_2(0,k)*sub15_2(gq)+msq15_2v(0,k)*sub15_2v)
                if(frag) then      
                   msq(8,j,k)=Q(abs(k))**2*msq34_2(j,k)*sub34_2
                   msq(11,j,k)=Q(abs(j))**2*msq35_1(j,k)*sub35_1
@@ -327,13 +332,13 @@ c     .              *(msq24_1(j,0)*sub24_1(gq)+msq24_1v(j,0)*sub24_1v)
 
 c--- remove contributions for qq~ -> photon+QQ~ with m(QQ~)<4*mQ^2  
 c--- (to screen collinear divergence in g->QQ~)    
-      if     (flav .eq. 4) then
-        if (2d0*dot(p,4,5) .lt. 4d0*mcsq) then
+      if     (flav == 4) then
+        if (2._dp*dot(p,4,5) < 4._dp*mcsq) then
           msq(:,4,-4)=zip
           msq(:,-4,4)=zip
         endif
       elseif (flav. eq. 5) then
-        if (2d0*dot(p,4,5) .lt. 4d0*mbsq) then
+        if (2._dp*dot(p,4,5) < 4._dp*mbsq) then
           msq(:,5,-5)=zip
           msq(:,-5,5)=zip
         endif

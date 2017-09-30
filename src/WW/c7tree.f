@@ -1,14 +1,19 @@
       subroutine c7tree(p1,p2,p3,p4,p5,p6,p7,f)
       implicit none
+      include 'types.f'
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'sprods_com.f'
       include 'zprods_com.f'
-      integer p1,p2,p3,p4,p5,p6,p7
-      double complex iza,izb,f(4,2,2)
+      integer:: p1,p2,p3,p4,p5,p6,p7
+      complex(dp):: iza,izb,f(4,2,2)
 C     first index controls the choice of diagrams
 C     second index of fa is helicity of 1-2 line,
 C     third is gluon helicity
-      double precision s12,s34,s123,s124,s125,s126,s345,s346,s567
+      real(dp):: s12,s34,s123,s124,s125,s126,s345,s346,s567
       iza(p1,p2)=cone/za(p1,p2)
       izb(p1,p2)=cone/zb(p1,p2)
       s123=s(p1,p2)+s(p2,p3)+s(p1,p3)

@@ -1,4 +1,4 @@
-      integer colourchoice
+      integer:: colourchoice
 c--- 'colourchoice' allows calculation by colour structure
 c--- For Gflag=.true. [QQGG, QQGGG processes]
 c--- 1) Only leading colour ( NCF . N )

@@ -1,7 +1,10 @@
-      double complex function fun4(tcs,qsq,msq)
+      function fun4(tcs,qsq,msq)
       implicit none
-      double precision tcs,qsq,msq,qsqhat,taucs,qcs
-      double complex lnrat,C0fa2m
+      include 'types.f'
+      complex(dp):: fun4
+      
+      real(dp):: tcs,qsq,msq,qsqhat,taucs,qcs
+      complex(dp):: lnrat,C0fa2m
 
       qsqhat=qsq-msq
       taucs=tcs-msq
@@ -15,10 +18,13 @@
       end
 
 
-      double complex function fun3(tcg,qsq,msq)
+      function fun3(tcg,qsq,msq)
       implicit none
-      double precision tcg,qsq,msq,qsqhat,taucg,qcg
-      double complex lnrat
+      include 'types.f'
+      complex(dp):: fun3
+      
+      real(dp):: tcg,qsq,msq,qsqhat,taucg,qcg
+      complex(dp):: lnrat
 
       qsqhat=qsq-msq
       taucg=tcg-msq
@@ -34,10 +40,13 @@
       end
 
 
-      double complex function fun2(tx,ty,msq)
+      function fun2(tx,ty,msq)
       implicit none
-      double precision tx,ty,msq,taux,tauy,tymtx
-      double complex lnrat
+      include 'types.f'
+      complex(dp):: fun2
+      
+      real(dp):: tx,ty,msq,taux,tauy,tymtx
+      complex(dp):: lnrat
 
       taux=tx-msq
       tauy=ty-msq
@@ -49,10 +58,13 @@
       end
 
 
-      double complex function fun1(tcg,qsq,msq)
+      function fun1(tcg,qsq,msq)
       implicit none
-      double precision tcg,qsq,msq,qsqhat,taucg,qcg
-      double complex lnrat
+      include 'types.f'
+      complex(dp):: fun1
+      
+      real(dp):: tcg,qsq,msq,qsqhat,taucg,qcg
+      complex(dp):: lnrat
 
       qsqhat=qsq-msq
       taucg=tcg-msq
@@ -67,10 +79,13 @@
       end
 
 
-      double complex function L6m1(taucg,taucs,taugs,msq,qsq)
+      function L6m1(taucg,taucs,taugs,msq,qsq)
       implicit none
-      double precision taucg,taucs,taugs,msq,qsq
-      double complex I3me,Lsm1_2m
+      include 'types.f'
+      complex(dp):: L6m1
+      
+      real(dp):: taucg,taucs,taugs,msq,qsq
+      complex(dp):: I3me,Lsm1_2m
 
       L6m1=  + Lsm1_2m(taugs,taucs,qsq,msq) + 2.D0*I3me(msq,taugs,qsq)*
      & taucs**(-1)*taugs*msq - I3me(msq,taugs,qsq)*taucs -
@@ -80,10 +95,13 @@
       end
 
 
-      double complex function L6m2(taucg,taucs,taugs,msq,qsq)
+      function L6m2(taucg,taucs,taugs,msq,qsq)
       implicit none
-      double precision taucg,taucs,taugs,msq,qsq,tcg,tcs
-      double complex C0fa2m,C0fb2m,Lsm2_2m
+      include 'types.f'
+      complex(dp):: L6m2
+      
+      real(dp):: taucg,taucs,taugs,msq,qsq,tcg,tcs
+      complex(dp):: C0fa2m,C0fb2m,Lsm2_2m
       tcs=taucs+msq
       tcg=taucg+msq
 
@@ -97,10 +115,13 @@
       end
 
 
-      double complex function L6m3(taucg,taucs,taugs,msq,qsq)
+      function L6m3(taucg,taucs,taugs,msq,qsq)
       implicit none
-      double precision taucg,taucs,taugs,msq,qsq
-      double complex I3me,Lsm1_2m
+      include 'types.f'
+      complex(dp):: L6m3
+      
+      real(dp):: taucg,taucs,taugs,msq,qsq
+      complex(dp):: I3me,Lsm1_2m
 
       L6m3=  + Lsm1_2m(taugs,taucg,qsq,msq) - I3me(msq,taugs,qsq)*
      & taucs + 2.D0*I3me(msq,taugs,qsq)*taucg**(-1)*taugs*msq -

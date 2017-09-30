@@ -1,4 +1,4 @@
       character*6 codeversion
-      logical prelim
+      logical:: prelim
       common/versionnumber/codeversion
       common/prelim/prelim

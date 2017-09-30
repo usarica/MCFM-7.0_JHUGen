@@ -1,5 +1,7 @@
       subroutine qqb_w_g(p,msq)
       implicit none
+      include 'types.f'
+
 c----Matrix element for W production
 C----averaged over initial colours and spins
 C for nwz=+1
@@ -8,18 +10,21 @@ C For nwz=-1
 c     d(-p1)+ubar(-p2)--> W^-(e^-(p3)+nbar(p4))+ g(p5)
 c---
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ckm.f'
       include 'ewcouple.f'
       include 'qcdcouple.f'
       include 'sprods_com.f'
-      integer j,k
-      double precision msq(-nf:nf,-nf:nf),p(mxpart,4),fac
-      double precision qqbWg,qbqWg,qgWq,qbgWqb,gqbWqb,gqWq,w1jet
+      integer:: j,k
+      real(dp):: msq(-nf:nf,-nf:nf),p(mxpart,4),fac
+      real(dp):: qqbWg,qbqWg,qgWq,qbgWqb,gqbWqb,gqWq,w1jet
 
 
       do j=-nf,nf
       do k=-nf,nf
-      msq(j,k)=0d0
+      msq(j,k)=zip
       enddo
       enddo
 
@@ -37,20 +42,20 @@ c---calculate the propagator
 
       do j=-nf,nf
       do k=-nf,nf
-      if     ((j .gt. 0) .and. (k .lt. 0)) then
+      if     ((j > 0) .and. (k < 0)) then
           msq(j,k)=Vsq(j,k)*qqbWg
-      elseif ((j .lt. 0) .and. (k .gt. 0)) then
+      elseif ((j < 0) .and. (k > 0)) then
           msq(j,k)=Vsq(j,k)*qbqWg
-      elseif ((j .gt. 0) .and. (k .eq. 0)) then
+      elseif ((j > 0) .and. (k == 0)) then
           msq(j,k)=
      &   (Vsq(j,-1)+Vsq(j,-2)+Vsq(j,-3)+Vsq(j,-4)+Vsq(j,-5))*qgWq
-      elseif ((j .lt. 0) .and. (k .eq. 0)) then
+      elseif ((j < 0) .and. (k == 0)) then
           msq(j,k)=
      &    (Vsq(j,+1)+Vsq(j,+2)+Vsq(j,+3)+Vsq(j,+4)+Vsq(j,+5))*qbgWqb
-      elseif ((j .eq. 0) .and. (k .gt. 0)) then
+      elseif ((j == 0) .and. (k > 0)) then
           msq(j,k)=
      &    (Vsq(-1,k)+Vsq(-2,k)+Vsq(-3,k)+Vsq(-4,k)+Vsq(-5,k))*gqWq
-      elseif ((j .eq. 0) .and. (k .lt. 0)) then
+      elseif ((j == 0) .and. (k < 0)) then
           msq(j,k)=
      &    (Vsq(+1,k)+Vsq(+2,k)+Vsq(+3,k)+Vsq(+4,k)+Vsq(+5,k))*gqbWqb
       endif
@@ -60,13 +65,18 @@ c---calculate the propagator
       return
       end
 
-      double precision function w1jet(j1,j2,j3,j4,j5)
+      function w1jet(j1,j2,j3,j4,j5)
       implicit none
+      include 'types.f'
+      real(dp):: w1jet
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'sprods_com.f'
-      integer j1,j2,j3,j4,j5
-      double precision prop
+      integer:: j1,j2,j3,j4,j5
+      real(dp):: prop
 
       prop=((s(j3,j4)-wmass**2)**2+(wmass*wwidth)**2)
 

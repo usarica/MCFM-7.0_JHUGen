@@ -1,5 +1,6 @@
       subroutine z2jetsqn(i1,i2,i5,i6,p,n,za,zb,zab,zba,msq)
       implicit none
+      include 'types.f'
 C-----Apart from overall factors returns the matrix element squared
 C-----msq dependent on the helicities pq and pl of the quark and
 C-----lepton lines for
@@ -10,12 +11,14 @@ C                       (i2) incoming quark line
 C                       (i5) outgoing gluon line
 C                       (i6) outgoing gluon line contracted with n
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
       include 'zprods_decl.f'
       include 'mmsqv_cs.f'
-      double complex qcdabn(2,2,2),qcdban(2,2,2),qedn(2,2,2)
-      double complex zab(mxpart,mxpart),zba(mxpart,mxpart)
-      double precision msq(2,2),n(4),p(mxpart,4),nDp5
-      integer i1,i2,i3,i4,i5,i6,pg,pq,pl,icol
+      complex(dp):: qcdabn(2,2,2),qcdban(2,2,2),qedn(2,2,2)
+      complex(dp):: zab(mxpart,mxpart),zba(mxpart,mxpart)
+      real(dp):: msq(2,2),n(4),p(mxpart,4),nDp5
+      integer:: i1,i2,i3,i4,i5,i6,pg,pq,pl,icol
 
       i3=3
       i4=4

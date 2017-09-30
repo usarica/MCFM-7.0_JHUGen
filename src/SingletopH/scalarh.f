@@ -1,6 +1,11 @@
       subroutine scalarh(p,first,scalarbit)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ewcouple.f'
       include 'alpha1.f'
       include 'metric0.f'
@@ -9,17 +14,17 @@
       include 'TRydef.f' 
       include 'currentdecl.f'
       include 'tensordecl.f'
-      integer fi,nu,ro,ep
-      double complex prW,string,scalarbit(-2:0),bit,
+      integer:: fi,nu,ro,ep
+      complex(dp):: prW,string,scalarbit(-2:0),bit,
      & part3,part1
-      double precision p(mxpart,4),vec,mtsq,epbit,Zm(-2:0),
+      real(dp):: p(mxpart,4),vec,mtsq,epbit,Zm(-2:0),
      & p1(4),p2(4),p3(4),p4(4),p5(4),p6(4),s25,
      & p25(4),p34(4),p16(4),s16
-      integer epmin
-      logical first
+      integer:: epmin
+      logical:: first
 c     
 c     statement functions
-      prW(s16)=cone/dcmplx(s16-wmass**2,zip)
+      prW(s16)=cone/cplx2(s16-wmass**2,zip)
 c     end statement functions
 
       mtsq=mt**2
@@ -44,7 +49,7 @@ c     end statement functions
      &  FC2x2x5,FC3x2x5,FC4x2x5,FC5x2x5,FC6x2x5)
       Zm(-2)=0d0
       Zm(-1)=3d0
-      Zm( 0)=3d0*dlog(musq/mtsq)+5d0
+      Zm( 0)=3d0*log(musq/mtsq)+5d0
 
 c--- only compute poles for checking on first call
       if (first) then
@@ -54,9 +59,11 @@ c--- only compute poles for checking on first call
       endif
 c      write(*,*) 'epmin in scalarh', epmin
      
+      scalarbit(:)=czip
+     
       do ep=epmin,0
       epbit=0d0
-      if (ep .eq. 0) epbit=1d0
+      if (ep == 0) epbit=1d0
 
       part3=czip
       do fi=1,4

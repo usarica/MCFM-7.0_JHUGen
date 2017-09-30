@@ -1,19 +1,22 @@
       subroutine amp2current(i1,i2,i3,i4,i5,i6,i7,i8,za,zb,amp)
       implicit none
+      include 'types.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
       include 'cmplxmass.f'
       include 'zprods_decl.f'
       include 'sprods_com.f'
       include 'ewcharge.f'
       include 'zcouple.f'
-      integer jdu1,jdu2,h28,i1,i2,i3,i4,i5,i6,i7,i8,
+      integer:: jdu1,jdu2,h28,i1,i2,i3,i4,i5,i6,i7,i8,
      & p1,p2,p3,p4,p5,p6,p7,p8
-      double complex zab2,zba2,amp(2,2,2,2),rxw,
+      complex(dp):: zab2,zba2,amp(2,2,2,2),rxw,
      & propw34,propw56,propz28,propz3456,gam28(2,2,2,2),
      & gamn3456(2,2,2),game3456(2,2,2),gamv(2,2),gamv17(2,2),
      & gamv28(2,2),game28(2,2),gamn28(2,2),propW2348,propW2568,
      & propZ17
-      double precision qn,t3,t4,s134,s128,s345,s347,s356,s156,s456,
+      real(dp):: qn,t3,t4,s134,s128,s345,s347,s356,s156,s456,
      & s278,s346,s567,s3456,s28,s34,s56,s238,s248,s258,s268,s17,
      & p34Dp28,p34Dp56,p56Dp28,p17Dp28,p17Dp34,p17Dp56
 C     amp(jdu1,jdu2,h17,h28)

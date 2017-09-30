@@ -6,6 +6,8 @@ c--- return an error message.
 
       subroutine dsw_error
       implicit none
+      include 'types.f'
+
 
       write(6,*) 'This version of MCFM has not been compiled against'
       write(6,*) 'CERNLIB, so output of n-tuples and event unweighting'
@@ -17,9 +19,11 @@ c
 
       subroutine dswhbook(n,titlex,dx,xmin,xmax)
       implicit none
-      integer n
+      include 'types.f'
+
+      integer:: n
       character titlex*8
-      real*8 dx,xmin,xmax
+      real(dp):: dx,xmin,xmax
 
       call dsw_error
 
@@ -29,8 +33,10 @@ c
 
       subroutine dswhfill(n,var,wgt)
       implicit none
-      integer n
-      real*8 var,wgt
+      include 'types.f'
+
+      integer:: n
+      real(dp):: var,wgt
 
       call dsw_error
 
@@ -41,6 +47,8 @@ c
 
       subroutine NTfinalize
       implicit none
+      include 'types.f'
+
 
       call dsw_error
 
@@ -50,12 +58,16 @@ c
 c
       subroutine bookfill(tag,p,wt)
       implicit none
+      include 'types.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'maxwt.f'
 
-      character tag*4
-      double precision p(mxpart,4)
-      double precision wt
+      integer tag
+      real(dp):: p(mxpart,4)
+      real(dp):: wt
 
       call dsw_error
 
@@ -65,6 +77,8 @@ c
 c
       subroutine dswntuplebook
       implicit none
+      include 'types.f'
+
 
       call dsw_error
 
@@ -74,10 +88,15 @@ c
 c
       subroutine dswntuplefill(p,wt)
       implicit none
-      include 'constants.f'
+      include 'types.f'
 
-      double precision p(mxpart,4)
-      double precision wt
+      include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+
+      real(dp):: p(mxpart,4)
+      real(dp):: wt
 
       call dsw_error
 
@@ -85,16 +104,21 @@ c
       end
 
 c
-      subroutine SORTZV(A,INDEX,N,MODE,NWAY,NSORT)
-      implicit none
-      include 'constants.f'
-      include 'eventbuffer.f'
-      real*4 A(buffersize)
-      integer INDEX(buffersize),N,MODE,NWAY,NSORT
-
-      call dsw_error
-
-      return
-      end
+!      subroutine SORTZV(A,INDEX,N,MODE,NWAY,NSORT)
+!      implicit none
+!      include 'types.f'
+!
+!      include 'constants.f'
+!      include 'nf.f'
+!      include 'mxpart.f'
+!      include 'cplx.h'
+!      include 'eventbuffer.f'
+!      real*4 A(buffersize)
+!      integer:: INDEX(buffersize),N,MODE,NWAY,NSORT
+!
+!      call dsw_error
+!
+!      return
+!      end
 
 c

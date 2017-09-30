@@ -1,4 +1,6 @@
       subroutine qqb_Hg_gs(p,msq)
+      implicit none
+      include 'types.f'
 ************************************************************************
 *     Author: R.K. Ellis                                               *
 *     October, 2001.                                                   *
@@ -14,15 +16,18 @@
 *    isub = 2 : g + g -> b~ + b , b + b  -> b + b                      *
 ************************************************************************
 
-      implicit none
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ptilde.f'
       include 'qqgg.f'
-      integer j,k,nd,isub
+      integer:: j,k,nd,isub
 c --- remember: nd will count the dipoles
 
-      double precision p(mxpart,4),msq(maxd,-nf:nf,-nf:nf)
-      double precision
+      real(dp):: p(mxpart,4),msq(maxd,-nf:nf,-nf:nf)
+      real(dp)::
      & msq15_2(-nf:nf,-nf:nf),msq25_1(-nf:nf,-nf:nf),
      & msq16_2(-nf:nf,-nf:nf),msq26_1(-nf:nf,-nf:nf),
      & msq15_6(-nf:nf,-nf:nf),msq26_5(-nf:nf,-nf:nf),
@@ -46,37 +51,37 @@ c --- remember: nd will count the dipoles
       do k=-nf,nf
 
       do nd=1,ndmax
-        msq(nd,j,k)=0d0
+        msq(nd,j,k)=0._dp
       enddo
       enddo
       enddo
 
 c--- calculate all the initial-initial dipoles
       call dips(1,p,1,5,2,sub15_2,sub15_2v,msq15_2,msq15_2v,
-     . qqb_Hg,qqb_H_gvec)
+     & qqb_Hg,qqb_H_gvec)
       call dips(2,p,2,5,1,sub25_1,sub25_1v,msq25_1,msq25_1v,
-     . qqb_Hg,qqb_H_gvec)
+     & qqb_Hg,qqb_H_gvec)
       call dips(3,p,1,6,2,sub16_2,sub16_2v,msq16_2,msq16_2v,
-     . qqb_Hg,qqb_H_gvec)
+     & qqb_Hg,qqb_H_gvec)
       call dips(4,p,2,6,1,sub26_1,sub26_1v,msq26_1,msq26_1v,
-     . qqb_Hg,qqb_H_gvec)
+     & qqb_Hg,qqb_H_gvec)
 
 c--- called in this fashion the routine only supplies new values for
 c--- sub... and sub...v
 
       call dips(5,p,1,5,6,sub15_6,sub15_6v,msq15_6,msq15_6v,
-     . qqb_Hg,qqb_H_gvec)
+     & qqb_Hg,qqb_H_gvec)
       call dips(5,p,5,6,1,sub56_1,sub56_1v,dummy,msq56_1v,
-     . qqb_Hg,qqb_H_gvec)
+     & qqb_Hg,qqb_H_gvec)
       call dips(5,p,1,6,5,sub16_5,sub16_5v,dummy,dummyv,
-     . qqb_Hg,donothing_gvec)
+     & qqb_Hg,donothing_gvec)
 
       call dips(6,p,2,6,5,sub26_5,sub26_5v,msq26_5,msq26_5v,
-     . qqb_Hg,qqb_H_gvec)
+     & qqb_Hg,qqb_H_gvec)
       call dips(6,p,5,6,2,sub56_2,sub56_2v,dummy,msq56_2v,
-     . qqb_Hg,qqb_H_gvec)
+     & qqb_Hg,qqb_H_gvec)
       call dips(6,p,2,5,6,sub25_6,sub25_6v,dummy,dummyv,
-     . qqb_Hg,donothing_gvec)
+     & qqb_Hg,donothing_gvec)
 
 c--- 2-quark singularities
       do j=-5,+5,5
@@ -86,55 +91,55 @@ c--- 2-quark singularities
 
 c--- do only q-qb and qb-q cases
 c--- there are no such initial states for the 2-gluon piece here
-      if (  ((j .gt. 0).and.(k .lt. 0))
-     . .or. ((j .lt. 0).and.(k .gt. 0))) then
+      if (  ((j > 0).and.(k < 0))
+     & .or. ((j < 0).and.(k > 0))) then
 C-----half=statistical factor
 c      msq(1,j,k)=-half*msq15_2(j,k)*sub15_2(qq)/xn
 c      msq(2,j,k)=-half*msq25_1(j,k)*sub25_1(qq)/xn
 c      msq(3,j,k)=-half*msq16_2(j,k)*sub16_2(qq)/xn
 c      msq(4,j,k)=-half*msq26_1(j,k)*sub26_1(qq)/xn
 c      msq(5,j,k)=half*xn*(
-c     .  (msq15_6(j,k)*(sub15_6(qq)+0.5d0*sub56_1(gg))
-c     . +0.5d0*msq56_1v(j,k)*sub56_1v)
-c     . +msq15_6(j,k)*(sub16_5(qq)+0.5d0*sub56_1(gg))
-c     . +0.5d0*msq56_1v(j,k)*sub56_1v)
+c     &  (msq15_6(j,k)*(sub15_6(qq)+half*sub56_1(gg))
+c     & +half*msq56_1v(j,k)*sub56_1v)
+c     & +msq15_6(j,k)*(sub16_5(qq)+half*sub56_1(gg))
+c     & +half*msq56_1v(j,k)*sub56_1v)
 c      msq(6,j,k)=half*xn*(
-c     .  msq26_5(j,k)*(sub26_5(qq)+0.5d0*sub56_2(gg))
-c     . +0.5d0*msq56_2v(j,k)*sub56_2v
-c     . +msq26_5(j,k)*(sub25_6(qq)+0.5d0*sub56_2(gg))
-c     . +0.5d0*msq56_2v(j,k)*sub56_2v)
+c     &  msq26_5(j,k)*(sub26_5(qq)+half*sub56_2(gg))
+c     & +half*msq56_2v(j,k)*sub56_2v
+c     & +msq26_5(j,k)*(sub25_6(qq)+half*sub56_2(gg))
+c     & +half*msq56_2v(j,k)*sub56_2v)
 
-      elseif ((k .eq. 0).and.(j.ne.0)) then
+      elseif ((k == 0).and.(j.ne.0)) then
 c--- q-g and qb-g cases
-c      msq(2,j,k)=2d0*tr*msq25_1(j,-j)*sub25_1(qg)
-      if ((isub .eq. 1) .or. (isub .eq. 0)) then
+c      msq(2,j,k)=2._dp*tr*msq25_1(j,-j)*sub25_1(qg)
+      if ((isub == 1) .or. (isub == 0)) then
       msq(3,j,k)=xn*msq16_2(j,k)*sub16_2(qq)
       msq(4,j,k)=xn*(msq26_1(j,k)*sub26_1(gg)+msq26_1v(j,k)*sub26_1v)
       msq(5,j,k)=-(msq15_6(j,k)*sub16_5(qq)+msq15_6(j,k)*sub56_1(qq))/xn
       msq(6,j,k)=xn*(msq26_5(j,k)*sub26_5(gg)+msq26_5v(j,k)*sub26_5v
-     .              +msq26_5(j,k)*sub56_2(qq))
+     &              +msq26_5(j,k)*sub56_2(qq))
       endif
 
-      elseif ((j .eq. 0).and.(k.ne.0)) then
+      elseif ((j == 0).and.(k.ne.0)) then
 c--- g-q and g-qb cases
-c      msq(1,j,k)=2d0*tr*msq15_2(-k,k)*sub15_2(qg)
-      if ((isub .eq. 1) .or. (isub .eq. 0)) then
+c      msq(1,j,k)=2._dp*tr*msq15_2(-k,k)*sub15_2(qg)
+      if ((isub == 1) .or. (isub == 0)) then
       msq(3,j,k)=xn*(msq16_2(j,k)*sub16_2(gg)+msq16_2v(j,k)*sub16_2v)
       msq(4,j,k)=xn*msq26_1(j,k)*sub26_1(qq)
       msq(5,j,k)=xn*(msq15_6(j,k)*sub16_5(gg)+msq15_6v(j,k)*sub16_5v
-     .              +msq15_6(j,k)*sub56_1(qq))
+     &              +msq15_6(j,k)*sub56_1(qq))
       msq(6,j,k)=-(msq26_5(j,k)*sub26_5(qq)+msq26_5(j,k)*sub56_2(qq))/xn
       endif
 
-      elseif ((j .eq. 0).and.(k .eq. 0)) then
+      elseif ((j == 0).and.(k == 0)) then
 c--- g-g case (real process is g(p1)+g(p2) --> qb(p5)+q(p6)
 c---Hence 15 split multiplies q(15)+g(p2)-->H+q(p6)
 c---Hence 25 split multiplies g(p1)+q(p25)-->H+q(p6)
-      if ((isub .eq. 2) .or. (isub .eq. 0)) then
-      msq(1,j,k)=msq15_2(+5,k)*sub15_2(qg)*2d0*tr
-      msq(2,j,k)=msq25_1(k,+5)*sub25_1(qg)*2d0*tr
-      msq(3,j,k)=msq16_2(-5,k)*sub16_2(qg)*2d0*tr
-      msq(4,j,k)=msq26_1(k,-5)*sub26_1(qg)*2d0*tr
+      if ((isub == 2) .or. (isub == 0)) then
+      msq(1,j,k)=msq15_2(+5,k)*sub15_2(qg)*2._dp*tr
+      msq(2,j,k)=msq25_1(k,+5)*sub25_1(qg)*2._dp*tr
+      msq(3,j,k)=msq16_2(-5,k)*sub16_2(qg)*2._dp*tr
+      msq(4,j,k)=msq26_1(k,-5)*sub26_1(qg)*2._dp*tr
       endif
 
       endif
@@ -147,68 +152,68 @@ c--- 4-quark singularities
       do j=-nf,nf
       do k=-nf,nf
 
-      if (((j .gt. 0).and.(k .gt. 0)) .or.
-     .    ((j .lt. 0).and.(k .lt. 0))) then
+      if (((j > 0).and.(k > 0)) .or.
+     &    ((j < 0).and.(k < 0))) then
 c--q-q or qb-qb
-      if (j.eq.k) then
-      if ((isub .eq. 2) .or. (isub .eq. 0)) then
-      msq(1,j,k)=msq(1,j,k)+0.5d0*(xn-1d0/xn)
-     .  *(msq15_2(0,k)*sub15_2(gq)+msq15_2v(0,k)*sub15_2v)
-      msq(2,j,k)=msq(2,j,k)+0.5d0*(xn-1d0/xn)
-     .  *(msq25_1(j,0)*sub25_1(gq)+msq25_1v(j,0)*sub25_1v)
-      msq(3,j,k)=msq(3,j,k)+0.5d0*(xn-1d0/xn)
-     .  *(msq16_2(0,k)*sub16_2(gq)+msq16_2v(0,k)*sub16_2v)
-      msq(4,j,k)=msq(4,j,k)+0.5d0*(xn-1d0/xn)
-     .  *(msq26_1(j,0)*sub26_1(gq)+msq26_1v(j,0)*sub26_1v)
+      if (j==k) then
+      if ((isub == 2) .or. (isub == 0)) then
+      msq(1,j,k)=msq(1,j,k)+half*(xn-1._dp/xn)
+     &  *(msq15_2(0,k)*sub15_2(gq)+msq15_2v(0,k)*sub15_2v)
+      msq(2,j,k)=msq(2,j,k)+half*(xn-1._dp/xn)
+     &  *(msq25_1(j,0)*sub25_1(gq)+msq25_1v(j,0)*sub25_1v)
+      msq(3,j,k)=msq(3,j,k)+half*(xn-1._dp/xn)
+     &  *(msq16_2(0,k)*sub16_2(gq)+msq16_2v(0,k)*sub16_2v)
+      msq(4,j,k)=msq(4,j,k)+half*(xn-1._dp/xn)
+     &  *(msq26_1(j,0)*sub26_1(gq)+msq26_1v(j,0)*sub26_1v)
       endif
       else
-      if ((isub .eq. 1) .or. (isub .eq. 0)) then
-      if (abs(j) .eq. 5) then
-      msq(4,j,k)=msq(4,j,k)+(xn-1d0/xn)
-     .  *(msq26_1(j,0)*sub26_1(gq)+msq26_1v(j,0)*sub26_1v)
-      elseif (abs(k) .eq. 5) then
-      msq(3,j,k)=msq(3,j,k)+(xn-1d0/xn)
-     .  *(msq16_2(0,k)*sub16_2(gq)+msq16_2v(0,k)*sub16_2v)
+      if ((isub == 1) .or. (isub == 0)) then
+      if (abs(j) == 5) then
+      msq(4,j,k)=msq(4,j,k)+(xn-1._dp/xn)
+     &  *(msq26_1(j,0)*sub26_1(gq)+msq26_1v(j,0)*sub26_1v)
+      elseif (abs(k) == 5) then
+      msq(3,j,k)=msq(3,j,k)+(xn-1._dp/xn)
+     &  *(msq16_2(0,k)*sub16_2(gq)+msq16_2v(0,k)*sub16_2v)
       endif
       endif
       endif
-      elseif ((j .gt. 0).and.(k .lt. 0)) then
+      elseif ((j > 0).and.(k < 0)) then
 c q-qbar
-      if (j.eq.-k) then
-      if ((isub .eq. 2) .or. (isub .eq. 0)) then
-      msq(1,j,k)=msq(1,j,k)+(xn-1d0/xn)
-     .  *(msq15_2(0,k)*sub15_2(gq)+msq15_2v(0,k)*sub15_2v)
-      msq(4,j,k)=msq(4,j,k)+(xn-1d0/xn)
-     .  *(msq26_1(j,0)*sub26_1(gq)+msq26_1v(j,0)*sub26_1v)
+      if (j==-k) then
+      if ((isub == 2) .or. (isub == 0)) then
+      msq(1,j,k)=msq(1,j,k)+(xn-1._dp/xn)
+     &  *(msq15_2(0,k)*sub15_2(gq)+msq15_2v(0,k)*sub15_2v)
+      msq(4,j,k)=msq(4,j,k)+(xn-1._dp/xn)
+     &  *(msq26_1(j,0)*sub26_1(gq)+msq26_1v(j,0)*sub26_1v)
       endif
       else
-      if ((isub .eq. 1) .or. (isub .eq. 0)) then
-      if (abs(j) .eq. 5) then
-      msq(4,j,k)=msq(4,j,k)+(xn-1d0/xn)
-     .  *(msq26_1(j,0)*sub26_1(gq)+msq26_1v(j,0)*sub26_1v)
-      elseif (abs(k) .eq. 5) then
-      msq(3,j,k)=msq(3,j,k)+(xn-1d0/xn)
-     .  *(msq16_2(0,k)*sub16_2(gq)+msq16_2v(0,k)*sub16_2v)
+      if ((isub == 1) .or. (isub == 0)) then
+      if (abs(j) == 5) then
+      msq(4,j,k)=msq(4,j,k)+(xn-1._dp/xn)
+     &  *(msq26_1(j,0)*sub26_1(gq)+msq26_1v(j,0)*sub26_1v)
+      elseif (abs(k) == 5) then
+      msq(3,j,k)=msq(3,j,k)+(xn-1._dp/xn)
+     &  *(msq16_2(0,k)*sub16_2(gq)+msq16_2v(0,k)*sub16_2v)
       endif
       endif
       endif
 c--qbar-q
-      elseif ((j .lt. 0).and.(k .gt. 0)) then
-      if (j.eq.-k) then
-      if ((isub .eq. 2) .or. (isub .eq. 0)) then
-      msq(2,j,k)=msq(2,j,k)+(xn-1d0/xn)
-     .  *(msq25_1(j,0)*sub25_1(gq)+msq25_1v(j,0)*sub25_1v)
-      msq(3,j,k)=msq(3,j,k)+(xn-1d0/xn)
-     .  *(msq16_2(0,k)*sub16_2(gq)+msq16_2v(0,k)*sub16_2v)
+      elseif ((j < 0).and.(k > 0)) then
+      if (j==-k) then
+      if ((isub == 2) .or. (isub == 0)) then
+      msq(2,j,k)=msq(2,j,k)+(xn-1._dp/xn)
+     &  *(msq25_1(j,0)*sub25_1(gq)+msq25_1v(j,0)*sub25_1v)
+      msq(3,j,k)=msq(3,j,k)+(xn-1._dp/xn)
+     &  *(msq16_2(0,k)*sub16_2(gq)+msq16_2v(0,k)*sub16_2v)
       endif
       else
-      if ((isub .eq. 1) .or. (isub .eq. 0)) then
-      if (abs(j) .eq. 5) then
-      msq(4,j,k)=msq(4,j,k)+(xn-1d0/xn)
-     .  *(msq26_1(j,0)*sub26_1(gq)+msq26_1v(j,0)*sub26_1v)
-      elseif (abs(k) .eq. 5) then
-      msq(3,j,k)=msq(3,j,k)+(xn-1d0/xn)
-     .  *(msq16_2(0,k)*sub16_2(gq)+msq16_2v(0,k)*sub16_2v)
+      if ((isub == 1) .or. (isub == 0)) then
+      if (abs(j) == 5) then
+      msq(4,j,k)=msq(4,j,k)+(xn-1._dp/xn)
+     &  *(msq26_1(j,0)*sub26_1(gq)+msq26_1v(j,0)*sub26_1v)
+      elseif (abs(k) == 5) then
+      msq(3,j,k)=msq(3,j,k)+(xn-1._dp/xn)
+     &  *(msq16_2(0,k)*sub16_2(gq)+msq16_2v(0,k)*sub16_2v)
       endif
       endif
       endif

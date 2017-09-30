@@ -1,2 +1,2 @@
-      double precision cttH, cWWH
+      real(dp):: cttH, cWWH
       common/anomHiggs/cttH,cWWH

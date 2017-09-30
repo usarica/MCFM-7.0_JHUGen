@@ -1,5 +1,7 @@
       subroutine qqb_z2jetx(p,msq,mqq,msqx,msqx_cs)
       implicit none
+      include 'types.f'
+
 c---Matrix element squared averaged over initial colors and spins
 c     q(-p1)+qbar(-p2) --> Z +g(p5) +g(p6)
 c                          |
@@ -7,6 +9,8 @@ c                          --> l(p3)+a(p4)
 c
 c--all momenta incoming
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
       include 'masses.f'
       include 'ewcouple.f'
       include 'qcdcouple.f'
@@ -16,68 +20,67 @@ c--all momenta incoming
       include 'zprods_com.f'
       include 'flags.f'
       include 'lc.f'
-      include 'part.f'
-      integer i,j,k,f,pq,pl,nquark,nup,ndo,
-     .   j1,j2,j3,icol
-      double precision msq(-nf:nf,-nf:nf),p(mxpart,4),fac,faclo,
-     .   qqbZgg2_cs(0:2,2,2),qbqZgg2_cs(0:2,2,2),
-     .   qgZqg2_cs(0:2,2,2),gqZqg2_cs(0:2,2,2),
-     .   qgZgq2_cs(0:2,2,2),gqZgq2_cs(0:2,2,2),
-     .   qbgZqbg2_cs(0:2,2,2),gqbZqbg2_cs(0:2,2,2),
-     .   qbgZgqb2_cs(0:2,2,2),gqbZgqb2_cs(0:2,2,2),
-     .   ggZqbq2_cs(0:2,2,2),ggZqqb2_cs(0:2,2,2),ggtemp(0:2),
-     .   qqbZgg2(2,2),
-     .   qgZqg2(2,2),
-c     .   gqbZgqb2(2,2),
-     .   gqZgq2(2,2),
-     .   qgZgq2(2,2),
-c     .   gqbZqbg2(2,2),
-     .   gqZqg2(2,2),
-     .   ggZqbq2(2,2)
-c     .   qbgZgqb2(2,2),
-c     .   ggZqqb2(2,2),
-c     .   qbgZqbg2(2,2),
-c     .   qbqZgg2(2,2)
-      double precision tup,tdo
+      include 'kpart.f'
+      integer:: i,j,k,f,pq,pl,nquark,nup,ndo,
+     &   j1,j2,j3,icol
+      real(dp):: msq(-nf:nf,-nf:nf),p(mxpart,4),fac,faclo,
+     &   qqbZgg2_cs(0:2,2,2),qbqZgg2_cs(0:2,2,2),
+     &   qgZqg2_cs(0:2,2,2),gqZqg2_cs(0:2,2,2),
+     &   qgZgq2_cs(0:2,2,2),gqZgq2_cs(0:2,2,2),
+     &   qbgZqbg2_cs(0:2,2,2),gqbZqbg2_cs(0:2,2,2),
+     &   qbgZgqb2_cs(0:2,2,2),gqbZgqb2_cs(0:2,2,2),
+     &   ggZqbq2_cs(0:2,2,2),ggZqqb2_cs(0:2,2,2),ggtemp(0:2),
+     &   qqbZgg2(2,2),
+     &   qgZqg2(2,2),
+c     &   gqbZgqb2(2,2),
+     &   gqZgq2(2,2),
+     &   qgZgq2(2,2),
+c     &   gqbZqbg2(2,2),
+     &   gqZqg2(2,2),
+     &   ggZqbq2(2,2)
+c     &   qbgZgqb2(2,2),
+c     &   ggZqqb2(2,2),
+c     &   qbgZqbg2(2,2),
+c     &   qbqZgg2(2,2)
+      real(dp):: tup,tdo
 
-      double complex qRb_a(2,2,2),qRb_b(2,2,2)
-      double complex qqb_a(2,2,2),qqb_b(2,2,2),prop
+      complex(dp):: qRb_a(2,2,2),qRb_b(2,2,2)
+      complex(dp):: qqb_a(2,2,2),qqb_b(2,2,2),prop
 
-      double complex qbq_a(2,2,2),qbq_b(2,2,2)
-      double complex qbR_a(2,2,2),qbR_b(2,2,2)
+      complex(dp):: qbq_a(2,2,2),qbq_b(2,2,2)
+      complex(dp):: qbR_a(2,2,2),qbR_b(2,2,2)
 
-      double complex qq_a(2,2,2),qq_b(2,2,2)
-      double complex qR_a(2,2,2),qR_b(2,2,2)
+      complex(dp):: qq_a(2,2,2),qq_b(2,2,2)
+      complex(dp):: qR_a(2,2,2),qR_b(2,2,2)
 
-      double complex qbRb_a(2,2,2),qbRb_b(2,2,2)
-      double complex qbqb_a(2,2,2),qbqb_b(2,2,2)
+      complex(dp):: qbRb_a(2,2,2),qbRb_b(2,2,2)
+      complex(dp):: qbqb_a(2,2,2),qbqb_b(2,2,2)
 
-      double complex qRb_ax(2,2,2),qRb_bx(2,2,2)
-      double complex qqb_ax(2,2,2),qqb_bx(2,2,2)
+      complex(dp):: qRb_ax(2,2,2),qRb_bx(2,2,2)
+      complex(dp):: qqb_ax(2,2,2),qqb_bx(2,2,2)
 
-      double complex qbR_ax(2,2,2),qbR_bx(2,2,2)
-      double complex qbq_ax(2,2,2),qbq_bx(2,2,2)
+      complex(dp):: qbR_ax(2,2,2),qbR_bx(2,2,2)
+      complex(dp):: qbq_ax(2,2,2),qbq_bx(2,2,2)
 
-      double precision mqq(0:2,fn:nf,fn:nf),msq0,msq1,msq2
-      double precision msqx(0:2,-nf:nf,-nf:nf,-nf:nf,-nf:nf)
-      double precision msqx_cs(0:2,-nf:nf,-nf:nf)
+      real(dp):: mqq(0:2,fn:nf,fn:nf),msq0,msq1,msq2
+      real(dp):: msqx(0:2,-nf:nf,-nf:nf,-nf:nf,-nf:nf)
+      real(dp):: msqx_cs(0:2,-nf:nf,-nf:nf)
 
-      integer rcolourchoice
-
-      logical rGflag
-
+      integer:: rcolourchoice
+      logical:: rGflag
       integer,parameter::swap(2)=(/2,1/),swap1(0:2)=(/0,2,1/)
+      include 'cplx.h'
 
 c--- if we're calculating the REAL or VIRT matrix elements, we
 c--- need all the colour structures, but want to preserve
 c--- the actual value of colourchoice
-      if ((part .eq. 'real') .or. (part .eq. 'virt')) then
+      if ((kpart==kreal) .or. (kpart==kvirt)) then
         rcolourchoice=colourchoice
         colourchoice=0
       endif
 c--- if we're calculating the REAL matrix elements with Qflag=TRUE,
 c    the subtraction terms involve the (Gflag=TRUE) matrix elements
-      if ((part .eq. 'real') .and. (Qflag .eqv. .true.)) then
+      if ((kpart==kreal) .and. (Qflag .eqv. .true.)) then
         rGflag=Gflag
         Gflag=.true.
       endif
@@ -85,13 +88,13 @@ c    the subtraction terms involve the (Gflag=TRUE) matrix elements
 
       do j=-nf,nf
       do k=-nf,nf
-      msq(j,k)=0d0
+      msq(j,k)=0._dp
       enddo
       enddo
 
       call spinoru(6,p,za,zb)
 
-      prop=s(3,4)/dcmplx((s(3,4)-zmass**2),zmass*zwidth)
+      prop=s(3,4)/cplx2((s(3,4)-zmass**2),zmass*zwidth)
 
 c--- calculate 2-quark, 2-gluon amplitudes
       if (Gflag) then
@@ -163,29 +166,29 @@ c        call storecsz(ggZqqb2_cs)
        enddo
 
         qqbZgg2(pq,pl) = qqbZgg2_cs(1,pq,pl)+qqbZgg2_cs(2,pq,pl)
-     .                  +qqbZgg2_cs(0,pq,pl)
+     &                  +qqbZgg2_cs(0,pq,pl)
         gqZqg2(pq,pl)  = gqZqg2_cs(1,pq,pl) +gqZqg2_cs(2,pq,pl)
-     .                  +gqZqg2_cs(0,pq,pl)
+     &                  +gqZqg2_cs(0,pq,pl)
         qgZqg2(pq,pl)  = qgZqg2_cs(1,pq,pl)  +qgZqg2_cs(2,pq,pl)
-     .                  +qgZqg2_cs(0,pq,pl)
+     &                  +qgZqg2_cs(0,pq,pl)
         gqZgq2(pq,pl)  = gqZgq2_cs(1,pq,pl) +gqZgq2_cs(2,pq,pl)
-     .                  +gqZgq2_cs(0,pq,pl)
+     &                  +gqZgq2_cs(0,pq,pl)
         qgZgq2(pq,pl)  = qgZgq2_cs(1,pq,pl)  +qgZgq2_cs(2,pq,pl)
-     .                  +qgZgq2_cs(0,pq,pl)
+     &                  +qgZgq2_cs(0,pq,pl)
         ggZqbq2(pq,pl) = ggZqbq2_cs(1,pq,pl) +ggZqbq2_cs(2,pq,pl)
-     .                  +ggZqbq2_cs(0,pq,pl)
+     &                  +ggZqbq2_cs(0,pq,pl)
 c        gqbZqbg2(pq,pl)= gqbZqbg2_cs(1,pq,pl)+gqbZqbg2_cs(2,pq,pl)
-c     .                  +gqbZqbg2_cs(0,pq,pl)
+c     &                  +gqbZqbg2_cs(0,pq,pl)
 c        qbqZgg2(pq,pl) = qbqZgg2_cs(1,pq,pl)+qbqZgg2_cs(2,pq,pl)
-c     .                  +qbqZgg2_cs(0,pq,pl)
+c     &                  +qbqZgg2_cs(0,pq,pl)
 c        qbgZqbg2(pq,pl)= qbgZqbg2_cs(1,pq,pl)+qbgZqbg2_cs(2,pq,pl)
-c     .                  +qbgZqbg2_cs(0,pq,pl)
+c     &                  +qbgZqbg2_cs(0,pq,pl)
 c        gqbZgqb2(pq,pl)= gqbZgqb2_cs(1,pq,pl)+gqbZgqb2_cs(2,pq,pl)
-c     .                  +gqbZgqb2_cs(0,pq,pl)
+c     &                  +gqbZgqb2_cs(0,pq,pl)
 c        qbgZgqb2(pq,pl)= qbgZgqb2_cs(1,pq,pl)+qbgZgqb2_cs(2,pq,pl)
-c     .                  +qbgZgqb2_cs(0,pq,pl)
+c     &                  +qbgZgqb2_cs(0,pq,pl)
 c        ggZqqb2(pq,pl) = ggZqqb2_cs(1,pq,pl) +ggZqqb2_cs(2,pq,pl)
-c     .                  +ggZqqb2_cs(0,pq,pl)
+c     &                  +ggZqqb2_cs(0,pq,pl)
         enddo
         enddo
       endif
@@ -292,7 +295,7 @@ c instead of calling ampqqb_qqb(2,1,6,5,qbq_ax,qbq_bx)
       enddo
       enddo
 
-      faclo=4d0*V*gsq**2*esq**2*aveqq
+      faclo=4._dp*V*gsq**2*esq**2*aveqq
       endif
 
       if (Gflag) then
@@ -300,123 +303,123 @@ c instead of calling ampqqb_qqb(2,1,6,5,qbq_ax,qbq_bx)
       do k=-nf,nf
 
       do icol=0,2
-        msqx_cs(icol,j,k)=0d0
+        msqx_cs(icol,j,k)=0._dp
       enddo
 
       if( j .ne. 0 .and. k .ne. 0 .and. j .ne. -k) goto 19
 
-      if     ((j .eq. 0) .and. (k .eq. 0)) then
+      if     ((j == 0) .and. (k == 0)) then
 
            do icol=0,2
-           ggtemp(icol)=0d0
+           ggtemp(icol)=0._dp
            do nquark=1,nf
            msqx(icol,j,k,-nquark,nquark)=
-     .      +abs(Q(nquark)*q1+L(nquark)*l1*prop)**2*ggZqbq2_cs(icol,1,1)
-     .      +abs(Q(nquark)*q1+R(nquark)*r1*prop)**2*ggZqbq2_cs(icol,2,2)
-     .      +abs(Q(nquark)*q1+L(nquark)*r1*prop)**2*ggZqbq2_cs(icol,1,2)
-     .      +abs(Q(nquark)*q1+R(nquark)*l1*prop)**2*ggZqbq2_cs(icol,2,1)
+     &      +abs(Q(nquark)*q1+L(nquark)*l1*prop)**2*ggZqbq2_cs(icol,1,1)
+     &      +abs(Q(nquark)*q1+R(nquark)*r1*prop)**2*ggZqbq2_cs(icol,2,2)
+     &      +abs(Q(nquark)*q1+L(nquark)*r1*prop)**2*ggZqbq2_cs(icol,1,2)
+     &      +abs(Q(nquark)*q1+R(nquark)*l1*prop)**2*ggZqbq2_cs(icol,2,1)
            msqx(icol,j,k,nquark,-nquark)=
-     .      +abs(Q(nquark)*q1+L(nquark)*l1*prop)**2*ggZqqb2_cs(icol,1,1)
-     .      +abs(Q(nquark)*q1+R(nquark)*r1*prop)**2*ggZqqb2_cs(icol,2,2)
-     .      +abs(Q(nquark)*q1+L(nquark)*r1*prop)**2*ggZqqb2_cs(icol,1,2)
-     .      +abs(Q(nquark)*q1+R(nquark)*l1*prop)**2*ggZqqb2_cs(icol,2,1)
+     &      +abs(Q(nquark)*q1+L(nquark)*l1*prop)**2*ggZqqb2_cs(icol,1,1)
+     &      +abs(Q(nquark)*q1+R(nquark)*r1*prop)**2*ggZqqb2_cs(icol,2,2)
+     &      +abs(Q(nquark)*q1+L(nquark)*r1*prop)**2*ggZqqb2_cs(icol,1,2)
+     &      +abs(Q(nquark)*q1+R(nquark)*l1*prop)**2*ggZqqb2_cs(icol,2,1)
            ggtemp(icol)=ggtemp(icol)+msqx(icol,j,k,-nquark,nquark)
            enddo
            msqx_cs(icol,j,k)=ggtemp(icol)
 
            enddo
-      elseif ((j .gt. 0) .and. (k .lt. 0)) then
+      elseif ((j > 0) .and. (k < 0)) then
           do icol=0,2
              msqx_cs(icol,j,k)=
-     .       +abs(Q(j)*q1+L(j)*l1*prop)**2*qqbZgg2_cs(icol,1,1)
-     .       +abs(Q(j)*q1+R(j)*r1*prop)**2*qqbZgg2_cs(icol,2,2)
-     .       +abs(Q(j)*q1+L(j)*r1*prop)**2*qqbZgg2_cs(icol,1,2)
-     .       +abs(Q(j)*q1+R(j)*l1*prop)**2*qqbZgg2_cs(icol,2,1)
+     &       +abs(Q(j)*q1+L(j)*l1*prop)**2*qqbZgg2_cs(icol,1,1)
+     &       +abs(Q(j)*q1+R(j)*r1*prop)**2*qqbZgg2_cs(icol,2,2)
+     &       +abs(Q(j)*q1+L(j)*r1*prop)**2*qqbZgg2_cs(icol,1,2)
+     &       +abs(Q(j)*q1+R(j)*l1*prop)**2*qqbZgg2_cs(icol,2,1)
              msqx_cs(icol,j,k)=msqx_cs(icol,j,k)
           enddo
 
 c---Statistical factor already included above
-      elseif ((j .lt. 0) .and. (k .gt. 0)) then
+      elseif ((j < 0) .and. (k > 0)) then
           do icol=0,2
              msqx_cs(icol,j,k)=
-     .       +abs(Q(k)*q1+L(k)*l1*prop)**2*qbqZgg2_cs(icol,1,1)
-     .       +abs(Q(k)*q1+R(k)*r1*prop)**2*qbqZgg2_cs(icol,2,2)
-     .       +abs(Q(k)*q1+L(k)*r1*prop)**2*qbqZgg2_cs(icol,1,2)
-     .       +abs(Q(k)*q1+R(k)*l1*prop)**2*qbqZgg2_cs(icol,2,1)
+     &       +abs(Q(k)*q1+L(k)*l1*prop)**2*qbqZgg2_cs(icol,1,1)
+     &       +abs(Q(k)*q1+R(k)*r1*prop)**2*qbqZgg2_cs(icol,2,2)
+     &       +abs(Q(k)*q1+L(k)*r1*prop)**2*qbqZgg2_cs(icol,1,2)
+     &       +abs(Q(k)*q1+R(k)*l1*prop)**2*qbqZgg2_cs(icol,2,1)
              msqx_cs(icol,j,k)=msqx_cs(icol,j,k)
           enddo
-      elseif ((j .gt. 0) .and. (k .eq. 0)) then
+      elseif ((j > 0) .and. (k == 0)) then
           do icol=0,2
 c--- Madloop check: full Z in Born (no photon)
 c             msqx_cs(icol,j,k)=
-c     .       +abs(Q(j)*q1*0+L(j)*l1*prop)**2*qgZqg2_cs(icol,1,1)
-c     .       +abs(Q(j)*q1*0+R(j)*r1*prop)**2*qgZqg2_cs(icol,2,2)
-c     .       +abs(Q(j)*q1*0+L(j)*r1*prop)**2*qgZqg2_cs(icol,1,2)
-c     .       +abs(Q(j)*q1*0+R(j)*l1*prop)**2*qgZqg2_cs(icol,2,1)
+c     &       +abs(Q(j)*q1*0+L(j)*l1*prop)**2*qgZqg2_cs(icol,1,1)
+c     &       +abs(Q(j)*q1*0+R(j)*r1*prop)**2*qgZqg2_cs(icol,2,2)
+c     &       +abs(Q(j)*q1*0+L(j)*r1*prop)**2*qgZqg2_cs(icol,1,2)
+c     &       +abs(Q(j)*q1*0+R(j)*l1*prop)**2*qgZqg2_cs(icol,2,1)
 c--- Madloop check: axial coupling of Z only
 c             msqx_cs(icol,j,k)=
-c     .       +abs(Q(j)*q1*0+0.25d0/sin2w**2*prop)**2*qgZqg2_cs(icol,1,1)
-c     .       +abs(Q(j)*q1*0+0.25d0/sin2w**2*prop)**2*qgZqg2_cs(icol,2,2)
-c     .       +abs(Q(j)*q1*0+0.25d0/sin2w**2*prop)**2*qgZqg2_cs(icol,1,2)
-c     .       +abs(Q(j)*q1*0+0.25d0/sin2w**2*prop)**2*qgZqg2_cs(icol,2,1)
+c     &       +abs(Q(j)*q1*0+0.25_dp/sin2w**2*prop)**2*qgZqg2_cs(icol,1,1)
+c     &       +abs(Q(j)*q1*0+0.25_dp/sin2w**2*prop)**2*qgZqg2_cs(icol,2,2)
+c     &       +abs(Q(j)*q1*0+0.25_dp/sin2w**2*prop)**2*qgZqg2_cs(icol,1,2)
+c     &       +abs(Q(j)*q1*0+0.25_dp/sin2w**2*prop)**2*qgZqg2_cs(icol,2,1)
 
 c--- normal case
              msqx_cs(icol,j,k)=
-     .       +abs(Q(j)*q1+L(j)*l1*prop)**2*qgZqg2_cs(icol,1,1)
-     .       +abs(Q(j)*q1+R(j)*r1*prop)**2*qgZqg2_cs(icol,2,2)
-     .       +abs(Q(j)*q1+L(j)*r1*prop)**2*qgZqg2_cs(icol,1,2)
-     .       +abs(Q(j)*q1+R(j)*l1*prop)**2*qgZqg2_cs(icol,2,1)
+     &       +abs(Q(j)*q1+L(j)*l1*prop)**2*qgZqg2_cs(icol,1,1)
+     &       +abs(Q(j)*q1+R(j)*r1*prop)**2*qgZqg2_cs(icol,2,2)
+     &       +abs(Q(j)*q1+L(j)*r1*prop)**2*qgZqg2_cs(icol,1,2)
+     &       +abs(Q(j)*q1+R(j)*l1*prop)**2*qgZqg2_cs(icol,2,1)
              msqx(icol,j,k,j,k)=msqx_cs(icol,j,k)
              msqx(icol,j,k,k,j)=
-     .       +abs(Q(j)*q1+L(j)*l1*prop)**2*qgZgq2_cs(icol,1,1)
-     .       +abs(Q(j)*q1+R(j)*r1*prop)**2*qgZgq2_cs(icol,2,2)
-     .       +abs(Q(j)*q1+L(j)*r1*prop)**2*qgZgq2_cs(icol,1,2)
-     .       +abs(Q(j)*q1+R(j)*l1*prop)**2*qgZgq2_cs(icol,2,1)
+     &       +abs(Q(j)*q1+L(j)*l1*prop)**2*qgZgq2_cs(icol,1,1)
+     &       +abs(Q(j)*q1+R(j)*r1*prop)**2*qgZgq2_cs(icol,2,2)
+     &       +abs(Q(j)*q1+L(j)*r1*prop)**2*qgZgq2_cs(icol,1,2)
+     &       +abs(Q(j)*q1+R(j)*l1*prop)**2*qgZgq2_cs(icol,2,1)
              msqx_cs(icol,j,k)=msqx_cs(icol,j,k)
           enddo
-      elseif ((j .lt. 0) .and. (k .eq. 0)) then
+      elseif ((j < 0) .and. (k == 0)) then
           do icol=0,2
              msqx_cs(icol,j,k)=
-     .       +abs(Q(-j)*q1+L(-j)*l1*prop)**2*qbgZqbg2_cs(icol,1,1)
-     .       +abs(Q(-j)*q1+R(-j)*r1*prop)**2*qbgZqbg2_cs(icol,2,2)
-     .       +abs(Q(-j)*q1+L(-j)*r1*prop)**2*qbgZqbg2_cs(icol,1,2)
-     .       +abs(Q(-j)*q1+R(-j)*l1*prop)**2*qbgZqbg2_cs(icol,2,1)
+     &       +abs(Q(-j)*q1+L(-j)*l1*prop)**2*qbgZqbg2_cs(icol,1,1)
+     &       +abs(Q(-j)*q1+R(-j)*r1*prop)**2*qbgZqbg2_cs(icol,2,2)
+     &       +abs(Q(-j)*q1+L(-j)*r1*prop)**2*qbgZqbg2_cs(icol,1,2)
+     &       +abs(Q(-j)*q1+R(-j)*l1*prop)**2*qbgZqbg2_cs(icol,2,1)
              msqx(icol,j,k,j,k)=msqx_cs(icol,j,k)
              msqx(icol,j,k,k,j)=
-     .       +abs(Q(-j)*q1+L(-j)*l1*prop)**2*qbgZgqb2_cs(icol,1,1)
-     .       +abs(Q(-j)*q1+R(-j)*r1*prop)**2*qbgZgqb2_cs(icol,2,2)
-     .       +abs(Q(-j)*q1+L(-j)*r1*prop)**2*qbgZgqb2_cs(icol,1,2)
-     .       +abs(Q(-j)*q1+R(-j)*l1*prop)**2*qbgZgqb2_cs(icol,2,1)
+     &       +abs(Q(-j)*q1+L(-j)*l1*prop)**2*qbgZgqb2_cs(icol,1,1)
+     &       +abs(Q(-j)*q1+R(-j)*r1*prop)**2*qbgZgqb2_cs(icol,2,2)
+     &       +abs(Q(-j)*q1+L(-j)*r1*prop)**2*qbgZgqb2_cs(icol,1,2)
+     &       +abs(Q(-j)*q1+R(-j)*l1*prop)**2*qbgZgqb2_cs(icol,2,1)
              msqx_cs(icol,j,k)=msqx_cs(icol,j,k)
           enddo
-      elseif ((j .eq. 0) .and. (k .gt. 0)) then
+      elseif ((j == 0) .and. (k > 0)) then
           do icol=0,2
              msqx_cs(icol,j,k)=
-     .       +abs(Q(k)*q1+L(k)*l1*prop)**2*gqZqg2_cs(icol,1,1)
-     .       +abs(Q(k)*q1+R(k)*r1*prop)**2*gqZqg2_cs(icol,2,2)
-     .       +abs(Q(k)*q1+L(k)*r1*prop)**2*gqZqg2_cs(icol,1,2)
-     .       +abs(Q(k)*q1+R(k)*l1*prop)**2*gqZqg2_cs(icol,2,1)
+     &       +abs(Q(k)*q1+L(k)*l1*prop)**2*gqZqg2_cs(icol,1,1)
+     &       +abs(Q(k)*q1+R(k)*r1*prop)**2*gqZqg2_cs(icol,2,2)
+     &       +abs(Q(k)*q1+L(k)*r1*prop)**2*gqZqg2_cs(icol,1,2)
+     &       +abs(Q(k)*q1+R(k)*l1*prop)**2*gqZqg2_cs(icol,2,1)
              msqx(icol,j,k,k,j)=msqx_cs(icol,j,k)
              msqx(icol,j,k,j,k)=
-     .       +abs(Q(k)*q1+L(k)*l1*prop)**2*gqZgq2_cs(icol,1,1)
-     .       +abs(Q(k)*q1+R(k)*r1*prop)**2*gqZgq2_cs(icol,2,2)
-     .       +abs(Q(k)*q1+L(k)*r1*prop)**2*gqZgq2_cs(icol,1,2)
-     .       +abs(Q(k)*q1+R(k)*l1*prop)**2*gqZgq2_cs(icol,2,1)
+     &       +abs(Q(k)*q1+L(k)*l1*prop)**2*gqZgq2_cs(icol,1,1)
+     &       +abs(Q(k)*q1+R(k)*r1*prop)**2*gqZgq2_cs(icol,2,2)
+     &       +abs(Q(k)*q1+L(k)*r1*prop)**2*gqZgq2_cs(icol,1,2)
+     &       +abs(Q(k)*q1+R(k)*l1*prop)**2*gqZgq2_cs(icol,2,1)
              msqx_cs(icol,j,k)=msqx_cs(icol,j,k)
           enddo
-      elseif ((j .eq. 0) .and. (k .lt. 0)) then
+      elseif ((j == 0) .and. (k < 0)) then
           do icol=0,2
              msqx_cs(icol,j,k)=
-     .       +abs(Q(-k)*q1+L(-k)*l1*prop)**2*gqbZqbg2_cs(icol,1,1)
-     .       +abs(Q(-k)*q1+R(-k)*r1*prop)**2*gqbZqbg2_cs(icol,2,2)
-     .       +abs(Q(-k)*q1+L(-k)*r1*prop)**2*gqbZqbg2_cs(icol,1,2)
-     .       +abs(Q(-k)*q1+R(-k)*l1*prop)**2*gqbZqbg2_cs(icol,2,1)
+     &       +abs(Q(-k)*q1+L(-k)*l1*prop)**2*gqbZqbg2_cs(icol,1,1)
+     &       +abs(Q(-k)*q1+R(-k)*r1*prop)**2*gqbZqbg2_cs(icol,2,2)
+     &       +abs(Q(-k)*q1+L(-k)*r1*prop)**2*gqbZqbg2_cs(icol,1,2)
+     &       +abs(Q(-k)*q1+R(-k)*l1*prop)**2*gqbZqbg2_cs(icol,2,1)
              msqx(icol,j,k,k,j)=msqx_cs(icol,j,k)
              msqx(icol,j,k,j,k)=
-     .       +abs(Q(-k)*q1+L(-k)*l1*prop)**2*gqbZgqb2_cs(icol,1,1)
-     .       +abs(Q(-k)*q1+R(-k)*r1*prop)**2*gqbZgqb2_cs(icol,2,2)
-     .       +abs(Q(-k)*q1+L(-k)*r1*prop)**2*gqbZgqb2_cs(icol,1,2)
-     .       +abs(Q(-k)*q1+R(-k)*l1*prop)**2*gqbZgqb2_cs(icol,2,1)
+     &       +abs(Q(-k)*q1+L(-k)*l1*prop)**2*gqbZgqb2_cs(icol,1,1)
+     &       +abs(Q(-k)*q1+R(-k)*r1*prop)**2*gqbZgqb2_cs(icol,2,2)
+     &       +abs(Q(-k)*q1+L(-k)*r1*prop)**2*gqbZgqb2_cs(icol,1,2)
+     &       +abs(Q(-k)*q1+R(-k)*l1*prop)**2*gqbZgqb2_cs(icol,2,1)
              msqx_cs(icol,j,k)=msqx_cs(icol,j,k)
           enddo
       endif
@@ -432,10 +435,10 @@ c--- normal case
         do k=-nf,nf
 
         do i=0,2
-        mqq(i,j,k)=0d0
+        mqq(i,j,k)=0._dp
         enddo
 
-        if ((j .gt. 0) .and. (k .gt. 0)) then
+        if ((j > 0) .and. (k > 0)) then
 c----QQ case
           call msq_qq(j,k,qR_a,qR_b,qq_a,qq_b,prop,msq0,msq1,msq2)
 
@@ -454,10 +457,10 @@ c----QQ case
             msqx(2,j,k,k,j)=faclo*msq2
          endif
 
-          elseif ((j .lt. 0) .and. (k .lt. 0)) then
+          elseif ((j < 0) .and. (k < 0)) then
 c----QbQb case
           call msq_qq(-j,-k,qbRb_a,qbRb_b,qbqb_a,qbqb_b,prop,
-     .                msq0,msq1,msq2)
+     &                msq0,msq1,msq2)
 
           msqx(0,j,k,j,k)=faclo*msq0
           msqx(1,j,k,j,k)=faclo*msq1
@@ -469,17 +472,17 @@ c----QbQb case
 
           if (j .ne. k) then
             call msq_qq(-j,-k,qbqb_a,qbqb_b,qbRb_a,qbRb_b,prop,
-     .                  msq0,msq1,msq2)
+     &                  msq0,msq1,msq2)
 
             msqx(0,j,k,k,j)=faclo*msq0
             msqx(1,j,k,k,j)=faclo*msq1
             msqx(2,j,k,k,j)=faclo*msq2
           endif
 
-        elseif ((j .gt. 0) .and. (k .lt. 0)) then
+        elseif ((j > 0) .and. (k < 0)) then
 C---Q-Qb case
           call msq_qqb(j,k,qRb_a,qRb_b,qqb_a,qqb_b,prop,
-     .                msq0,msq1,msq2,tup,tdo)
+     &                msq0,msq1,msq2,tup,tdo)
 
           msqx(0,j,k,j,k)=faclo*msq0
           msqx(1,j,k,j,k)=faclo*msq1
@@ -489,7 +492,7 @@ C---Q-Qb case
           mqq(1,j,k)=msqx(1,j,k,j,k)
           mqq(2,j,k)=msqx(2,j,k,j,k)
 
-          if (j .eq. -k) then
+          if (j == -k) then
             do f=1,5,2
               if (f .ne. j) then
                 msqx(0,j,k,f,-f)=zip
@@ -504,24 +507,25 @@ C---Q-Qb case
                 msqx(2,j,k,f,-f)=zip
               endif
            enddo
-            if ((j.eq.1).or.(j.eq.3).or.(j.eq.5)) then
+            if ((j==1).or.(j==3).or.(j==5)) then
               nup=2
               ndo=nf-3
             else
               nup=1
               ndo=nf-2
             endif
-           mqq(1,j,k)=mqq(1,j,k)+faclo*(dfloat(nup)*tup+dfloat(ndo)*tdo)
+            mqq(1,j,k)=mqq(1,j,k)+faclo
+     &      *(real(nup,dp)*tup+real(ndo,dp)*tdo)
          endif
 
          call msq_qqb(j,k,qRb_ax,qRb_bx,qqb_ax,qqb_bx,prop,
-     .             msq0,msq1,msq2,tup,tdo)
+     &             msq0,msq1,msq2,tup,tdo)
 
          msqx(0,j,k,k,j)=faclo*msq0
          msqx(1,j,k,k,j)=faclo*msq1
          msqx(2,j,k,k,j)=faclo*msq2
 
-          if (j .eq. -k) then
+          if (j == -k) then
             do f=1,5,2
               if (f .ne. j) then
                 msqx(0,j,k,-f,f)=zip
@@ -538,10 +542,10 @@ C---Q-Qb case
             enddo
          endif
 
-        elseif ((j .lt. 0) .and. (k .gt. 0)) then
+        elseif ((j < 0) .and. (k > 0)) then
 C---Qb-Q case
           call msq_qqb(-j,-k,qbR_a,qbR_b,qbq_a,qbq_b,prop,
-     .                msq0,msq1,msq2,tup,tdo)
+     &                msq0,msq1,msq2,tup,tdo)
 
           msqx(0,j,k,k,j)=faclo*msq0
           msqx(1,j,k,k,j)=faclo*msq1
@@ -551,7 +555,7 @@ C---Qb-Q case
           mqq(1,j,k)=msqx(1,j,k,k,j)
           mqq(2,j,k)=msqx(2,j,k,k,j)
 
-          if (j .eq. -k) then
+          if (j == -k) then
             do f=1,5,2
               if (f .ne. k) then
                 msqx(0,j,k,f,-f)=zip
@@ -566,25 +570,26 @@ C---Qb-Q case
                 msqx(2,j,k,f,-f)=zip
               endif
            enddo
-            if ((k.eq.1).or.(k.eq.3).or.(k.eq.5)) then
+            if ((k==1).or.(k==3).or.(k==5)) then
               nup=2
               ndo=nf-3
             else
               nup=1
               ndo=nf-2
             endif
-           mqq(1,j,k)=mqq(1,j,k)+faclo*(dfloat(nup)*tup+dfloat(ndo)*tdo)
+            mqq(1,j,k)=mqq(1,j,k)
+     &      +faclo*(real(nup,dp)*tup+real(ndo,dp)*tdo)
          endif
 
          call msq_qqb(-j,-k,qbR_ax,qbR_bx,qbq_ax,qbq_bx,prop,
-     .             msq0,msq1,msq2,tup,tdo)
+     &             msq0,msq1,msq2,tup,tdo)
 
          msqx(0,j,k,j,k)=faclo*msq0
          msqx(1,j,k,j,k)=faclo*msq1
          msqx(2,j,k,j,k)=faclo*msq2
 
 
-          if (j .eq. -k) then
+          if (j == -k) then
             do f=1,5,2
               if (f .ne. k) then
                 msqx(0,j,k,-f,f)=zip
@@ -612,11 +617,11 @@ C---Qb-Q case
 
   999 continue
 c--- restore proper colourchoice if necessary
-      if ((part .eq. 'real') .or. (part .eq. 'virt')) then
+      if ((kpart==kreal) .or. (kpart==kvirt)) then
         colourchoice=rcolourchoice
       endif
 c--- restore proper parton sub-process selection, if necessary
-      if ((part .eq. 'real') .and. (Qflag .eqv. .true.)) then
+      if ((kpart==kreal) .and. (Qflag .eqv. .true.)) then
         Gflag=rGflag
       endif
 

@@ -5,7 +5,11 @@ OUTPUT_OPTION	= -o $(PWD)/obj/$@
 
 OLODIR          = /Users/johnmc/Research/OneLOop-3.3.1
 
-FC = gfortran
+ifeq ($(origin FC),environment)
+    $(info Inheriting FC from environment: $(FC))
+else
+    FC = gfortran
+endif
 # For linking against OneLOop
 FFLAGS 	= -O2 -fno-f2c -g -I$(INCPATH) -Iobj -Jobj -I$(OLODIR)
 # no linking

@@ -1,5 +1,7 @@
       subroutine qqb_zz_v(p,msqv)
       implicit none
+      include 'types.f'
+
 
 C----Author R.K.Ellis December 1998
 C----modified by JMC to include supplementary diagrams February 1999
@@ -14,6 +16,9 @@ c    Notation to allow room for p3 --- gluon emission.
 c----No statistical factor of 1/2 included.
 
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'qcdcouple.f'
       include 'masses.f'
       include 'ewcouple.f'
@@ -25,28 +30,28 @@ c----No statistical factor of 1/2 included.
       include 'srdiags.f'
       include 'interference.f'
 
-      double precision msqv(-nf:nf,-nf:nf),
+      real(dp):: msqv(-nf:nf,-nf:nf),
      & p(mxpart,4),qdks(mxpart,4),v2(2),v1(2),virt,
      & fac,facnlo,ave,rescale1,rescale2,oprat
 
-      double complex qqb(2,2,2),qbq(2,2,2),lqqb(2,2,2),lqbq(2,2,2)
-      double complex qqb1(2,2,2),qbq1(2,2,2),qqb2(2,2,2),qbq2(2,2,2)
-      double complex a6trees,a6loops
-      double complex aqqb,aqbq,bqqb,bqbq,Vpole,Vpole12,suppl
-      double complex prop12,prop34,prop56
+      complex(dp):: qqb(2,2,2),qbq(2,2,2),lqqb(2,2,2),lqbq(2,2,2)
+      complex(dp):: qqb1(2,2,2),qbq1(2,2,2),qqb2(2,2,2),qbq2(2,2,2)
+      complex(dp):: a6trees,a6loops
+      complex(dp):: aqqb,aqbq,bqqb,bqbq,Vpole,Vpole12,suppl
+      complex(dp):: prop12,prop34,prop56
 
-      integer j,k,polq,pol1,pol2,ii,nmax
+      integer:: j,k,polq,pol1,pol2,ii,nmax
       integer,parameter::i4(2)=(/4,5/),i5(2)=(/5,4/),
      & jkswitch(-nf:nf)=(/-1,-2,-1,-2,-1,0,1,2,1,2,1/)
 
-      double complex aqqb_SAVE(-nf:nf,-nf:nf,2,2,2)
-      double complex bqqb_SAVE(-nf:nf,-nf:nf,2,2,2)
-      double complex aqbq_SAVE(-nf:nf,-nf:nf,2,2,2)
-      double complex bqbq_SAVE(-nf:nf,-nf:nf,2,2,2)
+      complex(dp):: aqqb_SAVE(-nf:nf,-nf:nf,2,2,2)
+      complex(dp):: bqqb_SAVE(-nf:nf,-nf:nf,2,2,2)
+      complex(dp):: aqbq_SAVE(-nf:nf,-nf:nf,2,2,2)
+      complex(dp):: bqbq_SAVE(-nf:nf,-nf:nf,2,2,2)
 
       scheme='dred'
 
-      fac=-4D0*esq**2
+      fac=-four*esq**2
       ave=aveqq*xn*vsymfact
       facnlo=ason2pi*cf
 
@@ -57,25 +62,25 @@ c----No statistical factor of 1/2 included.
 
 C----setup factor to avoid summing over too many neutrinos
 C----if coupling enters twice
-      if (q1 .eq. 0d0) then
-      rescale1=1d0/sqrt(3d0)
+      if (q1 == zip) then
+      rescale1=one/sqrt(three)
       else
-      rescale1=1d0
+      rescale1=one
       endif
-      if (q2 .eq. 0d0) then
-      rescale2=1d0/sqrt(3d0)
+      if (q2 == zip) then
+      rescale2=one/sqrt(three)
       else
-      rescale2=1d0
+      rescale2=one
       endif
 
 c--set msq=0 to initalize
       do j=-nf,nf
       do k=-nf,nf
-      msqv(j,k)=0d0
-      aqqb_SAVE(j,k,:,:,:)=0d0
-      aqbq_SAVE(j,k,:,:,:)=0d0
-      bqqb_SAVE(j,k,:,:,:)=0d0
-      bqbq_SAVE(j,k,:,:,:)=0d0
+      msqv(j,k)=zip
+      aqqb_SAVE(j,k,:,:,:)=zip
+      aqbq_SAVE(j,k,:,:,:)=zip
+      bqqb_SAVE(j,k,:,:,:)=zip
+      bqbq_SAVE(j,k,:,:,:)=zip
 
       enddo
       enddo
@@ -108,9 +113,9 @@ c   DKS have--- q(q2) +qbar(q1) -->mu^-(q3)+mu^+(q4)+e^-(q6)+e^+(q5)
 c--   s returned from sprod (common block) is 2*dot product
 c--   calculate propagators
 C----No Baur-Zeppenfeld
-      prop12=s(1,2)/dcmplx(s(1,2)-zmass**2,zmass*zwidth)
-      prop34=s(3,i4(ii))/dcmplx(s(3,i4(ii))-zmass**2,zmass*zwidth)
-      prop56=s(i5(ii),6)/dcmplx(s(i5(ii),6)-zmass**2,zmass*zwidth)
+      prop12=s(1,2)/cplx2(s(1,2)-zmass**2,zmass*zwidth)
+      prop34=s(3,i4(ii))/cplx2(s(3,i4(ii))-zmass**2,zmass*zwidth)
+      prop56=s(i5(ii),6)/cplx2(s(i5(ii),6)-zmass**2,zmass*zwidth)
 
 c-- here the labels correspond to the polarizations of the
 c-- quark, lepton 4 and lepton 6 respectively
@@ -174,14 +179,14 @@ c---loop diagrams just tree*Vpole since they're all triangle-type
 C----calculate ocer limited flavor range -2:2
       do j=-2,2
       k=-j
-      virt=0d0
-      if (j.eq.0) go to 20
+      virt=zip
+      if (j==0) go to 20
 
-      if ((j .gt. 0).and.(k .lt. 0)) then
+      if ((j > 0).and.(k < 0)) then
       do polq=1,2
       do pol1=1,2
       do pol2=1,2
-      if     (polq .eq. 1) then
+      if     (polq == 1) then
        aqqb=(prop56*v2(pol1)*l(j)+q2*q(j))
      &     *(prop34*v1(pol2)*l(j)+q1*q(j))* qqb(polq,pol1,pol2)
        bqqb=(prop56*v2(pol1)*l(j)+q2*q(j))
@@ -196,7 +201,7 @@ C----calculate ocer limited flavor range -2:2
          aqqb=aqqb+suppl
          bqqb=bqqb+suppl*Vpole12
          endif
-      elseif (polq .eq. 2) then
+      elseif (polq == 2) then
        aqqb=(prop56*v2(pol1)*r(j)+q2*q(j))
      &     *(prop34*v1(pol2)*r(j)+q1*q(j))* qqb(polq,pol1,pol2)
        bqqb=(prop56*v2(pol1)*r(j)+q2*q(j))
@@ -216,47 +221,47 @@ C----calculate ocer limited flavor range -2:2
       aqqb=FAC*aqqb
       bqqb=FAC*bqqb
 
-c      virt=virt+facnlo*ave*two*dble(dconjg(aqqb)*bqqb)
+c      virt=virt+facnlo*ave*two*real(conjg(aqqb)*bqqb)
 c      !interference terms
-c      if ((ii.eq.1).and.(interference)) then
+c      if ((ii==1).and.(interference)) then
 c         aqqb_SAVE(j,k,polq,pol1,pol2)=aqqb
 c         bqqb_SAVE(j,k,polq,pol1,pol2)=bqqb
-c      elseif (ii.eq.2) then
-c         if (pol1.eq.pol2) then
-c      virt=virt-2d0*facnlo*ave*dble(
-c     &           dconjg(aqqb)*bqqb_SAVE(j,k,polq,pol1,pol2)
-c     &          +dconjg(bqqb)*aqqb_SAVE(j,k,polq,pol1,pol2))
+c      elseif (ii==2) then
+c         if (pol1==pol2) then
+c      virt=virt-two*facnlo*ave*real(
+c     &           conjg(aqqb)*bqqb_SAVE(j,k,polq,pol1,pol2)
+c     &          +conjg(bqqb)*aqqb_SAVE(j,k,polq,pol1,pol2))
 c         endif
 c      endif
 
 
       if (interference .eqv. .false.) then
 c--- normal case
-        virt=virt+facnlo*ave*two*dble(dconjg(aqqb)*bqqb)
+        virt=virt+facnlo*ave*two*real(conjg(aqqb)*bqqb)
       else
 c--- with interference:
 c---    1st pass --> store result
 c---    2nd pass --> fill msq
-        if (ii .eq. 1) then
+        if (ii == 1) then
           aqqb_SAVE(j,k,polq,pol1,pol2)=aqqb
           bqqb_SAVE(j,k,polq,pol1,pol2)=bqqb
         else
-          if (pol1 .eq. pol2) then
-            oprat=1d0
-     &           -dble(dconjg(aqqb)*bqqb_SAVE(j,k,polq,pol1,pol2)
-     &                +dconjg(aqqb_SAVE(j,k,polq,pol1,pol2))*bqqb)
-     &            /(dble(dconjg(aqqb)*bqqb)
-     &             +dble(dconjg(aqqb_SAVE(j,k,polq,pol1,pol2))
+          if (pol1 == pol2) then
+            oprat=one
+     &           -real(conjg(aqqb)*bqqb_SAVE(j,k,polq,pol1,pol2)
+     &                +conjg(aqqb_SAVE(j,k,polq,pol1,pol2))*bqqb)
+     &            /(real(conjg(aqqb)*bqqb)
+     &             +real(conjg(aqqb_SAVE(j,k,polq,pol1,pol2))
      &                         *bqqb_SAVE(j,k,polq,pol1,pol2)))
           else
-            oprat=1d0
+            oprat=one
           endif
           if (bw34_56) then
-            virt=virt+facnlo*ave*two*dble(
-     &          dconjg(aqqb_SAVE(j,k,polq,pol1,pol2))
-     &                *bqqb_SAVE(j,k,polq,pol1,pol2))*2d0*oprat
+            virt=virt+facnlo*ave*two*real(
+     &          conjg(aqqb_SAVE(j,k,polq,pol1,pol2))
+     &                *bqqb_SAVE(j,k,polq,pol1,pol2))*two*oprat
           else
-            virt=virt+facnlo*ave*two*dble(dconjg(aqqb)*bqqb)*2d0*oprat
+            virt=virt+facnlo*ave*two*real(conjg(aqqb)*bqqb)*two*oprat
           endif
         endif
       endif
@@ -266,12 +271,12 @@ c---    2nd pass --> fill msq
       enddo
       enddo
 
-      elseif ((j .lt. 0).and.(k .gt. 0)) then
+      elseif ((j < 0).and.(k > 0)) then
 
       do polq=1,2
       do pol1=1,2
       do pol2=1,2
-      if     (polq .eq. 1) then
+      if     (polq == 1) then
        aqbq=(prop56*v2(pol1)*l(k)+q2*q(k))
      &     *(prop34*v1(pol2)*l(k)+q1*q(k))* qbq(polq,pol1,pol2)
        bqbq=(prop56*v2(pol1)*l(k)+q2*q(k))
@@ -285,7 +290,7 @@ c---    2nd pass --> fill msq
          aqbq=aqbq+suppl
          bqbq=bqbq+suppl*Vpole12
          endif
-      elseif (polq .eq. 2) then
+      elseif (polq == 2) then
        aqbq=(prop56*v2(pol1)*r(k)+q2*q(k))
      &     *(prop34*v1(pol2)*r(k)+q1*q(k))* qbq(polq,pol1,pol2)
        bqbq=(prop56*v2(pol1)*r(k)+q2*q(k))
@@ -304,47 +309,47 @@ c---    2nd pass --> fill msq
       aqbq=FAC*aqbq
       bqbq=FAC*bqbq
 
-c      virt=virt+facnlo*ave*two*dble(dconjg(aqbq)*bqbq)
+c      virt=virt+facnlo*ave*two*real(conjg(aqbq)*bqbq)
 c      !interference terms
-c      if ((ii.eq.1).and.(interference)) then
+c      if ((ii==1).and.(interference)) then
 c         aqbq_SAVE(j,k,polq,pol1,pol2)=aqbq
 c         bqbq_SAVE(j,k,polq,pol1,pol2)=bqbq
-c      elseif (ii.eq.2) then
-c         if (pol1.eq.pol2) then
-c      virt=virt-2d0*facnlo*ave
-c     &       *dble(dconjg(aqbq)*bqbq_SAVE(j,k,polq,pol1,pol2)
-c     &            +dconjg(bqbq)*aqbq_SAVE(j,k,polq,pol1,pol2))
+c      elseif (ii==2) then
+c         if (pol1==pol2) then
+c      virt=virt-two*facnlo*ave
+c     &       *real(conjg(aqbq)*bqbq_SAVE(j,k,polq,pol1,pol2)
+c     &            +conjg(bqbq)*aqbq_SAVE(j,k,polq,pol1,pol2))
 c         endif
 c      endif
 
 
       if (interference .eqv. .false.) then
 c--- normal case
-        virt=virt+facnlo*ave*two*dble(dconjg(aqbq)*bqbq)
+        virt=virt+facnlo*ave*two*real(conjg(aqbq)*bqbq)
       else
 c--- with interference:
 c---    1st pass --> store result
 c---    2nd pass --> fill msq
-        if (ii .eq. 1) then
+        if (ii == 1) then
           aqbq_SAVE(j,k,polq,pol1,pol2)=aqbq
           bqbq_SAVE(j,k,polq,pol1,pol2)=bqbq
         else
-          if (pol1 .eq. pol2) then
-            oprat=1d0
-     &           -dble(dconjg(aqbq)*bqbq_SAVE(j,k,polq,pol1,pol2)
-     &                +dconjg(aqbq_SAVE(j,k,polq,pol1,pol2))*bqbq)
-     &            /(dble(dconjg(aqbq)*bqbq)
-     &             +dble(dconjg(aqbq_SAVE(j,k,polq,pol1,pol2))
+          if (pol1 == pol2) then
+            oprat=one
+     &           -real(conjg(aqbq)*bqbq_SAVE(j,k,polq,pol1,pol2)
+     &                +conjg(aqbq_SAVE(j,k,polq,pol1,pol2))*bqbq)
+     &            /(real(conjg(aqbq)*bqbq)
+     &             +real(conjg(aqbq_SAVE(j,k,polq,pol1,pol2))
      &                         *bqbq_SAVE(j,k,polq,pol1,pol2)))
           else
-            oprat=1d0
+            oprat=one
           endif
           if (bw34_56) then
-            virt=virt+facnlo*ave*two*dble(
-     &          dconjg(aqbq_SAVE(j,k,polq,pol1,pol2))
-     &                *bqbq_SAVE(j,k,polq,pol1,pol2))*2d0*oprat
+            virt=virt+facnlo*ave*two*real(
+     &          conjg(aqbq_SAVE(j,k,polq,pol1,pol2))
+     &                *bqbq_SAVE(j,k,polq,pol1,pol2))*two*oprat
           else
-            virt=virt+facnlo*ave*two*dble(dconjg(aqbq)*bqbq)*2d0*oprat
+            virt=virt+facnlo*ave*two*real(conjg(aqbq)*bqbq)*two*oprat
           endif
         endif
       endif
@@ -368,7 +373,7 @@ C----extend to full flavor range
       do j=-nf,nf
       k=-j
 
-      if (j.eq.0) go to 21
+      if (j==0) go to 21
 
       msqv(j,k)=msqv(jkswitch(j),jkswitch(k))
 

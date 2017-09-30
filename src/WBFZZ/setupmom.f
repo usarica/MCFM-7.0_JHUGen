@@ -1,8 +1,13 @@
       subroutine setupmom(p)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
-      double precision al,be,ro,si,th,ph,p(mxpart,4),E1,E2,E7,y
+      real(dp):: al,be,ro,si,th,ph,p(mxpart,4),E1,E2,E7,y
 
 C----setup p
       al=1.04225677d0

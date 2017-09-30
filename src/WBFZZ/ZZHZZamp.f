@@ -1,6 +1,11 @@
       subroutine ZZHZZamp(n1,n2,n3,n4,n5,n6,n7,n8,za,zb,ZZHamp)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'cmplxmass.f'
 c      include 'ewcouple.f'
       include 'zcouple.f'
@@ -8,13 +13,13 @@ c      include 'ewcouple.f'
       include 'sprods_com.f'
       include 'zprods_decl.f'
       include 'first.f'
-      double precision t4,s3456,s1734,s1756,htheta,
+      real(dp):: t4,s3456,s1734,s1756,htheta,
      & ZZ3456(2,2),ZZ1728(2,2,2,2),ZZ1734(2,2,2),ZZ2856(2,2,2)
-      double complex ZZHamp(2,2,2,2,2,2),propWBF,
+      complex(dp):: ZZHamp(2,2,2,2,2,2),propWBF,
      & prop34,prop56,prop17,prop28,prop3456,prop1734,prop1756,fac
       save ZZ3456,ZZ1734,ZZ2856,ZZ1728,fac
 C---order of indices jdu1,jdu2,h17,h28,h34,h56)
-      integer h17,h28,h34,h56,i1,i2,i3,i4,i5,i6,i7,i8,
+      integer:: h17,h28,h34,h56,i1,i2,i3,i4,i5,i6,i7,i8,
      & n1,n2,n3,n4,n5,n6,n7,n8,jdu1,jdu2
 C---begin statement functions
       t4(i1,i2,i3,i4)=
@@ -55,45 +60,45 @@ C---setup propagators
       s1734=t4(n1,n7,n3,n4)
       s1756=t4(n1,n7,n5,n6)
 
-      prop17=dcmplx(s(n1,n7))-czmass2
-      prop28=dcmplx(s(n2,n8))-czmass2
-      prop34=dcmplx(s(n3,n4))-czmass2
-      prop56=dcmplx(s(n5,n6))-czmass2
-      prop3456=dcmplx(s3456-hmass**2,htheta(s3456)*hmass*hwidth)
-      prop1734=dcmplx(s1734-hmass**2,htheta(s1734)*hmass*hwidth)
-      prop1756=dcmplx(s1756-hmass**2,htheta(s1756)*hmass*hwidth)
+      prop17=cplx1(s(n1,n7))-czmass2
+      prop28=cplx1(s(n2,n8))-czmass2
+      prop34=cplx1(s(n3,n4))-czmass2
+      prop56=cplx1(s(n5,n6))-czmass2
+      prop3456=cplx2(s3456-hmass**2,htheta(s3456)*hmass*hwidth)
+      prop1734=cplx2(s1734-hmass**2,htheta(s1734)*hmass*hwidth)
+      prop1756=cplx2(s1756-hmass**2,htheta(s1756)*hmass*hwidth)
       propWBF=prop17*prop28*prop34*prop56
 
 
       do h17=1,2
-         if (h17.eq.1) then 
+         if (h17==1) then 
             i1=n1
             i7=n7
-         elseif (h17.eq.2) then
+         elseif (h17==2) then
             i1=n7
             i7=n1
          endif
       do h28=1,2
-         if (h28.eq.1) then 
+         if (h28==1) then 
             i2=n2
             i8=n8
-         elseif (h28.eq.2) then
+         elseif (h28==2) then
             i2=n8
             i8=n2
          endif
       do h34=1,2
-         if (h34.eq.1) then 
+         if (h34==1) then 
             i3=n3
             i4=n4
-         elseif (h34.eq.2) then
+         elseif (h34==2) then
             i3=n4
             i4=n3
          endif
       do h56=1,2
-         if (h56.eq.1) then 
+         if (h56==1) then 
             i5=n5
             i6=n6
-         elseif (h56.eq.2) then
+         elseif (h56==2) then
             i5=n6
             i6=n5
          endif

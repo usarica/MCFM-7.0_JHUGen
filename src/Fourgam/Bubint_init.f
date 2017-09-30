@@ -2,16 +2,19 @@
 !===== Initialise array of bubble integral values.
 !===== For use with qqb->4gamma and qqb->2j2gamma
 !===== coefficients by same author.
-      subroutine Bubint_init(i1,i2,i3,i4,i5,i6,
-     & Bubint,ord)
+      subroutine Bubint_init(i1,i2,i3,i4,i5,i6,Bubint,ord)
       implicit none
+      include 'types.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'sprods_com.f'
       include 'scale.f'
-      integer i1,i2,i3,i4,i5,i6
-      integer ord
-      double complex Bubint(25), qlI2
-      double precision t
+      integer:: i1,i2,i3,i4,i5,i6
+      integer:: ord
+      complex(dp):: Bubint(25), qlI2
+      real(dp):: t
 
       t(i1,i2,i3) = s(i1,i2) + s(i2,i3) + s(i3,i1)
 

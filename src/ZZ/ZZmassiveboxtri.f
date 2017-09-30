@@ -1,19 +1,24 @@
       subroutine ZZmassiveboxtri(j1,j2,j3,j4,j5,j6,za,zb,mt,totrat,
      & box,tri)
+      implicit none
+      include 'types.f'
 c--- coefficients of boxes and triangles using the integral basis
 c--- that includes 6-dimensional boxes
 c--- (-,+) and (+,-) helicities of gluons only
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'docheck.f'
       include 'ggZZintegrals.f'
       include 'ZZdlabels.f'
       include 'ZZclabels.f'
       include 'first.f'
-      integer j1,j2,j3,j4,j5,j6,h1,h2,h3,h4,j,itot,irat
-      double precision mt,mtsq
-      double complex Xpp(2,2),Xmp(2,2),Xpm(2,2),Xmm(2,2),
+      integer:: j1,j2,j3,j4,j5,j6,h1,h2,h3,h4,j,itot,irat
+      real(dp):: mt,mtsq
+      complex(dp):: Xpp(2,2),Xmp(2,2),Xpm(2,2),Xmm(2,2),
      & Zmp(2,2,2),Zpm(2,2,2),totrat(2,2,2,2),
      & box(2,2,2,2,-2:0),tri(2,2,2,2,-2:0),d(2,2,2,2,5),c(2,2,2,2,6),
      & Xrat(2,2,2,2),drat(2,2,2,2,3),crat(2,2,2,2,6)
@@ -126,13 +131,13 @@ c------ Compute mt^2 dependence from rational contributions and add
       do h4=1,2
 c        write(6,*) h1,h2,h3,h4,crat(h1,h2,h3,h4,c12_34)
         crat(h1,h2,h3,h4,c12_34)=totrat(h1,h2,h3,h4)
-     &    -3d0*drat(h1,h2,h3,h4,d2_1_34)-crat(h1,h2,h3,h4,c1_2)
+     &    -3._dp*drat(h1,h2,h3,h4,d2_1_34)-crat(h1,h2,h3,h4,c1_2)
      &    -crat(h1,h2,h3,h4,c1_34)-crat(h1,h2,h3,h4,c2_34)
      &    -crat(h1,h2,h3,h4,c1_56)-crat(h1,h2,h3,h4,c2_56)
 c        write(6,*) h1,h2,h3,h4,crat(h1,h2,h3,h4,c12_34)
 c        write(6,*)
         c(h1,h2,h3,h4,c12_34)=c(h1,h2,h3,h4,c12_34)
-     &   +2d0*mtsq*crat(h1,h2,h3,h4,c12_34)
+     &   +2._dp*mtsq*crat(h1,h2,h3,h4,c12_34)
       enddo
       enddo
       enddo
@@ -141,8 +146,8 @@ c        write(6,*)
         do h3=1,2
         do h4=1,2
         call ggZZcapture('12x34',h3,h4,1,2,3,4,5,6,
-     &   c(1,2,h3,h4,c12_34)-2d0*mtsq*crat(1,2,h3,h4,c12_34),
-     &   +2d0*crat(1,2,h3,h4,c12_34),czip)
+     &   c(1,2,h3,h4,c12_34)-2._dp*mtsq*crat(1,2,h3,h4,c12_34),
+     &   +2._dp*crat(1,2,h3,h4,c12_34),czip)
         enddo
         enddo
       endif

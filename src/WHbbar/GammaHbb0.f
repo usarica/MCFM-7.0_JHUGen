@@ -1,14 +1,19 @@
-      double precision function GammaHbb0(Msq,mbsq)
+      function GammaHbb0(Msq,mbsq)
       implicit none
+      include 'types.f'
+      real(dp):: GammaHbb0      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ewcouple.f'
-      double precision Msq,mbsq,beta,besq
+      real(dp):: Msq,mbsq,beta,besq
 c      write(6,*) 'GammaHbb0:Msq',Msq
 c      write(6,*) 'GammaHbb0:mbsq',mbsq
 c      pause
-      besq=1d0-4d0*mbsq/Msq
+      besq=1._dp-4._dp*mbsq/Msq
       beta=sqrt(besq)
-      GammaHbb0=3d0/4d0/pi*mbsq*Gf/rt2*sqrt(Msq)*beta**3
+      GammaHbb0=3._dp/4._dp/pi*mbsq*Gf/rt2*sqrt(Msq)*beta**3
       return
       end
 

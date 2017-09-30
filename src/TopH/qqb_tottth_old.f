@@ -1,5 +1,7 @@
       subroutine qqb_tottth_old(p,msq)
       implicit none
+      include 'types.f'
+      
 ************************************************************************
 *     Author: R.K. Ellis                                               *
 *     December, 1999.                                                  *
@@ -10,23 +12,26 @@ C     q(-p1) +qbar(-p2)=t(p3)+t(p4)+h(p5)
 C  
 ************************************************************************
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ewcouple.f'
       include 'qcdcouple.f'
       include 'couple.f'
-      include 'part.f'
+      include 'kpart.f'
       include 'masses.f'
       include 'msbarmasses.f'
       include 'first.f'
       
-      integer j,k
-      double precision msq(-nf:nf,-nf:nf),p(mxpart,4)
-      double precision wtqqb,wtgg,massfrun,mt_eff
-      double precision dot,DHQQ,DHGG,facqq,facgg,X12,X13,X14,X23,X24
+      integer:: j,k
+      real(dp):: msq(-nf:nf,-nf:nf),p(mxpart,4)
+      real(dp):: wtqqb,wtgg,massfrun,mt_eff
+      real(dp):: dot,DHQQ,DHGG,facqq,facgg,X12,X13,X14,X23,X24
       save mt_eff
 !$omp threadprivate(mt_eff) 
       if (first) then
 c--- run mt to appropriate scale
-        if (part .eq. 'lord') then
+        if (kpart==klord) then
           mt_eff=massfrun(mt_msbar,hmass,amz,1)
         else
           mt_eff=massfrun(mt_msbar,hmass,amz,2)
@@ -57,18 +62,21 @@ C----set all elements to zero
 
 C---fill qb-q, gg and q-qb elements
       do j=-nf,nf
-      if (j .lt. 0) then
+      if (j < 0) then
           msq(j,-j)=aveqq*facqq*wtqqb
-      elseif (j .eq. 0) then
+      elseif (j == 0) then
           msq(j,j)=avegg*facgg*wtgg
-      elseif (j .gt. 0) then
+      elseif (j > 0) then
           msq(j,-j)=aveqq*facqq*wtqqb
       endif
       enddo
       return
       end
  
-      DOUBLE PRECISION FUNCTION DHQQ(X12,X13,X14,X23,X24)
+      function DHQQ(X12,X13,X14,X23,X24)
+      implicit none
+      include 'types.f'
+      real(dp):: DHQQ
 C--QQBAR MATRIX ELEMENT FOR SCALAR HIGGS BOSONS
       IMPLICIT NONE
 C----Matrix element taken from Spira's Program,
@@ -79,7 +87,7 @@ C  W.J. Marciano and F.E. Paige, Phys. Rev. Lett. 66 (1991) 2433;
 C  D.A. Dicus and S. Willenbrock, Phys. Rev. D39 (1989) 751;
 C  M. Spira, Fortschr. Phys. 46 (1998) 203.
       include 'masses.f'
-      DOUBLE PRECISION X12,X13,X14,X23,X24,N12,N35,N45,M,MH,RES
+      real(dp):: X12,X13,X14,X23,X24,N12,N35,N45,M,MH,RES
       N12 = 1/X12
       N35 = 1/(X12+X14+X24)
       N45 = 1/(X12+X13+X23)
@@ -111,7 +119,10 @@ C  M. Spira, Fortschr. Phys. 46 (1998) 203.
       RETURN
       END
 
-      DOUBLE PRECISION FUNCTION DHGG(X12,X13,X14,X23,X24)
+      function DHGG(X12,X13,X14,X23,X24)
+      implicit none
+      include 'types.f'
+      real(dp):: DHGG
 C--GG MATRIX ELEMENT FOR SCALAR HIGGS BOSONS
 C----Matrix element taken from Spira's Program,
 C  For references see,
@@ -123,8 +134,8 @@ C  M. Spira, Fortschr. Phys. 46 (1998) 203.
 
       IMPLICIT NONE
       include 'masses.f'
-      DOUBLE PRECISION X12,X13,X14,X23,X24,M,MH,RES
-      DOUBLE PRECISION N12,N13,N14,N23,N24,N35,N45
+      real(dp):: X12,X13,X14,X23,X24,M,MH,RES
+      real(dp):: N12,N13,N14,N23,N24,N35,N45
       N12 = 1/X12
       N13 = 1/X13
       N14 = 1/X14

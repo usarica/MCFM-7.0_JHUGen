@@ -9,7 +9,7 @@ c--- There is no label for he or she who is emitted.
 c--- Note that in general each piece will be composed of many different
 c--- dipole contributions
 
-      double precision
-     . Q1(-1:1,-1:1,-1:1,3),Q2(-1:1,-1:1,-1:1,3)
+      real(dp)::
+     & Q1(-1:1,-1:1,-1:1,3),Q2(-1:1,-1:1,-1:1,3)
       common/RP_new/Q1,Q2
 !$omp threadprivate(/RP_new/)

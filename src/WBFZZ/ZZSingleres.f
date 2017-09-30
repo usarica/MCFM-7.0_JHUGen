@@ -1,21 +1,26 @@
       subroutine ZZSingleres(n1,n2,n3,n4,n5,n6,n7,n8,za,zb,ZZ,WWp,WWm)
       implicit none
+      include 'types.f'
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'cmplxmass.f'
       include 'ewcharge.f'
       include 'zcouple.f'
       include 'sprods_com.f'
       include 'zprods_decl.f'
 
-      double precision s17,s28,s56,t3,
+      real(dp):: s17,s28,s56,t3,
      & s356,s456,s137,s147,s238,s248,xl1,xr1,xq1,xl2,xr2,xq2
-      double complex zab2,ZZ17(2,2,2),ZZ28(2,2,2),
+      complex(dp):: zab2,ZZ17(2,2,2),ZZ28(2,2,2),
      & prop28,prop17,prop56,propw28,propw17,
      & ZZ(2,2,2,2,2,2),ZZ56(2,2),lZ56(0:1,2,2),
      & srma(2,2,2,2),srmb(2,2,2,2),srmm(2,2,2,2),
      & srpa(2,2,2,2),srpb(2,2,2,2),srpm(2,2,2,2),
      & WWm(2),WWp(2)
-      integer h17,h28,h34,h56,i1,i2,i3,i4,i5,i6,i7,i8,
+      integer:: h17,h28,h34,h56,i1,i2,i3,i4,i5,i6,i7,i8,
      & n1,n2,n3,n4,n5,n6,n7,n8,jdu1,jdu2
 C---begin statement functions
       zab2(i1,i2,i3,i4)=za(i1,i2)*zb(i2,i4)+za(i1,i3)*zb(i3,i4)
@@ -53,61 +58,61 @@ C---setting up couplings dependent on whether we are doing 34-line or 56-line
       s238=t3(n2,n3,n8)
       s248=t3(n2,n4,n8)
 
-      prop17=dcmplx(s17)-czmass2
-      prop28=dcmplx(s28)-czmass2
-      prop56=dcmplx(s56)-czmass2
+      prop17=cplx1(s17)-czmass2
+      prop28=cplx1(s28)-czmass2
+      prop56=cplx1(s56)-czmass2
 
-      propw17=dcmplx(s17)-cwmass2
-      propw28=dcmplx(s28)-cwmass2
+      propw17=cplx1(s17)-cwmass2
+      propw28=cplx1(s28)-cwmass2
 
       do jdu1=1,2
-      ZZ17(jdu1,1,1)=dcmplx(Q(jdu1)*xq1/s17)+dcmplx(L(jdu1)*xl1)/prop17
-      ZZ17(jdu1,1,2)=dcmplx(Q(jdu1)*xq1/s17)+dcmplx(L(jdu1)*xr1)/prop17
-      ZZ17(jdu1,2,1)=dcmplx(Q(jdu1)*xq1/s17)+dcmplx(R(jdu1)*xl1)/prop17
-      ZZ17(jdu1,2,2)=dcmplx(Q(jdu1)*xq1/s17)+dcmplx(R(jdu1)*xr1)/prop17
-      ZZ28(jdu1,1,1)=dcmplx(Q(jdu1)*xq1/s28)+dcmplx(L(jdu1)*xl1)/prop28
-      ZZ28(jdu1,1,2)=dcmplx(Q(jdu1)*xq1/s28)+dcmplx(L(jdu1)*xr1)/prop28
-      ZZ28(jdu1,2,1)=dcmplx(Q(jdu1)*xq1/s28)+dcmplx(R(jdu1)*xl1)/prop28
-      ZZ28(jdu1,2,2)=dcmplx(Q(jdu1)*xq1/s28)+dcmplx(R(jdu1)*xr1)/prop28
+      ZZ17(jdu1,1,1)=cplx1(Q(jdu1)*xq1/s17)+cplx1(L(jdu1)*xl1)/prop17
+      ZZ17(jdu1,1,2)=cplx1(Q(jdu1)*xq1/s17)+cplx1(L(jdu1)*xr1)/prop17
+      ZZ17(jdu1,2,1)=cplx1(Q(jdu1)*xq1/s17)+cplx1(R(jdu1)*xl1)/prop17
+      ZZ17(jdu1,2,2)=cplx1(Q(jdu1)*xq1/s17)+cplx1(R(jdu1)*xr1)/prop17
+      ZZ28(jdu1,1,1)=cplx1(Q(jdu1)*xq1/s28)+cplx1(L(jdu1)*xl1)/prop28
+      ZZ28(jdu1,1,2)=cplx1(Q(jdu1)*xq1/s28)+cplx1(L(jdu1)*xr1)/prop28
+      ZZ28(jdu1,2,1)=cplx1(Q(jdu1)*xq1/s28)+cplx1(R(jdu1)*xl1)/prop28
+      ZZ28(jdu1,2,2)=cplx1(Q(jdu1)*xq1/s28)+cplx1(R(jdu1)*xr1)/prop28
       enddo
 
-      ZZ56(1,1)=dcmplx(xq1*xq2/s56)+dcmplx(xl1*xl2)/prop56
-      ZZ56(1,2)=dcmplx(xq1*xq2/s56)+dcmplx(xl1*xr2)/prop56
-      ZZ56(2,1)=dcmplx(xq1*xq2/s56)+dcmplx(xr1*xl2)/prop56
-      ZZ56(2,2)=dcmplx(xq1*xq2/s56)+dcmplx(xr1*xr2)/prop56
+      ZZ56(1,1)=cplx1(xq1*xq2/s56)+cplx1(xl1*xl2)/prop56
+      ZZ56(1,2)=cplx1(xq1*xq2/s56)+cplx1(xl1*xr2)/prop56
+      ZZ56(2,1)=cplx1(xq1*xq2/s56)+cplx1(xr1*xl2)/prop56
+      ZZ56(2,2)=cplx1(xq1*xq2/s56)+cplx1(xr1*xr2)/prop56
 
-      lZ56(0,1,1)=dcmplx(ln*xl2)/prop56
-      lZ56(0,1,2)=dcmplx(ln*xr2)/prop56
-      lZ56(0,2,1)=dcmplx(rn*xl2)/prop56
-      lZ56(0,2,2)=dcmplx(rn*xr2)/prop56
-      lZ56(1,1,1)=dcmplx(qe*xq2/s56)+dcmplx(le*xl2)/prop56
-      lZ56(1,1,2)=dcmplx(qe*xq2/s56)+dcmplx(le*xr2)/prop56
-      lZ56(1,2,1)=dcmplx(qe*xq2/s56)+dcmplx(re*xl2)/prop56
-      lZ56(1,2,2)=dcmplx(qe*xq2/s56)+dcmplx(re*xr2)/prop56
+      lZ56(0,1,1)=cplx1(ln*xl2)/prop56
+      lZ56(0,1,2)=cplx1(ln*xr2)/prop56
+      lZ56(0,2,1)=cplx1(rn*xl2)/prop56
+      lZ56(0,2,2)=cplx1(rn*xr2)/prop56
+      lZ56(1,1,1)=cplx1(qe*xq2/s56)+cplx1(le*xl2)/prop56
+      lZ56(1,1,2)=cplx1(qe*xq2/s56)+cplx1(le*xr2)/prop56
+      lZ56(1,2,1)=cplx1(qe*xq2/s56)+cplx1(re*xl2)/prop56
+      lZ56(1,2,2)=cplx1(qe*xq2/s56)+cplx1(re*xr2)/prop56
 
       i3=n3
       i4=n4
       do h17=1,2
-         if (h17.eq.1) then
+         if (h17==1) then
             i7=n7
             i1=n1
-         elseif (h17.eq.2) then
+         elseif (h17==2) then
             i7=n1
             i1=n7
          endif
       do h28=1,2
-         if (h28.eq.1) then
+         if (h28==1) then
             i8=n8
             i2=n2
-         elseif (h28.eq.2) then
+         elseif (h28==2) then
             i8=n2
             i2=n8
          endif
       do h56=1,2
-         if (h56.eq.1) then
+         if (h56==1) then
             i5=n5
             i6=n6
-         elseif (h56.eq.2) then
+         elseif (h56==2) then
             i5=n6
             i6=n5
          endif
@@ -193,7 +198,7 @@ C---   *zab2(i8,i2,i3,i1)*za(i4,i5)*zab2(i7,i4,i5,i6)*zb(i2,i3);
       enddo
 
       if (xq1 < 0) then
-      if ((h17.eq.1).and.(h28.eq.1).and.(h34.eq.1)) then
+      if ((h17==1).and.(h28==1).and.(h34==1)) then
       WWm(h56)=0.25d0/(cxw**2*propw17*propw28)
      & *(srmb(h17,h28,h34,h56)*lZ56(1,h34,h56)
      &  +srmm(h17,h28,h34,h56)*lZ56(0,h34,h56)
@@ -207,7 +212,7 @@ C---   *zab2(i8,i2,i3,i1)*za(i4,i5)*zab2(i7,i4,i5,i6)*zb(i2,i3);
 
       else
 
-      if ((h17.eq.1).and.(h28.eq.1).and.(h34.eq.1)) then
+      if ((h17==1).and.(h28==1).and.(h34==1)) then
       WWm(h56)=0.25d0/(cxw**2*propw17*propw28)
      & *(srpb(h17,h28,h34,h56)*lZ56(0,h34,h56)
      &  +srpm(h17,h28,h34,h56)*lZ56(1,h34,h56)

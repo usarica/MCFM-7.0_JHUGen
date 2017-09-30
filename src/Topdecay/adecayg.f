@@ -1,11 +1,13 @@
       subroutine adecayg(p,pqq,pqb,pc,pg,m)
       implicit none
+      include 'types.f'
+      
 ************************************************************************
 *     Author: R.K. Ellis, January 2012                                 *
 *     antitop decay  a --> e(pe)+nb(pnb)+bbar(pc)+g(pc)                *
 *     with bottom and top masses (and radiation from t and b lines)    *
 *     in massless spinor notation                                      *
-*     pqq,pqb,pc are integers that point to                            *
+*     pqq,pqb,pc are integer::s that point to                            *
 *     the appropriate four-momenta in p                                *
 *     pqq=quark                                                        *
 *     pqb=antiquark                                                    *
@@ -16,13 +18,16 @@
 *     returned m(apol,gpol,cpol)                                       *
 ************************************************************************
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'sprods_com.f'
       include 'masses.f'
-      double precision p(mxpart,4),q(mxpart,4),dot,sw,twopcDg,twopaDg,
+      real(dp):: p(mxpart,4),q(mxpart,4),dot,sw,twopcDg,twopaDg,
      & alag,alc
-      double complex m(2,2,2),cprop
-      integer qq,qb,c,g,ag,nu,pc,pqq,pqb,pg
+      complex(dp):: m(2,2,2),cprop
+      integer:: qq,qb,c,g,ag,nu,pc,pqq,pqb,pg
       parameter(ag=1,g=2,qq=3,qb=4,c=5)
 
       do nu=1,4
@@ -32,17 +37,17 @@
       q(qb,nu)=p(pqb,nu)
       q(c,nu)=p(pc,nu)
       enddo
-      twopaDg=2d0*dot(q,ag,g)
-      twopcDg=2d0*dot(q,c,g)
-      alag=mt**2/(2d0*dot(q,ag,qq))
-      alc=mb**2/(2d0*dot(q,c,qb))
+      twopaDg=2._dp*dot(q,ag,g)
+      twopcDg=2._dp*dot(q,c,g)
+      alag=mt**2/(2._dp*dot(q,ag,qq))
+      alc=mb**2/(2._dp*dot(q,c,qb))
       do nu=1,4
       q(ag,nu)=q(ag,nu)-alag*q(qq,nu)
       q(c,nu)=q(c,nu)-alc*q(qb,nu)
       enddo
       call spinoru(5,q,za,zb)
       sw=s(qq,qb)
-      cprop=dcmplx(sw-wmass**2,wmass*wwidth)
+      cprop=cplx2(sw-wmass**2,wmass*wwidth)
 C---order of polarizations is the m(apol,gpol,cpol)
       m(1,1,1)=czip
 

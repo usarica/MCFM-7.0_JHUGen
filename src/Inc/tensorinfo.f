@@ -1,3 +1,3 @@
-      integer ipolesfailed,itotal,ibadpoint
+      integer:: ipolesfailed,itotal,ibadpoint
       common/tensorinfo/ipolesfailed,itotal,ibadpoint
 

@@ -1,8 +1,12 @@
       subroutine qq_VVqq(p,msq)
       implicit none
+      include 'types.f'
 c--- Author: J.M.Campbell, December 2014
 c--- q(-p1) + q(-p2) -> e-(p3) e-(p4) nu_e(p5) nu_ebar(p6);
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'cmplxmass.f'
       include 'ewcouple.f'
       include 'masses.f'
@@ -10,9 +14,9 @@ c--- q(-p1) + q(-p2) -> e-(p3) e-(p4) nu_e(p5) nu_ebar(p6);
       include 'zprods_decl.f'
       include 'first.f'
       include 'WWbits.f'
-      integer nmax,jmax
+      integer:: nmax,jmax
       parameter(jmax=12,nmax=10)
-      integer j,k,l,
+      integer:: j,k,l,
      & uqcq_uqcq,uquq_uquq,dqsq_dqsq,
      & dqdq_dqdq,uqbq_uqbq,dqcq_dqcq,
      & dquq_dquq,dqcq_uqsq,uqsq_dqcq,
@@ -21,16 +25,16 @@ c--- q(-p1) + q(-p2) -> e-(p3) e-(p4) nu_e(p5) nu_ebar(p6);
      & uqcq_uqcq=1,uquq_uquq=2,dqsq_dqsq=3,
      & dqdq_dqdq=4,uqbq_uqbq=5,dqcq_dqcq=6,
      & dquq_dquq=7,dqcq_uqsq=8,uqsq_dqcq=9)
-      integer h1,h2,h3,h5
-      double precision p(mxpart,4),msq(fn:nf,fn:nf),temp(fn:nf,fn:nf),
+      integer:: h1,h2,h3,h5
+      real(dp):: p(mxpart,4),msq(fn:nf,fn:nf),temp(fn:nf,fn:nf),
      & tempw(fn:nf,fn:nf),stat,spinavge
-      double complex zab(mxpart,4,mxpart),zba(mxpart,4,mxpart),cdotpr,
-     & propw71,propw81,propw72,propw82,
+      complex(dp):: zab(mxpart,4,mxpart),zba(mxpart,4,mxpart),
+     & propw71,propw81,propw72,propw82,cdotpr,
      & propw7341,propw7561,propw7342,propw7562,
      & amp(nmax,2,2,2,2),ampa(nmax,2,2,2,2),ampb(nmax,2,2,2,2),
      & k7341(4),k8341(4),k8342(4),
      & kw7341(4),kw1567(4),kw7342(4),kw7562(4),s7341,s8341,s8342
-      double complex
+      complex(dp)::
      & jmid17(2,2,2,2),jvbf17(2,2,2,2),jtwodiags17(2,2,2,2),
      &jtwo17(2,2,2,2),jtwo28(2,2,2,2),jZWZa17(2,2,2,2),jZWZb17(2,2,2,2),
      & jmid18(2,2,2,2),jvbf18(2,2,2,2),jtwodiags18(2,2,2,2),
@@ -70,7 +74,7 @@ c--- q(-p1) + q(-p2) -> e-(p3) e-(p4) nu_e(p5) nu_ebar(p6);
      & gmZl7341(2,2,2),gmZl7561(2,2,2),gmZl7342(2,2,2),gmZl7562(2,2,2),
      & gmZl8562(2,2,2),gmZl8342(2,2,2),gmZl8561(2,2,2),gmZl8341(2,2,2),
      & ggWW(2,2),srWWZZ71_82amp(2,2),srWWZZ81_72amp(2,2)
-      logical doHO,doBO
+      logical:: doHO,doBO
       parameter(spinavge=0.25d0,stat=0.5d0,nfinc=4)
       integer,parameter:: j1(jmax)=(/1,2,8,8,7,2,7,1,1,7,2,7/)
       integer,parameter:: j2(jmax)=(/2,1,7,7,2,7,1,7,7,1,7,2/)
@@ -83,10 +87,10 @@ c--- q(-p1) + q(-p2) -> e-(p3) e-(p4) nu_e(p5) nu_ebar(p6);
 c--- This calculation uses the complex-mass scheme (c.f. arXiv:hep-ph/0605312)
 c--- and the following lines set up the appropriate masses and sin^2(theta_w)
       if (first) then
-       cwmass2=dcmplx(wmass**2,-wmass*wwidth)
-       czmass2=dcmplx(zmass**2,-zmass*zwidth)
+       cwmass2=cplx2(wmass**2,-wmass*wwidth)
+       czmass2=cplx2(zmass**2,-zmass*zwidth)
        cxw=cone-cwmass2/czmass2
-c       cxw=dcmplx(xw,0d0) ! DEBUG: Madgraph comparison
+c       cxw=cplx2(xw,0d0) ! DEBUG: Madgraph comparison
        write(6,*)
        write(6,*) '**************** Complex-mass scheme ***************'
        write(6,*) '*                                                  *'
@@ -98,11 +102,11 @@ c       cxw=dcmplx(xw,0d0) ! DEBUG: Madgraph comparison
        write(6,*)
        doHO=.false.
        doBO=.false.
-       if     (runstring(4:5) .eq. 'HO') then
+       if     (runstring(4:5) == 'HO') then
          doHO=.true.
        write(6,*) '>>>>>>>>>>>>>> Higgs contribution only <<<<<<<<<<<<<'
        write(6,*)
-       elseif (runstring(4:5) .eq. 'BO') then
+       elseif (runstring(4:5) == 'BO') then
          doBO=.true.
        write(6,*)
        write(6,*) '>>>>>>>>>>> Background contribution only <<<<<<<<<<<'
@@ -352,8 +356,8 @@ c----- ZZ-like
      & +Hbit*ZZHamp71_82(1,2,h1,h2,h3,h5)
 
       temp(1,4)=temp(1,4)+esq**6*spinavge
-     &   *dble(amp(dqcq_dqcq,h1,h2,h3,h5)
-     & *dconjg(amp(dqcq_dqcq,h1,h2,h3,h5)))
+     &   *real(amp(dqcq_dqcq,h1,h2,h3,h5)
+     & *conjg(amp(dqcq_dqcq,h1,h2,h3,h5)))
       enddo
       enddo
       enddo
@@ -395,10 +399,10 @@ c----- ZZ-like
      &  -cdotpr(jw7_56_1(:,1,h5),kw1567(:))
      &  *cdotpr(kw1567(:),jw8_34_2(:,2,h3))/cwmass2)/propw7561
 
-      if (h3 .eq. 1)
+      if (h3 == 1)
      & amp(dqcq_uqsq,h1,h2,h3,h5)=amp(dqcq_uqsq,h1,h2,h3,h5)
      & +WWm7341(h5)
-      if (h5 .eq. 1)
+      if (h5 == 1)
      & amp(dqcq_uqsq,h1,h2,h3,h5)=amp(dqcq_uqsq,h1,h2,h3,h5)
      & +WWm7561(h3)
 
@@ -410,8 +414,8 @@ c----- ZZ-like
      & +WWZZ71_82amp(h3,h5)
 
       tempw(1,4)=tempw(1,4)+esq**6*spinavge
-     &   *dble(amp(dqcq_uqsq,h1,h2,h3,h5)
-     & *dconjg(amp(dqcq_uqsq,h1,h2,h3,h5)))
+     &   *real(amp(dqcq_uqsq,h1,h2,h3,h5)
+     & *conjg(amp(dqcq_uqsq,h1,h2,h3,h5)))
 
       enddo
       enddo
@@ -468,8 +472,8 @@ c----- ZZ-like
      & +Hbit*ZZHamp71_82(2,2,h1,h2,h3,h5)
 
       temp(2,4)=temp(2,4)+esq**6*spinavge
-     &   *dble(amp(uqcq_uqcq,h1,h2,h3,h5)
-     & *dconjg(amp(uqcq_uqcq,h1,h2,h3,h5)))
+     &   *real(amp(uqcq_uqcq,h1,h2,h3,h5)
+     & *conjg(amp(uqcq_uqcq,h1,h2,h3,h5)))
 
       enddo
       enddo
@@ -526,8 +530,8 @@ c----- ZZ-like
      & +Hbit*ZZHamp71_82(1,1,h1,h2,h3,h5)
 
       temp(1,3)=temp(1,3)+esq**6*spinavge
-     &   *dble(amp(dqsq_dqsq,h1,h2,h3,h5)
-     & *dconjg(amp(dqsq_dqsq,h1,h2,h3,h5)))
+     &   *real(amp(dqsq_dqsq,h1,h2,h3,h5)
+     & *conjg(amp(dqsq_dqsq,h1,h2,h3,h5)))
       enddo
       enddo
       enddo
@@ -589,15 +593,15 @@ C-------- ampb: ZZ-like
      & +Hbit*ZZHamp81_72(1,1,h1,h2,h3,h5)
 
       temp(1,1)=temp(1,1)+esq**6*spinavge
-     & *dble(ampa(dqdq_dqdq,h1,h2,h3,h5)
-     & *dconjg(ampa(dqdq_dqdq,h1,h2,h3,h5)))
+     & *real(ampa(dqdq_dqdq,h1,h2,h3,h5)
+     & *conjg(ampa(dqdq_dqdq,h1,h2,h3,h5)))
       temp(1,1)=temp(1,1)+esq**6*spinavge
-     & *dble(ampb(dqdq_dqdq,h1,h2,h3,h5)
-     & *dconjg(ampb(dqdq_dqdq,h1,h2,h3,h5)))
-      if (h1 .eq. h2) then
+     & *real(ampb(dqdq_dqdq,h1,h2,h3,h5)
+     & *conjg(ampb(dqdq_dqdq,h1,h2,h3,h5)))
+      if (h1 == h2) then
       temp(1,1)=temp(1,1)-2d0/xn*esq**6*spinavge
-     & *dble(ampa(dqdq_dqdq,h1,h2,h3,h5)
-     & *dconjg(ampb(dqdq_dqdq,h1,h2,h3,h5)))
+     & *real(ampa(dqdq_dqdq,h1,h2,h3,h5)
+     & *conjg(ampb(dqdq_dqdq,h1,h2,h3,h5)))
       endif
 
       enddo
@@ -660,15 +664,15 @@ c-------- ampb: ZZ-like
      & +Hbit*ZZHamp81_72(2,2,h1,h2,h3,h5)
 
       temp(2,2)=temp(2,2)+esq**6*spinavge
-     & *dble(ampa(uquq_uquq,h1,h2,h3,h5)
-     & *dconjg(ampa(uquq_uquq,h1,h2,h3,h5)))
+     & *real(ampa(uquq_uquq,h1,h2,h3,h5)
+     & *conjg(ampa(uquq_uquq,h1,h2,h3,h5)))
       temp(2,2)=temp(2,2)+esq**6*spinavge
-     & *dble(ampb(uquq_uquq,h1,h2,h3,h5)
-     & *dconjg(ampb(uquq_uquq,h1,h2,h3,h5)))
-      if (h1 .eq. h2) then
+     & *real(ampb(uquq_uquq,h1,h2,h3,h5)
+     & *conjg(ampb(uquq_uquq,h1,h2,h3,h5)))
+      if (h1 == h2) then
       temp(2,2)=temp(2,2)-2d0/xn*esq**6*spinavge
-     & *dble(ampa(uquq_uquq,h1,h2,h3,h5)
-     & *dconjg(ampb(uquq_uquq,h1,h2,h3,h5)))
+     & *real(ampa(uquq_uquq,h1,h2,h3,h5)
+     & *conjg(ampb(uquq_uquq,h1,h2,h3,h5)))
       endif
 
       enddo
@@ -705,7 +709,7 @@ c-------- ampa: ZZ-like
       do h2=1,2
       do h3=1,2
       do h5=1,2
-      if ((h1.eq.1) .and. (h2.eq.1)) then
+      if ((h1==1) .and. (h2==1)) then
       if (doHO .eqv. .false.) then
       ampa(dquq_dquq,h1,h2,h3,h5)=ampa(dquq_dquq,h1,h2,h3,h5)
      & +cdotpr(jw8_3456_1(:,1,h3,h5),j7_2(:,h2))*0.5d0/propw72/cxw
@@ -723,10 +727,10 @@ c-------- ampa: ZZ-like
      &  -cdotpr(jw8_56_1(:,1,h5),kw7342(:))
      &  *cdotpr(kw7342(:),jw7_34_2(:,2,h3))/cwmass2)/propw7342
 
-      if (h3 .eq. 1)
+      if (h3 == 1)
      & ampa(dquq_dquq,h1,h2,h3,h5)=ampa(dquq_dquq,h1,h2,h3,h5)
      & +WWm8341(h5)
-      if (h5 .eq. 1)
+      if (h5 == 1)
      & ampa(dquq_dquq,h1,h2,h3,h5)=ampa(dquq_dquq,h1,h2,h3,h5)
      & +WWm8561(h3)
 
@@ -739,14 +743,14 @@ c-------- ampa: ZZ-like
       endif
 
       temp(1,2)=temp(1,2)+esq**6*spinavge
-     &   *dble(ampa(dquq_dquq,h1,h2,h3,h5)
-     & *dconjg(ampa(dquq_dquq,h1,h2,h3,h5)))
+     &   *real(ampa(dquq_dquq,h1,h2,h3,h5)
+     & *conjg(ampa(dquq_dquq,h1,h2,h3,h5)))
       temp(1,2)=temp(1,2)+esq**6*spinavge
-     &   *dble(ampb(dquq_dquq,h1,h2,h3,h5)
-     & *dconjg(ampb(dquq_dquq,h1,h2,h3,h5)))
+     &   *real(ampb(dquq_dquq,h1,h2,h3,h5)
+     & *conjg(ampb(dquq_dquq,h1,h2,h3,h5)))
       temp(1,2)=temp(1,2)-2d0/xn*esq**6*spinavge
-     &   *dble(ampa(dquq_dquq,h1,h2,h3,h5)
-     & *dconjg(ampb(dquq_dquq,h1,h2,h3,h5)))
+     &   *real(ampa(dquq_dquq,h1,h2,h3,h5)
+     & *conjg(ampb(dquq_dquq,h1,h2,h3,h5)))
       enddo
       enddo
       enddo
@@ -803,8 +807,8 @@ c----- ZZ-like
      & +Hbit*ZZHamp71_82(2,1,h1,h2,h3,h5)
 
       temp(2,5)=temp(2,5)+esq**6*spinavge
-     &   *dble(amp(uqbq_uqbq,h1,h2,h3,h5)
-     & *dconjg(amp(uqbq_uqbq,h1,h2,h3,h5)))
+     &   *real(amp(uqbq_uqbq,h1,h2,h3,h5)
+     & *conjg(amp(uqbq_uqbq,h1,h2,h3,h5)))
       enddo
       enddo
       enddo
@@ -847,10 +851,10 @@ c----- ZZ-like
      &  -cdotpr(jw7_56_1(:,2,h5),kw1567(:))
      &  *cdotpr(kw1567(:),jw8_34_2(:,1,h3))/cwmass2)/propw7561
 
-      if (h3 .eq. 1)
+      if (h3 == 1)
      & amp(uqsq_dqcq,h1,h2,h3,h5)=amp(uqsq_dqcq,h1,h2,h3,h5)
      & +WWp7341(h5)
-      if (h5 .eq. 1)
+      if (h5 == 1)
      & amp(uqsq_dqcq,h1,h2,h3,h5)=amp(uqsq_dqcq,h1,h2,h3,h5)
      & +WWp7561(h3)
 
@@ -862,15 +866,15 @@ c----- ZZ-like
      & +WWZZ71_82amp(h3,h5)
 
       tempw(2,3)=tempw(2,3)+esq**6*spinavge
-     &   *dble(amp(uqsq_dqcq,h1,h2,h3,h5)
-     & *dconjg(amp(uqsq_dqcq,h1,h2,h3,h5)))
+     &   *real(amp(uqsq_dqcq,h1,h2,h3,h5)
+     & *conjg(amp(uqsq_dqcq,h1,h2,h3,h5)))
       enddo
       enddo
       enddo
       enddo
 
 c--- fill matrix elements
-      if (j .eq. 1) then
+      if (j == 1) then
 
       do k=1,nfinc
       msq(k,k)=temp(k,k)*stat
@@ -881,7 +885,7 @@ c--- fill matrix elements
       msq(2,3)=msq(2,3)+tempw(2,3)
       msq(1,4)=msq(1,4)+tempw(1,4)
 
-      elseif (j.eq.2) then
+      elseif (j==2) then
       do k=1,nfinc
       do l=k+1,nfinc
       msq(l,k)=temp(k,l)
@@ -890,7 +894,7 @@ c--- fill matrix elements
       msq(3,2)=msq(3,2)+tempw(2,3)
       msq(4,1)=msq(4,1)+tempw(1,4)
 
-      elseif (j.eq.3) then
+      elseif (j==3) then
       do k=-nfinc,-1
       msq(k,k)=temp(-k,-k)*stat
       do l=k+1,-1
@@ -900,7 +904,7 @@ c--- fill matrix elements
       msq(-3,-2)=msq(-3,-2)+tempw(1,4)
       msq(-4,-1)=msq(-4,-1)+tempw(2,3)
 
-      elseif (j.eq.4) then
+      elseif (j==4) then
       do k=-nfinc,-1
       do l=k+1,-1
       msq(l,k)=temp(-l,-k)
@@ -910,11 +914,11 @@ c--- fill matrix elements
       msq(-1,-4)=msq(-1,-4)+tempw(2,3)
 
 c--- qbar-q
-      elseif (j.eq.5) then
+      elseif (j==5) then
       do k=-nfinc,-1
       msq(k,-k)=temp(-k,-k)
       do l=1,nfinc
-      if (abs(k) .lt. abs(l)) then
+      if (abs(k) < abs(l)) then
       msq(k,l)=temp(-k,l)
       endif
       enddo
@@ -923,10 +927,10 @@ c--- qbar-q
       msq(-2,4)=msq(-2,4)+tempw(1,4)
 
 c--- qbar-q
-      elseif (j.eq.6) then
+      elseif (j==6) then
       do k=-nfinc,-1
       do l=1,nfinc
-      if (abs(k) .gt. abs(l)) then
+      if (abs(k) > abs(l)) then
       msq(k,l)=temp(l,-k)
       endif
       enddo
@@ -935,11 +939,11 @@ c--- qbar-q
       msq(-4,2)=msq(-4,2)+tempw(2,3)
 
 c--- q-qbar
-      elseif (j.eq.7) then
+      elseif (j==7) then
       do k=-nfinc,-1
       msq(-k,k)=temp(-k,-k)
       do l=1,nfinc
-      if (abs(k) .lt. abs(l)) then
+      if (abs(k) < abs(l)) then
       msq(l,k)=temp(-k,l)
       endif
       enddo
@@ -948,10 +952,10 @@ c--- q-qbar
       msq(4,-2)=msq(4,-2)+tempw(1,4)
 
 c--- q-qbar
-      elseif (j.eq.8) then
+      elseif (j==8) then
       do k=-nfinc,-1
       do l=-nfinc,-1
-      if (abs(k) .lt. abs(l)) then
+      if (abs(k) < abs(l)) then
       msq(-k,l)=temp(-k,-l)
       endif
       enddo
@@ -960,10 +964,10 @@ c--- q-qbar
       msq(2,-4)=msq(2,-4)+tempw(2,3)
 
 c--- q-qbar extra pieces
-      elseif (j.eq.9) then
+      elseif (j==9) then
       do k=1,nfinc
       do l=1,nfinc
-      if (k .lt. l) then
+      if (k < l) then
       msq(k,-k)=msq(k,-k)+temp(k,l)
       endif
       enddo
@@ -974,20 +978,20 @@ c--- q-qbar extra pieces
       msq(4,-3)=msq(2,-1)
 
 c--- q-qbar extra pieces
-      elseif (j.eq.10) then
+      elseif (j==10) then
       do k=1,nfinc
       do l=1,nfinc
-      if (k .gt. l) then
+      if (k > l) then
       msq(k,-k)=msq(k,-k)+temp(l,k)
       endif
       enddo
       enddo
 
 c--- qbar-q extra pieces
-      elseif (j.eq.11) then
+      elseif (j==11) then
       do k=1,nfinc
       do l=1,nfinc
-      if (k .lt. l) then
+      if (k < l) then
       msq(-k,k)=msq(-k,k)+temp(k,l)
       endif
       enddo
@@ -998,10 +1002,10 @@ c--- qbar-q extra pieces
       msq(-3,4)=msq(-1,2)
 
 c--- qbar-q extra pieces
-      elseif (j.eq.12) then
+      elseif (j==12) then
       do k=1,nfinc
       do l=1,nfinc
-      if (k .gt. l) then
+      if (k > l) then
       msq(-k,k)=msq(-k,k)+temp(l,k)
       endif
       enddo

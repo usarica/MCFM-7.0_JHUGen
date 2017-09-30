@@ -1,6 +1,10 @@
       subroutine lower_parttri(p,ylower,first)
       implicit none
+      include 'types.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'poles.f'
       include 'masses.f'
@@ -8,8 +12,8 @@
       include 'zcouple.f'
       include 'nwz.f'
       include 'decl_kininv.f'
-      integer k1,k2,ep,eta,epmin
-      double complex prW,prt,ylower(2,2,-2:0),
+      integer:: k1,k2,ep,eta,epmin
+      complex(dp):: prW,prt,ylower(2,2,-2:0),
      & qlI2,qlI3,iza,izb,
      & vert16x1,vert25x5,vert25x6,
      & vert25x7,vert25x8,vert25x9,vert25x10,vert25x11,vert25x12,
@@ -17,17 +21,17 @@
      & vert25x19,vert25x20,vert25x21,vert25x22,vert25x23,
      & vert25x24,vert25x25,vert25x26,vert25x27,vert25x28,
      & vert25x29,vert25x30,vert25x31,vert25x32,vert25x16a
-      double complex facuLl,facuRl,facdLl,cprop,
+      complex(dp):: facuLl,facuRl,facdLl,cprop,
      & iprZ
-      double precision p(mxpart,4),q(mxpart,4),mtsq
-      double precision p5Deta
-      logical first
-      integer j3,p1,p2,p3,p4,k5,e5,p6
+      real(dp):: p(mxpart,4),q(mxpart,4),mtsq
+      real(dp):: p5Deta
+      logical:: first
+      integer:: j3,p1,p2,p3,p4,k5,e5,p6
       parameter(p1=1,p2=2,k5=5,p6=7,e5=6)
 
 c----statement function
-      prW(s16)=cone/dcmplx(s16-wmass**2,zip)
-      prt(s345)=cone/dcmplx(s345-mt**2,zip)
+      prW(s16)=cone/cplx2(s16-wmass**2,zip)
+      prt(s345)=cone/cplx2(s345-mt**2,zip)
       iza(k1,k2)=cone/za(k1,k2)
       izb(k1,k2)=cone/zb(k1,k2)
 c----end statement function
@@ -42,15 +46,15 @@ C---choose auxiliary vector
       q(5,:)=p(5,:)-0.5d0*mtsq*p(eta,:)/p5Deta
       q(e5,:)=0.5d0*mtsq*p(eta,:)/p5Deta
 
-      if (nwz .eq. +1) then
+      if (nwz == +1) then
       call spinoru(7,q,za,zb)
-      elseif (nwz .eq. -1) then
+      elseif (nwz == -1) then
       call spinoru(7,q,zb,za)
       endif
 
 c--- Implementation of Baur-Zeppenfeld treatment of Z width
-      cprop=dcmplx(1d0/dsqrt((s34-zmass**2)**2+(zmass*zwidth)**2))
-      iprZ=dcmplx(s34-zmass**2)
+      cprop=cplx1(1d0/sqrt((s34-zmass**2)**2+(zmass*zwidth)**2))
+      iprZ=cplx1(s34-zmass**2)
 c--- only compute poles for checking on first call
       if (first) then
          epmin=-2
@@ -66,18 +70,18 @@ c      write(*,*) 'epmin in lower_tri', epmin
      &  + 3d0*qlI2(s16,0d0,0d0,musq,ep)+fp(ep)
 
       do j3=1,2
-      if (j3 .eq. 1) then
+      if (j3 == 1) then
         p3=3
         p4=4
-        facuLl=dcmplx(Qu*q1)*iprZ/s34+dcmplx(L(2)*le)
-        facuRl=dcmplx(Qu*q1)*iprZ/s34+dcmplx(R(2)*le)
-        facdLl=dcmplx(Qd*q1)*iprZ/s34+dcmplx(L(1)*le)
-      elseif (j3 .eq. 2) then
+        facuLl=cplx1(Qu*q1)*iprZ/s34+cplx1(L(2)*le)
+        facuRl=cplx1(Qu*q1)*iprZ/s34+cplx1(R(2)*le)
+        facdLl=cplx1(Qd*q1)*iprZ/s34+cplx1(L(1)*le)
+      elseif (j3 == 2) then
         p3=4
         p4=3
-        facuLl=dcmplx(Qu*q1)*iprZ/s34+dcmplx(L(2)*re)
-        facuRl=dcmplx(Qu*q1)*iprZ/s34+dcmplx(R(2)*re)
-        facdLl=dcmplx(Qd*q1)*iprZ/s34+dcmplx(L(1)*re)
+        facuLl=cplx1(Qu*q1)*iprZ/s34+cplx1(L(2)*re)
+        facuRl=cplx1(Qu*q1)*iprZ/s34+cplx1(R(2)*re)
+        facdLl=cplx1(Qd*q1)*iprZ/s34+cplx1(L(1)*re)
       endif
       call vertices_bt1(ep,facdLl,vert25x5,vert25x6
      & ,vert25x7)
@@ -368,17 +372,18 @@ c      write(*,*) 'epmin in lower_tri', epmin
       
       
       
-      subroutine vertices_bt1(ep,facdLl,
-     &  vert25x5,vert25x6,vert25x7)
+      subroutine vertices_bt1(ep,facdLl,vert25x5,vert25x6,vert25x7)
       implicit none
+      include 'types.f'
+      include 'constants.f'
       include 'poles.f'
       include 'scale.f'
       include 'decl_kininv.f'
       
-      integer ep
-      double complex qlI2diffs234s34(-2:0),qlI2,qlI3
-      double complex facdLl
-      double complex vert25x5,vert25x6,vert25x7
+      integer:: ep
+      complex(dp):: qlI2diffs234s34(-2:0),qlI2,qlI3
+      complex(dp):: facdLl
+      complex(dp):: vert25x5,vert25x6,vert25x7
       qlI2diffs234s34(ep)=qlI2(s234,0d0,0d0,musq,ep)
      & -qlI2(s34,0d0,0d0,musq,ep)
      & 
@@ -400,18 +405,24 @@ c      write(*,*) 'epmin in lower_tri', epmin
       end
       
       
-      double complex function epqlI3(t1,t2,t3,t4,t5,t6,t7,ep)
+      function epqlI3(t1,t2,t3,t4,t5,t6,t7,ep)
       implicit none
-      include 'constants.f'
-      double precision t1,t2,t3,t4,t5,t6,t7
-      double complex qlI3
-      integer ep
+      include 'types.f'
+      complex(dp):: epqlI3
       
-      if (ep .eq. -2) then
+      include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      real(dp):: t1,t2,t3,t4,t5,t6,t7
+      complex(dp):: qlI3
+      integer:: ep
+      
+      if (ep == -2) then
       epqlI3=czip
-      elseif (ep .eq. -1) then
+      elseif (ep == -1) then
       epqlI3=qlI3(t1,t2,t3,t4,t5,t6,t7,-2)
-      elseif (ep .eq. 0) then
+      elseif (ep == 0) then
       epqlI3=qlI3(t1,t2,t3,t4,t5,t6,t7,-1)
       else
       write(*,*) ep
@@ -422,18 +433,24 @@ c      write(*,*) 'epmin in lower_tri', epmin
       end
       
       
-      double complex function ep2qlI3(t1,t2,t3,t4,t5,t6,t7,ep)
+      function ep2qlI3(t1,t2,t3,t4,t5,t6,t7,ep)
       implicit none
-      include 'constants.f'
-      double precision t1,t2,t3,t4,t5,t6,t7
-      double complex qlI3
-      integer ep
+      include 'types.f'
+      complex(dp):: ep2qlI3
       
-      if (ep .eq. -2) then
+      include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      real(dp):: t1,t2,t3,t4,t5,t6,t7
+      complex(dp):: qlI3
+      integer:: ep
+      
+      if (ep == -2) then
       ep2qlI3=czip
-      elseif (ep .eq. -1) then
+      elseif (ep == -1) then
       ep2qlI3=czip
-      elseif (ep .eq. 0) then
+      elseif (ep == 0) then
       ep2qlI3=qlI3(t1,t2,t3,t4,t5,t6,t7,-2)
       else
       write(*,*) ep

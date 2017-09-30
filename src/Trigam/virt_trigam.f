@@ -7,17 +7,23 @@
 *    Adapted from the original routine of C. Williams, March 2013      *
 *                                                                      *
 ************************************************************************
-      double complex function virt_trigam(i1,i2,i3,i4,i5,za,zb) 
-      implicit none 
-      include 'constants.f' 
+      function virt_trigam(i1,i2,i3,i4,i5,za,zb) 
+      implicit none
+      include 'types.f'
+      complex(dp):: virt_trigam
+       
+      include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h' 
       include 'sprods_com.f' 
       include 'zprods_decl.f' 
       include 'epinv.f' 
       include 'epinv2.f' 
       include 'scale.f'
-      integer i1,i2,i3,i4,i5
-      double complex Vcc,Fcc,A5LO,zab,zab2,trigam
-      double complex Vpole,Alo,Lsm1,L0,L1,lnrat,l12,l25
+      integer:: i1,i2,i3,i4,i5
+      complex(dp):: Vcc,Fcc,A5LO,zab,zab2,trigam
+      complex(dp):: Vpole,Alo,Lsm1,L0,L1,lnrat,l12,l25
 
 c--- statement functions
       zab(i1,i2,i3)=+za(i1,i2)*zb(i2,i3)
@@ -27,8 +33,8 @@ c--- statement functions
       l25=lnrat(musq,-s(i2,i5))
       Alo=trigam(i1,i2,i3,i4,i5,za,zb)
 
-      Vpole=-(epinv**2+epinv*l12+0.5d0*l12**2)
-     &     -(3d0/2d0*(epinv+l25+2d0))
+      Vpole=-(epinv**2+epinv*l12+0.5_dp*l12**2)
+     &     -(3._dp/2._dp*(epinv+l25+2._dp))
     
       virt_trigam=
      & +Vpole*Alo
@@ -62,18 +68,18 @@ c--- statement functions
      &  *L0(-s(i1,i4),-s(i3,i5))/s(i3,i5)
      & +za(i1,i2)*za(i4,i5)**2*zb(i4,i3)/(za(i2,i4)**2*za(i3,i4))
      &  *L0(-s(i1,i3),-s(i2,i5))/s(i2,i5)
-     & +za(i1,i3)*za(i4,i5)**2*zb(i4,i3)**2/(2d0*za(i2,i4)*za(i3,i4))
+     & +za(i1,i3)*za(i4,i5)**2*zb(i4,i3)**2/(2._dp*za(i2,i4)*za(i3,i4))
      &  *L1(-s(i1,i3),-s(i2,i5))/s(i2,i5)**2
      & +za(i1,i2)*za(i3,i5)**2*zb(i4,i3)/(za(i2,i3)**2*za(i3,i4))
      &  *L0(-s(i1,i4),-s(i2,i5))/s(i2,i5)
-     & -za(i1,i4)*za(i3,i5)**2*zb(i4,i3)**2/(2d0*za(i2,i3)*za(i3,i4))
+     & -za(i1,i4)*za(i3,i5)**2*zb(i4,i3)**2/(2._dp*za(i2,i3)*za(i3,i4))
      &  *L1(-s(i1,i4),-s(i2,i5))/s(i2,i5)**2
      & -za(i1,i2)*za(i1,i5)*za(i2,i5)/(za(i1,i3)*za(i2,i3)*za(i2,i4)**2)
      &  *lnrat(-s(i4,i5),-s(i2,i5))
      & -za(i1,i2)*za(i1,i5)*za(i2,i5)/(za(i1,i4)*za(i2,i4)*za(i2,i3)**2)
      &  *lnrat(-s(i3,i5),-s(i2,i5))
     
-     & +0.5d0*zb(i3,i4)/zb(i2,i5)*(za(i1,i5)/(za(i2,i5)*za(i3,i4))
+     & +0.5_dp*zb(i3,i4)/zb(i2,i5)*(za(i1,i5)/(za(i2,i5)*za(i3,i4))
      &   *(za(i3,i5)/za(i2,i3)+za(i4,i5)/za(i2,i4))
      &  +(zb(i2,i3)/za(i2,i4)-zb(i2,i4)/za(i2,i3))/zb(i1,i5))
             

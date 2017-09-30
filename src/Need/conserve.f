@@ -1,12 +1,17 @@
       subroutine conserve(p)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
-      double precision p(mxpart,4),dot
-      integer nu
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      real(dp):: p(mxpart,4),dot
+      integer:: nu
 
       do nu=1,4
       write(6,*) nu,p(1,nu)+p(2,nu)+p(3,nu)+p(4,nu)+p(5,nu)+p(6,nu)
-     . +p(7,nu)   
+     & +p(7,nu)   
       enddo
       write(6,*) 'dot',1,1,dot(p,1,1),p(1,4),p(1,3),p(1,2),p(1,1)
       write(6,*) 'dot',2,2,dot(p,2,2),p(2,4),p(2,3),p(2,2),p(2,1)
@@ -24,9 +29,14 @@
 
       subroutine conserve5(p)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
-      double precision p(mxpart,4),dot
-      integer nu
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      real(dp):: p(mxpart,4),dot
+      integer:: nu
       write(6,*) 
       do nu=1,4
       write(6,*) 'sum',
@@ -47,9 +57,14 @@
 
       subroutine conserve8(p)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
-      double precision p(mxpart,4)
-      integer nu
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      real(dp):: p(mxpart,4)
+      integer:: nu
       write(6,*) 
       do nu=1,4
       write(6,*) 'sum',

@@ -1,9 +1,15 @@
 ***************************** Gluon-Gluon *****************************
-      double precision function ii_gg_fac(x,L,Lfac,vorz)
+      function ii_gg_fac(x,L,Lfac,vorz)
       implicit none
-      integer vorz
-      double precision x,L,Lfac,omx,lx,lomx
+      include 'types.f'
+      real(dp):: ii_gg_fac
+      
+      integer:: vorz
+      real(dp):: x,L,Lfac,omx,lx,lomx
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'epinv.f'
       include 'epinv2.f'
       include 'scheme.f'
@@ -17,25 +23,25 @@ c--  -2*[ln(x)]/[1-x]
 c--  +2*(-1+x*(1-x)+(1-x)/x)*(-[ln(x)]+L+2*[ln(1-x)])
 c--  +(4*[ln(1-x)/(1-xp)]+2*L/[1-xp])
       
-      if (vorz .eq. 1) then
+      if (vorz == 1) then
         ii_gg_fac=epinv*(epinv2-L)+half*L**2-pisqo6
-     .       +(11/6d0-dfloat(nf)/3d0/xn)*(epinv-L)
-     .       -(11/6d0-dfloat(nf)/3d0/xn)*(epinv-Lfac)
-        if (scheme .eq. 'tH-V') then
+     &       +(11/6._dp-real(nf,dp)/3._dp/xn)*(epinv-L)
+     &       -(11/6._dp-real(nf,dp)/3._dp/xn)*(epinv-Lfac)
+        if (scheme == 'tH-V') then
            return
-        elseif (scheme .eq. 'dred') then
-           ii_gg_fac=ii_gg_fac-1d0/6d0
+        elseif (scheme == 'dred') then
+           ii_gg_fac=ii_gg_fac-1._dp/6._dp
            return
         endif
       endif
       
       omx=one-x
-      lomx=dlog(omx)
+      lomx=log(omx)
       
-      if (vorz .eq. 2) then
-        lx=dlog(x)
+      if (vorz == 2) then
+        lx=log(x)
         ii_gg_fac=two*(omx/x+x*omx-one)*(two*lomx-lx+Lfac-epinv)
-     .           -two*lx/omx
+     &           -two*lx/omx
         return
       endif
       
@@ -46,11 +52,17 @@ c--  +(4*[ln(1-x)/(1-xp)]+2*L/[1-xp])
 
 
 ***************************** Gluon-Gluon *****************************
-      double precision function if_gg_fac(x,L,Lfac,vorz)
+      function if_gg_fac(x,L,Lfac,vorz)
       implicit none
-      integer vorz
-      double precision x,L,Lfac,omx,lx,lomx,ltmx
+      include 'types.f'
+      real(dp):: if_gg_fac
+      
+      integer:: vorz
+      real(dp):: x,L,Lfac,omx,lx,lomx,ltmx
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'epinv.f'
       include 'epinv2.f'
       include 'scheme.f'
@@ -64,26 +76,26 @@ c--  +2*(-1+(1-x)/x+x*(1-x))*(L-[ln(x)]+[ln(1-x)])
 c--  -2*[ln(2-x)]/[1-x]-2*[ln(x)]/[1-x]
 c--  +4*[ln(1-x)/(1-xp)]+2*L/[1-xp]
       
-      if (vorz .eq. 1) then
-        if_gg_fac=epinv*(epinv2-L)+half*L**2+pisq/6d0
-     .       +(11/6d0-dfloat(nf)/3d0/xn)*(epinv-L)
-     .       -(11/6d0-dfloat(nf)/3d0/xn)*(epinv-Lfac)
-        if (scheme .eq. 'tH-V') then
+      if (vorz == 1) then
+        if_gg_fac=epinv*(epinv2-L)+half*L**2+pisq/6._dp
+     &       +(11/6._dp-real(nf,dp)/3._dp/xn)*(epinv-L)
+     &       -(11/6._dp-real(nf,dp)/3._dp/xn)*(epinv-Lfac)
+        if (scheme == 'tH-V') then
         return
-        elseif (scheme .eq. 'dred') then 
-        if_gg_fac=if_gg_fac-1d0/6d0
+        elseif (scheme == 'dred') then 
+        if_gg_fac=if_gg_fac-1._dp/6._dp
         return
         endif
       endif
       
       omx=one-x
-      lomx=dlog(omx)
+      lomx=log(omx)
       
-      if (vorz .eq. 2) then
-        ltmx=dlog(two-x)
-        lx=dlog(x)
+      if (vorz == 2) then
+        ltmx=log(two-x)
+        lx=log(x)
         if_gg_fac=two*((lomx-lx+Lfac-epinv)*(omx/x+x*omx-one)
-     .           -(ltmx+lx)/omx)
+     &           -(ltmx+lx)/omx)
         return
       endif
       
@@ -93,11 +105,17 @@ c--  +4*[ln(1-x)/(1-xp)]+2*L/[1-xp]
       end
 
 ***************************** Quark-Quark *****************************
-      double precision function ii_qq_fac(x,L,Lfac,vorz)
+      function ii_qq_fac(x,L,Lfac,vorz)
       implicit none
-      integer vorz
-      double precision x,L,Lfac,omx,lx,lomx
+      include 'types.f'
+      real(dp):: ii_qq_fac
+      
+      integer:: vorz
+      real(dp):: x,L,Lfac,omx,lx,lomx
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'epinv.f'
       include 'epinv2.f'
       include 'scheme.f'
@@ -111,23 +129,23 @@ c--  +(1-x)-(1+x)*(L+2*[ln(1-x)])-(1+x^2)*[ln(x)]/[1-x]
 c--  +4*[ln(1-x)/(1-xp)]+2*L/[1-xp]
 
       
-      if (vorz .eq. 1) then
-        ii_qq_fac=epinv*(epinv2-L)+0.5d0*L**2-pisqo6
-     .   +1.5d0*(epinv-L)
-     .   -1.5d0*(epinv-Lfac)
-        if (scheme .eq. 'tH-V') then
+      if (vorz == 1) then
+        ii_qq_fac=epinv*(epinv2-L)+0.5_dp*L**2-pisqo6
+     &   +1.5_dp*(epinv-L)
+     &   -1.5_dp*(epinv-Lfac)
+        if (scheme == 'tH-V') then
            return
-        elseif (scheme .eq. 'dred') then
+        elseif (scheme == 'dred') then
            ii_qq_fac=ii_qq_fac-half
            return
         endif
       endif
       
       omx=one-x
-      lomx=dlog(omx)
-      lx=dlog(x)
+      lomx=log(omx)
+      lx=log(x)
       
-      if (vorz .eq. 2) then
+      if (vorz == 2) then
         ii_qq_fac=omx-(one+x)*(two*lomx+Lfac-epinv)-(one+x**2)/omx*lx
         return
       endif
@@ -138,11 +156,17 @@ c--  +4*[ln(1-x)/(1-xp)]+2*L/[1-xp]
       end
 
 ***************************** Quark-Quark *****************************
-      double precision function if_qq_fac(x,L,Lfac,vorz)
+      function if_qq_fac(x,L,Lfac,vorz)
       implicit none
-      integer vorz
-      double precision x,L,Lfac,omx,lx,lomx,ltmx
+      include 'types.f'
+      real(dp):: if_qq_fac
+      
+      integer:: vorz
+      real(dp):: x,L,Lfac,omx,lx,lomx,ltmx
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'epinv.f'
       include 'epinv2.f'
       include 'scheme.f'
@@ -155,26 +179,26 @@ c--  +(1-x-2/[1-x]*[ln(2-x)]
 c--  -(1+x)*(L+[ln(1-x)])-(1+x^2)*[ln(x)]/[1-x]
 c--  +4*[ln(1-x)/(1-xp)]+2*L/[1-xp]
       
-      if (vorz .eq. 1) then
+      if (vorz == 1) then
         if_qq_fac=epinv*(epinv2-L)+half*L**2+pisqo6
-     .   +1.5d0*(epinv-L)
-     .   -1.5d0*(epinv-Lfac)
-        if (scheme .eq. 'tH-V') then
+     &   +1.5_dp*(epinv-L)
+     &   -1.5_dp*(epinv-Lfac)
+        if (scheme == 'tH-V') then
           return
-        elseif (scheme .eq. 'dred') then
+        elseif (scheme == 'dred') then
           if_qq_fac=if_qq_fac-half
           return
         endif
       endif
       
       omx=one-x
-      lomx=dlog(omx)
+      lomx=log(omx)
       
-      if (vorz .eq. 2) then
-        ltmx=dlog(two-x)
-        lx=dlog(x)
+      if (vorz == 2) then
+        ltmx=log(two-x)
+        lx=log(x)
         if_qq_fac=omx-two*ltmx/omx-(one+x)*(lomx+Lfac-epinv)
-     .           -(one+x**2)/omx*lx
+     &           -(one+x**2)/omx*lx
         return
       endif
       

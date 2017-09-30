@@ -1,3 +1,3 @@
 ! "beta" parameters (alpha parameters for photon processes)
-      double precision bfi,bff
+      real(dp):: bfi,bff
       common/betacut/bfi,bff

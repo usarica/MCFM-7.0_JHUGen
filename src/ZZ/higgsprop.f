@@ -1,16 +1,22 @@
-      double complex function higgsprop(s)
+      function higgsprop(s)
+      implicit none
+      include 'types.f'
+      complex(dp):: higgsprop
 c--- computes Higgs propagator for Higgs boson four-momentum squared s
 c--- if CPscheme = .true. then it is computed in the complex pole
 c---   scheme (Goria, Passarino, Rosco, arXiv:1112.5517,
 c---           and c.f. Eq. (2.11) of arXiv:1206.4803)
 c--- otherwise it takes the usual Breit-Wigner form
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'cpscheme.f'
       include 'first.f'
-      double precision s,mhbarsq,mhbar,gammahbar
-      double complex cfac
+      real(dp):: s,mhbarsq,mhbar,gammahbar
+      complex(dp):: cfac
       save mhbarsq,cfac
 
       if (CPscheme) then
@@ -19,7 +25,7 @@ c--- complex pole scheme propagator
           mhbarsq=hmass**2+hwidth**2
           mhbar=sqrt(mhbarsq)
           gammahbar=mhbar/hmass*hwidth
-          cfac=dcmplx(1d0,gammahbar/mhbar)
+          cfac=cplx2(one,gammahbar/mhbar)
           first=.false.
         write(6,*)
         write(6,*)'****************************************************'
@@ -28,10 +34,10 @@ c--- complex pole scheme propagator
         write(6,*)'****************************************************'
         write(6,*)
         endif
-        higgsprop=cfac/(s*cfac-dcmplx(mhbarsq,0d0))
+        higgsprop=cfac/(s*cfac-cplx2(mhbarsq,zip))
       else
 c--- Breit Wigner propagator      
-        higgsprop=1d0/dcmplx(s-hmass**2,hmass*hwidth)
+        higgsprop=one/cplx2(s-hmass**2,hmass*hwidth)
       endif
       
       return

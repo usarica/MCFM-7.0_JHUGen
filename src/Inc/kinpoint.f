@@ -12,35 +12,35 @@ c---      p_7 & = true(-15.2297670494417,-109.723100607740,-124.860731594604, 16
 
 c--- momenta are written in Kirill's notation true(E,px,py,pz)
 
-      theta=pi/4d0
-      phi=pi/6d0
-      rho=pi/3d0
-      csig=-7d0/19d0
+      theta=pi/4._dp
+      phi=pi/6._dp
+      rho=pi/3._dp
+      csig=-7._dp/19._dp
 
-      muk=6d0
-      ssig=sqrt(1d0-csig**2)
+      muk=6._dp
+      ssig=sqrt(1._dp-csig**2)
 
-      p1true(1)=-0.5d0*muk
+      p1true(1)=-0.5_dp*muk
       p1true(2)=-p1true(1)*sin(theta)
       p1true(3)=-p1true(1)*cos(theta)*sin(phi)
       p1true(4)=-p1true(1)*cos(theta)*cos(phi)
 
-      p4true(1)=muk/3d0
+      p4true(1)=muk/3._dp
       p4true(2)=p4true(1)
-      p4true(3)=0d0
-      p4true(4)=0d0
+      p4true(3)=0._dp
+      p4true(4)=0._dp
 
-      p3true(1)=muk/7d0
+      p3true(1)=muk/7._dp
       p3true(2)=p3true(1)*csig
       p3true(3)=p3true(1)*ssig
-      p3true(4)=0d0
+      p3true(4)=0._dp
 
-      p2true(1)=-0.5d0*muk
+      p2true(1)=-0.5_dp*muk
       p2true(2)=+p2true(1)*sin(theta)
       p2true(3)=+p2true(1)*cos(theta)*sin(phi)
       p2true(4)=+p2true(1)*cos(theta)*cos(phi)
 
-      p5true(1)=muk/6d0
+      p5true(1)=muk/6._dp
       p5true(2)=+p5true(1)*cos(rho)*csig
       p5true(3)=+p5true(1)*cos(rho)*ssig
       p5true(4)=+p5true(1)*sin(rho)
@@ -85,32 +85,32 @@ c--- END: ROTATION TO KEEP BOTH CODES HAPPY
 
 c--- another rotation
 c      tmp=p1true(3)
-c      p1true(3)=+tmp*cos(0.177d0)+p1true(4)*sin(0.177d0)     
-c      p1true(4)=-tmp*sin(0.177d0)+p1true(4)*cos(0.177d0)     
+c      p1true(3)=+tmp*cos(0.177_dp)+p1true(4)*sin(0.177_dp)     
+c      p1true(4)=-tmp*sin(0.177_dp)+p1true(4)*cos(0.177_dp)     
 
 c      tmp=p2true(3)
-c      p2true(3)=+tmp*cos(0.177d0)+p2true(4)*sin(0.177d0)     
-c      p2true(4)=-tmp*sin(0.177d0)+p2true(4)*cos(0.177d0)     
+c      p2true(3)=+tmp*cos(0.177_dp)+p2true(4)*sin(0.177_dp)     
+c      p2true(4)=-tmp*sin(0.177_dp)+p2true(4)*cos(0.177_dp)     
 
 c      tmp=p3true(3)
-c      p3true(3)=+tmp*cos(0.177d0)+p3true(4)*sin(0.177d0)     
-c      p3true(4)=-tmp*sin(0.177d0)+p3true(4)*cos(0.177d0)     
+c      p3true(3)=+tmp*cos(0.177_dp)+p3true(4)*sin(0.177_dp)     
+c      p3true(4)=-tmp*sin(0.177_dp)+p3true(4)*cos(0.177_dp)     
 
 c      tmp=p4true(3)
-c      p4true(3)=+tmp*cos(0.177d0)+p4true(4)*sin(0.177d0)     
-c      p4true(4)=-tmp*sin(0.177d0)+p4true(4)*cos(0.177d0)     
+c      p4true(3)=+tmp*cos(0.177_dp)+p4true(4)*sin(0.177_dp)     
+c      p4true(4)=-tmp*sin(0.177_dp)+p4true(4)*cos(0.177_dp)     
 
 c      tmp=p5true(3)
-c      p5true(3)=+tmp*cos(0.177d0)+p5true(4)*sin(0.177d0)     
-c      p5true(4)=-tmp*sin(0.177d0)+p5true(4)*cos(0.177d0)     
+c      p5true(3)=+tmp*cos(0.177_dp)+p5true(4)*sin(0.177_dp)     
+c      p5true(4)=-tmp*sin(0.177_dp)+p5true(4)*cos(0.177_dp)     
 
 c      tmp=p6true(3)
-c      p6true(3)=+tmp*cos(0.177d0)+p6true(4)*sin(0.177d0)     
-c      p6true(4)=-tmp*sin(0.177d0)+p6true(4)*cos(0.177d0)     
+c      p6true(3)=+tmp*cos(0.177_dp)+p6true(4)*sin(0.177_dp)     
+c      p6true(4)=-tmp*sin(0.177_dp)+p6true(4)*cos(0.177_dp)     
 
 c      tmp=p7true(3)
-c      p7true(3)=+tmp*cos(0.177d0)+p7true(4)*sin(0.177d0)     
-c      p7true(4)=-tmp*sin(0.177d0)+p7true(4)*cos(0.177d0)     
+c      p7true(3)=+tmp*cos(0.177_dp)+p7true(4)*sin(0.177_dp)     
+c      p7true(4)=-tmp*sin(0.177_dp)+p7true(4)*cos(0.177_dp)     
 
 c--- write out momenta
 c      do nu=1,4

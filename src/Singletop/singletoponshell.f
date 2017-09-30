@@ -1,5 +1,7 @@
       subroutine singletoponshell(q1,q2,q7,p,iswitch,m)
       implicit none
+      include 'types.f'
+      
 ************************************************************************
 *     Author: R.K. Ellis, January 2012                                 *
 *                                                                      *
@@ -10,12 +12,15 @@
 *     iswitch=+1 for gluon emission in top decay                       *
 ************************************************************************
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'zprods_decl.f'
-      double precision p(mxpart,4),q(mxpart,4),
+      real(dp):: p(mxpart,4),q(mxpart,4),
      & alt,alc,dot,s17,mt2,twoptDp2,twopcDp2
-      double complex m(2,2,2),iza,izb,cprop
-      integer p1,p2,t,p7,c,eb,si,aa,bb,iswitch,q1,q2,q7
+      complex(dp):: m(2,2,2),iza,izb,cprop
+      integer:: p1,p2,t,p7,c,eb,si,aa,bb,iswitch,q1,q2,q7
       parameter(p1=1,p2=2,t=3,eb=4,c=5,p7=6)
 C-----matrix element for p1+p2(g) -> t+c where both t and c are on shell
 C-----t rendered massless wrt eb, and c rendered massless wrt p2
@@ -31,9 +36,9 @@ C---zero all arrays
       do si=1,4
       q(p1,si)=p(q1,si)
       q(p2,si)=p(q2,si)
-      if (iswitch .eq. 0) then
+      if (iswitch == 0) then
       q(t,si)=p(3,si)+p(4,si)+p(5,si)
-      elseif (iswitch .eq. 1) then
+      elseif (iswitch == 1) then
       q(t,si)=p(3,si)+p(4,si)+p(5,si)+p(8,si)
       endif
       q(eb,si)=p(4,si)
@@ -43,12 +48,12 @@ C---zero all arrays
       mt2=mt**2
 C---- now render "t" massless wrt to vector eb
 C---- now render "c" massless wrt to vector p2
-      alt=mt2/(2d0*dot(q,t,eb))
-      alc=mb**2/(2d0*dot(q,c,p2))
-      s17=2d0*dot(q,p1,p7)
-      cprop=dcmplx(s17-wmass**2,zip)
-      twoptDp2=2d0*dot(q,t,p2)
-      twopcDp2=2d0*dot(q,c,p2)
+      alt=mt2/(2._dp*dot(q,t,eb))
+      alc=mb**2/(2._dp*dot(q,c,p2))
+      s17=2._dp*dot(q,p1,p7)
+      cprop=cplx2(s17-wmass**2,zip)
+      twoptDp2=2._dp*dot(q,t,p2)
+      twopcDp2=2._dp*dot(q,c,p2)
       do si=1,4
       q(t,si)=q(t,si)-alt*q(eb,si)
       q(c,si)=q(c,si)-alc*q(p2,si)

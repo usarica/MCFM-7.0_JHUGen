@@ -1,15 +1,18 @@
       subroutine genrif(p,i1,i2,i7,r1,r2,phit,wt5_4,*)
-c----i1 is an initial state vector.
       implicit none
+      include 'types.f'
+c----i1 is an initial state vector.
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
       include 'debug.f'
       include 'xmin.f'
-      integer i1,i2,i7,j
-      double precision p(mxpart,4),rtalbe,c(4),d(4),phi,phit,wt5_4,
-     . jacbit,dot,r1,r2
-      double precision beta,alpha
-      double precision x,omx,omxmin,wt0
-      parameter(wt0=1d0/eight/pisq)
+      integer:: i1,i2,i7,j
+      real(dp):: p(mxpart,4),rtalbe,c(4),d(4),phi,phit,wt5_4,
+     & jacbit,dot,r1,r2
+      real(dp):: beta,alpha
+      real(dp):: x,omx,omxmin,wt0
+      parameter(wt0=1._dp/eight/pisq)
 
 c------initial final
 
@@ -19,8 +22,8 @@ c------initial final
 c -xx(i1)
       omx=omxmin*r1**2
       x=one-omx
-      if (r2 .lt. 0.5d0) alpha=(two*r2)**2
-      if (r2 .gt. 0.5d0) alpha=one-(two*r2-one)**2
+      if (r2 < 0.5_dp) alpha=(two*r2)**2
+      if (r2 > 0.5_dp) alpha=one-(two*r2-one)**2
 
       jacbit=four*r1/(half/sqrt(alpha)+half/sqrt(one-alpha))
 
@@ -30,7 +33,7 @@ c -xx(i1)
       if (debug) write(6,*) 'x in genrif',x
       if (debug) write(6,*) 'omxmin in genrif',omxmin
       if (debug) write(6,*) 'wt5_4 in genrif',wt5_4
-      beta=omx*(1d0-alpha)/x
+      beta=omx*(1._dp-alpha)/x
       rtalbe=sqrt(beta*alpha)
 c---generate transverse vectors c and d with length^2=rtalbe^2*2*p1Dp2
 c-- with direction in transverse plane picked by 6

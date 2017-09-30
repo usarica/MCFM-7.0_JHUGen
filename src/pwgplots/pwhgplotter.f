@@ -1,16 +1,18 @@
       subroutine pwhgplotter(p,pjet,wt0,nd)
       implicit none
+      include 'types.f'
+      
       include 'hepevt.h'
       include 'masses.f'
-      include 'part.f'
+      include 'kpart.f'
       include 'nproc.f'
-      double precision p(12,4),pjet(12,4),ph(4),wt0,pt(1:4),
+      real(dp):: p(12,4),pjet(12,4),ph(4),wt0,pt(1:4),
      1     d1t,d2t,d1a,d2a
-      integer switch,nd,ond,j
-      logical first
+      integer:: switch,nd,ond,j
+      logical:: first
       data first/.true./
       save first,ond
-      double precision pjetcom(12,4),wt
+      real(dp):: pjetcom(12,4),wt
       common/pjetcom/pjetcom
 
 c Translate from femto- (MCFM) to pico- (POWHEG)
@@ -22,25 +24,25 @@ c------------ SET-UP NUMBER OF PARTICLES TO APPEAR IN EVENT RECORD
 c This is trick to communicate the number of jets
 c to the histogram booking section
 c JC/RKE - what's the purpose of setting these twice?
-         if    (nproc.eq.31) then
+         if    (nproc==31) then
             nhep=4
             call init_hist_Z
-         elseif(nproc.eq.44) then
+         elseif(nproc==44) then
             nhep=6
             call init_hist_KN
-         elseif(nproc.eq.203) then
+         elseif(nproc==203) then
             nhep=6
             call init_hist_KN
-         elseif(nproc.ge.141.and.nproc.le.151) then
+         elseif(nproc>=141.and.nproc<=151) then
             nhep=12
             call init_hist_KN
-         elseif(nproc.ge.171.and.nproc.le.177) then
+         elseif(nproc>=171.and.nproc<=177) then
             nhep=8
             call init_hist_ST_sch_dk
-         elseif(nproc.ge.231.and.nproc.le.239) then
+         elseif(nproc>=231.and.nproc<=239) then
             nhep=9
             call init_hist_ST_tch_dk
-         elseif(nproc.ge.181.and.nproc.le.187) then
+         elseif(nproc>=181.and.nproc<=187) then
             nhep=10
             call init_hist_ST_wt_dk
          else
@@ -50,26 +52,26 @@ c JC/RKE - what's the purpose of setting these twice?
          first = .false. 
       else
 c put partons in the hephep interface
-         if    (nproc.eq.31) then
+         if    (nproc==31) then
             nhep=4
-         elseif(nproc.eq.44) then
+         elseif(nproc==44) then
             nhep=6
-         elseif(nproc.eq.203) then
+         elseif(nproc==203) then
             nhep=5
-         elseif(nproc.ge.141.and.nproc.le.151) then
+         elseif(nproc>=141.and.nproc<=151) then
             nhep=12
-         elseif(nproc.ge.171.and.nproc.le.177) then
+         elseif(nproc>=171.and.nproc<=177) then
             nhep=8
-         elseif(nproc.ge.231.and.nproc.le.239) then
+         elseif(nproc>=231.and.nproc<=239) then
             nhep=9
-         elseif(nproc.ge.181.and.nproc.le.187) then
+         elseif(nproc>=181.and.nproc<=187) then
             nhep=10
          else
             stop 'process not implemented in pwhgplotter.f' 
          endif
 
 c--- additional parton present in real corrections
-         if(part.eq.'real'.and.nd.eq.0) then
+         if(kpart==kreal.and.nd==0) then
             nhep=nhep+1
          endif
          
@@ -88,7 +90,7 @@ c--- JC/RKE: should leptons be properly defined for all the processes below?
 c------------ PROCESS-SPECIFIC FILLING OF EVENT RECORD
 
 c------ Z
-         if(nproc.eq.31) then
+         if(nproc==31) then
             idhep(3)=11
             idhep(4)=-11
             do j=1,nhep
@@ -97,7 +99,7 @@ c------ Z
          endif
          
 c------ W/Z + jets
-         if(nproc.eq.11.or.nproc.eq.22.or.nproc.eq.44) then
+         if(nproc==11.or.nproc==22.or.nproc==44) then
             idhep(3)=11
             idhep(4)=-11
             do j=1,nhep
@@ -109,7 +111,7 @@ c------ W/Z + jets
          endif
          
 c------ H + jet
-         if(nproc.eq.203) then
+         if(nproc==203) then
             idhep(3)=25
 c            ph=p(3,:)+p(4,:)
 c            write(*,*) 
@@ -125,7 +127,7 @@ c we want the undecayed Higgs
          endif
 
 c------ t-tbar            
-         if(nproc.ge.141.and.nproc.le.151) then
+         if(nproc>=141.and.nproc<=151) then
             phep(1:4,3)=p(3,:)+p(4,:)+p(5,:)
             phep(1:4,4)=p(6,:)+p(7,:)+p(8,:)
             phep(1:4,5)=p(3,:)+p(4,:)
@@ -136,7 +138,7 @@ c------ t-tbar
             phep(1:4,10)=p(8,:)
             phep(1:4,11)=p(5,:)
             phep(1:4,12)=p(6,:)
-            if(nhep.eq.13) then
+            if(nhep==13) then
                 phep(1:4,13)=p(9,:)
 c is 3 a full top?
                 pt=phep(1:4,3)
@@ -148,10 +150,10 @@ c is 3 a full top?
                 pt=pt+phep(1:4,13)
                 d2a=abs(pt(4)**2-pt(1)**2-pt(2)**2-pt(3)**2-mt**2)/mt**2
 c                write(*,*) d1t,d2t,d1a,d2a
-                if(d2t.lt.d1t.and.d2a.ge.d2t) then
+                if(d2t<d1t.and.d2a>=d2t) then
 c                   write(*,*) ' t with radiation'
                    phep(1:4,3)=phep(1:4,3)+phep(1:4,13)
-                elseif(d2a.lt.d1a.and.d2t.ge.d2a) then
+                elseif(d2a<d1a.and.d2t>=d2a) then
 c                   write(*,*) ' at with radiation'
                    phep(1:4,4)=phep(1:4,4)+phep(1:4,13)
                 endif
@@ -166,14 +168,14 @@ c                read(*,*)
          endif
 
 c------ s-channel single top            
-         if(nproc.ge.171.and.nproc.le.177) then
+         if(nproc>=171.and.nproc<=177) then
             phep(1:4,3)=p(3,:)+p(4,:)+p(5,:)
             phep(1:4,4)=p(3,:)+p(4,:)
             phep(1:4,5)=p(3,:)
             phep(1:4,6)=p(4,:)
             phep(1:4,7)=p(5,:)
             phep(1:4,8)=p(6,:)
-            if(nhep.eq.9) then
+            if(nhep==9) then
                 phep(1:4,9)=p(7,:)
 c is 3 a full top?
                 pt=phep(1:4,3)
@@ -181,7 +183,7 @@ c is 3 a full top?
                 pt=pt+phep(1:4,9)
                 d2t=abs(pt(4)**2-pt(1)**2-pt(2)**2-pt(3)**2-mt**2)/mt**2
 c                write(*,*) d1t,d2t
-                if(d2t.lt.d1t) then
+                if(d2t<d1t) then
 c                   write(*,*) ' t with radiation'
                    phep(1:4,3)=phep(1:4,3)+phep(1:4,9)
                 endif
@@ -194,7 +196,7 @@ c                read(*,*)
          endif
          
 c------ t-channel single top            
-         if(nproc.ge.231.and.nproc.le.239) then
+         if(nproc>=231.and.nproc<=239) then
             phep(1:4,3)=p(3,:)+p(4,:)+p(5,:)
             phep(1:4,4)=p(3,:)+p(4,:)
             phep(1:4,5)=p(3,:)
@@ -202,7 +204,7 @@ c------ t-channel single top
             phep(1:4,7)=p(5,:)
             phep(1:4,8)=p(6,:)
             phep(1:4,9)=p(7,:)
-            if(nhep.eq.10) then
+            if(nhep==10) then
                 phep(1:4,10)=p(8,:)
 c is 3 a full top?
                 pt=phep(1:4,3)
@@ -210,7 +212,7 @@ c is 3 a full top?
                 pt=pt+phep(1:4,10)
                 d2t=abs(pt(4)**2-pt(1)**2-pt(2)**2-pt(3)**2-mt**2)/mt**2
 c                write(*,*) d1t,d2t
-                if(d2t.lt.d1t) then
+                if(d2t<d1t) then
 c                   write(*,*) ' t with radiation'
                    phep(1:4,3)=phep(1:4,3)+phep(1:4,10)
                 endif
@@ -223,7 +225,7 @@ c                read(*,*)
         endif
         
 c------ W-t-single top            
-         if(nproc.ge.181.and.nproc.le.187) then
+         if(nproc>=181.and.nproc<=187) then
             phep(1:4,3)=p(5,:)+p(6,:)+p(7,:)
             phep(1:4,4)=p(5,:)+p(6,:)
             phep(1:4,5)=p(3,:)+p(4,:)
@@ -232,7 +234,7 @@ c------ W-t-single top
             phep(1:4,8)=p(5,:)
             phep(1:4,9)=p(6,:)
             phep(1:4,10)=p(7,:)
-            if(nhep.eq.11) then
+            if(nhep==11) then
                 phep(1:4,11)=p(8,:)
 c is 3 a full top?
                 pt=phep(1:4,3)
@@ -240,7 +242,7 @@ c is 3 a full top?
                 pt=pt+phep(1:4,11)
                 d2t=abs(pt(4)**2-pt(1)**2-pt(2)**2-pt(3)**2-mt**2)/mt**2
 c                write(*,*) d1t,d2t
-                if(d2t.lt.d1t) then
+                if(d2t<d1t) then
 c                   write(*,*) ' t with radiation'
                    phep(1:4,3)=phep(1:4,3)+phep(1:4,11)
                 endif
@@ -254,11 +256,11 @@ c                read(*,*)
          
 c------------ FILL HISTOGRAMS
 
-         if(part.ne.'real') then
+         if(kpart.ne.kreal) then
             call analysis_wrap(wt)
             call pwhgaccumup
          else
-            if(nd.eq.0.and.ond.ne.0) then
+            if(nd==0.and.ond.ne.0) then
                call pwhgaccumup
                call analysis_wrap(wt)
             else
@@ -273,25 +275,27 @@ c------------ FILL HISTOGRAMS
    
       subroutine analysis_wrap(wt)
       implicit none
-      double precision wt
-      integer nproc
+      include 'types.f'
+      
+      real(dp):: wt
+      integer:: nproc
       common/nproc/nproc
       
-         if(nproc.eq.44) then
+         if(nproc==44) then
             write(6,*) 'No analysis routine written for nproc=',nproc
             stop
-         elseif(nproc.eq.203) then
+         elseif(nproc==203) then
             write(6,*) 'No analysis routine written for nproc=',nproc
             stop
-         elseif(nproc.ge.31) then
+         elseif(nproc>=31) then
             call analysis_Z(wt)
-         elseif(nproc.ge.141.and.nproc.le.151) then
+         elseif(nproc>=141.and.nproc<=151) then
             call analysis_KN(wt)
-         elseif(nproc.ge.171.and.nproc.le.177) then
+         elseif(nproc>=171.and.nproc<=177) then
             call analysis_ST_sch_dk(wt)
-         elseif(nproc.ge.231.and.nproc.le.239) then
+         elseif(nproc>=231.and.nproc<=239) then
             call analysis_ST_tch_dk(wt)
-         elseif(nproc.ge.181.and.nproc.le.186) then
+         elseif(nproc>=181.and.nproc<=186) then
             call analysis_ST_wt_dk(wt)
          else
             write(6,*) 'No analysis routine written for nproc=',nproc
@@ -303,14 +307,16 @@ c------------ FILL HISTOGRAMS
 
       subroutine pwhghistofin(itno,itmx)
       implicit none
-      include 'part.f'
-      integer itno,itmx
+      include 'types.f'
+      
+      include 'kpart.f'
+      integer:: itno,itmx
       character *255 runname,outfile 
-      integer iun, iostat
+      integer:: iun, iostat
       common/runname/runname
       parameter (iun=99)
 
-      if(part.eq.'real') then
+      if(kpart==kreal) then
 c     in this case a call to accumup is missin
          call pwhgaccumup
       endif
@@ -319,7 +325,7 @@ c finalize histograms
 c mcfm delivered weights divided by n; should now multiply
 c by n to get proper normalization. Furthermore, if itno#0
 c we should divide by itno; otherwise we should divide by itmx
-      if(itno.gt.0) then
+      if(itno>0) then
          call pwhgfixmcfm(itno)
       else
          call pwhgfixmcfm(itmx)
@@ -334,11 +340,13 @@ c print histograms
       end
 
       subroutine pwhgfixmcfm(it)
-c analysis, leaving the yhistarr1 and errhistarr1 unchanged.
       implicit none
-      integer it
+      include 'types.f'
+c analysis, leaving the yhistarr1 and errhistarr1 unchanged.
+      
+      integer:: it
       include 'pwhg_bookhist-new.h'
-      integer j,k
+      integer:: j,k
       real *8 xxx,sum,sumsq
       do j=1,jhist
          xxx=ient1(j)

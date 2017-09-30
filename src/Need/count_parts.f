@@ -1,10 +1,16 @@
       ! functions for counting particles 
 
-      integer function count_photo()
-      implicit none
+      function count_photo()
+       implicit none
+      include 'types.f'
+      integer:: count_photo
+      
       include 'constants.f'
-      integer j
-      logical is_photon
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      integer:: j
+      logical:: is_photon
       external is_photon
 
       count_photo=0
@@ -18,12 +24,18 @@
       end
 
       
-      integer function count_jets()
-      implicit none
+      function count_jets()
+       implicit none
+      include 'types.f'
+      integer:: count_jets
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'npart.f'
-      integer j
-      logical is_hadronic
+      integer:: j
+      logical:: is_hadronic
       external is_hadronic
 
 c---- Count final state jets

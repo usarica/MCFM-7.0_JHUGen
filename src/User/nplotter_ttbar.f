@@ -1,4 +1,6 @@
       subroutine nplotter_ttbar(p,wt,wt2,switch)
+      implicit none
+      include 'types.f'
 c--- Variable passed in to this routine:
 c
 c---      p:  4-momenta of particles in the format p(i,4)
@@ -9,26 +11,29 @@ c---     wt:  weight of this event
 c
 c---    wt2:  weight^2 of this event
 c
-c--- switch:  an integer equal to 0 or 1, depending on the type of event
+c--- switch:  an integer:: equal to 0 or 1, depending on the type of event
 c---                0  --> lowest order, virtual or real radiation
 c---                1  --> counterterm for real radiation
-      implicit none
+      
       include 'vegas_common.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'histo.f'
       include 'masses.f'
       include 'plabel.f'
-      include 'process.f'
+      include 'kprocess.f'
       include 'outputflags.f'
-      double precision p(mxpart,4),wt,wt2,yrap,pt,ptjet(mxpart),
+      real(dp):: p(mxpart,4),wt,wt2,yrap,pt,ptjet(mxpart),
      & pttwo,mll,ptl,yl,ptttb,yttb,dot,tiny,
      & ptt,pttb,yt,ytb,mttb,mwp,mwm,mlb
-      double precision plep(4),ptop(4),pleprest(4),ptoprest(4),mj1j2
-      integer switch,n,nplotmax,j,
+      real(dp):: plep(4),ptop(4),pleprest(4),ptoprest(4),mj1j2
+      integer:: switch,n,nplotmax,j,
      & jetindex(mxpart),iorder(mxpart),ijet
-      character*4 tag
-      logical dilepton,failed
-      parameter(tiny=1d-8)
+      integer tag
+      logical:: dilepton,failed
+      parameter(tiny=1.e-8_dp)
       logical, save::first=.true.
       common/nplotmax/nplotmax
 ccccc!$omp threadprivate(first,/nplotmax/,mj1j2)
@@ -40,8 +45,8 @@ ccccc!$omp threadprivate(first,/nplotmax/,mj1j2)
 ************************************************************************
 
 c--- determine whether or not process represents dilepton channel
-      if ((case .eq. 'tt_bbl') .or. (case .eq. 'tt_ldk')
-     &.or.(case .eq. 'tt_bbu') .or. (case .eq. 'tt_udk') ) then
+      if ((kcase==ktt_bbl) .or. (kcase==ktt_ldk)
+     &.or.(kcase==ktt_bbu) .or. (kcase==ktt_udk) ) then
         dilepton=.true.
       else
         dilepton=.false.
@@ -50,12 +55,12 @@ c--- determine whether or not process represents dilepton channel
       if (first) then
 c--- Initialize histograms, without computing any quantities; instead
 c--- set them to dummy values
-        tag='book'
-        mj1j2=0d0
+        tag=tagbook
+        mj1j2=0._dp
         goto 99
       else
 c--- Add event in histograms
-        tag='plot'
+        tag=tagplot
       endif
 
 ************************************************************************
@@ -66,9 +71,9 @@ c--- Add event in histograms
 
        ijet=0
        do j=3,9
-         if ((plabel(j) .eq. 'pp') .or. (plabel(j) .eq. 'bq')
-     &   .or.(plabel(j) .eq. 'ba')) then
-           if (p(j,4) .gt. tiny) then
+         if ((plabel(j) == 'pp') .or. (plabel(j) == 'bq')
+     &   .or.(plabel(j) == 'ba')) then
+           if (p(j,4) > tiny) then
              ijet=ijet+1
              jetindex(ijet)=j
              ptjet(ijet)=pt(j,p)
@@ -77,16 +82,16 @@ c--- Add event in histograms
        enddo   
        call arraysort(ijet,ptjet,iorder)
 
-       if (ijet .ge. 2) then
+       if (ijet >= 2) then
 c--- Two hardest jets are now indexed by
 c--- jetindex(iorder(1)) and jetindex(iorder(2))
        mj1j2=((p(jetindex(iorder(1)),4)+p(jetindex(iorder(2)),4))**2
      &       -(p(jetindex(iorder(1)),1)+p(jetindex(iorder(2)),1))**2
      &       -(p(jetindex(iorder(1)),2)+p(jetindex(iorder(2)),2))**2
      &       -(p(jetindex(iorder(1)),3)+p(jetindex(iorder(2)),3))**2)
-       mj1j2=dsqrt(max(mj1j2,0d0))
+       mj1j2=sqrt(max(mj1j2,zip))
        else
-       mj1j2=-1d0
+       mj1j2=-1._dp
        endif
        
 ************************************************************************
@@ -101,7 +106,7 @@ c--- Call histogram routines
 c--- Book and fill ntuple if that option is set, remembering to divide
 c--- by # of iterations now that is handled at end for regular histograms
       if (creatent .eqv. .true.) then
-        call bookfill(tag,p,wt/dfloat(itmx))  
+        call bookfill(tag,p,wt/real(itmx,dp))  
       endif
 
 c--- "n" will count the number of histograms
@@ -129,33 +134,33 @@ c--- dilepton=specific plots
                    
 c--- pt(l+ and l-)
       call bookplot(n,tag,'pt(l+ and l-)',pt(4,p),wt,wt2,
-     & 0d0,400d0,10d0,'log')
+     & zip,400._dp,10._dp,'log')
       call bookplot(n,tag,'pt(l+ and l-)',pt(7,p),wt,wt2,
-     & 0d0,400d0,10d0,'log')
+     & zip,400._dp,10._dp,'log')
       n=n+1
 
 c--- eta(l+ and l-)
       call bookplot(n,tag,'eta(l+ and l-)',yrap(4,p),wt,wt2,
-     & -2.4d0,2.4d0,0.2d0,'lin')
+     & -2.4_dp,2.4_dp,0.2_dp,'lin')
       call bookplot(n,tag,'eta(l+ and l-)',yrap(7,p),wt,wt2,
-     & -2.4d0,2.4d0,0.2d0,'lin')
+     & -2.4_dp,2.4_dp,0.2_dp,'lin')
       n=n+1
 
 c--- pt(l+,l-)
       call bookplot(n,tag,'pt(l+,l-)',pttwo(4,7,p),wt,wt2,
-     & 0d0,400d0,10d0,'log')
+     & zip,400._dp,10._dp,'log')
       n=n+1
 
 c--- m(l+,l-)
-      mll=dsqrt(max(2d0*dot(p,4,7),0d0))
+      mll=sqrt(max(two*dot(p,4,7),zip))
       call bookplot(n,tag,'m(l+,l-)',mll,wt,wt2,
-     & 0d0,400d0,10d0,'log')
+     & zip,400._dp,10._dp,'log')
       n=n+1
                   
       else
 
 c--- lepton+jets-specific plots
-      if (plabel(4) .eq. 'ea') then
+      if (plabel(4) == 'ea') then
         ptl=pt(4,p)
         yl=yrap(4,p)
       else
@@ -165,12 +170,12 @@ c--- lepton+jets-specific plots
       
 c--- pt(lepton)
       call bookplot(n,tag,'pt(lepton)',ptl,wt,wt2,
-     & 0d0,200d0,10d0,'log')
+     & zip,200._dp,10._dp,'log')
       n=n+1
 
 c--- eta(lepton)
       call bookplot(n,tag,'eta(lepton)',yl,wt,wt2,
-     & -2.2d0,2.2d0,0.2d0,'lin')
+     & -2.2_dp,2.2_dp,0.2_dp,'lin')
       n=n+1
 
       endif
@@ -187,61 +192,61 @@ c--- make sure to increment by the number of plots in the 'else' section
       
 c--- pt(t)
       call bookplot(n,tag,'pt(t)',ptt,wt,wt2,
-     & 0d0,400d0,10d0,'log')
+     & zip,400._dp,10._dp,'log')
       n=n+1
       
 c--- pt(tbar)
       call bookplot(n,tag,'pt(tbar)',pttb,wt,wt2,
-     & 0d0,400d0,10d0,'log')
+     & zip,400._dp,10._dp,'log')
       n=n+1
 
 c--- pt(t and tbar)
       call bookplot(n,tag,'pt(t and tbar)',ptt,wt,wt2,
-     & 0d0,400d0,10d0,'log')
+     & zip,400._dp,10._dp,'log')
       call bookplot(n,tag,'pt(t and tbar)',pttb,wt,wt2,
-     & 0d0,400d0,10d0,'log')
+     & zip,400._dp,10._dp,'log')
       n=n+1
 
 c--- y(t)
       call bookplot(n,tag,'y(t)',yt,wt,wt2,
-     & -2.6d0,2.6d0,0.2d0,'lin')
+     & -2.6_dp,2.6_dp,0.2_dp,'lin')
       n=n+1
 
 c--- y(tbar)
       call bookplot(n,tag,'y(tbar)',ytb,wt,wt2,
-     & -2.6d0,2.6d0,0.2d0,'lin')
+     & -2.6_dp,2.6_dp,0.2_dp,'lin')
       n=n+1
 
 c--- y(t and tbar)
       call bookplot(n,tag,'y(t and tbar)',yt,wt,wt2,
-     & -2.6d0,2.6d0,0.2d0,'lin')
+     & -2.6_dp,2.6_dp,0.2_dp,'lin')
       call bookplot(n,tag,'y(t and tbar)',ytb,wt,wt2,
-     & -2.6d0,2.6d0,0.2d0,'lin')
+     & -2.6_dp,2.6_dp,0.2_dp,'lin')
       n=n+1
 
 c--- pt(t,tbar)
       call bookplot(n,tag,'pt(t,tbar)',ptttb,wt,wt2,
-     & -0.01d0,399.99d0,10d0,'log')
+     & -0.01_dp,399.99_dp,10._dp,'log')
       n=n+1
 
 c--- y(t,tbar)
       call bookplot(n,tag,'y(t,tbar)',yttb,wt,wt2,
-     & -2.6d0,2.6d0,0.2d0,'lin')
+     & -2.6_dp,2.6_dp,0.2_dp,'lin')
       n=n+1
 
 c--- m(t,tbar)
       call bookplot(n,tag,'m(t,tbar)',mttb,wt,wt2,
-     & 0d0,1400d0,25d0,'log')
+     & zip,1400._dp,25._dp,'log')
       n=n+1
 
 c--- m(W+ candidate)
       call bookplot(n,tag,'m(W+ candidate)',mwp,wt,wt2,
-     & 0d0,200d0,5d0,'log')
+     & zip,200._dp,5._dp,'log')
       n=n+1
 
 c--- m(W- candidate)
       call bookplot(n,tag,'m(W- candidate)',mwm,wt,wt2,
-     & 0d0,200d0,5d0,'log')
+     & zip,200._dp,5._dp,'log')
       n=n+1
       endif
       
@@ -252,34 +257,34 @@ c--- plots for comparison with arXiv:0907.3090
 
 c--- pt(l+)
       call bookplot(n,tag,'pt(l+)',pt(4,p),wt,wt2,
-     & 0d0,1000d0,50d0,'log')
+     & zip,1000._dp,50._dp,'log')
       n=n+1
 c--- pt(l-)
       call bookplot(n,tag,'pt(l-)',pt(7,p),wt,wt2,
-     & 0d0,1000d0,50d0,'log')
+     & zip,1000._dp,50._dp,'log')
       n=n+1
 
 c--- eta(l+)
       call bookplot(n,tag,'eta(l+)',yrap(4,p),wt,wt2,
-     & -4d0,4d0,0.2d0,'lin')
+     & -four,four,0.2_dp,'lin')
       n=n+1
 c--- eta(l-)
       call bookplot(n,tag,'eta(l-)',yrap(7,p),wt,wt2,
-     & -4d0,4d0,0.2d0,'lin')
+     & -four,four,0.2_dp,'lin')
       n=n+1
       endif
 
 c--- m(l+,b)
-      mlb=dsqrt((p(4,4)+p(5,4))**2-(p(4,1)+p(5,1))**2
+      mlb=sqrt((p(4,4)+p(5,4))**2-(p(4,1)+p(5,1))**2
      &         -(p(4,2)+p(5,2))**2-(p(4,3)+p(5,3))**2)
       call bookplot(n,tag,'m(l+,b)',mlb,wt,wt2,
-     & 0d0,200d0,5d0,'log')
+     & zip,200._dp,5._dp,'log')
       n=n+1
 c--- m(l-,bb)
-      mlb=dsqrt((p(6,4)+p(7,4))**2-(p(6,1)+p(7,1))**2
+      mlb=sqrt((p(6,4)+p(7,4))**2-(p(6,1)+p(7,1))**2
      &         -(p(6,2)+p(7,2))**2-(p(6,3)+p(7,3))**2)
       call bookplot(n,tag,'m(l-,bb)',mlb,wt,wt2,
-     & 0d0,200d0,5d0,'log')
+     & zip,200._dp,5._dp,'log')
       n=n+1
 c--- plots for comparison with arXiv:0907.3090
       
@@ -294,31 +299,31 @@ c--- make sure to increment by the number of plots in the 'else' section
             
 c--- inclusive case
       call bookplot(n,tag,'y(t)-y(tbar)',yt-ytb,wt,wt2,
-     & -4d0,4d0,4d0,'lin')
+     & -four,four,four,'lin')
       n=n+1
 
 c--- for bins of |y(t)-y(tbar)| of (0,0.5), (0.5,1), (1,1.5)
       call bookplot(n,tag,'y(t)-y(tbar)',yt-ytb,wt,wt2,
-     & -1.5d0,1.5d0,0.5d0,'lin')
+     & -1.5_dp,1.5_dp,0.5_dp,'lin')
       n=n+1
 
 c--- for bins of |y(t)-y(tbar)| of (1.5,4.5)
       call bookplot(n,tag,'y(t)-y(tbar)',yt-ytb,wt,wt2,
-     & -4.5d0,4.5d0,3d0,'lin')
+     & -4.5_dp,4.5_dp,3._dp,'lin')
       n=n+1
 
       endif
       
 c-- lepton asymmetry
       if (dilepton .eqv. .false.) then
-        if (plabel(4) .eq. 'ea') then
+        if (plabel(4) == 'ea') then
         call bookplot(n,tag,'Q(lep)*y(lep)',yrap(4,p),wt,wt2,
-     &   -4d0,4d0,4d0,'lin')
+     &   -four,four,four,'lin')
         n=n+1
         endif
-        if (plabel(7) .eq. 'el') then
+        if (plabel(7) == 'el') then
         call bookplot(n,tag,'Q(lep)*y(lep)',-yrap(7,p),wt,wt2,
-     &   -4d0,4d0,4d0,'lin')
+     &   -four,four,four,'lin')
         n=n+1
         endif
       endif
@@ -326,31 +331,31 @@ c-- lepton asymmetry
 c--- plots for computing ttbar asymmetry
 
 c--- invariant mass of two leading jets       
-      call bookplot(n,tag,'m(j1,j2)',mj1j2,wt,wt2, 0d0,300d0,5d0,'lin')
+      call bookplot(n,tag,'m(j1,j2)',mj1j2,wt,wt2,zip,300._dp,5._dp,'lin')
       n=n+1
       
 c--- compute energy of particle 4 in rest frame of top
       do j=1,4
       plep(j)=p(4,j)
       ptop(j)=p(3,j)+p(4,j)+p(5,j)
-      ptoprest(j)=0d0
+      ptoprest(j)=0._dp
       enddo
       ptoprest(4)=mt
       call boostx(plep,ptop,ptoprest,pleprest)      
       call bookplot(n,tag,'2*E(4)/mt (top rest frame)',
-     & 2d0*pleprest(4)/mt,wt,wt2,0d0,1d0,0.01d0,'lin')
+     & two*pleprest(4)/mt,wt,wt2,zip,1._dp,0.01_dp,'lin')
       n=n+1
 
 c--- compute energy of particle 7 in rest frame of top
       do j=1,4
       plep(j)=p(7,j)
       ptop(j)=p(6,j)+p(7,j)+p(8,j)
-      ptoprest(j)=0d0
+      ptoprest(j)=zip
       enddo
       ptoprest(4)=mt
       call boostx(plep,ptop,ptoprest,pleprest)      
       call bookplot(n,tag,'2*E(7)/mt (top rest frame)',
-     & 2d0*pleprest(4)/mt,wt,wt2,0d0,1d0,0.01d0,'lin')
+     & two*pleprest(4)/mt,wt,wt2,zip,1._dp,0.01_dp,'lin')
       n=n+1
        
 c--- single-particle plots
@@ -366,7 +371,7 @@ c--- three-particle plots
       call genplot3(p,6,7,8,tag,wt,wt2,n)
 
 c--- additional plots that may be present at NLO
-      if (abs(p(9,4)) .gt. 1d-8) then
+      if (abs(p(9,4)) > 1.e-8_dp) then
         call genplot1(p,9,tag,wt,wt2,n)
         call genplot3(p,7,8,9,tag,wt,wt2,n)
       else

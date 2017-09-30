@@ -1,28 +1,34 @@
-      double precision function asGamma1(mt,besq,omsq)
+      function asGamma1(mt,besq,omsq)
+      implicit none
+      include 'types.f'
+      real(dp):: asGamma1
 C--   Author: John M. Campbell and R.K. Ellis, January 2012  
 C-----Taken from formula (5) of
 C-----Fermilab-PUB-12-078-T
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'qcdcouple.f'
       include 'ewcouple.f'
-      double precision mt,P0,P3,PP,PM,W0,WP,wm,YW,z,omsq,om,be,
+      real(dp):: mt,P0,P3,PP,PM,W0,WP,wm,YW,z,omsq,om,be,
      & P0b,P3b,Pmb,PPb,Ywb,Wmb,f,besq,ddilog,GammaInfty,term4,
      & term7,term9
 
 c     Statement functions.
-      P0(z)=0.5d0*(1d0-omsq+z)
-      P3(z)=0.5d0*dsqrt(1d0+omsq**2+z**2-2d0*(omsq+z+omsq*z))
+      P0(z)=0.5_dp*(1._dp-omsq+z)
+      P3(z)=0.5_dp*sqrt(1._dp+omsq**2+z**2-2._dp*(omsq+z+omsq*z))
       PP(z)=P0(z)+P3(z)
       PM(z)=P0(z)-P3(z)
-      W0(z)=0.5d0*(1d0+omsq-z)
+      W0(z)=0.5_dp*(1._dp+omsq-z)
       WP(z)=W0(z)+P3(z)
       WM(z)=W0(z)-P3(z)
-      YW(z)=0.5d0*dlog(WP(z)/WM(z))
-c      YP(z)=0.5d0*dlog(PP(z)/PM(z))
+      YW(z)=0.5_dp*log(WP(z)/WM(z))
+c      YP(z)=0.5_dp*log(PP(z)/PM(z))
 c     End statement functions.
      
-      f=(1d0-besq)**2+omsq*(1d0+besq)-2d0*omsq**2
+      f=(1._dp-besq)**2+omsq*(1._dp+besq)-2._dp*omsq**2
       om=sqrt(omsq)
       be=sqrt(besq)
       P0b=P0(besq)
@@ -34,39 +40,39 @@ c      WPb=WP(besq)
 c      Ypb=YP(besq)
       Ywb=YW(besq)
 
-      GammaInfty=Gf*mt**3/8d0/pi/rt2      
-      if (besq .gt. 0d0) then
-c      term4=Ypb*dlog(4d0*P3b**2/Ppb**2/Wpb)
-      term4=(log(PPb)-log(be))*dlog(4d0*P3b**2*Wmb/(omsq*PPb**2))
+      GammaInfty=Gf*mt**3/8._dp/pi/rt2      
+      if (besq > 0._dp) then
+c      term4=Ypb*log(4._dp*P3b**2/Ppb**2/Wpb)
+      term4=(log(PPb)-log(be))*log(4._dp*P3b**2*Wmb/(omsq*PPb**2))
       term7=
-     & +(3d0-besq+11d0*besq**2-besq**3+omsq*(6d0-12d0*besq+2d0*besq**2)
-     & -omsq**2*(21d0+5d0*besq)+12d0*omsq**3)*log(Ppb)
-     & -(-besq+11d0*besq**2-besq**3+omsq*(-12d0*besq+2d0*besq**2)
-     & -omsq**2*(5d0*besq))*log(be)
-c     & -(3d0+6d0*omsq-omsq**2*21d0+12d0*omsq**3)*log(be)
+     & +(3._dp-besq+11._dp*besq**2-besq**3+omsq*(6._dp-12._dp*besq+2._dp*besq**2)
+     & -omsq**2*(21._dp+5._dp*besq)+12._dp*omsq**3)*log(Ppb)
+     & -(-besq+11._dp*besq**2-besq**3+omsq*(-12._dp*besq+2._dp*besq**2)
+     & -omsq**2*(5._dp*besq))*log(be)
+c     & -(3._dp+6._dp*omsq-omsq**2*21._dp+12._dp*omsq**3)*log(be)
       term9= 
-     & +6d0*(1d0-4d0*besq+3d0*besq**2+omsq*(3d0+besq)-4d0*omsq**2)
-     & *(P3b-0.5d0*(1d0-omsq))*dlog(be)
-     & +3d0*(1d0-omsq)*(-4d0*besq+3d0*besq**2+omsq*(besq))*dlog(be)
-c     & +3d0*(1d0-omsq)*(1d0+3d0*omsq-4d0*omsq**2)*dlog(be)
+     & +6._dp*(1._dp-4._dp*besq+3._dp*besq**2+omsq*(3._dp+besq)-4._dp*omsq**2)
+     & *(P3b-0.5_dp*(1._dp-omsq))*log(be)
+     & +3._dp*(1._dp-omsq)*(-4._dp*besq+3._dp*besq**2+omsq*(besq))*log(be)
+c     & +3._dp*(1._dp-omsq)*(1._dp+3._dp*omsq-4._dp*omsq**2)*log(be)
       else
-      term4=log(PPb)*dlog(4d0*P3b**2*Wmb/(omsq*PPb**2))
+      term4=log(PPb)*log(4._dp*P3b**2*Wmb/(omsq*PPb**2))
       term7=
-     & +(3d0-besq+11d0*besq**2-besq**3+omsq*(6d0-12d0*besq+2d0*besq**2)
-     & -omsq**2*(21d0+5d0*besq)+12d0*omsq**3)*log(Ppb)
-      term9=0d0
+     & +(3._dp-besq+11._dp*besq**2-besq**3+omsq*(6._dp-12._dp*besq+2._dp*besq**2)
+     & -omsq**2*(21._dp+5._dp*besq)+12._dp*omsq**3)*log(Ppb)
+      term9=0._dp
       endif
 
 
 c--- equation for alphas*Gamma1      
       asGamma1=GammaInfty*ason2pi*Cf*(
-     & 8d0*f*P0b*(ddilog(1d0-Pmb)-ddilog(1d0-Ppb)
-     &  -2d0*ddilog(1d0-Pmb/Ppb)+term4
-     &  +Ywb*dlog(Ppb))
-     & +4d0*(1d0-besq)*((1d0-besq)**2+omsq*(1d0+besq)-4d0*omsq**2)*Ywb
+     & 8._dp*f*P0b*(ddilog(1._dp-Pmb)-ddilog(1._dp-Ppb)
+     &  -2._dp*ddilog(1._dp-Pmb/Ppb)+term4
+     &  +Ywb*log(Ppb))
+     & +4._dp*(1._dp-besq)*((1._dp-besq)**2+omsq*(1._dp+besq)-4._dp*omsq**2)*Ywb
      & +term7
-     & +8d0*f*P3b*dlog(om/4d0/P3b**2)+term9
-     & +(5d0-22d0*besq+5d0*besq**2+9d0*omsq*(1d0+besq)-6d0*omsq**2)*P3b)
+     & +8._dp*f*P3b*log(om/4._dp/P3b**2)+term9
+     & +(5._dp-22._dp*besq+5._dp*besq**2+9._dp*omsq*(1._dp+besq)-6._dp*omsq**2)*P3b)
 
       return
       end

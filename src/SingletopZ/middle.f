@@ -1,6 +1,11 @@
       subroutine middle(p,ymiddle)
       implicit none
+      include 'types.f'
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'poles.f'
       include 'alpha1.f'
@@ -8,19 +13,19 @@
       include 'scale.f'
       include 'zcouple.f'
       include 'nwz.f'
-      integer j3,k1,k2,ep,eta
-      double complex prW,ymiddle(2,2,-2:0),
+      integer:: j3,k1,k2,ep,eta
+      complex(dp):: prW,ymiddle(2,2,-2:0),
      & qlI2,qlI3,qlI2diff(-2:0),iza,izb,
      & vert25x1,vert25x2,vert25x3,vert16x1,cprop,iprZ
-      double complex facuLl,facdLl,facLdiff
-      double precision p(mxpart,4),q(mxpart,4),mtsq,mwsq
-      double precision p12(4),p26(4),p16(4),p34(4),p25(4),
+      complex(dp):: facuLl,facdLl,facLdiff
+      real(dp):: p(mxpart,4),q(mxpart,4),mtsq,mwsq
+      real(dp):: p12(4),p26(4),p16(4),p34(4),p25(4),
      & s16,s25,s34,s12,s26,p5Deta,p2Dp5,he,omal
-      integer p1,p2,p3,p4,k5,e5,p6
+      integer:: p1,p2,p3,p4,k5,e5,p6
       parameter(p1=1,p2=2,k5=5,p6=7,e5=6)
 
 c----statement functions
-      prW(s16)=cone/dcmplx(s16-wmass**2,zip)
+      prW(s16)=cone/cplx2(s16-wmass**2,zip)
       iza(k1,k2)=cone/za(k1,k2)
       izb(k1,k2)=cone/zb(k1,k2)
 c----end statement functions
@@ -49,15 +54,15 @@ C---choose auxiliary vector
       q(5,:)=p(5,:)-0.5d0*mtsq*p(eta,:)/p5Deta
       q(e5,:)=0.5d0*mtsq*p(eta,:)/p5Deta
 
-      if (nwz .eq. +1) then
+      if (nwz == +1) then
       call spinoru(7,q,za,zb)
-      elseif (nwz .eq. -1) then
+      elseif (nwz == -1) then
       call spinoru(7,q,zb,za)
       endif
 
 c--- Implementation of Baur-Zeppenfeld treatment of Z width
-      cprop=dcmplx(1d0/dsqrt((s34-zmass**2)**2+(zmass*zwidth)**2))
-      iprZ=dcmplx(s34-zmass**2)
+      cprop=cplx1(1d0/sqrt((s34-zmass**2)**2+(zmass*zwidth)**2))
+      iprZ=cplx1(s34-zmass**2)
 
       do ep=-2,0
       qlI2diff(ep)=qlI2(s25,0d0,mtsq,musq,ep)
@@ -74,17 +79,17 @@ c--- Implementation of Baur-Zeppenfeld treatment of Z width
      &  - 2d0*qlI3(s16,0d0,0d0,0d0,0d0,0d0,musq,ep)*s16
      &  - 3d0*qlI2(s16,0d0,0d0,musq,ep)-fp(ep)
       do j3=1,2
-      if (j3 .eq. 1) then
+      if (j3 == 1) then
         p3=3
         p4=4
-        facuLl=dcmplx(Qu*q1)*iprZ+dcmplx(L(2)*le)*s34
-        facdLl=dcmplx(Qd*q1)*iprZ+dcmplx(L(1)*le)*s34
+        facuLl=cplx1(Qu*q1)*iprZ+cplx1(L(2)*le)*s34
+        facdLl=cplx1(Qd*q1)*iprZ+cplx1(L(1)*le)*s34
         he=le
-      elseif (j3 .eq. 2) then
+      elseif (j3 == 2) then
         p3=4
         p4=3
-        facuLl=dcmplx(Qu*q1)*iprZ+dcmplx(L(2)*re)*s34
-        facdLl=dcmplx(Qd*q1)*iprZ+dcmplx(L(1)*re)*s34
+        facuLl=cplx1(Qu*q1)*iprZ+cplx1(L(2)*re)*s34
+        facdLl=cplx1(Qd*q1)*iprZ+cplx1(L(1)*re)*s34
         he=re
       endif
       facLdiff=facuLl-facdLl

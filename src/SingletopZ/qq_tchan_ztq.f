@@ -1,18 +1,23 @@
       subroutine qq_tchan_ztq(p,msq)
+      implicit none
+      include 'types.f'
 c---Matrix element squared averaged over initial colors and spins
 c     u(-p1)+b(p2)->e-(p3)+e+(p4)+t(p5)+d(p6)
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'alpha1.f'
       include 'nwz.f'
-      double precision p(mxpart,4),msq(-nf:nf,-nf:nf),
+      real(dp):: p(mxpart,4),msq(-nf:nf,-nf:nf),
      & b_u,u_b,db_b,b_db,d_bb,ub_bb,bb_d,bb_ub,ubtzdsq
 
       msq(:,:)=0d0
 
       alpha1=0d0
 
-      if (nwz .eq. 1) then
+      if (nwz == 1) then
         u_b=ubtzdsq(p,1,2,3,4,6)
         b_u=ubtzdsq(p,2,1,3,4,6)
         db_b=ubtzdsq(p,6,2,3,4,1)
@@ -26,7 +31,7 @@ c     u(-p1)+b(p2)->e-(p3)+e+(p4)+t(p5)+d(p6)
         msq(+5,-3)=b_db
         msq(+5,+2)=b_u
         msq(+5,+4)=b_u
-      elseif(nwz .eq. -1) then
+      elseif(nwz == -1) then
         ub_bb=ubtzdsq(p,1,2,4,3,6)
         bb_ub=ubtzdsq(p,2,1,4,3,6)
         d_bb=ubtzdsq(p,6,2,4,3,1)

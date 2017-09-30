@@ -1,4 +1,6 @@
       subroutine nplotter_wgamgam(p,wt,wt2,switch,nd)
+      implicit none
+      include 'types.f'
 c--- Variable passed in to this routine:
 c
 c---      p:  4-momenta of particles in the format p(i,4)
@@ -9,24 +11,27 @@ c---     wt:  weight of this event
 c
 c---    wt2:  weight^2 of this event
 c
-c--- switch:  an integer equal to 0 or 1, depending on the type of event
+c--- switch:  an integer:: equal to 0 or 1, depending on the type of event
 c---                0  --> lowest order, virtual or real radiation
 c---                1  --> counterterm for real radiation
 !-- nd determines whether we are analysing a photon dipole and hence have
 !---to rescale accordingly
-      implicit none
+      
       include 'vegas_common.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'histo.f'
       include 'outputflags.f'
-      double precision p(mxpart,4),wt,wt2,etmiss
-      double precision s34,m34
-      double precision ptgam5,ptgam6,ptgam
-      double precision m3456,s56,m56
-      double precision ptmiss,etvec(4)
-      integer switch,n,nplotmax
-      character*4 tag
-      integer nd
+      real(dp):: p(mxpart,4),wt,wt2,etmiss
+      real(dp):: s34,m34
+      real(dp):: ptgam5,ptgam6,ptgam
+      real(dp):: m3456,s56,m56
+      real(dp):: ptmiss,etvec(4)
+      integer:: switch,n,nplotmax
+      integer tag
+      integer:: nd
       logical, save::first=.true.
       common/nplotmax/nplotmax
 ccccc!$omp threadprivate(first,/nplotmax/)
@@ -40,16 +45,16 @@ ccccc!$omp threadprivate(first,/nplotmax/)
       if (first) then
 c--- Initialize histograms, without computing any quantities; instead
 c--- set them to dummy values
-        tag='book'
-        ptgam=0D0
-        ptmiss=0D0
-        m34=0D0
-        m3456=0D0
-        m56=0D0
+        tag=tagbook
+        ptgam=0._dp
+        ptmiss=0._dp
+        m34=0._dp
+        m3456=0._dp
+        m56=0._dp
         goto 99
       else
 c--- Add event in histograms
-        tag='plot'
+        tag=tagplot
       endif
 
 ************************************************************************
@@ -58,23 +63,23 @@ c--- Add event in histograms
 *                                                                      *
 ************************************************************************
 !-----m(l,l)
-      s34=2d0*(p(4,4)*p(3,4)-p(4,1)*p(3,1)-p(4,2)*p(3,2)
+      s34=2._dp*(p(4,4)*p(3,4)-p(4,1)*p(3,1)-p(4,2)*p(3,2)
      &        -p(4,3)*p(3,3))
-      m34=dsqrt(s34)
+      m34=sqrt(s34)
 !-----m3456
-      m3456=dsqrt((p(3,4)+p(4,4)+p(5,4)+p(6,4))**2
-     .           -(p(3,1)+p(4,1)+p(5,1)+p(6,1))**2
-     .           -(p(3,2)+p(4,2)+p(5,2)+p(6,2))**2
-     .           -(p(3,3)+p(4,3)+p(5,3)+p(6,3))**2)
+      m3456=sqrt((p(3,4)+p(4,4)+p(5,4)+p(6,4))**2
+     &           -(p(3,1)+p(4,1)+p(5,1)+p(6,1))**2
+     &           -(p(3,2)+p(4,2)+p(5,2)+p(6,2))**2
+     &           -(p(3,3)+p(4,3)+p(5,3)+p(6,3))**2)
 !-----m(gam,gam)
-      s56=2d0*(p(5,4)*p(6,4)-p(5,1)*p(6,1)-p(5,2)*p(6,2)
+      s56=2._dp*(p(5,4)*p(6,4)-p(5,1)*p(6,1)-p(5,2)*p(6,2)
      &        -p(5,3)*p(6,3))
-      m56=dsqrt(s56)
+      m56=sqrt(s56)
 c-----pT(photon)-hardest
-      ptgam5 = 0D0
-      ptgam5 = 0D0
-      ptgam5 = dsqrt(p(5,1)**2+p(5,2)**2)
-      ptgam6 = dsqrt(p(6,1)**2+p(6,2)**2)
+      ptgam5 = 0._dp
+      ptgam5 = 0._dp
+      ptgam5 = sqrt(p(5,1)**2+p(5,2)**2)
+      ptgam6 = sqrt(p(6,1)**2+p(6,2)**2)
       ptgam  = max(ptgam5,ptgam6)
 c-----missing ET
       ptmiss=etmiss(p,etvec)
@@ -91,7 +96,7 @@ c--- Call histogram routines
 c--- Book and fill ntuple if that option is set, remembering to divide
 c--- by # of iterations now that is handled at end for regular histograms
       if (creatent .eqv. .true.) then
-        call bookfill(tag,p,wt/dfloat(itmx))  
+        call bookfill(tag,p,wt/real(itmx,dp))  
       endif
 
 c--- "n" will count the number of histograms
@@ -113,23 +118,23 @@ c---       dx:  bin width
 c---   llplot:  equal to "lin"/"log" for linear/log scale   
 
 !-----m34 
-      call bookplot(n,tag,'m(l,l)',m34,wt,wt2,0d0,200d0,2d0,'lin')
+      call bookplot(n,tag,'m(l,l)',m34,wt,wt2,0._dp,200._dp,2._dp,'lin')
       n=n+1
 !-----m34 
-      call bookplot(n,tag,'m(l,l)',m34,wt,wt2,0d0,500d0,5d0,'lin')
+      call bookplot(n,tag,'m(l,l)',m34,wt,wt2,0._dp,500._dp,5._dp,'lin')
       n=n+1
 !-----m3456 
       call bookplot(n,tag,'m(l,l,gam,gam)',
-     .m3456,wt,wt2,0d0,500d0,5d0,'lin')
+     .m3456,wt,wt2,0._dp,500._dp,5._dp,'lin')
       n=n+1
 !-----m56 
-      call bookplot(n,tag,'m(gam,gam)',m56,wt,wt2,0d0,500d0,5d0,'lin')
+      call bookplot(n,tag,'m(gam,gam)',m56,wt,wt2,0._dp,500._dp,5._dp,'lin')
       n=n+1
 !-----hardest photon pT
-      call bookplot(n,tag,'pT(gam)',ptgam,wt,wt2,0d0,500d0,10d0,'lin')
+      call bookplot(n,tag,'pT(gam)',ptgam,wt,wt2,0._dp,500._dp,10._dp,'lin')
       n=n+1
 !-----missing transverse momentum
-      call bookplot(n,tag,'pT(miss)',ptmiss,wt,wt2,0d0,500d0,5d0,'lin')
+      call bookplot(n,tag,'pT(miss)',ptmiss,wt,wt2,0._dp,500._dp,5._dp,'lin')
       n=n+1
       
 ************************************************************************
@@ -159,21 +164,21 @@ c--- Set the maximum number of plots, on the first call
 
 c-----m(l,l,gamma)
 c-----m345
-c     m345=dsqrt((p(3,4)+p(4,4)+p(5,4))**2-(p(3,1)+p(4,1)+p(5,1))**2
+c     m345=sqrt((p(3,4)+p(4,4)+p(5,4))**2-(p(3,1)+p(4,1)+p(5,1))**2
 c    .          -(p(3,2)+p(4,2)+p(5,2))**2-(p(3,3)+p(4,3)+p(5,3))**2)
 !-----m346
-c     m346=dsqrt((p(3,4)+p(4,4)+p(6,4))**2-(p(3,1)+p(4,1)+p(6,1))**2
+c     m346=sqrt((p(3,4)+p(4,4)+p(6,4))**2-(p(3,1)+p(4,1)+p(6,1))**2
 c    .          -(p(3,2)+p(4,2)+p(6,2))**2-(p(3,3)+p(4,3)+p(6,3))**2)
 c------photon-photon separation
 c       Rgamgam=R(p,5,6) 
 !-----m345
-c      call bookplot(n,tag,'m(l,l,gam1)',m345,wt,wt2,0d0,200d0,5d0,'lin')
+c      call bookplot(n,tag,'m(l,l,gam1)',m345,wt,wt2,0._dp,200._dp,5._dp,'lin')
 c      n=n+1
 !-----m346 
-c      call bookplot(n,tag,'m(l,l,gam2)',m346,wt,wt2,0d0,200d0,5d0,'lin')
+c      call bookplot(n,tag,'m(l,l,gam2)',m346,wt,wt2,0._dp,200._dp,5._dp,'lin')
 c      n=n+1
 !-----R(gamma,gamma)
 c      call bookplot(n,tag,'R(gam,gam)',Rgamgam,wt,wt2,
-c     .0d0,5d0,0.1d0,'lin')
+c     .0_dp,5._dp,0.1_dp,'lin')
 c      n=n+1
 

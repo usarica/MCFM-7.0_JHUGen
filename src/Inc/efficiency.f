@@ -9,6 +9,5 @@ c---            returned zero weight. Should be approximately
 c---            njetzero+ncutzero, with a small extra number
 c---            (dependent on 'cutoff') due to 'masscuts' and 'smalls'
 
-      integer njetzero,ncutzero,ntotzero,ntotshot
+      integer(kind=8) njetzero,ncutzero,ntotzero,ntotshot
       common/efficiency/njetzero,ncutzero,ntotzero,ntotshot
-!$omp threadprivate(/efficiency/)

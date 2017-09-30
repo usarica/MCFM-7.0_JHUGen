@@ -1,6 +1,11 @@
       subroutine spassign(p,k1,k2,k3,q,l,l_)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'sprods_com.f'
       include 'zprods_com.f'
       include 'debr.f'

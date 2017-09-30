@@ -1,6 +1,11 @@
       subroutine ampvbf(i1,i2,i3,i4,i5,i6,i7,i8,za,zb,amp)
       implicit none
+      include 'types.f'
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'cmplxmass.f'
       include 'zprods_decl.f'
       include 'sprods_com.f'
@@ -9,12 +14,12 @@
       include 'runstring.f'
       include 'zcouple.f'
       include 'WWbits.f'
-      integer jdu1,jdu2,h28,h17,i1,i2,i3,i4,i5,i6,i7,i8,
+      integer:: jdu1,jdu2,h28,h17,i1,i2,i3,i4,i5,i6,i7,i8,
      & p1,p2,p3,p4,p5,p6,p7,p8
-      double complex zab2,amp(2,2,2,2),sqzmass,
+      complex(dp):: zab2,amp(2,2,2,2),sqzmass,
      & propw34,propw56,propz28,propz17,propH,propw1347,propw1567,
      & gamZ17(2,2),gamz28(2,2),ZZ17(2,2),ZZ28(2,2),rxw
-      double precision t4,s17,s28,s34,s56,s3456,s1347,s1567
+      real(dp):: t4,s17,s28,s34,s56,s3456,s1347,s1567
 C     amp(jdu1,jdu2,h17,h28)
 C-----Begin statement functions
       zab2(i1,i2,i3,i4)=za(i1,i2)*zb(i2,i4)+za(i1,i3)*zb(i3,i4)
@@ -23,8 +28,8 @@ C-----Begin statement functions
 C-----end statement functions
 
 c--- special fix for Madgraph check
-      if (index(runstring,'mad') .gt. 0) then
-        sqzmass=dcmplx(zmass**2,0d0)
+      if (index(runstring,'mad') > 0) then
+        sqzmass=cplx2(zmass**2,zip)
       else
         sqzmass=czmass2
       endif
@@ -44,7 +49,7 @@ c--- special fix for Madgraph check
       propw56=s56-cwmass2
       propz17=s17-czmass2
       propz28=s28-czmass2
-      propH=dcmplx(s3456-hmass**2,hmass*hwidth)
+      propH=cplx2(s3456-hmass**2,hmass*hwidth)
 
       do jdu1=1,2
       gamz17(jdu1,1)=Q(jdu1)/s(i1,i7)+rxW*L(jdu1)/propz17

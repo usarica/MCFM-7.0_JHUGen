@@ -1,16 +1,21 @@
       subroutine gen6_rap(r,p,wt6,*)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'mxdim.f'
       include 'breit.f'
 
-      integer nu
-      double precision r(mxdim)
-      double precision wt6,p(mxpart,4),tp(4),tm(4),bp(4),bm(4)
-      double precision wtepnn,wtnbem,ep(4),em(4),nn(4),nb(4),wp(4),wm(4)
-      double precision wtttb,wtwp,wtwm,s3min,wt0
-      parameter(wt0=1d0/twopi**4)
+      integer:: nu
+      real(dp):: r(mxdim)
+      real(dp):: wt6,p(mxpart,4),tp(4),tm(4),bp(4),bm(4)
+      real(dp):: wtepnn,wtnbem,ep(4),em(4),nn(4),nb(4),wp(4),wm(4)
+      real(dp):: wtttb,wtwp,wtwm,s3min,wt0
+      parameter(wt0=1._dp/twopi**4)
 
 
 *     q(-p1) +qbar(-p2)=t(nu(p3)+e^+(p4)+b(p5))                        *
@@ -18,7 +23,7 @@
 *                                                                      * 
 
 
-      wt6=0d0
+      wt6=0._dp
       mass2=mt
       mass3=mt
       call gen2m(r,p,wtttb,*999)
@@ -27,7 +32,7 @@
       tp(nu)=p(3,nu)
       tm(nu)=p(4,nu)
       enddo
-      s3min=0d0
+      s3min=0._dp
       n3=1
       mass3=wmass      
       width3=wwidth      
@@ -52,8 +57,8 @@
       enddo
 
       return
- 999  wt6=0d0
-      p(:,:)=0d0
+ 999  wt6=0._dp
+      p(:,:)=0._dp
       return 1
       
       end

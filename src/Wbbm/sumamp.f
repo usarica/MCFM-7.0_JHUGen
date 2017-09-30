@@ -1,14 +1,19 @@
       subroutine sumamp(coeff,scints,amp,str)
+      implicit none
+      include 'types.f'
 c--- routine to multiply scalar integrals (in scints) by the computed
 c--- coefficients (in coeff) and return the result in amp
 c--- the 6-character string "str" is only used as output when checking primitives
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'Wbbmlabels.f'
-      integer iep,j,k
+      integer:: iep,j,k
       character*6 str
-      double complex amp(-2:0)
-      logical numcheck
+      complex(dp):: amp(-2:0)
+      logical:: numcheck
       common/numcheck/numcheck
 !$omp threadprivate(/numcheck/)
 

@@ -3,16 +3,20 @@
 *******************************************************************
       subroutine qqb_zaa_g(p,msq)
       implicit none
+      include 'types.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_com.f'
       include 'sprods_com.f'
-      double precision p(mxpart,4),msq(-nf:nf,-nf:nf)
-      double precision pnt(mxpart,4)
-      integer i,j,k
-      integer hq,h2,h3,h4,lh
-      double complex a70h1(2,2,2,2,2),a70h2(2,2,2,2,2)
-      double complex a70h3(2,2,2,2,2),a70h4(2,2,2,2,2)
-      double precision qqb(2),qbq(2),qg(2),qbg(2),gq(2),gqb(2)
+      real(dp):: p(mxpart,4),msq(-nf:nf,-nf:nf)
+      real(dp):: pnt(mxpart,4)
+      integer:: i,j,k
+      integer:: hq,h2,h3,h4,lh
+      complex(dp):: a70h1(2,2,2,2,2),a70h2(2,2,2,2,2)
+      complex(dp):: a70h3(2,2,2,2,2),a70h4(2,2,2,2,2)
+      real(dp):: qqb(2),qbq(2),qg(2),qbg(2),gq(2),gqb(2)
       integer,parameter::jj(-nf:nf)=(/-1,-2,-1,-2,-1,0,1,2,1,2,1/)
       integer,parameter::kk(-nf:nf)=(/-1,-2,-1,-2,-1,0,1,2,1,2,1/)
 
@@ -72,22 +76,22 @@ c-----initialize msq
 c-----fill msq
       do j=-nf,nf
       do k=-nf,nf
-          if ((j .eq. 0) .and. (k .eq. 0)) then
-            msq(j,k)=0d0
-          elseif ((j .eq. 0) .and. (k .lt. 0)) then
+          if ((j == 0) .and. (k == 0)) then
+            msq(j,k)=0._dp
+          elseif ((j == 0) .and. (k < 0)) then
             msq(j,k)=aveqg*gqb(-kk(k))
-          elseif ((j .eq. 0) .and. (k .gt. 0)) then
+          elseif ((j == 0) .and. (k > 0)) then
             msq(j,k)=aveqg*gq(kk(k))
-          elseif ((j .gt. 0) .and. (k .eq. -j)) then
+          elseif ((j > 0) .and. (k == -j)) then
             msq(j,k)=aveqq*qqb(jj(j))
-          elseif ((j .lt. 0) .and. (k .eq. -j)) then
+          elseif ((j < 0) .and. (k == -j)) then
             msq(j,k)=aveqq*qbq(kk(k))
-          elseif ((j .gt. 0) .and. (k .eq. 0)) then
+          elseif ((j > 0) .and. (k == 0)) then
             msq(j,k)=aveqg*qg(jj(j))
-          elseif ((j .lt. 0) .and. (k .eq. 0)) then
+          elseif ((j < 0) .and. (k == 0)) then
             msq(j,k)=aveqg*qbg(-jj(j))
           else
-            msq(j,k)=0d0
+            msq(j,k)=0._dp
           endif
       enddo
       enddo
@@ -100,14 +104,19 @@ c-----done
 * return helicity amplitudes for each channel
 ********************************************************************
       subroutine zaag_a70h(j1,j2,j3,j4,j5,j6,j7,
-     .a70h1,a70h2,a70h3,a70h4)
+     & a70h1,a70h2,a70h3,a70h4)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ipsgen.f'
-      integer j1,j2,j3,j4,j5,j6,j7
-      integer hq,h2,h3,h4,lh
-      double complex a70h1(2,2,2,2,2),a70h2(2,2,2,2,2)
-      double complex a70h3(2,2,2,2,2),a70h4(2,2,2,2,2)
+      integer:: j1,j2,j3,j4,j5,j6,j7
+      integer:: hq,h2,h3,h4,lh
+      complex(dp):: a70h1(2,2,2,2,2),a70h2(2,2,2,2,2)
+      complex(dp):: a70h3(2,2,2,2,2),a70h4(2,2,2,2,2)
 c-----initialize
       do hq=1,2
       do h2=1,2
@@ -145,7 +154,12 @@ c-----done
 ********************************************************************
       subroutine zaag_m70sq(qi,a70h1,a70h2,a70h3,a70h4,msq)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_com.f'
       include 'sprods_com.f'
       include 'ewcouple.f'
@@ -154,23 +168,23 @@ c-----done
       include 'zcouple.f'
       include 'masses.f'
       include 'ipsgen.f'
-      double precision msq,msqsum(32),t,qq,gg
-      double precision msqAA(32),msqBB(32),msqCC(32),msqDD(32),msqAB(32)
-      double precision msqAC(32),msqAD(32),msqBC(32),msqBD(32),msqCD(32)
-      integer i,j,k,ihel
-      integer h2,h3,h4,qi
-      double complex a70h1(2,2,2,2,2),a70h2(2,2,2,2,2)
-      double complex a70h3(2,2,2,2,2),a70h4(2,2,2,2,2)
-      double complex propQQ,propLL,propQL3,propQL4
-      double complex m70hA(32),m70hB(32),m70hC(32),m70hD(32)
+      real(dp):: msq,msqsum(32),t,qq,gg
+      real(dp):: msqAA(32),msqBB(32),msqCC(32),msqDD(32),msqAB(32)
+      real(dp):: msqAC(32),msqAD(32),msqBC(32),msqBD(32),msqCD(32)
+      integer:: i,j,k,ihel
+      integer:: h2,h3,h4,qi
+      complex(dp):: a70h1(2,2,2,2,2),a70h2(2,2,2,2,2)
+      complex(dp):: a70h3(2,2,2,2,2),a70h4(2,2,2,2,2)
+      complex(dp):: propQQ,propLL,propQL3,propQL4
+      complex(dp):: m70hA(32),m70hB(32),m70hC(32),m70hD(32)
 c-----
-      gg=dsqrt(gsq)
-      qq=dabs(q1)
+      gg=sqrt(gsq)
+      qq=abs(q1)
 c-----
-      propQQ =s(6,7)/Dcmplx(s(6,7)-zmass**2,zwidth*zmass)
-      propQL3=t(2,6,7)/Dcmplx(t(2,6,7)-zmass**2,zwidth*zmass)
-      propQL4=t(3,6,7)/Dcmplx(t(3,6,7)-zmass**2,zwidth*zmass)
-      propLL =t(1,4,5)/Dcmplx(t(1,4,5)-zmass**2,zwidth*zmass)
+      propQQ =s(6,7)/cplx2(s(6,7)-zmass**2,zwidth*zmass)
+      propQL3=t(2,6,7)/cplx2(t(2,6,7)-zmass**2,zwidth*zmass)
+      propQL4=t(3,6,7)/cplx2(t(3,6,7)-zmass**2,zwidth*zmass)
+      propLL =t(1,4,5)/cplx2(t(1,4,5)-zmass**2,zwidth*zmass)
 c-----      
       ihel=1
       do h2=1,2
@@ -178,19 +192,19 @@ c-----
       do h4=1,2
          if (ipsgen .ne. 2) then
          m70hA(ihel)=four*esq**2*gg*
-     .   (+(q1*Q(qi)+l(qi)*l1*propQQ)*Q(qi)**2*a70h1(1,h2,h3,h4,1))
+     &   (+(q1*Q(qi)+l(qi)*l1*propQQ)*Q(qi)**2*a70h1(1,h2,h3,h4,1))
          endif
          if (ipsgen .ne. 3) then
          m70hB(ihel)=four*esq**2*gg*
-     .   (+qq*(q1*Q(qi)+l(qi)*l1*propLL)*a70h2(1,h2,h3,h4,1))
+     &   (+qq*(q1*Q(qi)+l(qi)*l1*propLL)*a70h2(1,h2,h3,h4,1))
          endif
-         if ((ipsgen .eq. 2) .or. (ipsgen .eq. 3)) then
+         if ((ipsgen == 2) .or. (ipsgen == 3)) then
          m70hC(ihel)=four*esq**2*gg*
-     .   (+qq*(q1*Q(qi)+l(qi)*l1*propQL3)*(-Q(qi))*a70h3(1,h2,h3,h4,1))
+     &   (+qq*(q1*Q(qi)+l(qi)*l1*propQL3)*(-Q(qi))*a70h3(1,h2,h3,h4,1))
          endif
-         if ((ipsgen .eq. 3) .or. (ipsgen .eq. 4)) then
+         if ((ipsgen == 3) .or. (ipsgen == 4)) then
          m70hD(ihel)=four*esq**2*gg*
-     .   (+qq*(q1*Q(qi)+l(qi)*l1*propQL4)*(-Q(qi))*a70h4(1,h2,h3,h4,1))
+     &   (+qq*(q1*Q(qi)+l(qi)*l1*propQL4)*(-Q(qi))*a70h4(1,h2,h3,h4,1))
          endif
          ihel=ihel+1
       enddo
@@ -202,19 +216,19 @@ c-----
       do h4=1,2
          if (ipsgen .ne. 2) then
          m70hA(ihel)=four*esq**2*gg*
-     .   (+(q1*Q(qi)+r(qi)*l1*propQQ)*Q(qi)**2*a70h1(2,h2,h3,h4,1))
+     &   (+(q1*Q(qi)+r(qi)*l1*propQQ)*Q(qi)**2*a70h1(2,h2,h3,h4,1))
          endif
          if (ipsgen .ne. 3) then
          m70hB(ihel)=four*esq**2*gg*
-     .   (-qq*(q1*Q(qi)+r(qi)*l1*propLL)*a70h2(2,h2,h3,h4,1))
+     &   (-qq*(q1*Q(qi)+r(qi)*l1*propLL)*a70h2(2,h2,h3,h4,1))
          endif
-         if ((ipsgen .eq. 2) .or. (ipsgen .eq. 3)) then
+         if ((ipsgen == 2) .or. (ipsgen == 3)) then
          m70hC(ihel)=four*esq**2*gg*
-     .   (-qq*(q1*Q(qi)+r(qi)*l1*propQL3)*(-Q(qi))*a70h3(2,h2,h3,h4,1))
+     &   (-qq*(q1*Q(qi)+r(qi)*l1*propQL3)*(-Q(qi))*a70h3(2,h2,h3,h4,1))
          endif
-         if ((ipsgen .eq. 3) .or. (ipsgen .eq. 4)) then
+         if ((ipsgen == 3) .or. (ipsgen == 4)) then
          m70hD(ihel)=four*esq**2*gg*
-     .   (-qq*(q1*Q(qi)+r(qi)*l1*propQL4)*(-Q(qi))*a70h4(2,h2,h3,h4,1))
+     &   (-qq*(q1*Q(qi)+r(qi)*l1*propQL4)*(-Q(qi))*a70h4(2,h2,h3,h4,1))
          endif
          ihel=ihel+1
       enddo
@@ -226,19 +240,19 @@ c-----
       do h4=1,2
          if (ipsgen .ne. 2) then
          m70hA(ihel)=four*esq**2*gg*
-     .   (+(q1*Q(qi)+r(qi)*r1*propQQ)*Q(qi)**2*a70h1(2,h2,h3,h4,2))
+     &   (+(q1*Q(qi)+r(qi)*r1*propQQ)*Q(qi)**2*a70h1(2,h2,h3,h4,2))
          endif
          if (ipsgen .ne. 3) then
          m70hB(ihel)=four*esq**2*gg*
-     .   (+qq*(q1*Q(qi)+r(qi)*r1*propLL)*a70h2(2,h2,h3,h4,2))
+     &   (+qq*(q1*Q(qi)+r(qi)*r1*propLL)*a70h2(2,h2,h3,h4,2))
          endif
-         if ((ipsgen .eq. 2) .or. (ipsgen .eq. 3)) then
+         if ((ipsgen == 2) .or. (ipsgen == 3)) then
          m70hC(ihel)=four*esq**2*gg*
-     .   (+qq*(q1*Q(qi)+r(qi)*r1*propQL3)*(-Q(qi))*a70h3(2,h2,h3,h4,2))
+     &   (+qq*(q1*Q(qi)+r(qi)*r1*propQL3)*(-Q(qi))*a70h3(2,h2,h3,h4,2))
          endif
-         if ((ipsgen .eq. 3) .or. (ipsgen .eq. 4)) then
+         if ((ipsgen == 3) .or. (ipsgen == 4)) then
          m70hD(ihel)=four*esq**2*gg*
-     .   (+qq*(q1*Q(qi)+r(qi)*r1*propQL4)*(-Q(qi))*a70h4(2,h2,h3,h4,2))
+     &   (+qq*(q1*Q(qi)+r(qi)*r1*propQL4)*(-Q(qi))*a70h4(2,h2,h3,h4,2))
          endif
          ihel=ihel+1
       enddo
@@ -250,19 +264,19 @@ c-----
       do h4=1,2
          if (ipsgen .ne. 2) then
          m70hA(ihel)=four*esq**2*gg*
-     .   (+(q1*Q(qi)+l(qi)*r1*propQQ)*Q(qi)**2*a70h1(1,h2,h3,h4,2))
+     &   (+(q1*Q(qi)+l(qi)*r1*propQQ)*Q(qi)**2*a70h1(1,h2,h3,h4,2))
          endif
          if (ipsgen .ne. 3) then
          m70hB(ihel)=four*esq**2*gg*
-     .   (-qq*(q1*Q(qi)+l(qi)*r1*propLL)*a70h2(1,h2,h3,h4,2))
+     &   (-qq*(q1*Q(qi)+l(qi)*r1*propLL)*a70h2(1,h2,h3,h4,2))
          endif
-         if ((ipsgen .eq. 2) .or. (ipsgen .eq. 3)) then
+         if ((ipsgen == 2) .or. (ipsgen == 3)) then
          m70hC(ihel)=four*esq**2*gg*
-     .   (-qq*(q1*Q(qi)+l(qi)*r1*propQL3)*(-Q(qi))*a70h3(1,h2,h3,h4,2))
+     &   (-qq*(q1*Q(qi)+l(qi)*r1*propQL3)*(-Q(qi))*a70h3(1,h2,h3,h4,2))
          endif
-         if ((ipsgen .eq. 3) .or. (ipsgen .eq. 4)) then
+         if ((ipsgen == 3) .or. (ipsgen == 4)) then
          m70hD(ihel)=four*esq**2*gg*
-     .   (-qq*(q1*Q(qi)+l(qi)*r1*propQL4)*(-Q(qi))*a70h4(1,h2,h3,h4,2))
+     &   (-qq*(q1*Q(qi)+l(qi)*r1*propQL4)*(-Q(qi))*a70h4(1,h2,h3,h4,2))
          endif
          ihel=ihel+1
 c----
@@ -273,37 +287,37 @@ c-----overcount ihel
       ihel=ihel-1
 c-----choose part
       do i=1,32
-         if (ipsgen.eq.1) then
-         msqAA(i)=cdabs(m70hA(i))**2
-         msqAB(i)=2d0*dreal(dconjg(m70hA(i))*m70hB(i))
+         if (ipsgen==1) then
+         msqAA(i)=abs(m70hA(i))**2
+         msqAB(i)=2._dp*real(conjg(m70hA(i))*m70hB(i))
          endif
-         if (ipsgen.eq.2) then
-         msqBB(i)=cdabs(m70hB(i))**2
-         msqBC(i)=2d0*dreal(dconjg(m70hB(i))*m70hC(i))
+         if (ipsgen==2) then
+         msqBB(i)=abs(m70hB(i))**2
+         msqBC(i)=2._dp*real(conjg(m70hB(i))*m70hC(i))
          endif
-         if (ipsgen.eq.3) then
-         msqCC(i)=cdabs(m70hC(i))**2
-         msqAC(i)=2d0*dreal(dconjg(m70hA(i))*m70hC(i))
-         msqCD(i)=2d0*dreal(dconjg(m70hC(i))*m70hD(i))
+         if (ipsgen==3) then
+         msqCC(i)=abs(m70hC(i))**2
+         msqAC(i)=2._dp*real(conjg(m70hA(i))*m70hC(i))
+         msqCD(i)=2._dp*real(conjg(m70hC(i))*m70hD(i))
          endif
-         if (ipsgen.eq.4) then
-         msqDD(i)=cdabs(m70hD(i))**2
-         msqAD(i)=2d0*dreal(dconjg(m70hA(i))*m70hD(i))
-         msqBD(i)=2d0*dreal(dconjg(m70hB(i))*m70hD(i))
+         if (ipsgen==4) then
+         msqDD(i)=abs(m70hD(i))**2
+         msqAD(i)=2._dp*real(conjg(m70hA(i))*m70hD(i))
+         msqBD(i)=2._dp*real(conjg(m70hB(i))*m70hD(i))
          endif
       enddo
       do i=1,32
 c---------commented pieces below only for crosscheck with old PSgen
 c         msqsum(i)= msqAA(i)+msqBB(i)+msqCC(i)+msqDD(i)+msqAB(i)
-c     .             +msqAC(i)+msqAD(i)+msqBC(i)+msqBD(i)+msqCD(i)
-         if (ipsgen.eq.1) then
+c     &             +msqAC(i)+msqAD(i)+msqBC(i)+msqBD(i)+msqCD(i)
+         if (ipsgen==1) then
             msqsum(i)=msqAA(i)+msqAB(i) !AA+AB
-         elseif (ipsgen.eq.2) then
+         elseif (ipsgen==2) then
             msqsum(i)=msqBB(i)+msqBC(i) !BB+BC
-         elseif (ipsgen.eq.3) then
+         elseif (ipsgen==3) then
             msqsum(i)=msqCC(i)+msqAC(i)+msqCD(i) !CC+AC+CD
-         elseif (ipsgen.eq.4) then
-            msqsum(i)=msqDD(i)+msqAD(i)+msqBD(i) !DD+AD+BD
+         elseif (ipsgen==4) then
+            msqsum(i)=msqDD(i)+msqAD(i)+msqBD(i) !D.e+_dpA.e+_dpBD
          endif
       enddo
 c-----square them up and sum them up
@@ -312,7 +326,7 @@ c-----square them up and sum them up
          msq=msq+msqsum(i)
       enddo
 c-----include color factors and identical particle factors
-      msq=8D0/2D0*msq
+      msq=8._dp/2._dp*msq
 c-----done
       return
       end

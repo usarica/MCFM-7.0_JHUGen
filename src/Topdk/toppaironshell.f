@@ -1,4 +1,6 @@
       subroutine toppaironshell(p,iswitch,m,mab,mba)
+      implicit none
+      include 'types.f'
 c---                                                                      
 c---     q(-p1) +qbar(-p2)=nu(p3)+e+(p4)+b(p5)+bbar(p6)+e-(p7)+nubar(p8) [+g(p9]]  
 c---                                                                      
@@ -7,14 +9,17 @@ c--- iswitch=+1 for gluon emission in top decay
 c--- iswitch=-1 for gluon emission in anti-top decay
 c--- the matrix m is the q-qbar initiated process
 c--- and mab,mba are the color-ordered gluon initiated process
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'zprods_decl.f'
-      double precision p(mxpart,4),q(mxpart,4),
+      real(dp):: p(mxpart,4),q(mxpart,4),
      & alt,ala,dot,s12,mt2,twoptDp1,twoptDp2
-      double complex m(2,2,2),mab(2,2,2,2),mba(2,2,2,2),iza,izb
-      integer p1,p2,t,a,e,eb,si,aa,bb,iswitch
+      complex(dp):: m(2,2,2),mab(2,2,2,2),mba(2,2,2,2),iza,izb
+      integer:: p1,p2,t,a,e,eb,si,aa,bb,iswitch
       parameter(p1=1,p2=2,t=3,eb=4,a=5,e=6)
 C-----matrix element for p1+p2 -> t+a where both t and a are on shell
 C-----t rendered massless wrt eb, and a rendered massless wrt e
@@ -33,13 +38,13 @@ C---zero all arrays
       q(p2,si)=p(2,si)
       q(eb,si)=p(4,si)
       q(e,si)=p(7,si)
-      if (iswitch .eq. 1) then
+      if (iswitch == 1) then
       q(t,si)=p(3,si)+p(4,si)+p(5,si)+p(9,si)
       q(a,si)=p(6,si)+p(7,si)+p(8,si)
-      elseif (iswitch .eq. -1) then
+      elseif (iswitch == -1) then
       q(t,si)=p(3,si)+p(4,si)+p(5,si)
       q(a,si)=p(6,si)+p(7,si)+p(8,si)+p(9,si)
-      elseif (iswitch .eq. 0) then
+      elseif (iswitch == 0) then
       q(t,si)=p(3,si)+p(4,si)+p(5,si)
       q(a,si)=p(6,si)+p(7,si)+p(8,si)
       endif
@@ -47,11 +52,11 @@ C---zero all arrays
       mt2=mt**2
 C---- now render "t" massless wrt to vector eb 
 C---- now render "a" massless wrt to vector e 
-      alt=mt**2/(2d0*dot(q,t,eb))
-      ala=mt**2/(2d0*dot(q,a,e))
-      s12=2d0*dot(q,1,2)
-      twoptDp1=2d0*dot(q,t,p1)
-      twoptDp2=2d0*dot(q,t,p2)
+      alt=mt**2/(2._dp*dot(q,t,eb))
+      ala=mt**2/(2._dp*dot(q,a,e))
+      s12=2._dp*dot(q,1,2)
+      twoptDp1=2._dp*dot(q,t,p1)
+      twoptDp2=2._dp*dot(q,t,p2)
       do si=1,4
       q(t,si)=q(t,si)-alt*q(eb,si)
       q(a,si)=q(a,si)-ala*q(e,si)

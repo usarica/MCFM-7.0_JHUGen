@@ -1,4 +1,7 @@
-      double precision function lotopdecaywidth(mt,mb,mw,gamw)
+      function lotopdecaywidth(mt,mb,mw,gamw)
+      implicit none
+      include 'types.f'
+      real(dp):: lotopdecaywidth
 ************************************************************************
 *     Authors: R.K. Ellis and J. Campbell, February 2012               *
 *                                                                      *
@@ -16,12 +19,12 @@
 *                                                                      *
 *                                                                      *
 ************************************************************************
-      implicit none
+      
       include 'zerowidth.f'
-      double precision mb,mt,mt1,mw,om,omsq,be,besq,dgauss,Gamma0,
+      real(dp):: mb,mt,mt1,mw,om,omsq,be,besq,dgauss,Gamma0,
      & xlo,xhi,xi,gamw,ga,Gamma0int
-      double precision cachemass,cachewidth,tiny
-      data cachemass,cachewidth,tiny/0d0,0d0,1d-8/
+      real(dp):: cachemass,cachewidth,tiny
+      data cachemass,cachewidth,tiny/0._dp,0._dp,1.e-8_dp/
       common/transfer/mt1,besq,xi,ga
       save cachemass,cachewidth,tiny
 !$omp threadprivate(cachemass,cachewidth,tiny,/transfer/)
@@ -29,7 +32,7 @@
 
 
 c--- check to see if result has already been computed
-      if (abs(mt*mw-mb-cachemass) .lt. tiny) then
+      if (abs(mt*mw-mb-cachemass) < tiny) then
         lotopdecaywidth=cachewidth
         return
       endif
@@ -43,8 +46,8 @@ c--- check to see if result has already been computed
       omsq=om**2
       lotopdecaywidth=Gamma0(mt,besq,omsq)
       else
-      xlo=0d0
-      xhi=(1d0-be)**2
+      xlo=0._dp
+      xhi=(1._dp-be)**2
       ga=gamw/mw
       xi=(mt/mw)**2
       lotopdecaywidth=dgauss(Gamma0int,xlo,xhi,tiny)

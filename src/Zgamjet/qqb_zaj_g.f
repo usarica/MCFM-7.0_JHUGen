@@ -1,22 +1,27 @@
       subroutine qqb_zaj_g(p,msq)
+      implicit none
+      include 'types.f'
 *******************************************************************
 *  Author: H. Hartanto                                            *
 *                                                                 *
 *  return matrix element squared for                              *
 *  0 -> f(p1) + f(p2) + l(p3) + lb(p4) + gam(p5) + f(p6) + f(p7)  *
 *******************************************************************
-      implicit none
+      
       include 'constants.f'
-      double precision p(mxpart,4),msq(-nf:nf,-nf:nf)
-      double precision msq1(-nf:nf,-nf:nf),msq2(-nf:nf,-nf:nf)
-      double precision msq3(-nf:nf,-nf:nf)
-      double precision qqb_gg(2),qbq_gg(2),gg_qqb(2)
-      double precision qg_qg(2),qbg_qbg(2),gq_gq(2),gqb_gqb(2)
-      double precision iib_jjb(4),ibi_jjb(4)
-      double precision iib_iib(2),ibi_iib(2),ii_ii(2),ibib_ibib(2)
-      double precision qiqj(2,2),qjqi(2,2),qbiqbj(2,2),qbjqbi(2,2)
-      double precision qiqbj(2,2),qjqbi(2,2),qbiqj(2,2),qbjqi(2,2)
-      integer i,j,k
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      real(dp):: p(mxpart,4),msq(-nf:nf,-nf:nf)
+      real(dp):: msq1(-nf:nf,-nf:nf),msq2(-nf:nf,-nf:nf)
+      real(dp):: msq3(-nf:nf,-nf:nf)
+      real(dp):: qqb_gg(2),qbq_gg(2),gg_qqb(2)
+      real(dp):: qg_qg(2),qbg_qbg(2),gq_gq(2),gqb_gqb(2)
+      real(dp):: iib_jjb(4),ibi_jjb(4)
+      real(dp):: iib_iib(2),ibi_iib(2),ii_ii(2),ibib_ibib(2)
+      real(dp):: qiqj(2,2),qjqi(2,2),qbiqbj(2,2),qbjqbi(2,2)
+      real(dp):: qiqbj(2,2),qjqbi(2,2),qbiqj(2,2),qbjqi(2,2)
+      integer:: i,j,k
       integer,parameter::jj(-nf:nf)=(/-1,-2,-1,-2,-1,0,1,2,1,2,1/)
       integer,parameter::kk(-nf:nf)=(/-1,-2,-1,-2,-1,0,1,2,1,2,1/)
 c-----call squared matrix elements from each subprocesses
@@ -38,46 +43,46 @@ c-----fill msq1 and msq3
       do j=-nf,nf
       do k=-nf,nf
 c---------fill msq1
-          if ((j .eq. 0) .and. (k .eq. 0)) then
+          if ((j == 0) .and. (k == 0)) then
             msq1(j,k)=(two*gg_qqb(2)+three*gg_qqb(1))
-          elseif ((j .eq. 0) .and. (k .lt. 0)) then
+          elseif ((j == 0) .and. (k < 0)) then
             msq1(j,k)=gqb_gqb(-kk(k))
-          elseif ((j .eq. 0) .and. (k .gt. 0)) then
+          elseif ((j == 0) .and. (k > 0)) then
             msq1(j,k)=gq_gq(kk(k))
-          elseif ((j .gt. 0) .and. (k .eq. -j)) then
+          elseif ((j > 0) .and. (k == -j)) then
             msq1(j,k)=qqb_gg(jj(j))
-          elseif ((j .lt. 0) .and. (k .eq. -j)) then
+          elseif ((j < 0) .and. (k == -j)) then
             msq1(j,k)=qbq_gg(kk(k))
-          elseif ((j .gt. 0) .and. (k .eq. 0)) then
+          elseif ((j > 0) .and. (k == 0)) then
             msq1(j,k)=qg_qg(jj(j))
-          elseif ((j .lt. 0) .and. (k .eq. 0)) then
+          elseif ((j < 0) .and. (k == 0)) then
             msq1(j,k)=qbg_qbg(-jj(j))
           else
-            msq1(j,k)=0d0
+            msq1(j,k)=0._dp
           endif
 c---------fill msq3
-          if ((j.gt.0).and.(k.gt.0)) then
-            if (j.lt.k) then
+          if ((j>0).and.(k>0)) then
+            if (j<k) then
                msq3(j,k)=qiqj(jj(j),kk(k))
-            elseif (k.lt.j) then
+            elseif (k<j) then
                msq3(j,k)=qjqi(kk(k),jj(j))
             endif
-          elseif ((j.lt.0).and.(k.lt.0)) then
-            if (j.lt.k) then
+          elseif ((j<0).and.(k<0)) then
+            if (j<k) then
                msq3(j,k)=qbjqbi(-kk(k),-jj(j))
-            elseif (k.lt.j) then
+            elseif (k<j) then
                msq3(j,k)=qbiqbj(-jj(j),-kk(k))
             endif
-          elseif ((j.gt.0).and.(k.lt.0)) then
-            if (j.lt.abs(k)) then
+          elseif ((j>0).and.(k<0)) then
+            if (j<abs(k)) then
                msq3(j,k)=qiqbj(jj(j),-kk(k))
-            elseif (abs(k).lt.j) then
+            elseif (abs(k)<j) then
                msq3(j,k)=qjqbi(-kk(k),jj(j))
             endif
-          elseif ((j.lt.0).and.(k.gt.0)) then
-            if (abs(j).lt.k) then
+          elseif ((j<0).and.(k>0)) then
+            if (abs(j)<k) then
                msq3(j,k)=qbiqj(-jj(j),kk(k))
-            elseif (k.lt.abs(j)) then
+            elseif (k<abs(j)) then
                msq3(j,k)=qbjqi(kk(k),-jj(j))
             endif
           endif
@@ -85,15 +90,15 @@ c---------
       enddo
       enddo
 c-----fill msq2
-      msq2(2,-2)=iib_iib(2)+iib_jjb(3)+3d0*iib_jjb(1)
+      msq2(2,-2)=iib_iib(2)+iib_jjb(3)+3._dp*iib_jjb(1)
       msq2(4,-4)=msq2(2,-2)
-      msq2(1,-1)=iib_iib(1)+2d0*iib_jjb(2)+2d0*iib_jjb(4)
+      msq2(1,-1)=iib_iib(1)+2._dp*iib_jjb(2)+2._dp*iib_jjb(4)
       msq2(3,-3)=msq2(1,-1)
       msq2(5,-5)=msq2(1,-1)
 c-----
-      msq2(-2,2)=ibi_iib(2)+ibi_jjb(3)+3d0*ibi_jjb(1)
+      msq2(-2,2)=ibi_iib(2)+ibi_jjb(3)+3._dp*ibi_jjb(1)
       msq2(-4,4)=msq2(-2,2)
-      msq2(-1,1)=ibi_iib(1)+2d0*ibi_jjb(2)+2d0*ibi_jjb(4)
+      msq2(-1,1)=ibi_iib(1)+2._dp*ibi_jjb(2)+2._dp*ibi_jjb(4)
       msq2(-3,3)=msq2(-1,1)
       msq2(-5,5)=msq2(-1,1)
 c-----
@@ -120,23 +125,28 @@ c-----done
 
 
       subroutine msq_zqqbgamgg(p,qqb_gg,qbq_gg,gg_qqb,
-     .qg_qg,qbg_qbg,gq_gq,gqb_gqb)
+     & qg_qg,qbg_qbg,gq_gq,gqb_gqb)
+      implicit none
+      include 'types.f'
 *****************************************************************
 * return averaged matrix element squared for                    *
 * 0 -> f(p1) + f(p2) + l(p3) + lb(p4) + gam(p5) + f(p6) + f(p7) *
 * coming from (0->q+qb+gam+g+g+lb+l) amplitude                  *
 *****************************************************************
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_com.f'
       include 'sprods_com.f'
-      double precision p(mxpart,4)
-      double precision pnt(mxpart,4)
-      integer i,j,k
-      double complex a70h1(2,2,2,2,2,2),a70h3(2,2,2,2,2,2)
-      double precision qqb_gg(2),qbq_gg(2),gg_qqb(2)
-      double precision qg_qg(2),qbg_qbg(2),gq_gq(2),gqb_gqb(2)
-      integer i1,i2,i3,i4,i5,i6
+      real(dp):: p(mxpart,4)
+      real(dp):: pnt(mxpart,4)
+      integer:: i,j,k
+      complex(dp):: a70h1(2,2,2,2,2,2),a70h3(2,2,2,2,2,2)
+      real(dp):: qqb_gg(2),qbq_gg(2),gg_qqb(2)
+      real(dp):: qg_qg(2),qbg_qbg(2),gq_gq(2),gqb_gqb(2)
+      integer:: i1,i2,i3,i4,i5,i6
 c-----convert to Nagy-Trocsanyi momentum convention
       do i=1,4
          pnt(1,i)=p(2,i)
@@ -210,15 +220,20 @@ c-----done
 
 
       subroutine msq_zqqbQQbgam(p,iib_jjb,ibi_jjb,
-     .iib_iib,ibi_iib,ii_ii,ibib_ibib,
-     .qiqj,qbiqbj,qiqbj,qbiqj,qjqi,qbjqbi,qjqbi,qbjqi)
+     & iib_iib,ibi_iib,ii_ii,ibib_ibib,
+     & qiqj,qbiqbj,qiqbj,qbiqj,qjqi,qbjqbi,qjqbi,qbjqi)
+      implicit none
+      include 'types.f'
 *****************************************************************
 * return matrix element squared for                             *
 * 0 -> f(p1) + f(p2) + l(p3) + lb(p4) + gam(p5) + f(p6) + f(p7) *
 * coming from (0->q+qb+Q+Qb+gam+lb+l) amplitude                 *
 *****************************************************************
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'qcdcouple.f'
       include 'ewcouple.f'
       include 'zcouple.f'
@@ -226,14 +241,14 @@ c-----done
       include 'sprods_com.f'
       include 'masses.f'
       include 'ewcharge.f'
-      double precision p(mxpart,4),pnt(mxpart,4)
-      double precision iib_jjb(4),ibi_jjb(4)
-      double precision iib_iib(2),ibi_iib(2),ii_ii(2),ibib_ibib(2)
-      double precision qiqj(2,2),qjqi(2,2),qbiqbj(2,2),qbjqbi(2,2)
-      double precision qiqbj(2,2),qjqbi(2,2),qbiqj(2,2),qbjqi(2,2)
-      double precision xqiqj(4),xqjqi(4),xqbiqbj(4),xqbjqbi(4)
-      double precision xqiqbj(4),xqjqbi(4),xqbiqj(4),xqbjqi(4)
-      integer i,j,k
+      real(dp):: p(mxpart,4),pnt(mxpart,4)
+      real(dp):: iib_jjb(4),ibi_jjb(4)
+      real(dp):: iib_iib(2),ibi_iib(2),ii_ii(2),ibib_ibib(2)
+      real(dp):: qiqj(2,2),qjqi(2,2),qbiqbj(2,2),qbjqbi(2,2)
+      real(dp):: qiqbj(2,2),qjqbi(2,2),qbiqj(2,2),qbjqi(2,2)
+      real(dp):: xqiqj(4),xqjqi(4),xqbiqbj(4),xqbjqbi(4)
+      real(dp):: xqiqbj(4),xqjqbi(4),xqbiqj(4),xqbjqi(4)
+      integer:: i,j,k
 c-----convert to Nagy-Trocsanyi momentum convention
       do i=1,4
          pnt(1,i)=p(2,i)

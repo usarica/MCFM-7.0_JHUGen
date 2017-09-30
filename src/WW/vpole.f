@@ -1,16 +1,19 @@
-      double complex function Vpole(sij)
+      function Vpole(sij)
       implicit none
+      include 'types.f'
+      complex(dp):: Vpole
+      
 c---  DKS Eq. 2.12
       include 'epinv.f'
       include 'epinv2.f'
       include 'scale.f'
-      double precision sij
-      double complex Lnrat,xl12
+      real(dp):: sij
+      complex(dp):: Lnrat,xl12
         
       xl12=Lnrat(-sij,musq)
 
-      Vpole=-epinv*epinv2+epinv*(-1.5d0+xl12)
-     .   -0.5d0*xl12**2+1.5d0*xl12-3.5d0
+      Vpole=-epinv*epinv2+epinv*(-1.5_dp+xl12)
+     &   -0.5_dp*xl12**2+1.5_dp*xl12-3.5_dp
 
       return
       end

@@ -1,18 +1,23 @@
       subroutine higgsw(br)
       implicit none
+      include 'types.f'
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ewcouple.f'
       include 'masses.f'
-      double precision wff,mfsq,br
+      real(dp):: wff,mfsq,br
 c-----approximate form for the width of the standard model higgs
 c-----valid for low masses
-      wff(mfsq)=dsqrt(2d0)/8d0/pi*gf*hmass*mfsq
-     & *(1d0-4d0*mfsq/hmass**2)**1.5d0
+      wff(mfsq)=sqrt(2._dp)/8._dp/pi*gf*hmass*mfsq
+     & *(1._dp-4._dp*mfsq/hmass**2)**1.5_dp
 
-      hwidth=3d0*(wff(mbsq)+wff(mcsq))+wff(mtausq)
+      hwidth=3._dp*(wff(mbsq)+wff(mcsq))+wff(mtausq)
       write(6,*) 'hmass,hwidth',hmass,hwidth
       write(6,*) 'mtausq,mcsq,mbsq',mtausq,mcsq,mbsq
       write(6,*)
-      br=3d0*wff(mbsq)/hwidth
+      br=3._dp*wff(mbsq)/hwidth
       return
       end

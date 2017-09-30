@@ -1,26 +1,31 @@
       subroutine qq_tchan_ztqg_dk(p,msq)
+      implicit none
+      include 'types.f'
 c---Matrix element squared averaged over initial colors and spins
 c     u(-p1)+b(p2)->e^-(p3)+e^+(p4)+t(nu(p5)+e(p6)+b(p7))+d(p8)+g(p9)
-      implicit none
+      
       include 'ewcouple.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'qcdcouple.f'
       include 'masses.f'
       include 'nwz.f'
       include 'zprods_com.f'
-      integer nu,eta,e5
-      double precision p(mxpart,4),q(mxpart,4),q5Deta,
+      integer:: nu,eta,e5
+      real(dp):: p(mxpart,4),q(mxpart,4),q5Deta,
      & msq(-nf:nf,-nf:nf),fac,ampsqL,ampsqH,
      & b_u,u_b,db_b,b_db,d_bb,ub_bb,bb_d,bb_ub,
      & db_g,g_b,u_g,g_db,b_g,g_u,
      & d_g,g_bb,ub_g,g_d,bb_g,g_ub
-       double complex mdecaymb(2,2),mdecay
+       complex(dp):: mdecaymb(2,2),mdecay
 
 c --  Deal with top decay                                                                                                                   c --  tdecay assumes a massive b, hence 4 polarizations -- we only need one                                                                       mb=0d0
-      if (nwz .eq. 1) then
+      if (nwz == 1) then
         call tdecay(p,5,6,7,mdecaymb)
         mdecay=mdecaymb(1,1)
-      elseif (nwz .eq. -1) then
+      elseif (nwz == -1) then
         call adecay(p,5,6,7,mdecaymb)
         mdecay=mdecaymb(2,2)
       endif
@@ -47,7 +52,7 @@ C   Construct demassified momentum for q5 wrt electron momentum and store in pos
       msq(:,:)=0d0
       fac=8d0*cf*xn**2*gsq*gwsq**4*esq**2
 
-      if (nwz .eq. 1) then
+      if (nwz == 1) then
       call spinoru(8,q,za,zb) 
 
       call ubztdgsqdk(1,2,3,4,5,6,7,e5,mdecay,ampsqL,ampsqH)
@@ -95,7 +100,7 @@ c--- In g-q diagrams, remove corrections on light line
       msq(0,-3)=g_db
       msq(5,0)=b_g
 
-      elseif(nwz .eq. -1) then
+      elseif(nwz == -1) then
       call spinoru(8,q,zb,za) 
 
       call ubztdgsqdk(1,2,4,3,5,6,7,e5,mdecay,ampsqL,ampsqH)

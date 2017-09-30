@@ -1,26 +1,31 @@
       subroutine ubhtdgsqdk(p1,p2,p3,p4,k5,p6,p7,e5,
      &  mdecay,ampsq16,ampsq25)
       implicit none
+      include 'types.f'
+
 C     Matrix element squared for u(p1)+b(p2)->h(p3,p4)+t(p5)+d(p6)+g(p7)
 C     split into two contributions:
 C     radiation from 16 and 25 lines (ampsq16 and ampsq25)
 C     Matrix element is constructed so that dependence on p5
 C     only enters through k5 and e5 in wave function
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'sprods_com.f'
       include 'zprods_com.f'
       include 'anomHiggs.f'
-      integer p1,p2,p3,p4,k5,p6,p7,e5,jg,icol,t16,t25
+      integer:: p1,p2,p3,p4,k5,p6,p7,e5,jg,icol,t16,t25
       parameter(t16=1,t25=2)
-      double precision sz,s16,s167,s1346,s13467,s12346,s126,s1267
-      double precision mw,ampsq,theta,ampsq16,ampsq25
-      double complex prW,prt,iza,izb,Amp(2,2)
-      double complex zab2,zba2,mdecay
+      real(dp):: sz,s16,s167,s1346,s13467,s12346,s126,s1267
+      real(dp):: mw,ampsq,theta,ampsq16,ampsq25
+      complex(dp):: prW,prt,iza,izb,Amp(2,2)
+      complex(dp):: zab2,zba2,mdecay
 c--- definitions of propagators
       theta(sz)=half+half*sign(one,sz)
-      prW(sz)=cone/dcmplx(sz-wmass**2,theta(sz)*wmass*wwidth)
-      prt(sz)=cone/dcmplx(sz-mt**2,zip)
+      prW(sz)=cone/cplx2(sz-wmass**2,theta(sz)*wmass*wwidth)
+      prt(sz)=cone/cplx2(sz-mt**2,zip)
       iza(p1,p2)=cone/za(p1,p2)
       izb(p1,p2)=cone/zb(p1,p2)
 c--- definitions of compound spinors
@@ -150,8 +155,8 @@ C   End statement functions
       ampsq16=0d0
       ampsq25=0d0
       do jg=1,2
-      ampsq16=ampsq16+cdabs(Amp(jg,t16)*mdecay)**2
-      ampsq25=ampsq25+cdabs(Amp(jg,t25)*mdecay)**2
+      ampsq16=ampsq16+abs(Amp(jg,t16)*mdecay)**2
+      ampsq25=ampsq25+abs(Amp(jg,t25)*mdecay)**2
       enddo
 
       return

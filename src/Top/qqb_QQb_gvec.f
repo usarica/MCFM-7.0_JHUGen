@@ -1,5 +1,7 @@
       subroutine qqb_QQb_gvec(p,n,in,msq)
       implicit none
+      include 'types.f'
+
 ************************************************************************
 *     Author: R.K. Ellis                                               *
 *     March, 2002.                                                     *
@@ -10,14 +12,17 @@
 *     f(P1) + f(P2) --> Q(-P3) + Qbar(-P4)                             *
 ************************************************************************
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'qcdcouple.f'
       include 'sprods_com.f'
       include 'msqv_cs.f'
       include 'breit.f'
       include 'first.f'
-      integer j,k,in
+      integer:: j,k,in
 C--in is the label of the parton dotted with n
-      double precision msq(-nf:nf,-nf:nf),p(mxpart,4),n(4),msqn(0:2)
+      real(dp):: msq(-nf:nf,-nf:nf),p(mxpart,4),n(4),msqn(0:2)
 
       if (first) then
       first=.false.
@@ -27,7 +32,7 @@ C--in is the label of the parton dotted with n
 
       do j=-nf,nf
       do k=-nf,nf
-      msq(j,k)=0d0
+      msq(j,k)=0._dp
       enddo
       enddo
 
@@ -35,9 +40,9 @@ C--in is the label of the parton dotted with n
 
       call checkndotp(p,n,in)
 
-      if     (in .eq. 1) then
+      if     (in == 1) then
         call qqb_QQbn(1,2,mass2,p,n,msqn)
-      elseif (in .eq. 2) then
+      elseif (in == 2) then
         call qqb_QQbn(2,1,mass2,p,n,msqn)
       endif
 
@@ -54,12 +59,17 @@ C--in is the label of the parton dotted with n
 
       subroutine qqb_QQbn(i1,i2,mass,p,n,msqn)
       implicit none
+      include 'types.f'
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'sprods_com.f'
-      integer i1,i2
+      integer:: i1,i2
 C--in is the label of the parton dotted with n
-      double precision n(4),nDn,nDt,nDtb,nDp2,t1,t2,ro,mass,p(mxpart,4),
-     . msqn(0:2)
+      real(dp):: n(4),nDn,nDt,nDtb,nDp2,t1,t2,ro,mass,p(mxpart,4),
+     & msqn(0:2)
 
       nDn=n(4)**2-n(1)**2-n(2)**2-n(3)**2
       nDt=n(4)*p(3,4)-n(1)*p(3,1)-n(2)*p(3,2)-n(3)*p(3,3)
@@ -67,16 +77,16 @@ C--in is the label of the parton dotted with n
       nDtb=-nDp2-nDt
       t1=-s(i1,3)/s(i1,i2)
       t2=-s(i2,3)/s(i1,i2)
-      ro=4d0*mass**2/s(i1,i2)
+      ro=4._dp*mass**2/s(i1,i2)
 
-      msqn(0)=V/xn*(nDn*(1d0/(t1*t2)-2d0)
-     . -2d0*ro/s(1,2)*((nDt+t1*nDp2)/(t1*t2))**2)
-      msqn(i1)=V*xn*(nDn*(2d0*t1-1d0/t2+t1**2+t2**2)
-     . +2d0*ro/s(1,2)*(nDtb/t2+nDp2)**2)
-      msqn(i2)=V*xn*(nDn*(2d0*t2-1d0/t1+t1**2+t2**2)
-     . +2d0*ro/s(1,2)*(nDt/t1+nDp2)**2)
+      msqn(0)=V/xn*(nDn*(1._dp/(t1*t2)-2._dp)
+     & -2._dp*ro/s(1,2)*((nDt+t1*nDp2)/(t1*t2))**2)
+      msqn(i1)=V*xn*(nDn*(2._dp*t1-1._dp/t2+t1**2+t2**2)
+     & +2._dp*ro/s(1,2)*(nDtb/t2+nDp2)**2)
+      msqn(i2)=V*xn*(nDn*(2._dp*t2-1._dp/t1+t1**2+t2**2)
+     & +2._dp*ro/s(1,2)*(nDt/t1+nDp2)**2)
 
-c      qqb_QQbx=2d0*V*(V/(xn*t1*t2)-2d0*xn)
-c     . *(nDn*(t1*t2-0.5d0)+ro*(nDt+t1*nDp2)**2/(t1*t2*s(i1,i2)))
+c      qqb_QQbx=2._dp*V*(V/(xn*t1*t2)-2._dp*xn)
+c     & *(nDn*(t1*t2-0.5_dp)+ro*(nDt+t1*nDp2)**2/(t1*t2*s(i1,i2)))
       return
       end

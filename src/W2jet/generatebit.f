@@ -1,8 +1,8 @@
-      implicit none
+      
       include 'ckmallowed.f'
       include 'montecarlorpp.f'
-      integer i,k,nwz,awx,lwx
-      integer i1,i2,i3,i4,i5,i6,ii1,ii2,ii3,ii4,ii5,ii6
+      integer:: i,k,nwz,awx,lwx
+      integer:: i1,i2,i3,i4,i5,i6,ii1,ii2,ii3,ii4,ii5,ii6
       character*2 ch(-5:5),lb(-5:5),lb1,lb2,lb5,lb6
       ch(-5)='b~'
       ch(-4)='c~'
@@ -35,7 +35,7 @@ c--- fill allowed CKM combinations
       enddo
       nwz=1      
 c--- diagonal only
-      if (nwz .eq. 1) then
+      if (nwz == 1) then
          ckmallowed(2,-1)=.true.
          ckmallowed(2,-3)=.true.
          ckmallowed(4,-1)=.true.
@@ -46,7 +46,7 @@ c--- diagonal only
          ckmallowed(-3,4)=.true.
          awx=ma_pdg
          lwx=nml_pdg         
-      elseif (nwz .eq. -1) then
+      elseif (nwz == -1) then
          ckmallowed(-2,1)=.true.
          ckmallowed(-2,3)=.true.
          ckmallowed(-4,1)=.true.
@@ -86,8 +86,8 @@ C----annhilation topology
       do i6=-5,5
 
       if ((ckmallowed(i1,i2)) 
-     & .and. (i5 .eq. -i6) 
-     & .and. (i5 .ge. 0) ) then
+     & .and. (i5 == -i6) 
+     & .and. (i5 >= 0) ) then
       lb1=lb(i1)
       lb2=lb(i2)
       lb5=lb(min(i5,i6))
@@ -100,7 +100,7 @@ C----annhilation topology
 
 
       elseif (ckmallowed(i1,-i5)
-     &  .and. (i2 .eq. i6)
+     &  .and. (i2 == i6)
      &  ) then
       lb1=lb(i1)
       lb2=lb(i2)
@@ -113,7 +113,7 @@ C----annhilation topology
       write(66,*) lb1//lb2,'_veep',lb5//lb6
 
       elseif (ckmallowed(i2,-i5)
-     &  .and. (i1 .eq. i6)
+     &  .and. (i1 == i6)
      &  ) then
       lb1=lb(i1)
       lb2=lb(i2)
@@ -127,8 +127,8 @@ C----annhilation topology
 
 
       elseif (ckmallowed(-i5,-i6)
-     &  .and. (i1 .eq. -i2)
-     &  .and. (i5 .lt. 0)
+     &  .and. (i1 == -i2)
+     &  .and. (i5 < 0)
      &  ) then
       lb1=lb(i1)
       lb2=lb(i2)

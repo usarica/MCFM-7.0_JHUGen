@@ -1,8 +1,8 @@
 c--- ancillary array that is used for fragmentation
 c--- contributions in gmgmjt process
-      double precision msqbits(12)
+      real(dp):: msqbits(12)
       common/msqbits/msqbits
-      integer
+      integer::
      & ddb_ddb,ddb_ssb,ddb_uub,
      & uub_uub,uub_ccb,uub_ddb,
      & dbd_ddb,dbd_ssb,dbd_uub,

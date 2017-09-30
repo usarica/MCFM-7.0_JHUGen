@@ -1,3 +1,3 @@
-      logical utoolscc
+      logical:: utoolscc
       common/utoolscc/utoolscc
       

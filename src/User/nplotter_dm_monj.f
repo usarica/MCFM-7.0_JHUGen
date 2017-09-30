@@ -1,4 +1,6 @@
       subroutine nplotter_dm_monj(p,wt,wt2,switch)
+      implicit none
+      include 'types.f'
 !==== mono-jet Nplotter
 c--- Variable passed in to this routine:
 c
@@ -10,23 +12,26 @@ c---     wt:  weight of this event
 c
 c---    wt2:  weight^2 of this event
 c
-c--- switch:  an integer equal to 0 or 1, depending on the type of event
+c--- switch:  an integer:: equal to 0 or 1, depending on the type of event
 c---                0  --> lowest order, virtual or real radiation
 c---                1  --> counterterm for real radiation
-      implicit none
+      
       include 'vegas_common.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'histo.f'
       include 'jetlabel.f'
       include 'outputflags.f'
-      integer i5,i6,i7,nu,i
-      double precision p(mxpart,4),wt,wt2
-      double precision etarap,pt,
+      integer:: i5,i6,i7,nu,i
+      real(dp):: p(mxpart,4),wt,wt2
+      real(dp):: etarap,pt,
      & etaj1,ptj1,etaj2,ptj2,etaj3,mjj,delr,getet,
      & rar,deleta,delfi,pt5,pt6,pt7,tmp5(4),tmp6(4),tmp7(4),oldpt(5:7),
      & sumeta,etastar,pt34,pttwo,m34,m345
-      integer switch,n,nplotmax
-      character*4 tag
+      integer:: switch,n,nplotmax
+      integer tag
       logical, save::first=.true.
       common/nplotmax/nplotmax
 ccccc!$omp threadprivate(first,/nplotmax/,m34,m345)
@@ -38,26 +43,26 @@ ccccc!$omp threadprivate(first,/nplotmax/,m34,m345)
 ************************************************************************
 
 c--- Initialize dummy values for all quantities that could be plotted
-      ptj1=-1d0
-      ptj2=-1d0
-      etaj1=99d0
-      etaj2=99d0
-      etaj3=99d0
-      mjj=-1d0
-      delr=-1d0
-      deleta=-1d0
-      etastar=99d0
-      m34=-1d0 
-      m345=-1d0 
+      ptj1=-1._dp
+      ptj2=-1._dp
+      etaj1=99._dp
+      etaj2=99._dp
+      etaj3=99._dp
+      mjj=-1._dp
+      delr=-1._dp
+      deleta=-1._dp
+      etastar=99._dp
+      m34=-1._dp 
+      m345=-1._dp 
       
       if (first) then
 c--- Initialize histograms, without computing any quantities; instead
 c--- set them to dummy values
-        tag='book'
+        tag=tagbook
         goto 99
       else
 c--- Add event in histograms
-        tag='plot'
+        tag=tagplot
       endif
 
 ************************************************************************
@@ -70,42 +75,42 @@ c--- Add event in histograms
 !======= Missing ET 
       pt34=pttwo(3,4,p)
 !====== DM invariant mass (NOT directly observable, but useful for theory) 
-      m34=0d0 
+      m34=0._dp 
 !======= DM + jet invariant mass (NOT directly observable, but useful for theory) 
-      m345=0d0 
+      m345=0._dp 
       do i=1,3
          m34=m34-(p(3,i)+p(4,i))**2 
          m345=m345-(p(3,i)+p(4,i)+p(5,i))**2
       enddo
       m34=m34+(p(3,4)+p(4,4))**2 
       m345=m345+(p(3,4)+p(4,4)+p(5,4))**2 
-      m345=dsqrt(m345)
-      m34=dsqrt(m34) 
+      m345=sqrt(m345)
+      m34=sqrt(m34) 
       
 
      
 c--- BEGIN: order jets according to pt
       pt5=getet(p(5,4),p(5,1),p(5,2),p(5,3))
-      if (jets .gt. 1) pt6=getet(p(6,4),p(6,1),p(6,2),p(6,3))
-      if (jets .gt. 2) pt7=getet(p(7,4),p(7,1),p(7,2),p(7,3))      
+      if (jets > 1) pt6=getet(p(6,4),p(6,1),p(6,2),p(6,3))
+      if (jets > 2) pt7=getet(p(7,4),p(7,1),p(7,2),p(7,3))      
       i5=5
       i6=6
       i7=7
       oldpt(5)=pt5
-      if (jets .gt. 1) oldpt(6)=pt6
-      if (jets .gt. 2) oldpt(7)=pt7
+      if (jets > 1) oldpt(6)=pt6
+      if (jets > 2) oldpt(7)=pt7
 c--- sort for 2 jets 
-      if (jets .eq. 2) then          
-        if (pt6 .gt. pt5) then
+      if (jets == 2) then          
+        if (pt6 > pt5) then
           i5=6
           i6=5
         endif
       endif
 c--- sort for 3 jets 
-      if (jets .eq. 3) then
-        if ((pt5 .gt. pt6) .and. (pt5 .gt. pt7)) then
+      if (jets == 3) then
+        if ((pt5 > pt6) .and. (pt5 > pt7)) then
            i5=5
-          if (pt6 .gt. pt7) then
+          if (pt6 > pt7) then
             i6=6
             i7=7
           else
@@ -113,9 +118,9 @@ c--- sort for 3 jets
             i7=6
           endif
         endif
-        if ((pt6 .gt. pt5) .and. (pt6 .gt. pt7)) then
+        if ((pt6 > pt5) .and. (pt6 > pt7)) then
            i5=6
-          if (pt5 .gt. pt7) then
+          if (pt5 > pt7) then
             i6=5
             i7=7
           else
@@ -123,9 +128,9 @@ c--- sort for 3 jets
             i7=5
           endif
         endif
-        if ((pt7 .gt. pt5) .and. (pt7 .gt. pt6)) then
+        if ((pt7 > pt5) .and. (pt7 > pt6)) then
            i5=7
-          if (pt5 .gt. pt6) then
+          if (pt5 > pt6) then
             i6=5
             i7=6
           else
@@ -146,26 +151,26 @@ c--- perform exchange
         p(7,nu)=tmp7(nu)
       enddo
       pt5=oldpt(i5)
-      if (jets .gt. 1) pt6=oldpt(i6)
-      if (jets .gt. 2) pt7=oldpt(i7)
+      if (jets > 1) pt6=oldpt(i6)
+      if (jets > 2) pt7=oldpt(i7)
 c--- END: ordering
 
 c--- Calculate quantities to plot
       etaj1=etarap(5,p)
       ptj1=pt(5,p)
-      if (jets .ge. 2) then
+      if (jets >= 2) then
         etaj2=etarap(6,p)
         ptj2=pt(6,p)
         deleta=abs(etaj1-etaj2)
       endif
-      if (jets .ge. 3) then
+      if (jets >= 3) then
         etaj3=etarap(7,p)
-        if     (abs(etaj1-etaj3) .gt. 
+        if     (abs(etaj1-etaj3) > 
      &      max(abs(etaj1-etaj2),abs(etaj2-etaj3))) then
           deleta=abs(etaj1-etaj3)
           sumeta=etaj1+etaj3
           etaj3=etaj2
-        elseif (abs(etaj2-etaj3) .gt. 
+        elseif (abs(etaj2-etaj3) > 
      &      max(abs(etaj1-etaj2),abs(etaj1-etaj3))) then
           deleta=abs(etaj2-etaj3)
           sumeta=etaj2+etaj3
@@ -178,17 +183,17 @@ c--- Calculate quantities to plot
 
       rar=(p(5,1)*p(6,1)+p(5,2)*p(6,2))
      & /sqrt((p(5,1)**2+p(5,2)**2)*(p(6,1)**2+p(6,2)**2))
-      if (rar.lt.-1d0) then 
+      if (rar<-1._dp) then 
          delfi=pi
-      elseif (rar.gt.1d0) then 
-         delfi=0d0
+      elseif (rar>1._dp) then 
+         delfi=0._dp
       else
-         delfi=dacos(rar)
+         delfi=acos(rar)
       endif
-      delr=dsqrt(deleta**2+delfi**2)
+      delr=sqrt(deleta**2+delfi**2)
 
-      if (jets .gt. 1) then
-      mjj=dsqrt((p(5,4)+p(6,4))**2-(p(5,1)+p(6,1))**2
+      if (jets > 1) then
+      mjj=sqrt((p(5,4)+p(6,4))**2-(p(5,1)+p(6,1))**2
      &         -(p(5,2)+p(6,2))**2-(p(5,3)+p(6,3))**2)
       endif
             
@@ -205,7 +210,7 @@ c--- Call histogram routines
 c--- Book and fill ntuple if that option is set, remembering to divide
 c--- by # of iterations now that is handled at end for regular histograms
       if (creatent .eqv. .true.) then
-        call bookfill(tag,p,wt/dfloat(itmx))  
+        call bookfill(tag,p,wt/real(itmx,dp))  
       endif
 
 c--- "n" will count the number of histograms
@@ -227,41 +232,41 @@ c---       dx:  bin width
 c---   llplot:  equal to "lin"/"log" for linear/log scale
 
       call bookplot(n,tag,'Missing ET',pt34,wt,wt2,
-     &              0d0,2000d0,50d0,'log')
+     &              0._dp,2000._dp,50._dp,'log')
       n=n+1
       call bookplot(n,tag,'DM inv mass',m34,wt,wt2,
-     &              0d0,1200d0,50d0,'log')
+     &              0._dp,1200._dp,50._dp,'log')
       n=n+1
       call bookplot(n,tag,'Jet 1 pt',ptj1,wt,wt2,
-     &              0d0,2000d0,50d0,'log')
+     &              0._dp,2000._dp,50._dp,'log')
       n=n+1
       call bookplot(n,tag,'Jet 1 pt lin',ptj1,wt,wt2,
-     &              0d0,2000d0,50d0,'lin')
+     &              0._dp,2000._dp,50._dp,'lin')
       n=n+1
       call bookplot(n,tag,'Jet 1 eta',etaj1,wt,wt2,
-     &              -5d0,5d0,0.2d0,'lin')
+     &              -5._dp,5._dp,0.2_dp,'lin')
       n=n+1
-      if(jets.gt.1) then 
+      if(jets>1) then 
       call bookplot(n,tag,'Jet 2 eta',etaj2,wt,wt2,
-     &              -5d0,5d0,0.2d0,'lin')
+     &              -5._dp,5._dp,0.2_dp,'lin')
       n=n+1
       call bookplot(n,tag,'Jet 2 pt',ptj2,wt,wt2,
-     &              0d0,2000d0,50d0,'log')
+     &              0._dp,2000._dp,50._dp,'log')
       n=n+1
       call bookplot(n,tag,'Jet 2 pt lin',ptj2,wt,wt2,
-     &              0d0,2000d0,50d0,'lin')
+     &              0._dp,2000._dp,50._dp,'lin')
       n=n+1
       call bookplot(n,tag,'Jet 2 eta',etaj2,wt,wt2,
-     &              -5d0,5d0,0.2d0,'lin')
+     &              -5._dp,5._dp,0.2_dp,'lin')
       n=n+1
       call bookplot(n,tag,'(jet 1,jet 2) invariant mass',mjj,wt,wt2,
-     &              0d0,425d0,5d0,'log')
+     &              0._dp,425._dp,5._dp,'log')
       n=n+1
       call bookplot(n,tag,'delr',delr,wt,wt2,
-     &              0.35d0,4.85d0,0.15d0,'lin')
+     &              0.35_dp,4.85_dp,0.15_dp,'lin')
       n=n+1
       call bookplot(n,tag,'deleta',deleta,wt,wt2,
-     &              0d0,4d0,0.4d0,'lin')
+     &              0._dp,4._dp,0.4_dp,'lin')
       n=n+1
       endif
 

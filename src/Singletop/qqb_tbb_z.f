@@ -1,17 +1,22 @@
       subroutine qqb_tbb_z(p,z)
       implicit none
+      include 'types.f'
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'qcdcouple.f'
       include 'scale.f'
       include 'PR_new.f'
       include 'agq.f'
-      integer is
-      double precision z,xl12,p(mxpart,4),dot,ii_qq,ii_qg,tempqq,tempqg,
-     . mbar12,ff_1mqq
+      integer:: is
+      real(dp):: z,xl12,p(mxpart,4),dot,ii_qq,ii_qg,tempqq,tempqg,
+     & mbar12,ff_1mqq
 
-      xl12=dlog(two*dot(p,1,2)/musq)
-      mbar12=mt/dsqrt(two*dot(p,1,2))
+      xl12=log(two*dot(p,1,2)/musq)
+      mbar12=mt/sqrt(two*dot(p,1,2))
 
 c----contributions for one leg
       do is=1,3

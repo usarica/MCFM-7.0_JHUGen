@@ -1,25 +1,30 @@
       subroutine wamp(mq,qwidth,p1,p2,ie,in,jn,je,jb,amp)
+      implicit none
+      include 'types.f'
 c--- Routine modified 1/6/07 to handle different quark masses & widths
 c     g(-p1)+s(-p2) --> e^-(ie)+n(in)+Pn(jn)+Pe^+(je)+b(jb)
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'sprods_com.f'
       include 'zprods_com.f'
-      integer p1,p2,ie,in,je,jn,jb
-      double complex amp(2)
-      integer j
-      double precision propp,propd,propt,taugt,tsq,mq,qwidth
-      double complex zab(mxpart,mxpart),zba(mxpart,mxpart)
+      integer:: p1,p2,ie,in,je,jn,jb
+      complex(dp):: amp(2)
+      integer:: j
+      real(dp):: propp,propd,propt,taugt,tsq,mq,qwidth
+      complex(dp):: zab(mxpart,mxpart),zba(mxpart,mxpart)
       common/zabprods/zab,zba
 !$omp threadprivate(/zabprods/)
 
-      propp=dsqrt((s(ie,in)-wmass**2)**2+(wmass*wwidth)**2)
-      propd=dsqrt((s(je,jn)-wmass**2)**2+(wmass*wwidth)**2)
+      propp=sqrt((s(ie,in)-wmass**2)**2+(wmass*wwidth)**2)
+      propd=sqrt((s(je,jn)-wmass**2)**2+(wmass*wwidth)**2)
       taugt=s(p1,je)+s(p1,jn)+s(p1,jb)
 
       tsq  =s(je,jn)+s(je,jb)+s(jn,jb)
-      propt=dsqrt((tsq-mq**2)**2+(mq*qwidth)**2) 
+      propt=sqrt((tsq-mq**2)**2+(mq*qwidth)**2) 
 
 c--- label on amplitudes represents gluon helicity
 c---  amp(1)= negative helicity, amp(2)= positive helicity    

@@ -1,9 +1,11 @@
       subroutine zerorealhistos
+      implicit none
+      include 'types.f'
 c--- zero out all entries in the temporary histograms used for
 c--- binning the weights in the real contribution
-      implicit none
+      
       include 'nplot.f'
-      integer nplotmax,j
+      integer:: nplotmax,j
       common/nplotmax/nplotmax
 ccccc!$omp threadprivate(/nplotmax/)
       
@@ -16,19 +18,21 @@ ccccc!$omp threadprivate(/nplotmax/)
       
 
       subroutine addrealhistos(wgt)
+      implicit none
+      include 'types.f'
 c--- add temporay histograms to the cumulative ones
-       implicit none
+       
 c      IMPLICIT REAL*8 (A-H,O-Z)
-c      IMPLICIT INTEGER (I-N)
-      integer I,L
+c      IMPLICIT integer:: (I-N)
+      integer:: I,L
       include 'histo.f'
-      double precision wgt
-      integer nplotmax
-      logical added
+      real(dp):: wgt
+      integer:: nplotmax
+      logical:: added
       common/nplotmax/nplotmax
 ccccc!$omp threadprivate(/nplotmax/)
 
-      DOUBLE PRECISION TMPHIST(maxhisto,maxnbin),
+      real(dp):: TMPHIST(maxhisto,maxnbin),
      & TMPXHIS(maxhisto,maxnbin),TMPHDEL(maxhisto),TMPHMIN(maxhisto),
      & TMPHMAX(maxhisto),TMPHAVG(maxhisto),TMPHINT(maxhisto),
      & TMPHSIG(maxhisto)
@@ -37,7 +41,7 @@ ccccc!$omp threadprivate(/nplotmax/)
 
       CHARACTER TMPTITLE*100,TMPBOOK*3
       COMMON/TMPHISTOC/TMPBOOK(maxhisto),TMPTITLE(maxhisto)
-      INTEGER TMPNBIN(maxhisto),TMPIHIS(maxhisto,maxnbin),
+      integer:: TMPNBIN(maxhisto),TMPIHIS(maxhisto,maxnbin),
      & TMPIUSCORE(maxhisto),TMPIOSCORE(maxhisto),TMPIENT(maxhisto),
      & TMPNHIST
       COMMON/TMPHISTOI/TMPNBIN,TMPIHIS,TMPIUSCORE,TMPIOSCORE,

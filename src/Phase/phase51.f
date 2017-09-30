@@ -1,9 +1,12 @@
       subroutine phase51(r,p1,p2,p3,p4,p5,p6,p7,wt)
-c----phase space for qg--> t(\nu(3) b(5) e^+(4))  bbar(6) q'(7) 
       implicit none
+      include 'types.f'
+c----phase space for qg--> t(\nu(3) b(5) e^+(4))  bbar(6) q'(7) 
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
       include 'masses.f'
-      include 'process.f'
+      include 'kprocess.f'
       include 'mxdim.f'
       include 'debug.f'
       include 'breit.f'
@@ -13,26 +16,26 @@ c--------- incoming p1 and p2 reversed in sign from physical values
 c---- i.e. phase space for -p1-p2 --> p3+p4+p5+p6+p7
 c---- with all 2 pi's (ie 1/(2*pi)^11)
 
-      double precision r(mxdim)
-      double precision p1(4),p2(4),p3(4),p4(4),p5(4),p6(4),p7(4)
-      double precision p127(4),p12(4),p345(4),p34(4),smin
-      double precision wt,wt127,wt3456,wt345,wt34,wt0,bmass
-      integer j
-      parameter(wt0=1d0/twopi**3)
+      real(dp):: r(mxdim)
+      real(dp):: p1(4),p2(4),p3(4),p4(4),p5(4),p6(4),p7(4)
+      real(dp):: p127(4),p12(4),p345(4),p34(4),smin
+      real(dp):: wt,wt127,wt3456,wt345,wt34,wt0,bmass
+      integer:: j
+      parameter(wt0=1._dp/twopi**3)
 
       do j=1,4
       p12(j)=-p1(j)-p2(j)
       enddo
 
-      if (case .eq. 't_bbar') then
-      bmass=0d0
-      smin=0d0
+      if (kcase==kt_bbar) then
+      bmass=0._dp
+      smin=0._dp
       else
       bmass=mb
-      smin=4d0*bmass**2
+      smin=4._dp*bmass**2
       endif
       call 
-     . phi1_2m_nobw(0d0,r(13),r(12),r(11),smin,p12,p7,p127,wt127,*99)
+     & phi1_2m_nobw(0._dp,r(13),r(12),r(11),smin,p12,p7,p127,wt127,*99)
 
       n2=0
       n3=1
@@ -55,7 +58,7 @@ c---- with all 2 pi's (ie 1/(2*pi)^11)
 
       return
  99   continue
-      wt=0d0
+      wt=0._dp
       return
       end
 

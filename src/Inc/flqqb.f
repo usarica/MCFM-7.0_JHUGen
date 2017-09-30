@@ -1,3 +1,3 @@
-      integer flqqb
+      integer:: flqqb
       common/flqqb/flqqb
 

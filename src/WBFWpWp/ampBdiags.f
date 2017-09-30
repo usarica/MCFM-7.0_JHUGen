@@ -1,13 +1,17 @@
       subroutine ampBdiags(p1,p2,p3,p4,p5,p6,p7,p8,za,zb,amp)
       implicit none
+      include 'types.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'cmplxmass.f'
       include 'zprods_decl.f'
       include 'sprods_com.f'
-      integer p1,p2,p3,p4,p5,p6,p7,p8
-      double complex zba2,amp,
+      integer:: p1,p2,p3,p4,p5,p6,p7,p8
+      complex(dp):: zba2,amp,
      & propw34,propw56,propw28,propw17,rxw
-      double precision t3,s17,s28,s34,s56,
+      real(dp):: t3,s17,s28,s34,s56,
      & s137,s147,s157,s167,s238,s248,s258,s268
 C-----Begin statement functions
       zba2(p1,p2,p3,p4)=zb(p1,p2)*za(p2,p4)+zb(p1,p3)*za(p3,p4)

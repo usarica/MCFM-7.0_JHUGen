@@ -1,4 +1,6 @@
       subroutine nplotter_dm_mongam(p,wt,wt2,switch,nd)
+      implicit none
+      include 'types.f'
 !==== mono-jet Nplotter
 c--- Variable passed in to this routine:
 c
@@ -10,21 +12,24 @@ c---     wt:  weight of this event
 c
 c---    wt2:  weight^2 of this event
 c
-c--- switch:  an integer equal to 0 or 1, depending on the type of event
+c--- switch:  an integer:: equal to 0 or 1, depending on the type of event
 c---                0  --> lowest order, virtual or real radiation
 c---                1  --> counterterm for real radiation
-      implicit none
+      
       include 'vegas_common.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'histo.f'
       include 'jetlabel.f'
       include 'outputflags.f'
-      integer i,nd
-      double precision p(mxpart,4),wt,wt2
-      double precision etarap,pt,etaj1,ptj1,pt34,pttwo,m34,m345
-      double precision ptga,etaga
-      integer switch,n,nplotmax
-      character*4 tag
+      integer:: i,nd
+      real(dp):: p(mxpart,4),wt,wt2
+      real(dp):: etarap,pt,etaj1,ptj1,pt34,pttwo,m34,m345
+      real(dp):: ptga,etaga
+      integer:: switch,n,nplotmax
+      integer tag
       logical, save::first=.true.
       common/nplotmax/nplotmax
 ccccc!$omp threadprivate(first,/nplotmax/)
@@ -37,21 +42,21 @@ ccccc!$omp threadprivate(first,/nplotmax/)
 
 
 c--- Initialize dummy values for all quantities that could be plotted
-      ptj1=-1d0
-      ptga=-1d0 
-      etaga=99d0
-      etaj1=99d0
-      m34=-1d0 
-      m345=-1d0 
+      ptj1=-1._dp
+      ptga=-1._dp 
+      etaga=99._dp
+      etaj1=99._dp
+      m34=-1._dp 
+      m345=-1._dp 
       
       if (first) then
 c--- Initialize histograms, without computing any quantities; instead
 c--- set them to dummy values
-        tag='book'
+        tag=tagbook
         goto 99
       else
 c--- Add event in histograms
-        tag='plot'
+        tag=tagplot
       endif
 
 ************************************************************************
@@ -64,17 +69,17 @@ c--- Add event in histograms
 !======= Missing ET 
       pt34=pttwo(3,4,p)
 !====== DM invariant mass (NOT directly observable, but useful for theory) 
-      m34=0d0 
+      m34=0._dp 
 !======= DM + jet invariant mass (NOT directly observable, but useful for theory) 
-      m345=0d0 
+      m345=0._dp 
       do i=1,3
          m34=m34-(p(3,i)+p(4,i))**2 
          m345=m345-(p(3,i)+p(4,i)+p(5,i))**2
       enddo
       m34=m34+(p(3,4)+p(4,4))**2 
       m345=m345+(p(3,4)+p(4,4)+p(5,4))**2 
-      m345=dsqrt(m345)
-      m34=dsqrt(m34) 
+      m345=sqrt(m345)
+      m34=sqrt(m34) 
       
 
 !========== phpton pt 
@@ -83,12 +88,12 @@ c--- Add event in histograms
  
 
 !====== jet pt and eta
-      if (jets .eq. 1) then 
+      if (jets == 1) then 
          ptj1=pt(6,p)
          etaj1=etarap(6,p) 
       else  !=== out of plotting range
-         ptj1=-1d0 
-          etaj1=99d0 
+         ptj1=-1._dp 
+          etaj1=99._dp 
        endif
       
      
@@ -104,7 +109,7 @@ c--- Call histogram routines
 c--- Book and fill ntuple if that option is set, remembering to divide
 c--- by # of iterations now that is handled at end for regular histograms
       if (creatent .eqv. .true.) then
-        call bookfill(tag,p,wt/dfloat(itmx))  
+        call bookfill(tag,p,wt/real(itmx,dp))  
       endif
 
 c--- "n" will count the number of histograms
@@ -126,28 +131,28 @@ c---       dx:  bin width
 c---   llplot:  equal to "lin"/"log" for linear/log scale
 
       call bookplot(n,tag,'Missing ET',pt34,wt,wt2,
-     &              0d0,2000d0,50d0,'log')
+     &              0._dp,2000._dp,50._dp,'log')
       n=n+1
       call bookplot(n,tag,'DM inv mass',m34,wt,wt2,
-     &              0d0,1200d0,50d0,'log')
+     &              0._dp,1200._dp,50._dp,'log')
       n=n+1
       call bookplot(n,tag,'Photon pt',ptga,wt,wt2,
-     &              0d0,2000d0,50d0,'log')
+     &              0._dp,2000._dp,50._dp,'log')
       n=n+1
       call bookplot(n,tag,'Photon pt lin',ptga,wt,wt2,
-     &              0d0,2000d0,50d0,'lin')
+     &              0._dp,2000._dp,50._dp,'lin')
       n=n+1
       call bookplot(n,tag,'Photon eta',etaga,wt,wt2,
-     &              -5d0,5d0,0.2d0,'lin')
+     &              -5._dp,5._dp,0.2_dp,'lin')
       n=n+1
       call bookplot(n,tag,'Jet 1 pt',ptj1,wt,wt2,
-     &              0d0,2000d0,50d0,'log')
+     &              0._dp,2000._dp,50._dp,'log')
       n=n+1
       call bookplot(n,tag,'Jet 1 pt lin',ptj1,wt,wt2,
-     &              0d0,2000d0,50d0,'lin')
+     &              0._dp,2000._dp,50._dp,'lin')
       n=n+1
       call bookplot(n,tag,'Jet 1 eta',etaj1,wt,wt2,
-     &              -5d0,5d0,0.2d0,'lin')
+     &              -5._dp,5._dp,0.2_dp,'lin')
       n=n+1
   
 

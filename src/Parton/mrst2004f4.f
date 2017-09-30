@@ -67,7 +67,8 @@ c      if(x.lt.xmin.or.x.gt.xmax)       print 98,x
       data init/0/
       save xmin,xmax,qsqmin,qsqmax,init,emc2,emb2
       save xx,qq
-      common /store/ xxl,qql,qqlc,qqlb,cc1,cc2,cc3,cc4,cc6,cc8
+      common /store/ xxl,qql,qqlc,qqlb,cc1,cc2,cc3,cc4,cc6,cc8,
+     & ccc,ccb
 !$omp threadprivate(xmin,xmax,qsqmin,qsqmax,init,emc2,emb2)
 !$omp threadprivate(xx,qq)
 !$omp threadprivate(/store/)
@@ -185,7 +186,8 @@ c notation: 1=uval 2=val 3=glue 4=usea 5=chm 6=str 7=btm 8=dsea
       data init/0/
       save xmin,xmax,qsqmin,qsqmax,init,emc2,emb2
       save xx,qq
-      common /store/ xxl,qql,qqlc,qqlb,cc1,cc2,cc3,cc4,cc6,cc8
+      common /store/ xxl,qql,qqlc,qqlb,cc1,cc2,cc3,cc4,cc6,cc8,
+     & ccc,ccb
 !$omp threadprivate(xmin,xmax,qsqmin,qsqmax,init,emc2,emb2)
 !$omp threadprivate(xx,qq)
 !$omp threadprivate(/store/)

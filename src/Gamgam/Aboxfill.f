@@ -1,8 +1,14 @@
       subroutine Aboxfill(j1,j2,j3,j4,j5,za,zb,Abox)
+      implicit none
+      include 'types.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
-      double complex A51ppppp,A51mpppp,A51mmppp,A51mpmpp,Abox(2,2,2,2,2)
-      integer h(5)
+      complex(dp)::A51ppppp,A51mpppp,A51mmppp,A51mpmpp,
+     & Abox(2,2,2,2,2)
+      integer:: h(5),j1,j2,j3,j4,j5
       
       Abox(2,2,2,2,2)=A51ppppp(j1,j2,j3,j4,j5,za,zb)
       Abox(1,1,1,1,1)=A51ppppp(j1,j2,j3,j4,j5,zb,za)
@@ -80,7 +86,9 @@
 
       subroutine helfill(h1,h2,h3,h4,h5,j1,j2,j3,j4,j5,harray)
       implicit none
-      integer h1,h2,h3,h4,h5,j1,j2,j3,j4,j5,harray(5)
+      include 'types.f'
+      
+      integer:: h1,h2,h3,h4,h5,j1,j2,j3,j4,j5,harray(5)
       
       harray(j1)=h1
       harray(j2)=h2

@@ -1,2 +1,2 @@
-      double precision phi
+      real(dp):: phi
       common/phi/phi

@@ -1,11 +1,16 @@
       subroutine gen3a(r,p3,wt,*)
-C---modified phase space generator, generating 2-2 and then 3 from 2
       implicit none
+      include 'types.f'
+C---modified phase space generator, generating 2-2 and then 3 from 2
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'mxdim.f'
       include 'debug.f'
 
-      double precision p3(mxpart,4),p2(mxpart,4),r(mxdim),wt,wt2
+      real(dp):: p3(mxpart,4),p2(mxpart,4),r(mxdim),wt,wt2
 c----although wt2 is generated we will not use it
       call gen2(r,p2,wt2,*999)      
 c      write(6,*) 'wt2 in gen3a',wt2
@@ -20,6 +25,6 @@ c      pause
       endif
 
       return
- 999  wt=0d0
+ 999  wt=0._dp
       return 1
       end

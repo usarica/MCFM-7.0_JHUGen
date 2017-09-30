@@ -1,4 +1,8 @@
-FC = gfortran
+ifeq ($(origin FC),environment)
+    $(info Inheriting FC from environment: $(FC))
+else
+    FC = gfortran
+endif
 HERE   = $(PWD)
 INCDIR  = $(HERE)/Include/
 FFLAGS =  -fno-f2c -fopenmp -O2 -g -I $(INCDIR)

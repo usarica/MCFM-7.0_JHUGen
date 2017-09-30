@@ -1,19 +1,25 @@
 !--- This is a driver function for photon isolation, the relevant photon isolation 
 !--- critera are selected and applied 
 
-      logical function iso(p,phot_id,isub,nd)
-      implicit none
+      function iso(p,phot_id,isub,nd)
+       implicit none
+      include 'types.f'
+      logical:: iso
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'frag.f'
       include 'useet.f'
       include 'phot_dip.f'
       include 'z_dip.f'
       include 'lastphot.f'
-      double precision p(mxpart,4)
-      integer isub,nd,imode
-      integer phot_id ! refers to which photon we are isolating
-      logical first 
-      logical photo_iso_phys,photo_iso_z!,photo_iso,iso_old
+      real(dp):: p(mxpart,4)
+      integer:: isub,nd,imode
+      integer:: phot_id ! refers to which photon we are isolating
+      logical:: first 
+      logical:: photo_iso_phys,photo_iso_z!,photo_iso,iso_old
       data first/.true./
       save first
 !$omp threadprivate(first)
@@ -27,7 +33,7 @@ c---   imode=2 : fixed cut for all epsilon_h
       iso=.true.
 
 ! Check if no isolation required
-      if ((abs(cone_ang) .lt. 1d-4).or.(abs(epsilon_h) .lt. 1d-4)) then
+      if ((abs(cone_ang) < 1.e-4_dp).or.(abs(epsilon_h) < 1.e-4_dp)) then
         if (first) then
         write(6,*)'****************************************************'
         write(6,*)'*                                                  *'
@@ -42,8 +48,8 @@ c---   imode=2 : fixed cut for all epsilon_h
 c--- for imode=0, decide which cut to use depending on epsilon_h
 !--   epsilon_h < 1 : epsilon_h corresponds to a pt fraction i.e. pt(had) < epsilon_h pt_gamma 
 !--   epsilon_h > 1 : treat it as an E_t max in cone   i.e. pt(had) < epsilon_h 
-       if (imode .eq. 0) then
-         if (epsilon_h .lt. 0.9999d0) then
+       if (imode == 0) then
+         if (epsilon_h < 0.9999_dp) then
          imode=1
          else
          imode=2
@@ -54,11 +60,11 @@ c--- for imode=0, decide which cut to use depending on epsilon_h
  
 !========== are we doing fragmentation and is this the
 !========== photon produced by fragmentation? 
-       if((fragint_mode) .and. (phot_id .eq. lastphot)) then 
+       if((fragint_mode) .and. (phot_id == lastphot)) then 
           iso=photo_iso_z(p,phot_id,z_frag,imode,isub) 
 !========== are we doing a photon dipole and is this the
 !========== photon produced by fragmentation? 
-       elseif(phot_dip(nd) .and. (phot_id .eq. lastphot)) then 
+       elseif(phot_dip(nd) .and. (phot_id == lastphot)) then 
           iso=photo_iso_z(p,phot_id,z_dip(nd),imode,isub) 
 !========== we are in default mode, BORN, virt, real, non-photon dipole 
        else
@@ -74,7 +80,7 @@ c         write(6,*) 'OKAY'
 c       endif
        
 c--- write out isolation parameters
-       if    (first .and. (imode .eq. 1)) then 
+       if    (first .and. (imode == 1)) then 
         write(6,*)'************** Photons Isolated     ****************'
         write(6,*)'*                                                  *'
         write(6,99)'*    E_t(had) in cone',cone_ang,' < ',epsilon_h,
@@ -82,7 +88,7 @@ c--- write out isolation parameters
         write(6,*)'*                                                  *'
         write(6,*)'****************************************************'
         first=.false.
-      elseif (first .and. (imode .eq. 2)) then
+      elseif (first .and. (imode == 2)) then
         write(6,*)'************** Photons Isolated     ****************'
         write(6,*)'*                                                  *'
         write(6,96)'* E_t (had) in cone',cone_ang,' < ',epsilon_h,

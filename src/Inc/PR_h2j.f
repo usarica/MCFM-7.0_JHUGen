@@ -13,8 +13,8 @@ c--- NOTE: this is just an extension to PR_new which enables the
 c---  division of matrix elements into colour structures in the
 c---  same way as 'msq_struc.f'
 
-c      integer igg_ab,igg_ba,igg_sym,iqq_a,iqq_b,iqq_i,
-c     . igggg_a,igggg_b,igggg_c,iqr
+c      integer:: igg_ab,igg_ba,igg_sym,iqq_a,iqq_b,iqq_i,
+c     & igggg_a,igggg_b,igggg_c,iqr
 c      parameter(igg_ab=4,igg_ba=5,igg_sym=6)
 c--- Note that the 4-quark and 4-gluon pieces are never needed simultaneously,
 c--- so we can reuse the same indices to save memory
@@ -23,7 +23,7 @@ c      parameter(igggg_a=1,igggg_b=2,igggg_c=3)
 c--- One extra parameter needed for non-identical quark pieces
 c      parameter(iqr=7)
 
-      double precision
-     . H1(-1:1,-1:1,-1:1,8,3),H2(-1:1,-1:1,-1:1,8,3)
+      real(dp)::
+     & H1(-1:1,-1:1,-1:1,8,3),H2(-1:1,-1:1,-1:1,8,3)
       common/RP_h2j/H1,H2
 !$omp threadprivate(/RP_h2j/)

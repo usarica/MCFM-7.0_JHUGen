@@ -1,20 +1,25 @@
       subroutine adecayrod(p,nu,eb,b,c,em,nb,g,m)
       implicit none
+      include 'types.f'
+      
 C     anti-topdecay
 C     c is rendered massless wrt to nb
 C     a is rendered massless via the rodrigo scheme
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'masses.f'
-      double precision p(mxpart,4),q(mxpart,4),sw,alb,bp,bm,
+      real(dp):: p(mxpart,4),q(mxpart,4),sw,alb,bp,bm,
      & t(4),a(4),tpa(4),s34,be,betasq,rtbp,dot
-      double complex m(2,2),cprop
-      integer nu,eb,b,em,nb,c,g
-      integer si,xnb,xem,xc,xk3,xk4
+      complex(dp):: m(2,2),cprop
+      integer:: nu,eb,b,em,nb,c,g
+      integer:: si,xnb,xem,xc,xk3,xk4
       parameter(xnb=1,xem=2,xc=3,xk3=4,xk4=5)
 C construct top and antitop momenta
       do si=1,4
-      if (g .eq. 0) then
+      if (g == 0) then
       t(si)=p(nu,si)+p(eb,si)+p(b,si)
       else
       t(si)=p(nu,si)+p(eb,si)+p(b,si)+p(g,si)
@@ -25,18 +30,18 @@ C construct top and antitop momenta
 
 C calculate betap
       s34=tpa(4)**2-tpa(1)**2-tpa(2)**2-tpa(3)**2
-      betasq=1d0-4d0*mt**2/s34
-      if (betasq .ge. 0d0) then
-        be=dsqrt(betasq)
-        bp=0.5d0*(1d0+be)
-        bm=1d0-bp
+      betasq=1._dp-4._dp*mt**2/s34
+      if (betasq >= 0._dp) then
+        be=sqrt(betasq)
+        bp=0.5_dp*(1._dp+be)
+        bm=1._dp-bp
         rtbp=sqrt(bp)
       else
         write(6,*) 'betasq < 0 in adecayrod.f, betasq=',betasq
         call flush(6)
         stop
       endif
-      alb=mb**2/(2d0*dot(p,c,nb))
+      alb=mb**2/(2._dp*dot(p,c,nb))
 
       do si=1,4
       q(xnb,si)=p(nb,si)
@@ -52,8 +57,8 @@ C     a=bm*k3+bp*k4
 
       call spinoru(5,q,za,zb)
       
-      sw=2d0*dot(q,xnb,xem)
-      cprop=dcmplx(sw-wmass**2,wmass*wwidth)
+      sw=2._dp*dot(q,xnb,xem)
+      cprop=cplx2(sw-wmass**2,wmass*wwidth)
 
 C---order of polarizations is m(apol,cpol)
 C---choice of auxiliary vector for a is xk3

@@ -1,12 +1,17 @@
       subroutine jonewstrong(p7,p3,p4,p1,za,zb,zab,jqcd)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'cmplxmass.f'
       include 'zprods_decl.f'
       include 'sprods_com.f'
-      integer p1,p2,p3,p4,p7,ro
-      double complex zab(mxpart,4,mxpart),jqcd(2,4),propw34
-      double precision t3,s34,s134,s347
+      integer:: p1,p2,p3,p4,p7,ro
+      complex(dp):: zab(mxpart,4,mxpart),jqcd(2,4),propw34
+      real(dp):: t3,s34,s134,s347
 C-----Begin statement functions
       t3(p1,p2,p3)=s(p1,p2)+s(p2,p3)+s(p3,p1)
 C-----end statement functions

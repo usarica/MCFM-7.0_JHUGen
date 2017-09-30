@@ -1,3 +1,3 @@
-      integer nlooprun
+      integer:: nlooprun
       common/nlooprun/nlooprun
       

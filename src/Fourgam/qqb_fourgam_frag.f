@@ -2,29 +2,34 @@
 !==== based of trigam tree C.Williams Oct 2014
       subroutine qqb_fourgam_frag(p,msq) 
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ewcharge.f'
       include 'ewcouple.f'
       include 'qcdcouple.f'
       include 'zprods_decl.f'
       include 'frag.f' 
-      integer j
-      double precision p(mxpart,4),msq(-nf:nf,-nf:nf),
+      integer:: j
+      real(dp):: p(mxpart,4),msq(-nf:nf,-nf:nf),
      & ampsq_3gam1g,qqb,qbq,qg,gq,qbg,gqb,fac,cfac
-      double precision fsq,D(0:5)
-      integer i 
+      real(dp):: fsq,D(0:5)
+      integer:: i 
 
       fsq=frag_scale**2
 c---- Generate array D(j) corresponding to MCFM notation 0=gluon 1=up 2=down ....
         do i=0,5
            D(i)=0d0
-           if     (fragset .eq. 'BFGset_I') then
+           if     (fragset == 'BFGset_I') then
               call get_frag(z_frag,fsq,1,i,D(i))   
-           elseif (fragset .eq. 'BFGsetII') then  
+           elseif (fragset == 'BFGsetII') then  
               call get_frag(z_frag,fsq,2,i,D(i))   
-           elseif (fragset .eq. 'GdRG__LO') then 
+           elseif (fragset == 'GdRG__LO') then 
             call GGdR_frag(z_frag,i,D(i),0)
-           elseif (fragset .eq. 'GdRG_NLO') then 
+           elseif (fragset == 'GdRG_NLO') then 
             call GGdR_frag(z_frag,i,D(i),1)
            else
               write(6,*) 'Unrecognized fragmentation set name: ',fragset

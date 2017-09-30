@@ -1,14 +1,19 @@
       subroutine spinorextend(za,zb)
       implicit none
+      include 'types.f'
+      
 C-----Authors: John Campbell and Keith Ellis, November 2011
 C-----given spinor products calculated for heavy quark auxiliary vectors
 C-----eta_1(e1) and eta_4(e4), return spinor products extended to yield also products
 c-----for the opposite polarization of the auxiliary vector.
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'masses.f'
       include 'etadef.f'
-      integer j
+      integer:: j
 
       do j=1,6
       za(e1p,j)=zb(e1,1)*za(1,j)/mt 

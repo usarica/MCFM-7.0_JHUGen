@@ -1,18 +1,23 @@
       subroutine ATLAS_hww2013(p,failed_cuts)
-c--- Implementation of H->WW cuts in ATLAS-CONF-2013-030 (Njet=0)
       implicit none
+      include 'types.f'
+c--- Implementation of H->WW cuts in ATLAS-CONF-2013-030 (Njet=0)
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'runstring.f'
-      double precision p(mxpart,4)
-      logical failed_cuts
-      double precision pt,etarap
-      integer i,j,idlept
-      double precision ran2,tmp,dot,ptminl1,ptminl2,etamaxmu,etamaxe,
+      real(dp):: p(mxpart,4)
+      logical:: failed_cuts
+      real(dp):: pt,etarap
+      integer:: i,j,idlept
+      real(dp):: ran2,tmp,dot,ptminl1,ptminl2,etamaxmu,etamaxe,
      & etaegapmin,etaegapmax,metrelmin,mll,phimin,ptl1,ptl2,etal1,etal2,
      & mllmin,mllmax,phimax,mwindow,phi,etvec(2),missinget,ptll,ptllmin,
      & Etll,MET,mtrans
-      logical first,l1muon,l2muon,highMT
+      logical:: first,l1muon,l2muon,highMT
       data first/.true./
       save first,highMT,mllmax,phimax
 
@@ -20,11 +25,11 @@ C---- optional cut on mtrans
 c      etvec(1)=p(3,1)+p(6,1)
 c      etvec(2)=p(3,2)+p(6,2)
 c--- transverse mass
-c      Etll=dsqrt(max(0d0,(p(4,4)+p(5,4))**2-(p(4,3)+p(5,3))**2))
-c      MET=dsqrt(max(0d0,etvec(1)**2+etvec(2)**2))
+c      Etll=sqrt(max(zip,(p(4,4)+p(5,4))**2-(p(4,3)+p(5,3))**2))
+c      MET=sqrt(max(zip,etvec(1)**2+etvec(2)**2))
 c      mtrans=MET+Etll
 
-c      if(mtrans.lt.300d0) then
+c      if(mtrans<300._dp) then
 c        failed_cuts=.true.
 c         return
 c      endif
@@ -36,37 +41,37 @@ c      idlept=3    ! (mu,mu)
 
       idlept=1
 
-      ptminl1=25d0
-      ptminl2=15d0
+      ptminl1=25._dp
+      ptminl2=15._dp
 
-      etamaxmu=2.5d0
-      etamaxe=2.47d0
-      etaegapmin=1.37d0
-      etaegapmax=1.52d0
+      etamaxmu=2.5_dp
+      etamaxe=2.47_dp
+      etaegapmin=1.37_dp
+      etaegapmax=1.52_dp
 
-      ptllmin=30d0
+      ptllmin=30._dp
 
-      if     (idlept .eq. 1) then
-        mllmin=10d0
-        mwindow=0d0
-        metrelmin=25d0
-        if (ran2() .lt. 0.5d0) then
+      if     (idlept == 1) then
+        mllmin=10._dp
+        mwindow=zip
+        metrelmin=25._dp
+        if (ran2() < 0.5_dp) then
           l1muon=.true.
           l2muon=.false.
         else
           l1muon=.false.
           l2muon=.true.
         endif
-      elseif (idlept .eq. 2) then
-        mllmin=12d0
-        mwindow=15d0
-        metrelmin=45d0
+      elseif (idlept == 2) then
+        mllmin=12._dp
+        mwindow=15._dp
+        metrelmin=45._dp
         l1muon=.false.
         l2muon=.false.
-      elseif (idlept .eq. 3) then
-        mllmin=12d0
-        mwindow=15d0
-        metrelmin=45d0
+      elseif (idlept == 3) then
+        mllmin=12._dp
+        mwindow=15._dp
+        metrelmin=45._dp
         l1muon=.true.
         l2muon=.true.
       else
@@ -76,16 +81,16 @@ c      idlept=3    ! (mu,mu)
 
 
       if(first) then
-      mllmax=50d0
-      phimax=1.8d0
-      if (index(runstring,'nomll') .gt. 0) then
+      mllmax=50._dp
+      phimax=1.8_dp
+      if (index(runstring,'nomll') > 0) then
         mllmax=1d4
       endif
-      if (index(runstring,'basic') .gt. 0) then
+      if (index(runstring,'basic') > 0) then
         mllmax=1d4
         phimax=1d4
       endif
-      if (index(runstring,'highMT') .gt. 0) then
+      if (index(runstring,'highMT') > 0) then
         highMT=.true.
       else
         highMT=.false.
@@ -93,11 +98,11 @@ c      idlept=3    ! (mu,mu)
       first=.false.
       write(6,*)  '******** ATLAS H->WW Search cuts ******'
       write(6,*)  '*                                     *'
-      if     (idlept .eq. 1) then
+      if     (idlept == 1) then
       write(6,*)  '*     Treating W decays as (e,mu)     *'
-      elseif (idlept .eq. 2) then
+      elseif (idlept == 2) then
       write(6,*)  '*     Treating W decays as (e,e)      *'
-      elseif (idlept .eq. 3) then
+      elseif (idlept == 3) then
       write(6,*)  '*     Treating W decays as (mu,mu)    *'
       endif
       write(6,*)  '*                                     *'
@@ -126,31 +131,31 @@ c      idlept=3    ! (mu,mu)
 c--- reject event if transverse mass too small, if requested
       if (highMT) then
         etvec(1:2)=p(3,1:2)+p(6,1:2)
-        Etll=dsqrt(max(0d0,(p(4,4)+p(5,4))**2-(p(4,3)+p(5,3))**2))
-        MET=dsqrt(max(0d0,etvec(1)**2+etvec(2)**2))
+        Etll=sqrt(max(zip,(p(4,4)+p(5,4))**2-(p(4,3)+p(5,3))**2))
+        MET=sqrt(max(zip,etvec(1)**2+etvec(2)**2))
         mtrans=MET+Etll
-        if (mtrans .lt. 250d0) then
+        if (mtrans < 250._dp) then
           failed_cuts=.true.
           return
         endif
       endif
 
-      mll=sqrt(max(0d0,2d0*dot(p,4,5)))
+      mll=sqrt(max(zip,two*dot(p,4,5)))
 
 c--- minimum dilepton invariant mass
-      if (mll .lt. mllmin) then
+      if (mll < mllmin) then
         failed_cuts=.true.
         return
       endif
 
 c--- maximum dilepton invariant mass
-      if (mll .gt. mllmax) then
+      if (mll > mllmax) then
         failed_cuts=.true.
         return
       endif
 
 c--- veto on dilepton invariant mass around Z mass
-      if (abs(mll-zmass) .lt. mwindow) then
+      if (abs(mll-zmass) < mwindow) then
         failed_cuts=.true.
         return
       endif
@@ -158,7 +163,7 @@ c--- veto on dilepton invariant mass around Z mass
       ptl1=pt(4,p)
       ptl2=pt(5,p)
 
-      if (ptl2 .gt. ptl1) then
+      if (ptl2 > ptl1) then
         tmp=ptl1
         ptl1=ptl2
         ptl2=tmp
@@ -170,25 +175,25 @@ c--- veto on dilepton invariant mass around Z mass
       endif
 
 c--- pt cut on hardest lepton
-      if (ptl1 .lt. ptminl1) then
+      if (ptl1 < ptminl1) then
         failed_cuts=.true.
         return
       endif
 c--- pt cut on softest lepton
-      if (ptl2 .lt. ptminl2) then
+      if (ptl2 < ptminl2) then
         failed_cuts=.true.
         return
       endif
 
 c--- rapidity cut on hardest lepton
       if (l1muon) then
-        if (abs(etal1) .gt. etamaxmu) then
+        if (abs(etal1) > etamaxmu) then
           failed_cuts=.true.
           return
         endif
       else
-        if ((abs(etal1) .gt. etamaxe) .or.
-     &   (abs(etal1).gt.etaegapmin) .and.(abs(etal1).lt.etaegapmax))then
+        if ((abs(etal1) > etamaxe) .or.
+     &   (abs(etal1)>etaegapmin) .and.(abs(etal1)<etaegapmax))then
           failed_cuts=.true.
           return
         endif
@@ -196,13 +201,13 @@ c--- rapidity cut on hardest lepton
 
 c--- rapidity cut on softest lepton
       if (l2muon) then
-        if (abs(etal2) .gt. etamaxmu) then
+        if (abs(etal2) > etamaxmu) then
           failed_cuts=.true.
           return
         endif
       else
-        if ((abs(etal2) .gt. etamaxe) .or.
-     &   (abs(etal2).gt.etaegapmin) .and.(abs(etal2).lt.etaegapmax))then
+        if ((abs(etal2) > etamaxe) .or.
+     &   (abs(etal2)>etaegapmin) .and.(abs(etal2)<etaegapmax))then
           failed_cuts=.true.
           return
         endif
@@ -212,41 +217,41 @@ c--- missing et "relative"
       do j=1,2
         etvec(j)=p(3,j)+p(6,j)
       enddo
-      missinget=dsqrt(etvec(1)**2+etvec(2)**2)
+      missinget=sqrt(etvec(1)**2+etvec(2)**2)
 
-      phimin=99d0
+      phimin=99._dp
       do i=4,5
         phi=(p(i,1)*etvec(1)+p(i,2)*etvec(2))
-     &      /dsqrt((p(i,1)**2+p(i,2)**2)*missinget**2)
-        if (phi .gt. +0.9999999D0) phi=+1D0
-        if (phi .lt. -0.9999999D0) phi=-1D0
-        phi=dacos(phi)
-        if (phi .lt. phimin) phimin=phi
+     &      /sqrt((p(i,1)**2+p(i,2)**2)*missinget**2)
+        if (phi > +0.9999999_dp) phi=+1._dp
+        if (phi < -0.9999999_dp) phi=-1._dp
+        phi=acos(phi)
+        if (phi < phimin) phimin=phi
       enddo
 
-      if (phi .lt. pi/2d0) then
-        missinget=missinget*dsin(phi)
+      if (phi < pi/two) then
+        missinget=missinget*sin(phi)
       endif
 
-      if (missinget .lt. metrelmin) then
+      if (missinget < metrelmin) then
         failed_cuts=.true.
         return
       endif
 
 c--- dilepton transverse momentum
-      ptll=dsqrt((p(4,1)+p(5,1))**2+(p(4,2)+p(5,2))**2)
-      if (ptll .lt. ptllmin) then
+      ptll=sqrt((p(4,1)+p(5,1))**2+(p(4,2)+p(5,2))**2)
+      if (ptll < ptllmin) then
         failed_cuts=.true.
         return
       endif
 
 c--- dilepton phi
       phi=(p(4,1)*p(5,1)+p(4,2)*p(5,2))
-     &    /dsqrt((p(4,1)**2+p(4,2)**2)*(p(5,1)**2+p(5,2)**2))
-      if (phi .gt. +0.9999999D0) phi=+1D0
-      if (phi .lt. -0.9999999D0) phi=-1D0
-      phi=dacos(phi)
-      if (phi .gt. phimax) then
+     &    /sqrt((p(4,1)**2+p(4,2)**2)*(p(5,1)**2+p(5,2)**2))
+      if (phi > +0.9999999_dp) phi=+1._dp
+      if (phi < -0.9999999_dp) phi=-1._dp
+      phi=acos(phi)
+      if (phi > phimax) then
         failed_cuts=.true.
         return
       endif

@@ -1,4 +1,6 @@
       subroutine z2jetsq(i1,i2,i3,i4,i5,i6,za,zb,msq)
+      implicit none
+      include 'types.f'
 c-----Author R.K. Ellis
 c---Matrix element squared averaged over initial colors and spins
 c     q(-p1)+qbar(-p2) --> Gamma^* +g(p5) +g(p6)
@@ -6,18 +8,19 @@ c                          |
 c                          --> l(p3)+a(p4)
 c
 c--all momenta incoming
-      implicit none
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
       include 'zprods_decl.f'
       include 'mmsq_cs.f'
-      double complex qcd1LL(-1:1,-1:1),qcd2LL(-1:1,-1:1)
-      double complex qcd1LR(-1:1,-1:1),qcd2LR(-1:1,-1:1)
-c      double complex qcd1RL(-1:1,-1:1),qcd2RL(-1:1,-1:1)
-c      double complex qcd1RR(-1:1,-1:1),qcd2RR(-1:1,-1:1)
-      double complex qedLL(-1:1,-1:1),qedLR(-1:1,-1:1)
-c      double complex qedRL(-1:1,-1:1),qedRR(-1:1,-1:1)
-      double precision msq1(2,2),msq2(2,2),msqq(2,2),msq(2,2)
-      integer i1,i2,i3,i4,i5,i6,j,k,pq,pl
+      complex(dp):: qcd1LL(-1:1,-1:1),qcd2LL(-1:1,-1:1)
+      complex(dp):: qcd1LR(-1:1,-1:1),qcd2LR(-1:1,-1:1)
+c      complex(dp):: qcd1RL(-1:1,-1:1),qcd2RL(-1:1,-1:1)
+c      complex(dp):: qcd1RR(-1:1,-1:1),qcd2RR(-1:1,-1:1)
+      complex(dp):: qedLL(-1:1,-1:1),qedLR(-1:1,-1:1)
+c      complex(dp):: qedRL(-1:1,-1:1),qedRR(-1:1,-1:1)
+      real(dp):: msq1(2,2),msq2(2,2),msqq(2,2),msq(2,2)
+      integer:: i1,i2,i3,i4,i5,i6,j,k,pq,pl
       integer,parameter::pol(2)=(/-1,1/)
 
       call subqcd(i1,i2,i3,i4,i5,i6,za,zb,qcd1LL)
@@ -45,22 +48,28 @@ c      qedRR(pol(j),pol(k))=qcd1RR(pol(j),pol(k))+qcd2RR(pol(k),pol(j))
 
       do pq=1,1
       do pl=1,2
-      msq1(pq,pl)=0d0
-      msq2(pq,pl)=0d0
-      msqq(pq,pl)=0d0
+      msq1(pq,pl)=0._dp
+      msq2(pq,pl)=0._dp
+      msqq(pq,pl)=0._dp
       enddo
       enddo
 
 C---sum over gluon polarizations
       do j=1,2
       do k=1,2
-      msq1(1,1)=msq1(1,1)+abs(qcd1LL(pol(j),pol(k)))**2
-      msq2(1,1)=msq2(1,1)+abs(qcd2LL(pol(j),pol(k)))**2
-      msqq(1,1)=msqq(1,1)+abs(qedLL(pol(j),pol(k)))**2
+      msq1(1,1)=msq1(1,1)+real(qcd1LL(pol(j),pol(k))
+     &                  *conjg(qcd1LL(pol(j),pol(k))),dp)
+      msq2(1,1)=msq2(1,1)+real(qcd2LL(pol(j),pol(k))
+     &                  *conjg(qcd2LL(pol(j),pol(k))),dp)
+      msqq(1,1)=msqq(1,1)+real(qedLL(pol(j),pol(k))
+     &                  *conjg(qedLL(pol(j),pol(k))),dp)
 
-      msq1(1,2)=msq1(1,2)+abs(qcd1LR(pol(j),pol(k)))**2
-      msq2(1,2)=msq2(1,2)+abs(qcd2LR(pol(j),pol(k)))**2
-      msqq(1,2)=msqq(1,2)+abs(qedLR(pol(j),pol(k)))**2
+      msq1(1,2)=msq1(1,2)+real(qcd1LR(pol(j),pol(k))
+     &                  *conjg(qcd1LR(pol(j),pol(k))),dp)
+      msq2(1,2)=msq2(1,2)+real(qcd2LR(pol(j),pol(k))
+     &                  *conjg(qcd2LR(pol(j),pol(k))),dp)
+      msqq(1,2)=msqq(1,2)+real(qedLR(pol(j),pol(k))
+     &                  *conjg(qedLR(pol(j),pol(k))),dp)
 
 c      msq1(2,1)=msq1(2,1)+abs(qcd1RL(pol(j),pol(k)))**2
 c      msq2(2,1)=msq2(2,1)+abs(qcd2RL(pol(j),pol(k)))**2

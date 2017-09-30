@@ -1,9 +1,11 @@
 
       subroutine store_zdip(nd,z)
       implicit none
+      include 'types.f'
+      
       include 'z_dip.f'
-      double precision z
-      integer nd
+      real(dp):: z
+      integer:: nd
 
       z_dip(nd)=z
 

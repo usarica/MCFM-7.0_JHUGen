@@ -26,7 +26,7 @@
 \thispagestyle{empty}
 \vspace*{3cm}
 \begin{center}
-{\Huge MCFM v7.0} \\
+{\Huge MCFM v8.0} \\
 \vspace*{0.5cm}
 \Large{A Monte Carlo for FeMtobarn} \\
 \Large{processes at Hadron Colliders} \\
@@ -38,23 +38,55 @@
 John M. Campbell ({\tt johnmc@fnal.gov}) \\
 R. Keith Ellis ({\tt ellis@fnal.gov}) \\
 Walter Giele ({\tt giele@fnal.gov}) \\
-Ciaran Williams ({\tt ciaran@fnal.gov}) \\
+Ciaran Williams ({\tt ciaranwi@buffalo.edu}) \\
 \vspace*{1.5cm}
-{\it \small Updated: March 20, 2015}
+{\it \small Updated: May 25, 2016}
 \end{center}
 
 \newpage
 
 \tableofcontents
 
+\newpage
+
 \section{Overview}
 
-\MCFM is a parton-level Monte Carlo program which gives NLO predictions
+\MCFM is a parton-level Monte Carlo program that gives NLO predictions
 for a range of processes at hadron colliders. The program has been
 developed over a number of years and results have been presented in
-a number of published papers. The relevant references are listed
-in Appendix~\ref{MCFMrefs} and a record of changes to the code
-since v6.0 is given in Appendix~\ref{changelog}.
+a number of published papers.  The papers describing the original
+code and the most significant developments in the NLO implementation are:
+\begin{itemize}
+\item J.~M.~Campbell and R.~K.~Ellis, \\
+  {\it ``An update on vector boson pair production at hadron colliders,''} \\
+  Phys.\ Rev.\ D {\bf 60}, 113006 (1999)
+  [arXiv:hep-ph/9905386].
+\item J.~M.~Campbell, R.~K.~Ellis and C.~Williams, \\
+  {\it ``Vector boson pair production at the LHC,''} \\
+  JHEP {\bf 1107}, 018 (2011)
+  [arXiv:1105.0020 [hep-ph]]. 
+\item J.~M.~Campbell, R.~K.~Ellis and W.~Giele, \\
+  {\it ``A Multi-Threaded Version of MCFM''}, \\
+    EPJ {\bf C75}, 246 (2015)
+    [arXiv:1503.06182 [hep-ph]].
+\end{itemize}
+ 
+As of v8.0 MCFM can also compute selected color-singlet processes through NNLO in QCD
+perturbation theory.  The processes available at this precision, as well as
+benchmark numbers, are detailed in Section~\ref{sec:NNLO}.  When using MCFM 8.0
+for NNLO calculations please refer to:
+\begin{itemize}
+\item 
+  R.~Boughezal, J.~M.~Campbell, R.~K.~Ellis, \\
+   C.~Focke, W.~Giele, X.~Liu,~F. Petriello and  C.~Williams, \\
+  {\it ``Color singlet production at NNLO in MCFM''},
+  arXiv:1605.08011.
+\end{itemize}
+
+Other relevant references, corresponding to publications associated with the
+implementation of specific processes at NLO and NNLO, are listed
+in Appendix~\ref{MCFMrefs}.  Appendices~\ref{changelog8.0}--\ref{changelog} contain
+a record of changes to the code since v6.0.
 
 \section{Installation}
 
@@ -72,12 +104,12 @@ Note that, as of version 6.0, the code requires a Fortran90 compiler.
 The directory structure of the installation is as follows:
 \begin{itemize}
 \item {\tt Doc}. The source for this document.
-\item {\tt Bin}. The directory containing the executable {\tt mcfm},
+\item {\tt Bin}. The directory containing the executable {\tt mcfm\_omp},
 and various essential files -- notably the options file {\tt input.DAT}.
 \item {\tt Bin/Pdfdata}. The directory containing the PDF data-files.
-\item {\tt obj}. The object files produced by the compiler. 
+\item {\tt obj\_omp}. The object files produced by the compiler. 
 \item {\tt src}. The Fortran source files in various subdirectories.
-\item {\tt QCDLoop}. The source files to version 1.9 of the Fortran
+\item {\tt QCDLoop}. The source files to version 1.95 of the Fortran
 library QCDLoop~\cite{Ellis:2007qk}. The location of these libraries
 is set in the {\tt makefile} (by {\tt QLDIR} and {\tt FFDIR}) and may be
 changed to reflect existing installations if desired. 
@@ -86,11 +118,11 @@ The files which it is most likely that the user will need to modify
 are located in {\tt src/User}. It is convenient, if one wants to 
 modify one of these files, (or any other file in the subdirectories of the 
 {\tt src} directory),
-to copy it first to the directory where the user has installed {\tt mcfm}.
+to copy it first to the directory where the user has installed MCFM.
 The makefile will use this file in preference to the identically named
 file in the sub-directories of {\tt src}.
  
-\subsection{Installation to use OpenMP}
+\subsection{OpenMP and MPI}
 As of version 7.0, \MCFM has been modified 
 using OpenMP (Open multi-processing)  to implement multi-threading. 
 By using OpenMP, \MCFM compiled with the appropriate flags
@@ -103,19 +135,20 @@ Special care has been taken that the results of the
 Monte Carlo integration are independent of the 
 number of threads used.
 
-To compile the OpenMP version of MCFM, the user should first ensure
+In version 8.0 the OpenMP version of MCFM is compiled by default.  To revert
+to a single core version, the user should first ensure
 that all the libraries are compiled appropriately.  This is achieved
-by running the command {\tt ./Install\_omp}, in direct analogy with the
+by running the command {\tt ./Install\_noomp}, in direct analogy with the
 normal {\tt Install} script described above.  After this is complete,
 the {\tt makefile} must be edited and the value of the variable
-{\tt USEOMP} changed to {\tt YES}.  This is specified near the top
+{\tt USEOMP} changed to {\tt NO}.  This is specified near the top
 of the file and care must be taken to ensure that no trailing characters
 are included.  The code can then be compiled using {\tt make},
-with the resulting executable {\tt mcfm\_omp} placed in the {\tt Bin}
+with the resulting executable {\tt mcfm} placed in the {\tt Bin}
 directory.  Note that the associated object files are stored in an
-additional subdirectory, {\tt obj\_omp}.  The use of this version
+additional subdirectory, {\tt obj}.  The use of this version
 of the code is otherwise identical to the ordinary one, apart from
-the replacement of {\tt ./mcfm} by {\tt ./mcfm\_omp}.
+the replacement of {\tt ./mcfm\_omp} by {\tt ./mcfm}.
 
 Two environment variables are useful when using the OMP version of MCFM.
 The first, {\tt OMP\_STACKSIZE} may need to be set in order for the program
@@ -128,6 +161,14 @@ for all processes.  The second useful variable is {\tt OMP\_NUM\_THREADS}
 which may be used to directly control the number of threads used during
 OMP execution (the default is the maximum number of threads available
 on the system).
+
+In version 8.0 it is also possible to run MCFM on a cluster using MPI
+(Message Passing Interface).  To run in this  mode, edit the flag {\tt USEMPI}
+in the makefile to {\tt YES} and specify compilers in the makefile
+that are MPI-capable.  The appropriate lines to edit may be found by
+searching for the default compilers in the distributed version,
+which are located in {\tt /usr/local/openmpi}.  Note that, in MPI mode, the code
+also automatically uses the OpenMP improvements.
 
 \subsection{Installation as a library}
 It is also possible to compile all of \MCFM as a library.
@@ -156,9 +197,9 @@ $G_F$            & {\tt Gf}      & 1.16639$\times$10$^{-5}$
  & input & calculated & input & input \\
 $\alpha(M_Z)$    & {\tt aemmz}   & 1/128.89                 
  & input & input & calculated & input \\
-$\sin^2 \theta_w$& {\tt xw}      & 0.2312               
+$\sin^2 \theta_w$& {\tt xw}      & 0.2223               
  & calculated & input & calculated & input \\
-$M_W$            & {\tt wmass}   & 80.398 GeV                
+$M_W$            & {\tt wmass}   & 80.385 GeV                
  & input & calculated & input & calculated \\
 $M_Z$            & {\tt zmass}   & 91.1876 GeV               
  & input & input & input & calculated \\
@@ -205,7 +246,7 @@ Parameter & Fortran name & Default value \\
 $m_\tau$         & {\tt mtau}      & 1.777 GeV            \\
 $m^2_\tau$& {\tt mtausq}  & 3.1577 GeV$^2$     \\
 $\Gamma_\tau$    & {\tt tauwidth}& 2.269$\times$10$^{-12}$~GeV \\
-$\Gamma_W$       & {\tt wwidth}  & 2.141 GeV               \\
+$\Gamma_W$       & {\tt wwidth}  & 2.093 GeV               \\
 $\Gamma_Z$       & {\tt zwidth}  & 2.4952 GeV               \\
 $V_{ud}$         & {\tt Vud}     & 0.975                  \\
 $V_{us}$         & {\tt Vus}     & 0.222             \\
@@ -240,105 +281,45 @@ the number of loops that should be used in the running of $\alpha_S$.
 The default mode of operation is to choose from a
 collection of modern parton distribution functions that are included with
 \MCFM.  The distributions, together with their associated $\alpha_S(M_Z)$
-values, are given in Tables~\ref{pdlabelmrs} and~\ref{pdlabelcteq}. 
-For the older distributions, where the
-coupling was specified by $\Lambda$ this requires 
-some calculation and/or guesswork.
+values, are given in Table~\ref{pdlabelrecent}.   In addition to these
+choices, a number of historical PDF sets are also available;  for details, see
+Appendix~\ref{olderPDFs}.  Note that, due to the memory requirements for
+using the NNPDF sets, in OpenMP operation it is usually necessary to increase
+the value of the environment variable {\tt OMP\_STACKSIZE} to avoid
+segmentation faults.
+%
 \begin{table}[h]
 \begin{center}
-\begin{tabular}{|c|c|c||c|c|c|}
+\begin{tabular}{|c|c|c|c|}
 \hline
-{\tt mstw8lo}  & 0.1394       & \mstwoheight &
-{\tt mstw8nl}  & 0.1202       & \mstwoheight \\
-{\tt mstw8nn}  & 0.1171       & \mstwoheight &
-{\tt mrs02nl}  & 0.1197       & \mrstohtwo \\
-{\tt mrs02nn}  & 0.1154       & \mrstohtwo &
-{\tt mrs4nf3}  & 0.1083       & \mrstff \\
-{\tt mrs4lf3}  & 0.1186       & \mrstff &
-{\tt mrs4nf4}  & 0.1153       & \mrstff \\
-{\tt mrs4lf4}  & 0.1251       & \mrstff &
-{\tt mrs0119}  & 0.119        & \mrstohone \\
-{\tt mrs0117}  & 0.117        & \mrstohone &
-{\tt mrs0121}  & 0.121        & \mrstohone \\
-{\tt mrs01\_j} & 0.121        & \mrstohone &
-{\tt mrs01lo}  & 0.130        & \mrstohtwofirst \\ 
-{\tt mrs99\_1} & 0.1175       & \mrsninenine &
-{\tt mrs99\_2} & 0.1175       & \mrsninenine \\
-{\tt mrs99\_3} & 0.1175       & \mrsninenine &
-{\tt mrs99\_4} & 0.1125       & \mrsninenine \\    
-{\tt mrs99\_5} & 0.1225       & \mrsninenine &
-{\tt mrs99\_6} & 0.1178       & \mrsninenine \\    
-{\tt mrs99\_7} & 0.1171       & \mrsninenine &
-{\tt mrs99\_8} & 0.1175       & \mrsninenine \\    
-{\tt mrs99\_9} & 0.1175       & \mrsninenine &
-{\tt mrs9910}  & 0.1175       & \mrsninenine \\    
-{\tt mrs9911}  & 0.1175       & \mrsninenine &
-{\tt mrs9912}  & 0.1175       & \mrsninenine \\    
-{\tt mrs98z1}  &  0.1175      & \mrsnineeight &  
-{\tt mrs98z2}  &  0.1175      & \mrsnineeight \\ 
-{\tt mrs98z3}  &  0.1175      & \mrsnineeight &  
-{\tt mrs98z4}  &  0.1125      & \mrsnineeight \\  
-{\tt mtungb1}  &  0.109       & \mrsnineeight &
-{\tt mrs98z5}  &  0.1225      & \mrsnineeight \\   
-{\tt mrs96r1}  &  0.113       & \mrsninesix &    
-{\tt mrs96r2}  &  0.120       & \mrsninesix \\  
-{\tt mrs96r3}  &  0.113       & \mrsninesix &   
-{\tt mrs96r4}  &  0.120       & \mrsninesix \\   
-{\tt mrs95ap}  &  0.1127      & \mrsninefive &
-{\tt mrs95\_g} &  0.1148      & \mrsninefive \\
-{\tt hmrs90e}  &  0.09838     & \hmrs & 
-{\tt hmrs90b}  &  0.10796     & \hmrs \\
-&  & \\
+{\tt pdlabel}  & $\alpha_S(M_Z)$ & order & reference \\
+\hline
+{\tt mstw8lo}  & 0.1394 & 1     & \cite{Martin:2009iq} \\
+{\tt mstw8nl}  & 0.1202 & 2     & \cite{Martin:2009iq} \\
+{\tt mstw8nn}  & 0.1171 & 3     & \cite{Martin:2009iq} \\
+{\tt MMHT\_lo}  & 0.135  & 1     & \cite{Harland-Lang:2014zoa} \\
+{\tt MMHT\_nl}  & 0.120  & 2     & \cite{Harland-Lang:2014zoa} \\
+{\tt MMHT\_nn}  & 0.118  & 3     & \cite{Harland-Lang:2014zoa} \\
+\hline
+{\tt CT10.00}  & 0.118  & 2     & \cite{Lai:2010vv} \\
+{\tt CT14.LL}  & 0.130  & 1     & \cite{Dulat:2015mca} \\
+{\tt CT14.NL}  & 0.118  & 2     & \cite{Dulat:2015mca} \\
+{\tt CT14.NN}  & 0.118  & 3     & \cite{Dulat:2015mca} \\
+\hline
+{\tt NN2.3NL}  & 0.118  & 2     & \cite{Ball:2012cx} \\
+{\tt NN2.3NN}  & 0.118  & 3     & \cite{Ball:2012cx} \\
+{\tt NN3.0LO}  & 0.118  & 1     & \cite{Ball:2014uwa} \\
+{\tt NN3.0NL}  & 0.118  & 2     & \cite{Ball:2014uwa} \\
+{\tt NN3.0NN}  & 0.118  & 3     & \cite{Ball:2014uwa} \\
 \hline
 \end{tabular}
 \end{center}
-\caption{Available MRS-type pdf sets, their corresponding values of
-$\alpha_S(M_Z)$ and a reference to the paper or preprint that
-describes their origin.
-\label{pdlabelmrs}}
-\end{table}
-\begin{table}[h]
-\begin{center}
-\begin{tabular}{|c|c|c||c|c|c|}
-\hline
-{\tt CT10.00}  &  0.118          & \cteqten &
-{\tt cteq66m}  &  0.118       & \cteqsixsixm \\
-{\tt cteq61m}  &  0.118       & \cteqsixonem &
-{\tt cteq6\_m} &  0.118       & \cteqsix \\
-{\tt cteq6\_d} &  0.118       & \cteqsix &
-{\tt cteq6\_l} &  0.118       & \cteqsix \\
-{\tt cteq6l1}  &  0.130       & \cteqsix &
-{\tt cteq5hq}  &  0.118       & \cteqfive \\
-{\tt cteq5f3}  &  0.106       & \cteqfive &
-{\tt cteq5f4}  &  0.112       & \cteqfive \\
-{\tt cteq5\_m} &  0.118       & \cteqfive &
-{\tt cteq5\_d} &  0.118       & \cteqfive \\
-{\tt cteq5\_l} &  0.127       & \cteqfive & 
-{\tt cteq5l1}  &  0.127       & \cteqfive \\
-{\tt cteq5hj}  &  0.118       & \cteqfive &
-{\tt cteq5m1}  &  0.118       & \cteqfive \\
-{\tt ctq5hq1}  &  0.118       & \cteqfive &
-{\tt cteq4a5}  &  0.122       & \cteqfour \\
-{\tt cteq4hj}  &  0.116       & \cteqfour &
-{\tt cteq4lq}  &  0.114       & \cteqfour \\
-{\tt cteq4\_m} &  0.116       & \cteqfour &
-{\tt cteq4\_d} &  0.116       & \cteqfour \\
-{\tt cteq4\_l} &  0.132       & \cteqfour &
-{\tt cteq4a1}  &  0.110       & \cteqfour \\
-{\tt cteq4a2}  &  0.113       & \cteqfour &
-{\tt cteq4a3}  &  0.116       & \cteqfour \\
-{\tt cteq4a4}  &  0.119       & \cteqfour &
-{\tt cteq3\_m} &  0.112       & \cteqthree \\
-{\tt cteq3\_l} &  0.112       & \cteqthree &
-{\tt cteq3\_d} &  0.112       & \cteqthree \\
-&  & \\
-\hline
-\end{tabular}
-\end{center}
-\caption{Available CTEQ-type pdf sets, their corresponding values of
-$\alpha_S(M_Z)$ and a reference to the paper or preprint that
-describes their origin.
-\label{pdlabelcteq}}
+\caption{Modern PDF sets that are available in the code,
+their corresponding values of $\alpha_S(M_Z)$ and order of running,
+and a reference to the paper
+that describes their origin.  Further sets, of a more historical nature, are
+listed in Appendix~\ref{olderPDFs}.
+\label{pdlabelrecent}}
 \end{table}
 
 By editing the {\tt Makefile}, it is straightforward to switch to
@@ -389,6 +370,67 @@ grids actually reside to a subdirectory of {\tt Bin} called {\tt PDFsets}.
 One may always return to the built-in distributions by resetting
 {\tt PDFROUTINES} to take the value {\tt NATIVE}  in the makefile,
 (and recompiling).
+
+\section{Benchmark results at NNLO }
+\label{sec:NNLO}
+We perform all benchmark calculations with the default set of EW parameters
+and for the LHC operating at $\sqrt s = 14$~TeV.  We allow all
+vector bosons to be off-shell ({\tt zerowidth} is {\tt .false.})
+and include their decays ({\tt removebr} is {\tt .false.}).
+For each Higgs boson process we consider the decay $H \to \tau^- \tau^+$.
+For parameters that are set in the input file we use,
+\begin{eqnarray}
+m_H = 125~\mbox{GeV} \,, \quad
+m_t = 173.3~\mbox{GeV} \,, \quad 
+m_b = 4.66~\mbox{GeV} \,, 
+\end{eqnarray}
+and we use the NNLO CT14 pdf set (i.e. {\tt pdlabel} is {\tt CT14.NN}) with
+$\mu_F = \mu_R = Q^2$ (i.e. we set {\tt dynamicscale} equal to
+either {\tt m(34)} or {\tt m(3456)}, as appropriate).
+Our generic set of cuts is,
+\begin{eqnarray}
+&& p_T(\mbox{lepton}) > 20~\mbox{GeV} \,, \quad
+|\eta(\mbox{lepton})| < 2.4 \,, \quad \nonumber \\
+&& p_T(\mbox{photon 1}) > 40~\mbox{GeV} \,, \quad
+   p_T(\mbox{photon 2}) > 25~\mbox{GeV} \,, \quad \nonumber \\
+&&|\eta(\mbox{photon})| < 2.5 \,, \quad 
+\Delta R(\mbox{photon 1, photon 2}) > 0.4 \,, \quad \nonumber \\
+&& E_T^{\mbox{miss}} > 30~\mbox{GeV} \,, \quad
+\end{eqnarray}
+For $Z$ production we also impose a minimum $Z^*$ virtuality ({\tt m34min})
+of $40$~GeV.
+
+For providing benchmark runs we choose a set of integration parameters
+that provides approximately 1\% (or smaller) Monte Carlo uncertainties.
+These are {\tt itmx1 = 4}, {\tt itmx2 = 10} and {\tt ncall1 = ncall2 = 400000}.
+We set {\tt taucut} to {\tt 1\%acc} to achieve a similar level of uncertainty
+in the total NNLO predictions from power corrections that have been neglected. 
+Our benchmarks are shown in Table~\ref{NNLObenchmarks}.  These benchmark cross-sections
+may not be sufficiently accurate for all phenomenological applications but they should
+be able to be reproduced relatively easily, even on a desktop machine.
+
+\begin{table}
+\begin{center}
+\begin{tabular}{|l|l|l|l|} \hline
+Process & {\tt nproc} & $\sigma_{NLO} \pm \delta\sigma_{NLO}^{MC} $ & $\sigma_{NNLO} \pm \delta\sigma_{NNLO}^{MC} \pm \delta\sigma_{NNLO}^{pc}$ \\ 
+\hline
+$W^+$ & {\tt 1}    & $4.218 \pm 0.002$ nb & $4.327 \pm 0.038 \pm 0.043$ nb\\
+$W^-$ & {\tt 6}    & $3.314 \pm 0.001$ nb & $3.256 \pm 0.035 \pm 0.033$ nb\\
+$Z  $ & {\tt 31}   & $884.9 \pm 0.3$ pb & $897.1 \pm 5.2 \pm 9.0$ pb\\
+$H  $ & {\tt 112}  & $1.395 \pm 0.001$ pb & $1.857 \pm 0.007 \pm 0.019$ pb\\
+$\gamma\gamma  $ & {\tt 285}  & $27.90 \pm 0.01$ pb & $43.62 \pm 0.09 \pm 0.44$ pb\\
+$W^+H$ & {\tt 91}    & $2.203 \pm 0.002$ fb & $2.279 \pm 0.011 \pm 0.023$ fb\\
+$W^-H$ & {\tt 96}    & $1.495 \pm 0.001$ fb & $1.533 \pm 0.006 \pm 0.015$ fb\\
+$ZH$   & {\tt 110}   & $0.7537 \pm 0.0004$ fb & $0.8453 \pm 0.0021 \pm 0.0085$ fb\\
+\hline
+\end{tabular}
+\caption{Benchmark cross-sections at NLO and NNLO, using the parameters
+and settings described in the text.  $\delta\sigma^{MC}$ represents the uncertainty
+from Monte Carlo statistics, while $\delta\sigma^{pc}$ is an estimate of the
+uncertainty due to neglected power corrections at NNLO.}
+\label{NNLObenchmarks} 
+\end{center}
+\end{table}
 
 \section{Runtime options}
 
@@ -448,10 +490,11 @@ It is possible to generate n-tuples instead of histograms,
 as well as unweighted events, for some processes. Please refer to
 Section~\ref{subsec:otheroutput} for further details.
 \item {\tt creatent}. {\it See above.}
-\item {\tt skipnt}. {\it See above.}
 \item {\tt dswhisto}. {\it See above.}
 \item {\tt creategrid}. Flag to control whether or not to write out a grid file suitable for
 further processing by APPLgrid.  Please contact the APPLgrid authors for further information.
+\item {\tt writerefs}. Flag to control whether or not the program writes a list
+of appropriate references to the output at the end of the run. 
 \item {\tt writetop}. Flag to control whether or not a Topdrawer histogram output file
 is produced. Please refer to Section~\ref{sec:output} for further details.
 \item {\tt writedat}. Flag to control whether or not the plain histogram output file
@@ -483,7 +526,7 @@ is performed according to the procedure of Frixione~\cite{Frixione:1998jh}.
 \item {\tt part}.
 This parameter has 5 possible values, described below:
 \begin{itemize}
-\item {\tt lord}.
+\item {\tt lo} (or {\tt lord}).
 The calculation is performed at leading order only.
 \item {\tt virt}.
 Virtual (loop) contributions to the next-to-leading order result are
@@ -495,23 +538,28 @@ next-to-leading order results must include contributions from diagrams
 involving real gluon emission (-counterterms to make them finite).
 Note that only the sum of the {\tt real} and the {\tt virt} contributions
 is physical.
-\item {\tt tota}.
-For simplicity, the {\tt tota} option simply runs the {\tt virt} and
+\item {\tt nlo} (or {\tt tota}).
+For simplicity, the {\tt nlo} option simply runs the {\tt virt} and
 {\tt real} real pieces in series before performing a sum to obtain
 the full next-to-leading order result. In this case, the number of
 points specified by {\tt ncall1} and {\tt ncall2} is automatically
-increased when performing the {\tt real} calculation. In practice,
+increased when performing the {\tt real} calculation. Sometimes
 it may be more efficient to do run the pieces separately by hand, 
 (c.f. {\tt ncall} below. For photon processes that include fragmentation,
-{\tt tota} also includes the calculation of the fragmentation ({\tt frag})
+{\tt nlo} also includes the calculation of the fragmentation ({\tt frag})
 contributions.
+\item {\tt nlocoeff}.
+This computes only the contribution of the NLO coefficient;  it is equivalent
+to running {\tt nlo} and then subtracting the result of {\tt lo}.
 \item {\tt todk}
 Processes 114, 161, 166, 171, 176, 181, 186, 141, 146, 149, 233, 238, 501, 511 only, see sections~\ref{subsec:stop} and
 \ref{subsec:wt} below.
 \item {\tt frag}.
 Processes 280, 285, 290, 295, 300-302, 305-307,  820-823 only, see sections~\ref{subsec:gamgam}, \ref{subsec:wgamma} and
 \ref{subsec:zgamma} below.
-
+\item {\tt nnlo} (and {\tt nnlocoeff}).
+The computation of the NNLO prediction (or the NNLO coefficient in the
+expansion) is described separately below.
 \end{itemize}
 
 \item {\tt runstring}.
@@ -566,9 +614,9 @@ the code are then,
 Note that, for simplicity, the fragmentation scale (relevant only for processes
 involving photons) is set equal to the renormalization scale.
 In some cases it is possible for the dynamic scale to become very large. This can cause problems 
-with the interpolation f data tables for the PDFs and fragmentation functions. As a result if a dynamic scale 
-exceeds a maximum of $10$ TeV (PDF) or $990$ GeV (fragmentation) this value is set by default to the maximum. 
-
+with the interpolation of data tables for the PDFs and fragmentation functions. As a result if a dynamic scale 
+exceeds a maximum of $60$ TeV (PDF) or $990$ GeV (fragmentation) this value is set by default to the maximum. 
+%
 \begin{table}
 \begin{center}
 \begin{tabular}{|l|l|l|}
@@ -591,6 +639,10 @@ exceeds a maximum of $10$ TeV (PDF) or $990$ GeV (fragmentation) this value is s
 calculation of all relevant scales using the given reference scale-squared $\mu_0^2$.
 \label{dynamicscales}}
 \end{table}
+
+Although not really dynamic scales, note that the strings `{\tt MW}', `{\tt MZ}',
+`{\tt MH}' and `{\tt mt}' may be used as shorthand to indicate values of $\mu_0$ equal to
+$M_W$, $M_Z$, $M_H$ and $m_t$. 
 
 \item {\tt zerowidth}. When set to {\tt .true.} then all vector
 bosons are produced on-shell. This is appropriate for calculations
@@ -622,6 +674,13 @@ reasonable values for {\tt ncall1} and {\tt ncall2}. Such values
 should also be appropriate for the {\tt virt} piece of
 next-to-leading order and should probably be increased by a factor of
 $\sim 5$ for the {\tt real} calculation.
+
+\item {\tt taucut}. This sets the value of the jettiness variable
+$T_0$ that separates the resolved and unresolved regions in NNLO
+calculations that use zero-jettiness.  Recommended values of this
+parameter that yield results that are affected by power corrections
+at the $1$\% and $0.2$\% level can be obtained by using the
+strings {\tt 1\%acc} and {\tt 0.2\%acc} respectively.
 
 \item {\tt ij}. This is the seed for the {\tt VEGAS} integration
 and can be altered to give different results for otherwise identical
@@ -674,7 +733,7 @@ non-grid PDF sets).
 {\tt [Jet definition and event cuts] }
 \end{center}
 
-\item {\tt m34min}, {\tt m34max}, {\tt m56min}, {\tt m56max},{\tt m3456min}, {\tt m3456max}.
+\item {\tt m34min}, {\tt m34max}, {\tt m56min}, {\tt m56max}, {\tt m3456min}, {\tt m3456max}.
 These parameters represent a basic set of cuts that may be applied
 to the calculated cross-section. The only events that contribute to
 the cross-section will have, for example,
@@ -807,7 +866,8 @@ a Frixione-style photon cut~\cite{Frixione:1998jh},
 \sum_{i \in R_0} E_{T,i}^j  < \epsilon_h E_{T}^{\gamma} \bigg(\frac{1-\cos{R_{i\gamma}}}{1-\cos{R_0}}\bigg)^{n} \;.
 \label{frixeq}
 \end{eqnarray}
-In this equation, $R_0$ and $\epsilon_h$ are defined by {\tt cone\_ang} and {\tt epsilon\_h} respectively (see below).
+In this equation, $R_0$, $\epsilon_h$ and $n$ are defined by {\tt cone\_ang}, {\tt epsilon\_h} 
+and {\tt n\_pow}  respectively (see below).
 $E_{T,i}^{j}$ is the transverse energy of a parton, $E_{T}^\gamma$ is the
 transverse energy of the photon and $R_{i\gamma}$ is the separation between the photon and the parton using the usual definition 
 $R=\sqrt{\Delta\phi^2+\Delta\eta^2}$. $n$ is an integer parameter which by default is set to 1 but can be changed by editing the 
@@ -853,6 +913,8 @@ If the user wishes to always use a scaling or fixed isolation cut, independent o
 {\tt src/User/iso.f} may be edited and the value of the variable {\tt imode} changed according to the comments.
 When {\tt frag} is set to {\tt .false.}, $\epsilon_h$ controls the amount of hadronic energy allowed inside the cone using the
 Frixione isolation prescription (see above, Eq.~(\ref{frixeq})). 
+
+\item {\tt n\_pow}. When using the Frixione isolation prescription, the exponent $n$ in Eq.~(\ref{frixeq}).
 
 %These constitute a photon isolation
 %cut which ensures that the amount of hadronic
@@ -974,10 +1036,10 @@ the output files have the generic names
 the path to the parton distribution files is truncated so that
 they are expected to be found in the same directory as the executable
 {\tt mcfm}.
-\item {\tt nmin}
-A technical parameter used in alternative phase space generating routines.
-\item {\tt nmax}
-A technical parameter used in alternative phase space generating routines.
+% \item {\tt nmin}
+% A technical parameter used in alternative phase space generating routines.
+% \item {\tt nmax}
+% A technical parameter used in alternative phase space generating routines.
 \item {\tt clustering}
 This logical parameter determines whether clustering is performed to yield
 jets. Only during a debugging phase should this variable be set to false. 
@@ -3160,12 +3222,34 @@ adapted from Michael Rauch.
 \section{\MCFM references}
 \label{MCFMrefs}
 
-The preferred reference to the program depends upon the process under study. The relevant papers are:
+As general references for NLO computations with MCFM, please use:
 \begin{itemize}
 \item J.~M.~Campbell and R.~K.~Ellis, \\
   {\it ``An update on vector boson pair production at hadron colliders,''} \\
   Phys.\ Rev.\ D {\bf 60}, 113006 (1999)
   [arXiv:hep-ph/9905386].
+\item J.~M.~Campbell, R.~K.~Ellis and C.~Williams, \\
+  {\it ``Vector boson pair production at the LHC,''} \\
+  JHEP {\bf 1107}, 018 (2011)
+  [arXiv:1105.0020 [hep-ph]]. 
+\item J.~M.~Campbell, R.~K.~Ellis and W.~Giele, \\
+  {\it ``A Multi-Threaded Version of MCFM''}, \\
+    EPJ {\bf C75}, 246 (2015)
+    [arXiv:1503.06182 [hep-ph]].
+
+\end{itemize}
+
+When using MCFM 8.0 for NNLO calculations of color-singlet processes please refer to:
+\begin{itemize}
+\item 
+  R.~Boughezal, J.~M.~Campbell, R.~K.~Ellis, \\
+   C.~Focke, W.~Giele, X.~Liu,~F. Petriello and  C.~Williams, \\
+  {\it ``Color singlet production at NNLO in MCFM''},
+  arXiv:1605.08011.
+\end{itemize}
+
+Additional references to the program may be used depending on the process under study. The relevant papers are:
+\begin{itemize}
 \item J.~M.~Campbell and R.~K.~Ellis, \\
   {\it ``Radiative corrections to Z b anti-b production,''} \\
   Phys.\ Rev.\ D {\bf 62}, 114012 (2000)
@@ -3230,10 +3314,6 @@ The preferred reference to the program depends upon the process under study. The
   {\it ``QCD corrections to the hadronic production of a heavy quark pair and a  W-boson including decay correlations,''} \\
  JHEP {\bf 1103}, 027 (2011)
   [arXiv:1011.6647 [hep-ph]].
-\item J.~M.~Campbell, R.~K.~Ellis and C.~Williams, \\
-  {\it ``Vector boson pair production at the LHC,''} \\
-  JHEP {\bf 1107}, 018 (2011)
-  [arXiv:1105.0020 [hep-ph]]. 
 \item F.~Caola, J.~M.~Campbell, F.~Febres Cordero, L.~Reina and D.~Wackeroth, \\
   {\it ``NLO QCD predictions for $W+1$ jet and $W+2$ jet production with at least one b jet at the 7 TeV LHC,''} \\
     arXiv:1107.3714 [hep-ph].
@@ -3249,24 +3329,28 @@ The preferred reference to the program depends upon the process under study. The
   {\it ``$t \bar{t} W^{\pm}$ production and decay at NLO,''} \\
   JHEP {\bf 1207}, 052 (2012), [arXiv:1204.5678 [hep-ph]].
 \item
- J.~M.~Campbell, H.~B.~Hartanto and
-                        C.~Williams\\
-      {\it {``Next-to-leading order predictions for $Z \gamma$+jet and
-                        Z $\gamma \gamma$ final states at the LHC"}}
-                        	JHEP {\bf 1211}, 162 (2012), [arXiv:1208.0566 [hep-ph]].	
+ J.~M.~Campbell, H.~B.~Hartanto and C.~Williams\\
+  {\it {``Next-to-leading order predictions for $Z \gamma$+jet and
+          Z $\gamma \gamma$ final states at the LHC"}}
+   JHEP {\bf 1211}, 162 (2012), [arXiv:1208.0566 [hep-ph]].	
 \item
  P.~J.~Fox  and C.~Williams\\
       {\it {``Next-to-leading order predictions for Dark Matter Production at Hadron Colliders"}}
                         	 [arXiv:1211.6390 [hep-ph]].	 
 \item
-  J.~Campbell, R.~K.~Ellis and R.~R{\"o}ntsch,
+  J.~M.~Campbell, R.~K.~Ellis and R.~R{\"o}ntsch,
   {\it ``Single top production in association with a Z boson at the LHC,''}
   arXiv:1302.3856 [hep-ph].
 
 \item
-  J.~Campbell, R.~K.~Ellis and W.~Giele,
-  {\it ``A Multi-Threaded Version of MCFM''},
-    FERMILAB-PUB-15-043-T.
+ J.~M.~Campbell, R.~K.~Ellis and C.~Williams,
+ {\it ``Associated Production of a Higgs Boson at NNLO''},
+  arXiv:1601.00658 [hep-ph].
+  
+\item 
+ J.~M.~Campbell, R.~K.~Ellis, Ye~Li and C.~Williams,
+  {\it ``Predictions for Diphoton Production at the LHC through NNLO in QCD''},
+  arXiv:1603.02663 [hep-ph].  
 \end{itemize}
 
 The following publications have also made use of calculations
@@ -3296,8 +3380,8 @@ released in the future.
 {\tt nproc} & $f(p_1)+f(p_2) \to \ldots $& Order \\
 \hline
 %  
-1  & $ W^+(\to \nu(p_{3})+e^+(p_{4}))$   & NLO \\
-6  & $ W^-(\to e^-(p_{3})+\bar{\nu}(p_{4}))$   & NLO \\
+1  & $ W^+(\to \nu(p_{3})+e^+(p_{4}))$   & NNLO \\
+6  & $ W^-(\to e^-(p_{3})+\bar{\nu}(p_{4}))$   & NNLO \\
 \hline 
 11 & $ W^+(\to \nu(p_{3})+e^+(p_{4}))+f(p_{5})$    & NLO \\
 12 & $ W^+(\to \nu(p_{3})+e^+(p_{4}))+\bar{b}(p_{5})$   & NLO \\
@@ -3319,8 +3403,8 @@ released in the future.
 28 & $ W^-(\to e^-(p_{3})+\bar{\nu}(p_{4})) +f(p_{5})+f(p_{6})+f(p_{7})$   & LO \\
 29 & $ W^-(\to e^-(p_{3})+\bar{\nu}(p_{4})) +b(p_{5})+\bar{b}(p_{6})+f(p_{7})$   & LO \\
 \hline 
-31 & $ Z(\to e^-(p_{3})+e^+(p_{4}))$   & NLO \\
-32 & $ Z(\to 3\times(\nu(p_{3})+\bar{\nu}(p_{4})))$   & NLO \\
+31 & $ Z(\to e^-(p_{3})+e^+(p_{4}))$   & NNLO \\
+32 & $ Z(\to 3\times(\nu(p_{3})+\bar{\nu}(p_{4})))$   & NNLO \\
 33 & $ Z(\to b(p_{3})+\bar{b}(p_{4}))$   & NLO \\
 34 & $ Z(\to 3\times(d(p_{5})+\bar{d}(p_{6})))$   & NLO \\
 35 & $ Z(\to 2\times(u(p_{5})+\bar{u}(p_{6})))$   & NLO \\
@@ -3383,14 +3467,14 @@ released in the future.
 89 & $ Z(\to b(p_{3})+\bar{b}(p_{4})) + Z(\to 3\times(\nu(p_{5})+\bar{\nu}(p_{6}))) [\mbox{no gamma*}]$   & NLO \\
 90 & $ Z(\to e^-(p_{3})+e^+(p_{4})) + Z(\to e^-(p_{5})+e^+(p_{6}))$   & NLO \\
 \hline 
-91 & $ W^+(\to \nu(p_{3})+e^+(p_{4})) + H(\to b(p_{5})+\bar{b}(p_{6}))$   & NLO \\
-92 & $ W^+(\to \nu(p_{3})+e^+(p_{4})) + H(\to W^+(\nu(p_{5}),e^+(p_{6}))W^-(e^-(p_{7}),\bar{\nu}(p_{8})))$   & NLO \\
-93 & $ W^+(\to \nu(p_3)+e^+(p_{4})) + H(\to Z(e^-(p_{5}),e^+(p_{6}))+Z(\mu^-(p_{7}),\mu(p_{8})))$ & NLO \\
-94 & $ W^+(\to \nu(p_3)+e^+(p_{4})) + H(\to \gamma(p_{5})+\gamma(p_{6})$ & NLO \\
-96 & $ W^-(\to e^-(p_{3})+\bar{\nu}(p_{4})) + H(\to b(p_{5})+\bar{b}(p_{6}))$    & NLO \\
-97 & $ W^-(\to e^-(p_{3})+\bar{\nu}(p_{4})) + H(\to W^+(\nu(p_{5}),e^+(p_{6}))W^-(e^-(p_{7}),\bar{\nu}(p_{8})))$   & NLO \\
-98 & $ W^-(\to e^-(p_3)+\bar{\nu}(p_{4})) + H(\to Z(e^-(p_{5}),e^+(p_{6}))+Z(\mu^-(p_{7}),\mu^+(p_{8})))$ & NLO \\
-99 & $ W^-(\to e^-(p_3)+\bar{\nu}(p_{4})) + H(\to \gamma(p_{5})+\gamma(p_{6}))$ & NLO \\
+91 & $ W^+(\to \nu(p_{3})+e^+(p_{4})) + H(\to b(p_{5})+\bar{b}(p_{6}))$   & NNLO \\
+92 & $ W^+(\to \nu(p_{3})+e^+(p_{4})) + H(\to W^+(\nu(p_{5}),e^+(p_{6}))W^-(e^-(p_{7}),\bar{\nu}(p_{8})))$   & NNLO \\
+93 & $ W^+(\to \nu(p_3)+e^+(p_{4})) + H(\to Z(e^-(p_{5}),e^+(p_{6}))+Z(\mu^-(p_{7}),\mu(p_{8})))$ & NNLO \\
+94 & $ W^+(\to \nu(p_3)+e^+(p_{4})) + H(\to \gamma(p_{5})+\gamma(p_{6})$ & NNLO \\
+96 & $ W^-(\to e^-(p_{3})+\bar{\nu}(p_{4})) + H(\to b(p_{5})+\bar{b}(p_{6}))$    & NNLO \\
+97 & $ W^-(\to e^-(p_{3})+\bar{\nu}(p_{4})) + H(\to W^+(\nu(p_{5}),e^+(p_{6}))W^-(e^-(p_{7}),\bar{\nu}(p_{8})))$   & NNLO \\
+98 & $ W^-(\to e^-(p_3)+\bar{\nu}(p_{4})) + H(\to Z(e^-(p_{5}),e^+(p_{6}))+Z(\mu^-(p_{7}),\mu^+(p_{8})))$ & NNLO \\
+99 & $ W^-(\to e^-(p_3)+\bar{\nu}(p_{4})) + H(\to \gamma(p_{5})+\gamma(p_{6}))$ & NNLO \\
 
 \hline 
 \end{tabular}
@@ -3401,37 +3485,38 @@ released in the future.
 \begin{center}
 \begin{tabular}{|l|l|l|}
 \hline
-101 & $ Z(\to e^-(p_{3})+e^+(p_{4})) + H(\to b(p_{5})+\bar{b}(p_{6}))$   & NLO \\
+101 & $ Z(\to e^-(p_{3})+e^+(p_{4})) + H(\to b(p_{5})+\bar{b}(p_{6}))$   & NNLO \\
 102 & $ Z(\to 3\times(\nu(p_{3})+\bar{\nu}(p_{4}))) + H(\to b(p_{5})+\bar{b}(p_{6}))$   & NLO \\
 103 & $ Z(\to b(p_{3})+\bar{b}(p_{4})) + H(\to b(p_{5})+\bar{b}(p_{6}))$        & NLO \\
-104 & $ Z(\to e^-(p_3)+e^+(p_{4})) + H(\to \gamma(p_{5})+\gamma(p_{6}))$ & NLO \\
+104 & $ Z(\to e^-(p_3)+e^+(p_{4})) + H(\to \gamma(p_{5})+\gamma(p_{6}))$ & NNLO \\
 105 & $ Z(\to \to 3\times(\nu(p_3)+\bar{\nu}(p_{4}))) + H(\to \gamma(p_{5})+\gamma(p_{6}))$ & NLO \\
-106 & $ Z(\to e^-(p_{3})+e^+(p_{4})) + H(\to W^+(\nu(p_{5}),e^+(p_{6}))W^-(e^-(p_{7}),\bar{\nu}(p_{8})))$   & NLO \\
+106 & $ Z(\to e^-(p_{3})+e^+(p_{4})) + H(\to W^+(\nu(p_{5}),e^+(p_{6}))W^-(e^-(p_{7}),\bar{\nu}(p_{8})))$   & NNLO \\
 107 & $ Z(\to 3\times(\nu(p_{3})+\bar{\nu}(p_{4}))) + H(\to W^+(\nu(p_{5}),e^+(p_{6}))W^-(e^-(p_{7}),\bar{\nu}(p_{8})))$   & NLO \\
 108 & $ Z(\to b(p_{3})+\bar{b}(p_{4})) + H(\to W^+(\nu(p_{5}),e^+(p_{6}))W^-(e^-(p_{7}),\bar{\nu}(p_{8})))$        & NLO \\
 109 & $ Z(\to e^-(p_3)+e^+(p_{4})) + H(\to Z(e^-(p_{5}),e^+(p_{6}))+Z(\to\mu^-(p_{7}),\mu^+(p_{8})))$ & NLO \\
+110 & $ Z(\to e^-(p_3)+e^+(p_{4})) + H(\to \tau^-(p_5) \tau^+_(p_6)))$ & NNLO \\
 \hline 
-111 & $ H(\to b(p_{3})+\bar{b}(p_{4}))$   & NLO \\
-112 & $ H(\to \tau^-(p_{3})+\tau^+(p_{4}))$   & NLO \\
+111 & $ H(\to b(p_{3})+\bar{b}(p_{4}))$   & NNLO \\
+112 & $ H(\to \tau^-(p_{3})+\tau^+(p_{4}))$   & NNLO \\
 113 & $ H(\to  W^+(\nu(p_{3})+e^+(p_{4})) + W^-(e^-(p_{5})+\bar{\nu}(p_{6})))$   & NLO \\
 114 & $ H(\to  W^+(\nu(p_{3})+e^+(p_{4})) + W^-(q(p_{5})+\bar{q}(p_{6})))$   & NLO \\
 115 & $ H(\to  W^+(\nu(p_{3})+e^+(p_{4})) + W^-(q(p_{5})+\bar{q}(p_{6}))) [rad.in.dk]$   & NLO \\
 116 & $ H(\to Z(\to e^-(p_{3})+e^+(p_{4})) + Z(\to\mu^-(p_{5})+\mu^+(p_{6}))$   & NLO \\
 117 & $ H(\to Z(\to3\times(\nu(p_{3})+\bar{\nu}(p_{4})))+ Z(\to\mu^-(p_{5})+\mu^+(p_{6}))$   & NLO \\
 118 & $ H(\to Z(\to\mu^-(p_{3})+\mu^+(p_{4})) + Z(\to b(p_{5})+\bar{b}(p_{6}))$   & NLO \\
-119 & $ H(\to \gamma(p_{3})+\gamma(p_{4}))$   & NLO \\
+119 & $ H(\to \gamma(p_{3})+\gamma(p_{4}))$   & NNLO \\
 120 & $ H(\to Z(\to\mu^-(p_{3})+\mu^+(p_{4})) + \gamma(p_{5}))$   & NLO \\
 121 & $ H(\to Z(\to3\times(\nu(p_{3})+\bar{\nu}(p_{4})))) + \gamma(p_{5}))$   & NLO \\
 \hline 
-123 & $ H(\to  W^+(\nu(p_3)+e^+(p_{4})) + W^-(e^-(p_{5})+\bar{\nu}(p_{6})))$ [top, bottom loops, exact] & LO \\
-124 & $ H(\to  W^+(\nu(p_3)+e^+(p_{4})) + W^-(e^-(p_{5})+\bar{\nu}(p_{6})))$ [only H, gg$\rightarrow$WW intf. & LO \\
-125 & $ H(\to  W^+(\nu(p_3)+e^+(p_{4})) + W^-(e^-(p_{5})+\bar{\nu}(p_{6})))$ [$|H|^2$ and H,gg$\rightarrow$WW intf.] & LO \\
+123 & $ H(\to  W^+(\nu(p_3)+e^+(p_{4})) + W^-(e^-(p_{5})+\bar{\nu}(p_{6})))$ [t, b loops, exact] & LO \\
+124 & $ H(\to  W^+(\nu(p_3)+e^+(p_{4})) + W^-(e^-(p_{5})+\bar{\nu}(p_{6})))$ [only H, gg$\rightarrow$WW int & LO \\
+125 & $ H(\to  W^+(\nu(p_3)+e^+(p_{4})) + W^-(e^-(p_{5})+\bar{\nu}(p_{6})))$ [$|H|^2$ and H,gg$\rightarrow$WW int] & LO \\
 126 & $ W^+(\nu(p_3)+e^+(p_{4})) + W^-(e^-(p_{5})+\bar{\nu}(p_{6}))$ [gg only, (H + gg$\rightarrow$WW) squared] & LO \\
 \hline 
-128 & $ H(\to Z(\to \to e^-(p3)+e^+(p4)) + Z(\to \mu^-(p5)+\mu^+(p6))$ [top, bottom loops, exact]& LO \\
-129 & $ H(\to Z(\to e^-(p3)+e^+(p4)) + Z(\to \mu^-(p5)+\mu^+(p6))$ [only H, gg$\rightarrow$ZZ intf.] & LO \\
-130 & $ H(\to Z(\to e^-(p3)+e^+(p4)) + Z(\to \mu^-(p5)+\mu^+(p6))$ [$|H|^2$ and H,gg$\rightarrow$ZZ intf.]& LO \\
-131 & $ Z(\to e^-(p3)+e^+(p4)) + Z(\to \mu^-(p5)+\mu^+(p6)$ [gg only, (H + gg$\rightarrow$ZZ) squared]& LO \\
+128 & $ H(\to Z(\to \to e^-(p3)+e^+(p4)) + Z(\to \mu^-(p5)+\mu^+(p6))$ [t, b loops, exact]& LO \\
+129 & $ H(\to Z(\to e^-(p3)+e^+(p4)) + Z(\to \mu^-(p5)+\mu^+(p6))$ [only H, gg$\rightarrow$ZZ int] & LO \\
+130 & $ H(\to Z(\to e^-(p3)+e^+(p4)) + Z(\to \mu^-(p5)+\mu^+(p6))$ [$|H|^2$ and H,gg$\rightarrow$ZZ int]& LO \\
+131 & $ Z(\to e^-(p3)+e^+(p4)) + Z(\to \mu^-(p5)+\mu^+(p6)$ [gg only, $|H + gg \rightarrow ZZ|^2$]& LO \\
 132 & $ Z(\to e^-(p3)+e^+(p4)) + Z(\to \mu^-(p5)+\mu^+(p6)$ [(gg$\rightarrow$ZZ) squared]& LO \\
 133 & $ H(\to Z(\to e^-(p3)+e^+(p4)) + Z(\to \mu^-(p5)+\mu^+(p6) + f(p7))$ [intf,no $p_7$ cut]& LO \\
 \hline 
@@ -3495,13 +3580,13 @@ released in the future.
 \hline
 201 & $ H(\to b(p_{3})+\bar{b}(p_{4})) + f(p_{5}) [\mbox{full mt dep.}]$   & LO \\
 202 & $ H(\to \tau^-(p_{3})+\tau^+(p_{4})) + f(p_{5}) [\mbox{full mt dep.}]$   & LO \\
-203 & $ H(\to b(p_{3})+\bar{b}(p_{4})) + f(p_{5})$   & NLO \\
-204 & $ H(\to \tau^-(p_{3})+\tau^+(p_{4})) + f(p_{5})$   & NLO \\
+203 & $ H(\to b(p_{3})+\bar{b}(p_{4})) + f(p_{5})$   & NNLO \\
+204 & $ H(\to \tau^-(p_{3})+\tau^+(p_{4})) + f(p_{5})$   & NNLO \\
 206 & $ A(\to b(p_{3})+\bar{b}(p_{4})) + f(p_{5}) [\mbox{full mt dep.}]$   & LO \\
 207 & $ A(\to \tau^-(p_{3})+\tau^+(p_{4})) + f(p_{5}) [\mbox{full mt dep.}]$   & LO \\
 208 & $ H(\to W^+(\nu(p_{3}),e^+(p_{4}))W^-(e^-(p_{5}),\bar{\nu}(p_{6})))+f(p_{7})$   & NLO \\
 209 & $ H(\to Z(\to e^-(p_{3}),e^+(p_{4}))Z(\to \mu^-(p_{5}),\mu^+(p_{6})))+f(p_{7})$   & NLO \\
-210 & $ H(\to \gamma(p_{3})+\gamma(p_{4})) + f(p_{5})$   & NLO \\
+210 & $ H(\to \gamma(p_{3})+\gamma(p_{4})) + f(p_{5})$   & NNLO \\
 \hline 
 211 & $ H(\to b(p_{3})+\bar{b}(p_{4}))+f(p_{5})+f(p_{6}) [\mbox{WBF}]$   & NLO \\
 212 & $ H(\to \tau^-(p_{3})+\tau^+(p_{4}))+f(p_{5})+f(p_{6}) [\mbox{WBF}]$   & NLO \\
@@ -3586,7 +3671,7 @@ released in the future.
 282 & $ f(p_{1})+f(p_{2})\to  \gamma(p_{3})+f(p_{4})+f(p_{5})$   & LO \\
 283 & $ f(p_{1})+f(p_{2})\to  \gamma(p_{3})+b(p_{4})$   & LO \\
 284 & $ f(p_{1})+f(p_{2})\to  \gamma(p_{3})+c(p_{4})$   & LO \\
-285 & $ f(p_{1})+f(p_{2})\to  \gamma(p_{3})+\gamma(p_{4})$   & NLO+F \\
+285 & $ f(p_{1})+f(p_{2})\to  \gamma(p_{3})+\gamma(p_{4})$   & NLO+F, NNLO \\
 286 & $ f(p_{1})+f(p_{2})\to  \gamma(p_{3})+\gamma(p_{4})+f(p_{5})$   & LO \\
 287 & $ f(p_{1})+f(p_{2})\to  \gamma(p_{3})+\gamma(p_{4})+\gamma(p_{5})$   & NLO+F \\
 289 & $ f(p_{1})+f(p_{2})\to  \gamma(p_{3})+\gamma(p_{4})+\gamma(p_{5})+\gamma(p_{6})$   & NLO+F \\
@@ -3767,6 +3852,125 @@ released in the future.
 \end{table}
 \clearpage
 
+
+\section{Historical PDF sets}
+\label{olderPDFs}
+The availability of a number of historical PDF sets is retained in the code.  These should
+typically not be used in modern analyses, but they may be helpful for comparison with
+older codes or in specialized cases.
+
+These distributions, together with their associated $\alpha_S(M_Z)$
+values, are given in Tables~\ref{pdlabelmrs} and~\ref{pdlabelcteq}. 
+For the older distributions, where the
+coupling was specified by $\Lambda$ this requires 
+some calculation and/or guesswork.
+
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{|c|c|c||c|c|c|}
+\hline
+  &   &  &
+{\tt mrs02nl}  & 0.1197       & \mrstohtwo \\
+{\tt mrs02nn}  & 0.1154       & \mrstohtwo &
+{\tt mrs4nf3}  & 0.1083       & \mrstff \\
+{\tt mrs4lf3}  & 0.1186       & \mrstff &
+{\tt mrs4nf4}  & 0.1153       & \mrstff \\
+{\tt mrs4lf4}  & 0.1251       & \mrstff &
+{\tt mrs0119}  & 0.119        & \mrstohone \\
+{\tt mrs0117}  & 0.117        & \mrstohone &
+{\tt mrs0121}  & 0.121        & \mrstohone \\
+{\tt mrs01\_j} & 0.121        & \mrstohone &
+{\tt mrs01lo}  & 0.130        & \mrstohtwofirst \\ 
+{\tt mrs99\_1} & 0.1175       & \mrsninenine &
+{\tt mrs99\_2} & 0.1175       & \mrsninenine \\
+{\tt mrs99\_3} & 0.1175       & \mrsninenine &
+{\tt mrs99\_4} & 0.1125       & \mrsninenine \\    
+{\tt mrs99\_5} & 0.1225       & \mrsninenine &
+{\tt mrs99\_6} & 0.1178       & \mrsninenine \\    
+{\tt mrs99\_7} & 0.1171       & \mrsninenine &
+{\tt mrs99\_8} & 0.1175       & \mrsninenine \\    
+{\tt mrs99\_9} & 0.1175       & \mrsninenine &
+{\tt mrs9910}  & 0.1175       & \mrsninenine \\    
+{\tt mrs9911}  & 0.1175       & \mrsninenine &
+{\tt mrs9912}  & 0.1175       & \mrsninenine \\    
+{\tt mrs98z1}  &  0.1175      & \mrsnineeight &  
+{\tt mrs98z2}  &  0.1175      & \mrsnineeight \\ 
+{\tt mrs98z3}  &  0.1175      & \mrsnineeight &  
+{\tt mrs98z4}  &  0.1125      & \mrsnineeight \\  
+{\tt mtungb1}  &  0.109       & \mrsnineeight &
+{\tt mrs98z5}  &  0.1225      & \mrsnineeight \\   
+{\tt mrs96r1}  &  0.113       & \mrsninesix &    
+{\tt mrs96r2}  &  0.120       & \mrsninesix \\  
+{\tt mrs96r3}  &  0.113       & \mrsninesix &   
+{\tt mrs96r4}  &  0.120       & \mrsninesix \\   
+{\tt mrs95ap}  &  0.1127      & \mrsninefive &
+{\tt mrs95\_g} &  0.1148      & \mrsninefive \\
+{\tt hmrs90e}  &  0.09838     & \hmrs & 
+{\tt hmrs90b}  &  0.10796     & \hmrs \\
+\hline
+\end{tabular}
+\end{center}
+\caption{Historical MRS-type pdf sets, their corresponding values of
+$\alpha_S(M_Z)$ and a reference to the paper or preprint that
+describes their origin.
+\label{pdlabelmrs}}
+\end{table}
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{|c|c|c||c|c|c|}
+\hline
+               &              & &
+{\tt cteq66m}  &  0.118       & \cteqsixsixm \\
+{\tt cteq61m}  &  0.118       & \cteqsixonem &
+{\tt cteq6\_m} &  0.118       & \cteqsix \\
+{\tt cteq6\_d} &  0.118       & \cteqsix &
+{\tt cteq6\_l} &  0.118       & \cteqsix \\
+{\tt cteq6l1}  &  0.130       & \cteqsix &
+{\tt cteq5hq}  &  0.118       & \cteqfive \\
+{\tt cteq5f3}  &  0.106       & \cteqfive &
+{\tt cteq5f4}  &  0.112       & \cteqfive \\
+{\tt cteq5\_m} &  0.118       & \cteqfive &
+{\tt cteq5\_d} &  0.118       & \cteqfive \\
+{\tt cteq5\_l} &  0.127       & \cteqfive & 
+{\tt cteq5l1}  &  0.127       & \cteqfive \\
+{\tt cteq5hj}  &  0.118       & \cteqfive &
+{\tt cteq5m1}  &  0.118       & \cteqfive \\
+{\tt ctq5hq1}  &  0.118       & \cteqfive &
+{\tt cteq4a5}  &  0.122       & \cteqfour \\
+{\tt cteq4hj}  &  0.116       & \cteqfour &
+{\tt cteq4lq}  &  0.114       & \cteqfour \\
+{\tt cteq4\_m} &  0.116       & \cteqfour &
+{\tt cteq4\_d} &  0.116       & \cteqfour \\
+{\tt cteq4\_l} &  0.132       & \cteqfour &
+{\tt cteq4a1}  &  0.110       & \cteqfour \\
+{\tt cteq4a2}  &  0.113       & \cteqfour &
+{\tt cteq4a3}  &  0.116       & \cteqfour \\
+{\tt cteq4a4}  &  0.119       & \cteqfour &
+{\tt cteq3\_m} &  0.112       & \cteqthree \\
+{\tt cteq3\_l} &  0.112       & \cteqthree &
+{\tt cteq3\_d} &  0.112       & \cteqthree \\
+\hline
+\end{tabular}
+\end{center}
+\caption{Historical CTEQ-type pdf sets, their corresponding values of
+$\alpha_S(M_Z)$ and a reference to the paper or preprint that
+describes their origin.
+\label{pdlabelcteq}}
+\end{table}
+
+
+\clearpage
+
+\section{Version 8.0 changelog}
+\label{changelog8.0}
+\begin{itemize}
+\item Introduced NNLO capability for color-singlet processes.
+\item Overall improvement in speed.
+\item Added native support for additional pdf sets, NNPDF, CT14, MMHT.
+\item Fixed small asymmetry in calculation of $W+1$~jet process at NLO.
+\item Fixed per-mille level bug in NLO calculations of $W,Z,H+2$~jet processes.
+\end{itemize}
+
 \section{Version 7.0 changelog}
 \label{changelog7.0}
 \begin{itemize}
@@ -3777,11 +3981,6 @@ released in the future.
 \item After Higgs discovery, added s-channel Higgs diagrams to the $gg \to VV$ process,
 in $VV$ production processes, {\tt nproc=61,62,64,81-84,86-90}
 \end{itemize}
-
-
-
-
-
 
 \section{Version 6.7 changelog}
 \label{changelog6.7}
@@ -4298,6 +4497,66 @@ Z.\ Phys.\ C {\bf 40}, 419 (1988).
   Nucl.\ Phys.\ B {\bf 309}, 282 (1988).
   %%CITATION = NUPHA,B309,282;%%
   %103 citations counted in INSPIRE as of 20 Aug 2013
+
+%\cite{Martin:2009iq}
+\bibitem{Martin:2009iq} 
+  A.~D.~Martin, W.~J.~Stirling, R.~S.~Thorne and G.~Watt,
+  %``Parton distributions for the LHC,''
+  Eur.\ Phys.\ J.\ C {\bf 63}, 189 (2009)
+  doi:10.1140/epjc/s10052-009-1072-5
+  [arXiv:0901.0002 [hep-ph]].
+  %%CITATION = doi:10.1140/epjc/s10052-009-1072-5;%%
+  %3270 citations counted in INSPIRE as of 07 Apr 2016
+
+%\cite{Lai:2010vv}
+\bibitem{Lai:2010vv} 
+  H.~L.~Lai, M.~Guzzi, J.~Huston, Z.~Li, P.~M.~Nadolsky, J.~Pumplin and C.-P.~Yuan,
+  %``New parton distributions for collider physics,''
+  Phys.\ Rev.\ D {\bf 82}, 074024 (2010)
+  doi:10.1103/PhysRevD.82.074024
+  [arXiv:1007.2241 [hep-ph]].
+  %%CITATION = doi:10.1103/PhysRevD.82.074024;%%
+  %1716 citations counted in INSPIRE as of 07 Apr 2016  
+
+%\cite{Dulat:2015mca}
+\bibitem{Dulat:2015mca} 
+  S.~Dulat {\it et al.},
+  %``New parton distribution functions from a global analysis of quantum chromodynamics,''
+  Phys.\ Rev.\ D {\bf 93}, no. 3, 033006 (2016)
+  doi:10.1103/PhysRevD.93.033006
+  [arXiv:1506.07443 [hep-ph]].
+  %%CITATION = doi:10.1103/PhysRevD.93.033006;%%
+  %96 citations counted in INSPIRE as of 07 Apr 2016
+
+%\cite{Ball:2012cx}
+\bibitem{Ball:2012cx} 
+  R.~D.~Ball {\it et al.},
+  %``Parton distributions with LHC data,''
+  Nucl.\ Phys.\ B {\bf 867}, 244 (2013)
+  doi:10.1016/j.nuclphysb.2012.10.003
+  [arXiv:1207.1303 [hep-ph]].
+  %%CITATION = doi:10.1016/j.nuclphysb.2012.10.003;%%
+  %539 citations counted in INSPIRE as of 07 Apr 2016
+  
+%\cite{Ball:2014uwa}
+\bibitem{Ball:2014uwa} 
+  R.~D.~Ball {\it et al.} [NNPDF Collaboration],
+  %``Parton distributions for the LHC Run II,''
+  JHEP {\bf 1504}, 040 (2015)
+  doi:10.1007/JHEP04(2015)040
+  [arXiv:1410.8849 [hep-ph]].
+  %%CITATION = doi:10.1007/JHEP04(2015)040;%%
+  %225 citations counted in INSPIRE as of 07 Apr 2016
+    
+%\cite{Harland-Lang:2014zoa}
+\bibitem{Harland-Lang:2014zoa} 
+  L.~A.~Harland-Lang, A.~D.~Martin, P.~Motylinski and R.~S.~Thorne,
+  %``Parton distributions in the LHC era: MMHT 2014 PDFs,''
+  Eur.\ Phys.\ J.\ C {\bf 75}, no. 5, 204 (2015)
+  doi:10.1140/epjc/s10052-015-3397-6
+  [arXiv:1412.3989 [hep-ph]].
+  %%CITATION = doi:10.1140/epjc/s10052-015-3397-6;%%
+  %142 citations counted in INSPIRE as of 12 May 2016
 
 \end{thebibliography}
 

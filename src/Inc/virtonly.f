@@ -1,2 +1,2 @@
-      logical virtonly
+      logical:: virtonly
       common/virtonly/virtonly

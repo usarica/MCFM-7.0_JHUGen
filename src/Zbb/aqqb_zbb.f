@@ -1,15 +1,21 @@
-c      double complex function aqqb_zbb(i1,i2,i3,i4,i5,i6)
+c      function aqqb_zbb(i1,i2,i3,i4,i5,i6)
+c      implicit none
+c      include 'types.f'
+c      complex(dp):: aqqb_zbb
 c--- Note that this is the amplitude for particle labels
 c--- q1, qb2, Q5, Qb6, l3, lb4
 c--- This corresponds to A++(1,6,5,2) of eq. (12.3) in BDK
 c--- and we note that    A++(1,6,5,2) = A++(1,4,3,2)
-c      implicit none
+c
 c      include 'constants.f'
+c      include 'nf.f'
+c      include 'mxpart.f'
+c      include 'cplx.h'
 c      include 'sprods_com.f'
 c      include 'zprods_com.f'
-c      integer i1,i2,i3,i4,i5,i6
-c      double complex t2a
-c      double precision s234,s256,prop
+c      integer:: i1,i2,i3,i4,i5,i6
+c      complex(dp):: t2a
+c      real(dp):: s234,s256,prop
 c--- statement function
 c      t2a(i1,i2,i3,i4)=za(i1,i2)*zb(i2,i4)+za(i1,i3)*zb(i3,i4)
 c
@@ -23,7 +29,10 @@ c     & +za(i3,i2)*zb(i6,i1)*t2a(i5,i2,i3,i4)/(prop*s234)
 c      return
 c      end
 
-      double complex function aqqb_zbb_new(i1,i2,i3,i4,i5,i6)
+      function aqqb_zbb_new(i1,i2,i3,i4,i5,i6)
+      implicit none
+      include 'types.f'
+      complex(dp):: aqqb_zbb_new
 c--- This corresponds to A++(1,2,3,4) of eq. (12.3) in BDK
 c    The notation of BDK calculates the following amplitude
 c
@@ -40,23 +49,24 @@ c
 c     Note that this function has the property
 c     Conjg(aqqb_zbb_new(i1,i2,i3,i4,i5,i6))=
 C          -aqqb_zbb_new(i4,i3,i2,i1,i6,i5)
-      implicit none
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
       include 'sprods_com.f'
       include 'zprods_com.f'
-      integer i1,i2,i3,i4,i5,i6
-      double complex t2a
-      double precision s123,s234,prop
+      integer:: i1,i2,i3,i4,i5,i6
+      complex(dp):: zab2
+      real(dp):: s123,s234,prop
 c--- statement function
-      t2a(i1,i2,i3,i4)=za(i1,i2)*zb(i2,i4)+za(i1,i3)*zb(i3,i4)
+      zab2(i1,i2,i3,i4)=za(i1,i2)*zb(i2,i4)+za(i1,i3)*zb(i3,i4)
 
       s123=s(i1,i2)+s(i1,i3)+s(i2,i3)
       s234=s(i2,i3)+s(i2,i4)+s(i3,i4)
       prop=s(i2,i3)*s(i5,i6)
 
       aqqb_zbb_new=
-     & +zb(i1,i2)*za(i5,i4)*t2a(i3,i1,i2,i6)/(prop*s123)
-     & +za(i3,i4)*zb(i6,i1)*t2a(i5,i3,i4,i2)/(prop*s234)
+     & +zb(i1,i2)*za(i5,i4)*zab2(i3,i1,i2,i6)/(prop*s123)
+     & +za(i3,i4)*zb(i6,i1)*zab2(i5,i3,i4,i2)/(prop*s234)
 
       return
       end

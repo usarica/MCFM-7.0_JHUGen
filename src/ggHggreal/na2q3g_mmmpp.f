@@ -1,15 +1,21 @@
-      double complex function na2q3g_mmmpp(j2,j3,j4,j5,j1,zb,za)
-c--- Caclculation of the amplitudes using results of S. Badger
+      function na2q3g_mmmpp(j2,j3,j4,j5,j1,zb,za)
+c--- Calcculation of the amplitudes using results of S. Badger
 c--- as adapted from routines written by F. Caola      
 C Arguments in call are strange because this
 C has been created from A0Hqbqggg_mp_ppm
+      
+      include 'types.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      complex(dp)::na2q3g_mmmpp
       include 'zprods_decl.f'
       include 'sprods_com.f'
-      integer j1,j2,j3,j4,j5
-      double precision qsq,s3,s4,
+      integer::j1,j2,j3,j4,j5
+      real(dp)::qsq,s3,s4,
      & sH1,sH3,sH4,s345,s234,s123,s125,s145
-      double complex zab_2_pH1_5,zab_2_pH5_1,zab_2_15_4,zab_4_pH5_1,
+      complex(dp)::zab_2_pH1_5,zab_2_pH5_1,zab_2_15_4,zab_4_pH5_1,
      & zab_4_23_1,zab_5_pH_1,zab_5_pH_4,zab_5_12_3,
      & zbb_1_pH_45_3,zbb_1_pH_23_1,zbb_1_45_pH_3,
      & zbb_1_23_pH_4,zbb_3_pH_45_1,zbb_3_pH_15_4,zbb_3_pH12_pH_1,

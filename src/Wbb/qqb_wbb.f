@@ -1,17 +1,22 @@
       subroutine qqb_wbb(p,msq)
+      implicit none
+      include 'types.f'
 c---  Matrix elements squared
 c     q(-p1)+qb(-p2) --> nu(p3)+e^+(p4)+b(p5)+bb(p6)
 c---  averaged(summed) over initial(final) colours and spins
-      implicit none
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ckm.f'
       include 'sprods_com.f'
       include 'zprods_com.f'
       include 'masses.f'
       include 'first.f'
-      integer j,k
-      double precision p(mxpart,4),msq(-nf:nf,-nf:nf),msqwbb
-      double precision qqb,qbq
+      integer:: j,k
+      real(dp):: p(mxpart,4),msq(-nf:nf,-nf:nf),msqwbb
+      real(dp):: qqb,qbq
 
       if (first) then
        write(6,*)
@@ -20,10 +25,10 @@ c---  averaged(summed) over initial(final) colours and spins
        write(6,*) '* mb=0 for this process, although cuts are applied *'
        write(6,*) '* to simulate the effect of the b-mass:            *'
        write(6,*) '*                                                  *'
-       write(6,99) ' *                pt(b) > ',dsqrt(mbsq),
-     .  '                *'
-       write(6,99) ' *                m(bb) > ',two*dsqrt(mbsq),
-     .  '                *'
+       write(6,99) ' *                pt(b) > ',sqrt(mbsq),
+     &  '                *'
+       write(6,99) ' *                m(bb) > ',two*sqrt(mbsq),
+     &  '                *'
        write(6,*) '****************************************************'
        first=.false.
       endif
@@ -31,7 +36,7 @@ c---  averaged(summed) over initial(final) colours and spins
 C---Initialize to zero
       do j=-nf,nf
       do k=-nf,nf
-      msq(j,k)=0d0
+      msq(j,k)=0._dp
       enddo
       enddo
 
@@ -40,9 +45,9 @@ C---Fill spinor products
 
 c ensure that we have a hard process
       if (
-     .      (s(5,6) .lt. four*mbsq)
-     . .or. (s(1,5)*s(2,5)/s(1,2) .lt. mbsq)
-     . .or. (s(1,6)*s(2,6)/s(1,2) .lt. mbsq) ) return
+     &      (s(5,6) < four*mbsq)
+     & .or. (s(1,5)*s(2,5)/s(1,2) < mbsq)
+     & .or. (s(1,6)*s(2,6)/s(1,2) < mbsq) ) return
 
 C--calculate matrix element squared
       qqb=msqwbb(1,2,5,6)
@@ -50,9 +55,9 @@ C--calculate matrix element squared
 
       do j=-(nf-1),(nf-1)
       do k=-(nf-1),(nf-1)
-      if     ((j .gt. 0) .and. (k .lt. 0)) then
+      if     ((j > 0) .and. (k < 0)) then
                msq(j,k)=Vsq(j,k)*qqb
-      elseif ((j .lt. 0) .and. (k .gt. 0)) then
+      elseif ((j < 0) .and. (k > 0)) then
                msq(j,k)=Vsq(j,k)*qbq
       endif
       enddo

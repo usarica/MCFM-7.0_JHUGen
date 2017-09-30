@@ -1,21 +1,25 @@
       subroutine ZZmassivetri(k1,k2,k3,k4,k5,k6,za,zb,mt,totrat,drat,
      & tri)
       implicit none
+      include 'types.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'ggZZintegrals.f'
       include 'ZZclabels.f'
       include 'docheck.f'
 C      include 'first.f'
 C---Indices of coefficients are CLL(integral,h1,h2,h3,h5)
-      double complex CLL(6,2,2,2,2)
-c      double complex CLR(6,2,2,2,2),CRL(6,2,2,2,2),CRR(6,2,2,2,2)
+      complex(dp):: CLL(6,2,2,2,2)
+c      complex(dp):: CLR(6,2,2,2,2),CRL(6,2,2,2,2),CRR(6,2,2,2,2)
 C---Indices of xpp etc are xpp(h3,h5) 
-      double complex xapp(2,2),xamp(2,2),xapm(2,2),xamm(2,2),
+      complex(dp):: xapp(2,2),xamp(2,2),xapm(2,2),xamm(2,2),
      & Xrat(2,2,2,2),crat(2,2,2,2,6),drat(2,2,2,2,3),
      & totrat(2,2,2,2),tri12_34rat(2,2,2,2),tri(2,2,2,2,-2:0)
-      double precision mt
-      integer k1,k2,k3,k4,k5,k6,h1,h2,h3,h5,j
+      real(dp):: mt
+      integer:: k1,k2,k3,k4,k5,k6,h1,h2,h3,h5,j
 
 c--- QCDLoop already initialized from call to massivebox
 c      if (first) then
@@ -154,24 +158,24 @@ c      write(6,*) 'Xrat(1,2,1,1)',Xrat(1,2,1,1)
 c--- compute rational contribution of tri12_34 from known total rational
 c--- piece and contributions of boxes and other triangles
       tri12_34rat(:,:,:,:)=totrat(:,:,:,:)
-     & -(drat(:,:,:,:,1)+drat(:,:,:,:,2)+drat(:,:,:,:,3))*(-1d0/6d0)
+     & -(drat(:,:,:,:,1)+drat(:,:,:,:,2)+drat(:,:,:,:,3))*(-1._dp/6._dp)
      & -(crat(:,:,:,:,c1_34)+crat(:,:,:,:,c1_56)+crat(:,:,:,:,c2_34)
-     &  +crat(:,:,:,:,c2_56)+crat(:,:,:,:,c1_2))*(-0.5d0)
+     &  +crat(:,:,:,:,c2_56)+crat(:,:,:,:,c1_2))*(-0.5_dp)
 c--- NB: coefficient of mt^2 is -(-2)=2 times this number
 
-c      write(6,*) 'Reconstr,1,1',2d0*tri12_34rat(1,2,1,1)
-c      write(6,*) 'Reconstr,1,2',2d0*tri12_34rat(1,2,1,2)
-c      write(6,*) 'Reconstr,2,1',2d0*tri12_34rat(1,2,2,1)
-c      write(6,*) 'Reconstr,2,2',2d0*tri12_34rat(1,2,2,2)
+c      write(6,*) 'Reconstr,1,1',two*tri12_34rat(1,2,1,1)
+c      write(6,*) 'Reconstr,1,2',two*tri12_34rat(1,2,1,2)
+c      write(6,*) 'Reconstr,2,1',two*tri12_34rat(1,2,2,1)
+c      write(6,*) 'Reconstr,2,2',two*tri12_34rat(1,2,2,2)
 
 c--- result in this file is only correct for mt=0      
       call ZZtri12_34LL(k1,k2,k3,k4,k5,k6,za,zb,mt,xapp,xamp,xapm,xamm)
 c      pause
 c--- transfer and add mt^2 coefficient calculated above      
-      CLL(c12_34,2,2,:,:)=xapp(:,:)+mt**2*2d0*tri12_34rat(2,2,:,:)
-      CLL(c12_34,1,2,:,:)=xamp(:,:)+mt**2*2d0*tri12_34rat(1,2,:,:)
-      CLL(c12_34,2,1,:,:)=xapm(:,:)+mt**2*2d0*tri12_34rat(2,1,:,:)
-      CLL(c12_34,1,1,:,:)=xamm(:,:)+mt**2*2d0*tri12_34rat(1,1,:,:)
+      CLL(c12_34,2,2,:,:)=xapp(:,:)+mt**2*two*tri12_34rat(2,2,:,:)
+      CLL(c12_34,1,2,:,:)=xamp(:,:)+mt**2*two*tri12_34rat(1,2,:,:)
+      CLL(c12_34,2,1,:,:)=xapm(:,:)+mt**2*two*tri12_34rat(2,1,:,:)
+      CLL(c12_34,1,1,:,:)=xamm(:,:)+mt**2*two*tri12_34rat(1,1,:,:)
 c      write(6,*) '12_34LL:xapp(1,1)',xapp(1,1)
 c      write(6,*) '12_34LL:xamp(1,1)',xamp(1,1)
 c      write(6,*) '12_34LL:xamp(1,2)',xamp(1,2)
@@ -197,8 +201,8 @@ c     & CLL(c2_56,1,1,1,1)/(s134-s56),C0(c2_56)*(s134-s56)
         do h3=1,2
         do h5=1,2
         call ggZZcapture('12x34pp',h3,h5,1,2,3,4,5,6,
-     &   CLL(c12_34,2,2,h3,h5)-2d0*mt**2*tri12_34rat(2,2,h3,h5),
-     &   +2d0*tri12_34rat(2,2,h3,h5),czip)
+     &   CLL(c12_34,2,2,h3,h5)-two*mt**2*tri12_34rat(2,2,h3,h5),
+     &   +two*tri12_34rat(2,2,h3,h5),czip)
         enddo
         enddo
       endif

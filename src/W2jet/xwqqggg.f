@@ -1,5 +1,7 @@
       subroutine xwqqggg(j1,j2,j3,j4,j5,j6,j7,mqqb)
       implicit none
+      include 'types.f'
+
 ************************************************************************
 *     Author J.M.Campbell, February 2001                               *
 *     Returns the amplitudes squared for the process                   *
@@ -14,16 +16,19 @@
 *     Specifying colourchoice = 0 --> TOTAL                            *
 ************************************************************************
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ewcouple.f'
       include 'qcdcouple.f'
       include 'lc.f'
-      integer i2(6),i3(6),i4(6),j,lh,h2,h3,h4,hq,h(7)
-      integer j1,j2,j3,j4,j5,j6,j7
-      double precision mqqb,m1,m2,m0,fac
-      double complex tempm0,m(6),amp_qqggg
-      mqqb=0d0
+      integer:: i2(6),i3(6),i4(6),j,lh,h2,h3,h4,hq,h(7)
+      integer:: j1,j2,j3,j4,j5,j6,j7
+      real(dp):: mqqb,m1,m2,m0,fac
+      complex(dp):: tempm0,m(6),amp_qqggg
+      mqqb=0._dp
 
-      fac=avegg*gsq**3*esq**2*xn**3*cf*8d0
+      fac=avegg*gsq**3*esq**2*xn**3*cf*8._dp
 c--- extra factor of 8 due to colour matrix normalization (rt2**6)
 
       i2(1)=j2
@@ -61,30 +66,30 @@ c--- left-left helicity configuration only for fermions
 
         do j=1,6
           m(j)=amp_qqggg(j1,hq,i2(j),h(i2(j)),i3(j),h(i3(j)),
-     .                                       i4(j),h(i4(j)),j5,lh,j6,j7)
+     &                                       i4(j),h(i4(j)),j5,lh,j6,j7)
           tempm0=tempm0+m(j)
           m2=m2+abs(m(j))**2
         enddo
 
-        if ((colourchoice .eq. 1) .or. (colourchoice .eq. 0)) then
+        if ((colourchoice == 1) .or. (colourchoice == 0)) then
           mqqb=mqqb+fac*m2
         endif
-        if ((colourchoice .eq. 2) .or. (colourchoice .eq. 0)) then
+        if ((colourchoice == 2) .or. (colourchoice == 0)) then
 c--- here we have (2,3,4)+(2,4,3)+(4,2,3) [4 is photon-like]
 c---         plus (3,4,2)+(3,2,4)+(2,3,4) [2 is photon-like]
 c---         plus (4,2,3)+(4,3,2)+(3,4,2) [3 is photon-like]
 c--- (plus perms)
-          m1=cdabs(m(1)+m(2)+m(3))**2
-     .      +cdabs(m(4)+m(5)+m(1))**2
-     .      +cdabs(m(3)+m(6)+m(4))**2
-     .      +cdabs(m(5)+m(4)+m(6))**2
-     .      +cdabs(m(2)+m(1)+m(5))**2
-     .      +cdabs(m(6)+m(3)+m(2))**2
+          m1=abs(m(1)+m(2)+m(3))**2
+     &      +abs(m(4)+m(5)+m(1))**2
+     &      +abs(m(3)+m(6)+m(4))**2
+     &      +abs(m(5)+m(4)+m(6))**2
+     &      +abs(m(2)+m(1)+m(5))**2
+     &      +abs(m(6)+m(3)+m(2))**2
           mqqb=mqqb+fac*(-m1/xnsq)
         endif
-        if ((colourchoice .eq. 3) .or. (colourchoice .eq. 0)) then
-          m0=cdabs(tempm0)**2
-          mqqb=mqqb+fac*m0*(xnsq+1d0)/xnsq**2
+        if ((colourchoice == 3) .or. (colourchoice == 0)) then
+          m0=abs(tempm0)**2
+          mqqb=mqqb+fac*m0*(xnsq+1._dp)/xnsq**2
         endif
 
       enddo

@@ -1,13 +1,19 @@
-      double complex function fpm(j1,j2,j3,j4,j5,j6,za,zb)
+      function fpm(j1,j2,j3,j4,j5,j6,za,zb)
       implicit none
+      include 'types.f'
+      complex(dp):: fpm
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'sprods_com.f'
       include 'zprods_decl.f'
-      integer j1,j2,j3,j4,j5,j6
-      double complex L0,L1,Lnrat,Lsm1,i3m,Lsm1_2mh
-      double complex t0,s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,
+      integer:: j1,j2,j3,j4,j5,j6
+      complex(dp):: L0,L1,Lnrat,Lsm1,i3m,Lsm1_2mh
+      complex(dp):: t0,s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,
      # s11,s12,s13,s14,s15,s16,s17,s18
-      double precision t
+      real(dp):: t
       s3 = -2*L0(-t(j2,j3,j4),-s(j5,j6))/s(j5,j6)*za(j1,j5)/za(j5,j6)*zb
      #(j1,j3)/zb(j2,j3)/(za(j1,j2)*zb(j2,j4)+za(j1,j3)*zb(j3,j4))*(-za(j
      #2,j5)*zb(j2,j3)+za(j4,j5)*zb(j3,j4))-2*L0(-t(j1,j2,j3),-s(j5,j6))/

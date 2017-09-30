@@ -1,5 +1,7 @@
       subroutine schanatoponshellg(q1,q2,q7,p,iswitch,mi,mf)
       implicit none
+      include 'types.f'
+      
 ************************************************************************
 *     Author: R.K. Ellis, January 2012                                 *
 *                                                                      *
@@ -13,12 +15,15 @@
 *     iswitch=+1 for gluon emission in top decay                       *
 ************************************************************************
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'zprods_decl.f'
-      double precision p(mxpart,4),q(mxpart,4),
+      real(dp):: p(mxpart,4),q(mxpart,4),
      & ala,alb,dot,s12,s127,mt2,twopbDg,twopaDg
-      double complex mi(2,2,2),mf(2,2,2),iza,izb,cprop,cprop7
-      integer p1,p2,a,ee,b,g,si,i,j,k,iswitch,q1,q2,q7
+      complex(dp):: mi(2,2,2),mf(2,2,2),iza,izb,cprop,cprop7
+      integer:: p1,p2,a,ee,b,g,si,i,j,k,iswitch,q1,q2,q7
       parameter(p1=1,p2=2,ee=3,a=4,b=5,g=6)
 C-----matrix element for p1+p2(g) -> t+c where both t and b are on shell
 C-----t rendered massless wrt ee, and p rendered massless wrt p2
@@ -41,9 +46,9 @@ C---zero all arrays
       do si=1,4
       q(p1,si)=p(q1,si)
       q(p2,si)=p(q2,si)
-      if (iswitch .eq. 0) then
+      if (iswitch == 0) then
       q(a,si)=p(3,si)+p(4,si)+p(5,si)
-      elseif (iswitch .eq. 1) then
+      elseif (iswitch == 1) then
       q(a,si)=p(3,si)+p(4,si)+p(5,si)+p(7,si)
       endif
       q(ee,si)=p(3,si)
@@ -51,16 +56,16 @@ C---zero all arrays
       q(g,si)=p(q7,si)
       enddo
       mt2=mt**2
-      s12=2d0*dot(q,p1,p2)
-      s127=s12+2d0*dot(q,p1,g)+2d0*dot(q,p2,g)
-      twopaDg=2d0*dot(q,a,g)
-      twopbDg=2d0*dot(q,b,g)
-      cprop=dcmplx(s12-wmass**2,wmass*wwidth)
-      cprop7=dcmplx(s127-wmass**2,wmass*wwidth)
+      s12=2._dp*dot(q,p1,p2)
+      s127=s12+2._dp*dot(q,p1,g)+2._dp*dot(q,p2,g)
+      twopaDg=2._dp*dot(q,a,g)
+      twopbDg=2._dp*dot(q,b,g)
+      cprop=cplx2(s12-wmass**2,wmass*wwidth)
+      cprop7=cplx2(s127-wmass**2,wmass*wwidth)
 C---- now render "a" massless wrt to vector ee
 C---- now render "pb" massless wrt to vector p1
-      ala=mt2/(2d0*dot(q,a,ee))
-      alb=mb**2/(2d0*dot(q,b,p2))
+      ala=mt2/(2._dp*dot(q,a,ee))
+      alb=mb**2/(2._dp*dot(q,b,p2))
       do si=1,4
       q(a,si)=q(a,si)-ala*q(ee,si)
       q(b,si)=q(b,si)-alb*q(p2,si)

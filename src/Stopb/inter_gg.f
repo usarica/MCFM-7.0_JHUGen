@@ -1,25 +1,30 @@
       subroutine inter_gg(pp,me12,me21,intf)
+      implicit none
+      include 'types.f'
 c--- Wrapper for the gluon-gluon initiated reals for t-channel
 c--- single top with massive b-quark. Includes both gluon
 c--- permutations.
 c--- By R. Frederix, July 16, 2008.
 
-      implicit none
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'sprods_com.f'
       include 'masses.f'
       include 'ewcouple.f'
       include 'nwz.f'
       include 'stopscales.f'
-      double precision me12,me21,intf,pp(mxpart,4),
+      real(dp):: me12,me21,intf,pp(mxpart,4),
      &   dot,projb,projt,wprop12,wprop21,mq,ma,gsq_L,gsq_H
-      double complex gs1(2,2,2,2),gs2(2,2,2,2)
-      integer i,j,k,l
-      integer u,g1,g2,d,t,b,b1,t1,proj
+      complex(dp):: gs1(2,2,2,2),gs2(2,2,2,2)
+      integer:: i,j,k,l
+      integer:: u,g1,g2,d,t,b,b1,t1,proj
 
 c color matrix:
-c      integer CF(2,2)
+c      integer:: CF(2,2)
 c      DATA (CF(i,1  ),i=1  ,2  ) /     16,    2/
 c      DATA (CF(i,2  ),i=1  ,2  ) /      2,   16/
 
@@ -30,7 +35,7 @@ c particle identifiers:
       d=5
 
 c set mass of quark and antiquark according to nwz
-      if (nwz .eq. +1) then
+      if (nwz == +1) then
         mq=mt
         ma=mb
         t=3
@@ -51,8 +56,8 @@ c used in the call to the reals1)
       projb=dot(pp,proj,b)
       projt=dot(pp,proj,t)
       do i=1,4
-         pp(t1,i)=pp(t,i)-pp(proj,i)*mq**2/2d0/projt
-         pp(b1,i)=pp(b,i)-pp(proj,i)*ma**2/2d0/projb
+         pp(t1,i)=pp(t,i)-pp(proj,i)*mq**2/2._dp/projt
+         pp(b1,i)=pp(b,i)-pp(proj,i)*ma**2/2._dp/projb
       enddo
 
 c-------------------------
@@ -94,21 +99,21 @@ c gluon attached to w current
 c----------------------------------------
 c Square and sum all helicity amplitudes:
 c----------------------------------------
-      me12=0d0
-      me21=0d0
-      intf=0d0
+      me12=0._dp
+      me21=0._dp
+      intf=0._dp
       do i=1,2
         do j=1,2
           do k=1,2
             do l=1,2
 c color diagonal terms:
                me12=me12+
-     &              cdabs(gs1(i,j,k,l))**2/wprop12**2*16d0
+     &              abs(gs1(i,j,k,l))**2/wprop12**2*16._dp
                me21=me21+
-     &              cdabs(gs2(l,j,k,i))**2/wprop21**2*16d0
+     &              abs(gs2(l,j,k,i))**2/wprop21**2*16._dp
 c off-diagonal terms (also interchange i <--> l):
-               intf=intf+4d0*dreal(
-     &              gs1(i,j,k,l)*dconjg(gs2(l,j,k,i)))/wprop12/wprop21
+               intf=intf+4._dp*real(
+     &              gs1(i,j,k,l)*conjg(gs2(l,j,k,i)))/wprop12/wprop21
             enddo
           enddo
         enddo
@@ -121,15 +126,15 @@ c--- should receive a factor of gsq_L
 
 c Multiply by coupling constants:
 c      me=me*GG(1)**4*GWF(1)**4    !MG/ME value
-      me12=me12*gsq_L*gsq_H*gwsq**2/4d0    !MCFM
-      me21=me21*gsq_L*gsq_H*gwsq**2/4d0    !MCFM
-      intf=intf*gsq_L*gsq_H*gwsq**2/4d0    !MCFM
+      me12=me12*gsq_L*gsq_H*gwsq**2/4._dp    !MCFM
+      me21=me21*gsq_L*gsq_H*gwsq**2/4._dp    !MCFM
+      intf=intf*gsq_L*gsq_H*gwsq**2/4._dp    !MCFM
 
 
 c 'Average' over incoming helicities and color:
-      me12=me12/256d0
-      me21=me21/256d0
-      intf=intf/256d0
+      me12=me12/256._dp
+      me21=me21/256._dp
+      intf=intf/256._dp
       return
       end
 

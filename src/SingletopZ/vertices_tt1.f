@@ -1,16 +1,20 @@
-      subroutine vertices_tt1(mtsq,ep,
-     & vert1,vert2,vert3,vert4,vert5)
+      subroutine vertices_tt1(mtsq,ep,vert1,vert2,vert3,vert4,vert5)
+      implicit none
+      include 'types.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'poles.f'
       include 'scale.f'
       include 'masses.f'
       include 'decl_kininv.f'
 
-      double precision mtsq
-      integer ep
-      double complex vert1,vert2,vert3,vert4,vert5
-      double precision dentt1
-      double complex qlI2diffs345s16,qlI2,qlI3
+      real(dp):: mtsq
+      integer:: ep
+      complex(dp):: vert1,vert2,vert3,vert4,vert5
+      real(dp):: dentt1
+      complex(dp):: qlI2diffs345s16,qlI2,qlI3
        mtsq=mt**2
        dentt1=1d0/( -s345 + s16)
        qlI2diffs345s16=qlI2(s345,0d0,mtsq,musq,ep)-

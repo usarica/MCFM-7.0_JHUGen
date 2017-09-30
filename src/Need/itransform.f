@@ -1,16 +1,21 @@
       subroutine itransform(p,tp,x,ip,jp,kp)
+      implicit none
+      include 'types.f'
 ************************************************************************
 *     Author: R.K. Ellis                                               *
 *     July, 1998.                                                      *
 *     Given p ((n+1)-phase space) produce tp (n-phase space)           *
 *     by creating jp                                                   *
 ************************************************************************
-      implicit none 
+       
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'npart.f'
-      double precision p(mxpart,4),tp(mxpart,4),k(4),kt(4),ks(4),
-     . kDp(3:mxpart),ksDp(3:mxpart),kDk,ksDks,x
-      integer ip,kp,j,nu,jp
+      real(dp):: p(mxpart,4),tp(mxpart,4),k(4),kt(4),ks(4),
+     & kDp(3:mxpart),ksDp(3:mxpart),kDk,ksDks,x
+      integer:: ip,kp,j,nu,jp
 
       do nu=1,4
       tp(ip,nu)=x*p(ip,nu)
@@ -28,7 +33,7 @@ c---just so it is non-zero
 
 
       do j=3,npart+2
-      if (j .eq. jp) goto 20
+      if (j == jp) goto 20
       kDp(j)=k(4)*p(j,4)-k(1)*p(j,1)-k(2)*p(j,2)-k(3)*p(j,3)
       ksDp(j)=ks(4)*p(j,4)-ks(1)*p(j,1)-ks(2)*p(j,2)-ks(3)*p(j,3)
 

@@ -1,18 +1,23 @@
       subroutine qqb_fourgam_z(p,z)
+      implicit none
+      include 'types.f'
 ************************************************************************
 *     Author: C. Williams                                         *
 *     Sept, 2014                                                      *
 ************************************************************************
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'qcdcouple.f'
       include 'scale.f'
       include 'PR_new.f'
       include 'agq.f'
-      integer is
-      double precision z,xl12,p(mxpart,4),dot,ii_qq,ii_qg,tempqq,tempqg
+      integer:: is
+      real(dp):: z,xl12,p(mxpart,4),dot,ii_qq,ii_qg,tempqq,tempqg
 
-      xl12=dlog(two*dot(p,1,2)/musq)
+      xl12=log(two*dot(p,1,2)/musq)
 c----contributions for one leg
 
       do is=1,3

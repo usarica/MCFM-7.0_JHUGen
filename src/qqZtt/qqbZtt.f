@@ -1,5 +1,7 @@
       subroutine qqbZtt(pin,msq)
       implicit none
+      include 'types.f'
+
 ************************************************************************
 *     Author: R.K. Ellis                                               *
 *     Jan, 2011.                                                       *
@@ -11,25 +13,28 @@
 *                                                                      *
 ************************************************************************
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
       include 'ewcouple.f'
       include 'zprods_com.f'
       include 'masses.f'
       include 'topzlabels.f'
+      include 'cplx.h'
 
-      integer j,k,nu
-      double precision msq(-nf:nf,-nf:nf),pin(mxpart,4),p(mxpart,4)
-      double precision pw1(4),pw2(4),p12(4),q(4),a(4)
-      double precision s12,sw1,sw2,qDq,aDa,densq,p3Dp5,p6Dp8
-      double precision wtqqb(2),wtqbq(2)
-      double precision gamq4,gama7,dot
-      double precision facqqb,p4Dq,p7Da
-      double complex propz
+      integer:: j,k,nu
+      real(dp):: msq(-nf:nf,-nf:nf),pin(mxpart,4),p(mxpart,4)
+      real(dp):: pw1(4),pw2(4),p12(4),q(4),a(4)
+      real(dp):: s12,sw1,sw2,qDq,aDa,densq,p3Dp5,p6Dp8
+      real(dp):: wtqqb(2),wtqbq(2)
+      real(dp):: gamq4,gama7,dot
+      real(dp):: facqqb,p4Dq,p7Da
+      complex(dp):: propz
       integer,parameter::jj(-nf:nf)=(/-1,-2,-1,-2,-1,0,1,2,1,2,1/)
 
 C----set all elements to zero
       do j=-nf,nf
       do k=-nf,nf
-      msq(j,k)=0d0
+      msq(j,k)=0._dp
       enddo
       enddo
 
@@ -49,7 +54,7 @@ C----set all elements to zero
 
       s12=(p12(4)**2-p12(1)**2-p12(2)**2-p12(3)**2)
 
-      if (s12 .lt. 4d0*mt**2) then
+      if (s12 < 4._dp*mt**2) then
       write(6,*) 'qqbZtt: s12',s12
       return
       endif
@@ -68,16 +73,16 @@ C----set all elements to zero
      &     *((sw2-wmass**2)**2+wmass**2*wwidth**2)
      &     *s12**2
 
-      propz=s12/(dcmplx((s12-zmass**2),zmass*zwidth))
+      propz=s12/(cplx2((s12-zmass**2),zmass*zwidth))
 
-      facqqb=xnsq*(4d0*p3Dp5*p6Dp8)
-     & *4d0*esq**2*gwsq**4/densq
+      facqqb=xnsq*(4._dp*p3Dp5*p6Dp8)
+     & *4._dp*esq**2*gwsq**4/densq
 
       p4Dq=p(4,4)*q(4)-p(4,1)*q(1)-p(4,2)*q(2)-p(4,3)*q(3)
       p7Da=p(7,4)*a(4)-p(7,1)*a(1)-p(7,2)*a(2)-p(7,3)*a(3)
 
-      gamq4=qDq/(2d0*p4Dq)
-      gama7=aDa/(2d0*p7Da)
+      gamq4=qDq/(2._dp*p4Dq)
+      gama7=aDa/(2._dp*p7Da)
 
 
       do nu=1,4
@@ -91,9 +96,9 @@ C----set all elements to zero
 
 C---fill qb-q and q-qb elements
       do j=-nf,nf
-      if (j .lt. 0) then
+      if (j < 0) then
           msq(j,-j)=aveqq*facqqb*wtqbq(-jj(j))
-      elseif (j .gt. 0) then
+      elseif (j > 0) then
           msq(j,-j)=aveqq*facqqb*wtqqb(jj(j))
       endif
       enddo

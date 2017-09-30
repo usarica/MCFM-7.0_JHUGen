@@ -1,4 +1,6 @@
       subroutine qqb_wz_g(P,msq)
+      implicit none
+      include 'types.f'
 C---Author John Campbell Fri Feb 19 11:06:08 CST 1999
 C---Modified to include supplementary diagrams by JC on Feb 24
 c---Matrix element squared averaged over initial colors and spins
@@ -9,8 +11,11 @@ C For nwz=-1
 c     d(-p1)+ubar(-p2)-->mu^-(p5)+mu^+(p6)+e^-(p3)+nbar(p4)+g(p7)
 c---
 c   for the moment --- radiation only from initial line
-      implicit none
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'qcdcouple.f'
       include 'ewcouple.f'
       include 'zcouple.f'
@@ -25,34 +30,34 @@ c   for the moment --- radiation only from initial line
       include 'nwz.f'
       include 'plabel.f'
       include 'pchoice.f'
-      integer polg,polz,minus,mplus,jp,kp
-      double precision FAC,FACM,FAC1
-      double complex prop12,prop34,prop56
-      double precision P(mxpart,4),qdks(mxpart,4),msq(-nf:nf,-nf:nf)
-      double precision ave,cotw,s127,wwflag
-      double complex
-     .  qu_qb(10,2,2),qu_gg(10,2,2),gg_qb(10,2,2),
-     .  qb_qu(10,2,2),qb_gg(10,2,2),gg_qu(10,2,2),
-     .  props,propw,propz,cprop,A(2,2)
-      double precision v2(2),cl1,cl2,en1,en2,xfac
-      double complex ZgLR(nf,2),c1(2),c2(2)
+      integer:: polg,polz,minus,mplus,jp,kp
+      real(dp):: FAC,FACM,FAC1
+      complex(dp):: prop12,prop34,prop56
+      real(dp):: P(mxpart,4),qdks(mxpart,4),msq(-nf:nf,-nf:nf)
+      real(dp):: ave,cotw,s127,wwflag
+      complex(dp)::
+     &  qu_qb(10,2,2),qu_gg(10,2,2),gg_qb(10,2,2),
+     &  qb_qu(10,2,2),qb_gg(10,2,2),gg_qu(10,2,2),
+     &  props,propw,propz,cprop,A(2,2)
+      real(dp):: v2(2),cl1,cl2,en1,en2,xfac
+      complex(dp):: ZgLR(nf,2),c1(2),c2(2)
       parameter(minus=1,mplus=2)
-      FAC=-2D0*gwsq*esq
+      FAC=-2._dp*gwsq*esq
       FAC1=two*gsq*cf
-      if ((nwz.eq.1) .or. (nwz .eq. -1)) then
+      if ((nwz==1) .or. (nwz == -1)) then
       FACM=nwz*FAC
       else
       write(6,*) 'nwz .ne. +1 or -1 in qqb_wz_g.f'
       stop
       endif
-      if     (nwz.eq.-1) then
-        cl1=1d0
-        cl2=0d0
+      if     (nwz==-1) then
+        cl1=1._dp
+        cl2=0._dp
         en1=le
         en2=ln
-      elseif (nwz.eq.+1) then
-        cl1=0d0
-        cl2=1d0
+      elseif (nwz==+1) then
+        cl1=0._dp
+        cl2=1._dp
         en1=ln
         en2=le
       endif
@@ -60,21 +65,21 @@ c   for the moment --- radiation only from initial line
       v2(2)=r1
 
 c--- wwflag=1 for most cases, indicating presence of diagram with 2 W's
-      wwflag=1d0
+      wwflag=1._dp
 c--- but for Z -> bbbar this diagram contains |V_tb|**2 which we take 0
-      if (plabel(5) .eq. 'bq') then
-        wwflag=0d0
+      if (plabel(5) == 'bq') then
+        wwflag=0._dp
       endif
 
 c-- if Z -> neutrinos, we need to switch c1 and c2
-      if (plabel(5) .eq. 'nl') then
-        cl1=1d0-cl1
-        cl2=1d0-cl2
+      if (plabel(5) == 'nl') then
+        cl1=1._dp-cl1
+        cl2=1._dp-cl2
       endif
 
       do jp=-nf,nf
       do kp=-nf,nf
-      msq(jp,kp)=0d0
+      msq(jp,kp)=0._dp
       enddo
       enddo
 
@@ -96,35 +101,35 @@ c   DKS have--- u( q2)+dbar( q1)-->nu(q3)+e^+(q4)+mu^-(q6)+mu^+(q5)+g(p7)
 c--   s returned from sprodx (common block) is 2*dot product
 
 c--   calculate propagators
-      cotw=dsqrt((one-xw)/xw)
+      cotw=sqrt((one-xw)/xw)
       s127=s(1,2)+s(1,7)+s(2,7)
       if     (zerowidth  .eqv. .true.) then
-      prop12=s127/dcmplx(s127-wmass**2,wmass*wwidth)
-      prop34=s(3,4)/dcmplx(s(3,4)-wmass**2,wmass*wwidth)
-      prop56=s(5,6)/dcmplx(s(5,6)-zmass**2,zmass*zwidth)
-      cprop=dcmplx(1d0)
+      prop12=s127/cplx2(s127-wmass**2,wmass*wwidth)
+      prop34=s(3,4)/cplx2(s(3,4)-wmass**2,wmass*wwidth)
+      prop56=s(5,6)/cplx2(s(5,6)-zmass**2,zmass*zwidth)
+      cprop=cone
       elseif (zerowidth .neqv. .true.) then
-      prop12=dcmplx(s127/(s127-wmass**2))
-      prop34=dcmplx(s(3,4)/(s(3,4)-wmass**2))
-      prop56=dcmplx(s(5,6)/(s(5,6)-zmass**2))
-      props=(s127-wmass**2)/dcmplx(s127-wmass**2,wmass*wwidth)
-      propw=(s(3,4)-wmass**2)/dcmplx(s(3,4)-wmass**2,wmass*wwidth)
-      propz=(s(5,6)-zmass**2)/dcmplx(s(5,6)-zmass**2,zmass*zwidth)
+      prop12=cplx1(s127/(s127-wmass**2))
+      prop34=cplx1(s(3,4)/(s(3,4)-wmass**2))
+      prop56=cplx1(s(5,6)/(s(5,6)-zmass**2))
+      props=(s127-wmass**2)/cplx2(s127-wmass**2,wmass*wwidth)
+      propw=(s(3,4)-wmass**2)/cplx2(s(3,4)-wmass**2,wmass*wwidth)
+      propz=(s(5,6)-zmass**2)/cplx2(s(5,6)-zmass**2,zmass*zwidth)
       cprop=props*propw*propz
       endif
 
 c--- DEBUG to compare with Madgraph
-c      prop12=s127/dcmplx(s127-wmass**2,wmass*wwidth)
-c      prop34=s(3,4)/dcmplx(s(3,4)-wmass**2,wmass*wwidth)
-c      prop56=s(5,6)/dcmplx(s(5,6)-zmass**2,zmass*zwidth)
-c      cprop=dcmplx(1d0)
+c      prop12=s127/cplx2(s127-wmass**2,wmass*wwidth)
+c      prop34=s(3,4)/cplx2(s(3,4)-wmass**2,wmass*wwidth)
+c      prop56=s(5,6)/cplx2(s(5,6)-zmass**2,zmass*zwidth)
+c      cprop=cone
 c--- DEBUG to compare with Madgraph
 
 c--- apply a dipole form factor to anomalous couplings (only if tevscale > 0)
-      if (tevscale .gt. 0d0) then
-        xfac=1d0/(1d0+s127/(tevscale*1d3)**2)**2
+      if (tevscale > 0._dp) then
+        xfac=1._dp/(1._dp+s127/(tevscale*1d3)**2)**2
       else
-        xfac=1d0
+        xfac=1._dp
       endif
       xdelg1_z=xfac*delg1_z
       xdelg1_g=xfac*delg1_g
@@ -157,7 +162,7 @@ c---of the LEPTON coupling v2, NOT the quarks (all L)
       enddo
 
       do polz=1,2
-      if(nwz.eq.1) then
+      if(nwz==1) then
         c1(polz)=ZgLR(2,polz)
         c2(polz)=ZgLR(1,polz)
       else
@@ -167,161 +172,161 @@ c---of the LEPTON coupling v2, NOT the quarks (all L)
       enddo
 
       do j=-nf,nf
-      if (((j.eq.+1).or.(j.eq.+3).or.(j.eq.+5)
-     . .or.(j.eq.-2).or.(j.eq.-4)) .and. (nwz .eq. +1))
-     . go to 20
-      if (((j.eq.-1).or.(j.eq.-3).or.(j.eq.-5)
-     . .or.(j.eq.+2).or.(j.eq.+4)) .and. (nwz .eq. -1))
-     . go to 20
+      if (((j==+1).or.(j==+3).or.(j==+5)
+     & .or.(j==-2).or.(j==-4)) .and. (nwz == +1))
+     & go to 20
+      if (((j==-1).or.(j==-3).or.(j==-5)
+     & .or.(j==+2).or.(j==+4)) .and. (nwz == -1))
+     & go to 20
       do k=-nf,nf
-      if (((k.eq.+1).or.(k.eq.+3).or.(k.eq.+5)
-     . .or.(k.eq.-2).or.(k.eq.-4)) .and. (nwz .eq. +1))
-     . go to 19
-      if (((k.eq.-1).or.(k.eq.-3).or.(k.eq.-5)
-     . .or.(k.eq.+2).or.(k.eq.+4)) .and. (nwz .eq. -1))
-     . go to 19
+      if (((k==+1).or.(k==+3).or.(k==+5)
+     & .or.(k==-2).or.(k==-4)) .and. (nwz == +1))
+     & go to 19
+      if (((k==-1).or.(k==-3).or.(k==-5)
+     & .or.(k==+2).or.(k==+4)) .and. (nwz == -1))
+     & go to 19
 
-      if     ((j .gt. 0) .and. (k .lt. 0)) then
+      if     ((j > 0) .and. (k < 0)) then
 
 c---case u-db
           do polg=1,2
           do polz=1,2
           A(polg,polz)=((ZgLR(+j,polz)*qu_qb(2,polg,polz)
-     .                  +ZgLR(-k,polz)*qu_qb(3,polg,polz))*FAC
-     .                  +(cotw*v2(polz)*prop56*qu_qb(1,polg,polz)
-     .                                     +q1*qu_qb(10,polg,polz))
-     .                    *prop12*FACM)*prop34
-     .            +FAC*((en1*v2(polz)*prop56+q1*(-1d0)*cl1)
-     .                   *prop12*qu_qb(5,polg,polz)
-     .                 +(en2*v2(polz)*prop56+q1*(-1d0)*cl2)
-     .                   *prop12*qu_qb(4,polg,polz)
-     .          +wwflag*0.5d0*prop34*prop12/xw*qu_qb(6,polg,polz)*cl1
-     .          +wwflag*0.5d0*prop34*prop12/xw*qu_qb(7,polg,polz)*cl2)
+     &                  +ZgLR(-k,polz)*qu_qb(3,polg,polz))*FAC
+     &                  +(cotw*v2(polz)*prop56*qu_qb(1,polg,polz)
+     &                                     +q1*qu_qb(10,polg,polz))
+     &                    *prop12*FACM)*prop34
+     &            +FAC*((en1*v2(polz)*prop56+q1*(-1._dp)*cl1)
+     &                   *prop12*qu_qb(5,polg,polz)
+     &                 +(en2*v2(polz)*prop56+q1*(-1._dp)*cl2)
+     &                   *prop12*qu_qb(4,polg,polz)
+     &          +wwflag*0.5_dp*prop34*prop12/xw*qu_qb(6,polg,polz)*cl1
+     &          +wwflag*0.5_dp*prop34*prop12/xw*qu_qb(7,polg,polz)*cl2)
 
 c          A(polg,polz)=((L(+j)*qu_qb(2,polg,polz)
-c     .                  +L(-k)*qu_qb(3,polg,polz))*FAC
-c     .                  +cotw*prop12*qu_qb(1,polg,polz)*FACM)
-c     .                 *prop34*prop56*v2(polz)
+c     &                  +L(-k)*qu_qb(3,polg,polz))*FAC
+c     &                  +cotw*prop12*qu_qb(1,polg,polz)*FACM)
+c     &                 *prop34*prop56*v2(polz)
           enddo
           enddo
           ave=xn*aveqq*Vsq(j,k)
 
-      elseif ((j .lt. 0) .and. (k .gt. 0)) then
+      elseif ((j < 0) .and. (k > 0)) then
 
 
 c---case db-u
           do polg=1,2
           do polz=1,2
           A(polg,polz)=((ZgLR(+k,polz)*qb_qu(2,polg,polz)
-     .                  +ZgLR(-j,polz)*qb_qu(3,polg,polz))*FAC
-     .                  +(cotw*v2(polz)*prop56*qb_qu(1,polg,polz)
-     .                                     +q1*qb_qu(10,polg,polz))
-     .                    *prop12*FACM)*prop34
-     .            +FAC*((en1*v2(polz)*prop56+q1*(-1d0)*cl1)
-     .                   *prop12*qb_qu(5,polg,polz)
-     .                 +(en2*v2(polz)*prop56+q1*(-1d0)*cl2)
-     .                   *prop12*qb_qu(4,polg,polz)
-     .          +wwflag*0.5d0*prop34*prop12/xw*qb_qu(6,polg,polz)*cl1
-     .          +wwflag*0.5d0*prop34*prop12/xw*qb_qu(7,polg,polz)*cl2)
+     &                  +ZgLR(-j,polz)*qb_qu(3,polg,polz))*FAC
+     &                  +(cotw*v2(polz)*prop56*qb_qu(1,polg,polz)
+     &                                     +q1*qb_qu(10,polg,polz))
+     &                    *prop12*FACM)*prop34
+     &            +FAC*((en1*v2(polz)*prop56+q1*(-1._dp)*cl1)
+     &                   *prop12*qb_qu(5,polg,polz)
+     &                 +(en2*v2(polz)*prop56+q1*(-1._dp)*cl2)
+     &                   *prop12*qb_qu(4,polg,polz)
+     &          +wwflag*0.5_dp*prop34*prop12/xw*qb_qu(6,polg,polz)*cl1
+     &          +wwflag*0.5_dp*prop34*prop12/xw*qb_qu(7,polg,polz)*cl2)
 
 c          A(polg,polz)=((L(+k)*qb_qu(2,polg,polz)
-c     .                  +L(-j)*qb_qu(3,polg,polz))*FAC
-c     .                  +cotw*prop12*qb_qu(1,polg,polz)*FACM)
-c     .                 *prop34*prop56*v2(polz)
+c     &                  +L(-j)*qb_qu(3,polg,polz))*FAC
+c     &                  +cotw*prop12*qb_qu(1,polg,polz)*FACM)
+c     &                 *prop34*prop56*v2(polz)
           enddo
           enddo
           ave=xn*aveqq*Vsq(j,k)
 
-      elseif ((j .gt. 0) .and. (k .eq. 0)) then
+      elseif ((j > 0) .and. (k == 0)) then
 c---case u-g
           do polg=1,2
           do polz=1,2
           A(polg,polz)=((c1(polz)*qu_gg(2,polg,polz)
-     .                  +c2(polz)*qu_gg(3,polg,polz))*FAC
-     .                  +(cotw*v2(polz)*prop56*qu_gg(1,polg,polz)
-     .                                     +q1*qu_gg(10,polg,polz))
-     .                    *prop12*FACM)*prop34
-     .            +FAC*((en1*v2(polz)*prop56+q1*(-1d0)*cl1)
-     .                   *prop12*qu_gg(5,polg,polz)
-     .                 +(en2*v2(polz)*prop56+q1*(-1d0)*cl2)
-     .                   *prop12*qu_gg(4,polg,polz)
-     .          +wwflag*0.5d0*prop34*prop12/xw*qu_gg(6,polg,polz)*cl1
-     .          +wwflag*0.5d0*prop34*prop12/xw*qu_gg(7,polg,polz)*cl2)
+     &                  +c2(polz)*qu_gg(3,polg,polz))*FAC
+     &                  +(cotw*v2(polz)*prop56*qu_gg(1,polg,polz)
+     &                                     +q1*qu_gg(10,polg,polz))
+     &                    *prop12*FACM)*prop34
+     &            +FAC*((en1*v2(polz)*prop56+q1*(-1._dp)*cl1)
+     &                   *prop12*qu_gg(5,polg,polz)
+     &                 +(en2*v2(polz)*prop56+q1*(-1._dp)*cl2)
+     &                   *prop12*qu_gg(4,polg,polz)
+     &          +wwflag*0.5_dp*prop34*prop12/xw*qu_gg(6,polg,polz)*cl1
+     &          +wwflag*0.5_dp*prop34*prop12/xw*qu_gg(7,polg,polz)*cl2)
 
 c          A(polg,polz)=((c1*qu_gg(2,polg,polz)
-c     .                  +c2*qu_gg(3,polg,polz))*FAC
-c     .                  +cotw*prop12*qu_gg(1,polg,polz)*FACM)
-c     .                 *prop34*prop56*v2(polz)
+c     &                  +c2*qu_gg(3,polg,polz))*FAC
+c     &                  +cotw*prop12*qu_gg(1,polg,polz)*FACM)
+c     &                 *prop34*prop56*v2(polz)
           enddo
           enddo
           ave=xn*aveqg*Vsum(j)
-      elseif ((j .lt. 0) .and. (k .eq. 0)) then
+      elseif ((j < 0) .and. (k == 0)) then
 c---case db-g
           do polg=1,2
           do polz=1,2
           A(polg,polz)=((c1(polz)*qb_gg(2,polg,polz)
-     .                  +c2(polz)*qb_gg(3,polg,polz))*FAC
-     .                  +(cotw*v2(polz)*prop56*qb_gg(1,polg,polz)
-     .                                     +q1*qb_gg(10,polg,polz))
-     .                    *prop12*FACM)*prop34
-     .            +FAC*((en1*v2(polz)*prop56+q1*(-1d0)*cl1)
-     .                   *prop12*qb_gg(5,polg,polz)
-     .                 +(en2*v2(polz)*prop56+q1*(-1d0)*cl2)
-     .                   *prop12*qb_gg(4,polg,polz)
-     .          +wwflag*0.5d0*prop34*prop12/xw*qb_gg(6,polg,polz)*cl1
-     .          +wwflag*0.5d0*prop34*prop12/xw*qb_gg(7,polg,polz)*cl2)
+     &                  +c2(polz)*qb_gg(3,polg,polz))*FAC
+     &                  +(cotw*v2(polz)*prop56*qb_gg(1,polg,polz)
+     &                                     +q1*qb_gg(10,polg,polz))
+     &                    *prop12*FACM)*prop34
+     &            +FAC*((en1*v2(polz)*prop56+q1*(-1._dp)*cl1)
+     &                   *prop12*qb_gg(5,polg,polz)
+     &                 +(en2*v2(polz)*prop56+q1*(-1._dp)*cl2)
+     &                   *prop12*qb_gg(4,polg,polz)
+     &          +wwflag*0.5_dp*prop34*prop12/xw*qb_gg(6,polg,polz)*cl1
+     &          +wwflag*0.5_dp*prop34*prop12/xw*qb_gg(7,polg,polz)*cl2)
 
 c          A(polg,polz)=((c1*qb_gg(2,polg,polz)
-c     .                  +c2*qb_gg(3,polg,polz))*FAC
-c     .                  +cotw*prop12*qb_gg(1,polg,polz)*FACM)
-c     .                 *prop34*prop56*v2(polz)
+c     &                  +c2*qb_gg(3,polg,polz))*FAC
+c     &                  +cotw*prop12*qb_gg(1,polg,polz)*FACM)
+c     &                 *prop34*prop56*v2(polz)
           enddo
           enddo
 
           ave=xn*aveqg*Vsum(j)
-      elseif ((j .eq. 0) .and. (k .gt. 0)) then
+      elseif ((j == 0) .and. (k > 0)) then
 c---case g-u
           do polg=1,2
           do polz=1,2
           A(polg,polz)=((c1(polz)*gg_qu(2,polg,polz)
-     .                  +c2(polz)*gg_qu(3,polg,polz))*FAC
-     .                  +(cotw*v2(polz)*prop56*gg_qu(1,polg,polz)
-     .                                     +q1*gg_qu(10,polg,polz))
-     .                    *prop12*FACM)*prop34
-     .            +FAC*((en1*v2(polz)*prop56+q1*(-1d0)*cl1)
-     .                   *prop12*gg_qu(5,polg,polz)
-     .                 +(en2*v2(polz)*prop56+q1*(-1d0)*cl2)
-     .                   *prop12*gg_qu(4,polg,polz)
-     .          +wwflag*0.5d0*prop34*prop12/xw*gg_qu(6,polg,polz)*cl1
-     .          +wwflag*0.5d0*prop34*prop12/xw*gg_qu(7,polg,polz)*cl2)
+     &                  +c2(polz)*gg_qu(3,polg,polz))*FAC
+     &                  +(cotw*v2(polz)*prop56*gg_qu(1,polg,polz)
+     &                                     +q1*gg_qu(10,polg,polz))
+     &                    *prop12*FACM)*prop34
+     &            +FAC*((en1*v2(polz)*prop56+q1*(-1._dp)*cl1)
+     &                   *prop12*gg_qu(5,polg,polz)
+     &                 +(en2*v2(polz)*prop56+q1*(-1._dp)*cl2)
+     &                   *prop12*gg_qu(4,polg,polz)
+     &          +wwflag*0.5_dp*prop34*prop12/xw*gg_qu(6,polg,polz)*cl1
+     &          +wwflag*0.5_dp*prop34*prop12/xw*gg_qu(7,polg,polz)*cl2)
 
 c          A(polg,polz)=((c1(polz)*gg_qu(2,polg,polz)
-c     .                  +c2(polz)*gg_qu(3,polg,polz))*FAC
-c     .                  +cotw*prop12*gg_qu(1,polg,polz)*FACM)
-c     .                 *prop34*prop56*v2(polz)
+c     &                  +c2(polz)*gg_qu(3,polg,polz))*FAC
+c     &                  +cotw*prop12*gg_qu(1,polg,polz)*FACM)
+c     &                 *prop34*prop56*v2(polz)
           enddo
           enddo
           ave=xn*aveqg*Vsum(k)
-      elseif ((j .eq. 0) .and. (k .lt. 0)) then
+      elseif ((j == 0) .and. (k < 0)) then
 c---case g-db
           do polg=1,2
           do polz=1,2
           A(polg,polz)=((c1(polz)*gg_qb(2,polg,polz)
-     .                  +c2(polz)*gg_qb(3,polg,polz))*FAC
-     .                  +(cotw*v2(polz)*prop56*gg_qb(1,polg,polz)
-     .                                     +q1*gg_qb(10,polg,polz))
-     .                    *prop12*FACM)*prop34
-     .            +FAC*((en1*v2(polz)*prop56+q1*(-1d0)*cl1)
-     .                   *prop12*gg_qb(5,polg,polz)
-     .                 +(en2*v2(polz)*prop56+q1*(-1d0)*cl2)
-     .                   *prop12*gg_qb(4,polg,polz)
-     .          +wwflag*0.5d0*prop34*prop12/xw*gg_qb(6,polg,polz)*cl1
-     .          +wwflag*0.5d0*prop34*prop12/xw*gg_qb(7,polg,polz)*cl2)
+     &                  +c2(polz)*gg_qb(3,polg,polz))*FAC
+     &                  +(cotw*v2(polz)*prop56*gg_qb(1,polg,polz)
+     &                                     +q1*gg_qb(10,polg,polz))
+     &                    *prop12*FACM)*prop34
+     &            +FAC*((en1*v2(polz)*prop56+q1*(-1._dp)*cl1)
+     &                   *prop12*gg_qb(5,polg,polz)
+     &                 +(en2*v2(polz)*prop56+q1*(-1._dp)*cl2)
+     &                   *prop12*gg_qb(4,polg,polz)
+     &          +wwflag*0.5_dp*prop34*prop12/xw*gg_qb(6,polg,polz)*cl1
+     &          +wwflag*0.5_dp*prop34*prop12/xw*gg_qb(7,polg,polz)*cl2)
 
 c          A(polg,polz)=((c1*gg_qb(2,polg,polz)
-c     .                  +c2*gg_qb(3,polg,polz))*FAC
-c     .                  +cotw*prop12*gg_qb(1,polg,polz)*FACM)
-c     .                 *prop34*prop56*v2(polz)
+c     &                  +c2*gg_qb(3,polg,polz))*FAC
+c     &                  +cotw*prop12*gg_qb(1,polg,polz)*FACM)
+c     &                 *prop34*prop56*v2(polz)
 
           enddo
           enddo
@@ -329,13 +334,13 @@ c     .                 *prop34*prop56*v2(polz)
           ave=xn*aveqg*Vsum(k)
 
       else
-          ave=0d0
+          ave=0._dp
       endif
 
-      if (ave.gt.0d0) then
-      msq(j,k)=FAC1*ave*cdabs(cprop)**2
-     .          *(cdabs(A(mplus,minus))**2+cdabs(A(minus,minus))**2
-     .           +cdabs(A(mplus,mplus))**2+cdabs(A(minus,mplus))**2)
+      if (ave>0._dp) then
+      msq(j,k)=FAC1*ave*abs(cprop)**2
+     &          *(abs(A(mplus,minus))**2+abs(A(minus,minus))**2
+     &           +abs(A(mplus,mplus))**2+abs(A(minus,mplus))**2)
       endif
 
  19   continue

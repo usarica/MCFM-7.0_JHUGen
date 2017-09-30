@@ -1,5 +1,7 @@
       subroutine qqb_tbb_v(p,msqv)
       implicit none
+      include 'types.f'
+
 c     Virtual matrix element for t-bbar production
 C     (nwz=+1)
 c      u(-p1)+dbar(-p2)-->n(p3)+e^+(p4)+b(p5)+bbar(p6)
@@ -8,16 +10,19 @@ C     (nwz=-1)
 c      ubar(-p1)+d(-p2)-->e^-(p3)+n(p4)+bbar(p5)+b(p6)
 C     averaged(summed) over initial(final) colours and spins
 c--NB average over spins only -- colour factors cancel
-      integer j,k
+      integer:: j,k
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ewcouple.f'
       include 'qcdcouple.f'
       include 'ckm.f'
       include 'nwz.f'
       include 'zprods_com.f'
       include 'scheme.f'
-      double precision p(mxpart,4),msqv(-nf:nf,-nf:nf),
-     . qqb,qbq,fac,virttop
+      real(dp):: p(mxpart,4),msqv(-nf:nf,-nf:nf),
+     & qqb,qbq,fac,virttop
 
       scheme='dred'
 
@@ -28,12 +33,12 @@ C-----factor of 2 for interference.
       fac=ason2pi*cf
       fac=aveqq*xn**2*gw**8*fac
 
-      if     (nwz .eq. +1) then
+      if     (nwz == +1) then
         qqb=fac*virttop(1,6,3,4,5,2,za,zb)
         qbq=fac*virttop(2,6,3,4,5,1,za,zb)
 c        qqb=fac*virtqqb(1,6,3,4,5,2)
 c        qbq=fac*virtqqb(2,6,3,4,5,1)
-      elseif (nwz .eq. -1) then
+      elseif (nwz == -1) then
         qqb=fac*virttop(2,6,4,3,5,1,zb,za)
         qbq=fac*virttop(1,6,4,3,5,2,zb,za)
 c        qqb=fac*virtqqb(2,6,4,3,5,1)
@@ -42,10 +47,10 @@ c        qbq=fac*virtqqb(1,6,4,3,5,2)
 
       do j=-nf,nf
       do k=-nf,nf
-      msqv(j,k)=0d0
-      if     ((j .gt. 0) .and. (k .lt. 0)) then
+      msqv(j,k)=0._dp
+      if     ((j > 0) .and. (k < 0)) then
       msqv(j,k)=Vsq(j,k)*qqb
-      elseif ((j .lt. 0) .and. (k .gt. 0)) then
+      elseif ((j < 0) .and. (k > 0)) then
       msqv(j,k)=Vsq(j,k)*qbq
       endif
       enddo
@@ -55,16 +60,22 @@ c        qbq=fac*virtqqb(1,6,4,3,5,2)
       end
 
 
-      double precision function virtqqb(ju,jb,jn,je,jc,jd)
+      function virtqqb(ju,jb,jn,je,jc,jd)
       implicit none
+      include 'types.f'
+      real(dp):: virtqqb
 
-      integer ju,jd,jn,je,jc,jb
+
+      integer:: ju,jd,jn,je,jc,jb
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'sprods_com.f'
       include 'zprods_com.f'
-      double precision snec,prop,cv,cv0,mtsq
-      double complex c1,amp,ampho
+      real(dp):: snec,prop,cv,cv0,mtsq
+      complex(dp):: c1,amp,ampho
 
 
       mtsq=mt**2
@@ -72,7 +83,7 @@ c        qbq=fac*virtqqb(1,6,4,3,5,2)
 
       call coefs(s(ju,jd),mtsq,cv0,cv,c1)
 
-      if (s(ju,jd) .lt. 0d0) then
+      if (s(ju,jd) < 0._dp) then
       prop=(s(ju,jd)-wmass**2)**2
       else
       prop=(s(ju,jd)-wmass**2)**2+(wmass*wwidth)**2
@@ -81,12 +92,12 @@ c        qbq=fac*virtqqb(1,6,4,3,5,2)
       prop=prop*((s(jn,je)-wmass**2)**2+(wmass*wwidth)**2)
 
       amp=za(jc,jn)*zb(ju,jb)
-     . *(zb(je,jc)*za(jc,jd)+zb(je,jn)*za(jn,jd))
+     & *(zb(je,jc)*za(jc,jd)+zb(je,jn)*za(jn,jd))
       ampho=za(jc,jn)*zb(ju,jb)
-     . *(dcmplx(cv0+cv)*(zb(je,jc)*za(jc,jd)+zb(je,jn)*za(jn,jd))
-     . +c1*dcmplx(0.5d0)*zb(je,jb)*za(jb,jd))
+     & *(cplx1(cv0+cv)*(zb(je,jc)*za(jc,jd)+zb(je,jn)*za(jn,jd))
+     & +c1*chalf*zb(je,jb)*za(jb,jd))
 
-      virtqqb=dble(amp*dconjg(ampho))/prop
+      virtqqb=real(amp*conjg(ampho))/prop
 
       return
       end
@@ -94,25 +105,30 @@ c        qbq=fac*virtqqb(1,6,4,3,5,2)
 
 
       subroutine coefs(s12,mtsq,cv0,cv,c1)
+      implicit none
+      include 'types.f'
 C-----In this routine:-
 C-----cv0 is the results for all massless vertex function
 C-----cv and c1 are  is the results for one-mass vertex function
-      implicit none
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'epinv.f'
       include 'epinv2.f'
       include 'scale.f'
       include 'scheme.f'
-      double precision cv,cv0,Li2la
-      double precision s12,mtsq,taucs,ddilog,eta,la,oml
-      double complex lnrat,logoml,logla,xl12,logsca,Kfun,c1
+      real(dp):: cv,cv0,Li2la
+      real(dp):: s12,mtsq,taucs,ddilog,eta,la,oml
+      complex(dp):: lnrat,logoml,logla,xl12,logsca,Kfun,c1
 
-      if (scheme .eq.'dred') then
-C------        eta=0 4d-hel
-         eta=0d0
-      elseif (scheme .eq. 'tH-V') then
+      if (scheme =='dred') then
+C------        eta=0 4.e-_dphel
+         eta=0._dp
+      elseif (scheme == 'tH-V') then
 C------       eta=1 t'Hooft Veltman
-         eta=1d0
+         eta=1._dp
       endif
 
 C**********************************************************************
@@ -133,8 +149,8 @@ C**********************************************************************
 C-----2/22/2012
 c-----This appears to be the correction to the vertex in units of as/4/pi*cf
 c-----despite the above comment
-      cv0=-2d0*epinv*(epinv2-dble(xl12))-dble(xl12**2)
-     .           -3d0*(epinv-dble(xl12))-7d0-eta
+      cv0=-2._dp*epinv*(epinv2-real(xl12))-real(xl12**2)
+     &           -3._dp*(epinv-real(xl12))-7._dp-eta
 
 
 
@@ -151,29 +167,29 @@ C----- Adapted from Eqs.(A8,A9)
 C NB  s12=-Q^2, -taucs=mtsq+Q^2
       taucs=s12-mtsq
       la=-s12/(mtsq-s12)
-      oml=1d0-la
+      oml=1._dp-la
 C-----oml=mtsq/(mtsq-s12)
       logoml=-lnrat(-taucs,mtsq)
       logsca=lnrat(-taucs,musq)
-      Kfun=dcmplx(oml/la)*logoml
+      Kfun=cplx1(oml/la)*logoml
 
 c--- Minus sign relative to Gottschalk since incoming b has momentum
 c--- vector reversed for the t-channel process
 c--- s-channel process follows by crossing
-      c1=-dcmplx(2d0)*Kfun
+      c1=-ctwo*Kfun
 
-      if (la .lt. 1d0) then
+      if (la < 1._dp) then
       Li2la=ddilog(la)
       else
       logla=lnrat(-s12,-taucs)
-      Li2la=pisqo6-ddilog(oml)-dble(logla*logoml)
+      Li2la=pisqo6-ddilog(oml)-real(logla*logoml)
       endif
 C-----Again from A8 and A9 these are in units of alpha_s/4/pi*CF
       cv=-epinv*epinv2
-     . -epinv*(2.5d0+dble(logoml-logsca))
-     . -0.5d0*(11d0+eta)-pisqo6+2d0*Li2la-dble(Kfun)
-     .  -0.5d0*dble(logoml*(cone-logoml))
-     .  +2.5d0*dble(logsca)+dble(logsca*logoml)-0.5d0*dble(logsca**2)
+     & -epinv*(2.5_dp+real(logoml-logsca))
+     & -0.5_dp*(11._dp+eta)-pisqo6+2._dp*Li2la-real(Kfun)
+     &  -0.5_dp*real(logoml*(cone-logoml))
+     &  +2.5_dp*real(logsca)+real(logsca*logoml)-0.5_dp*real(logsca**2)
 
 C answer from gotts.mac
 c   ans:
@@ -185,16 +201,22 @@ c  +2.5*log(sca)+log(oml)*log(sca)-log(sca)^2/2
       return
       end
 
-      double precision function virttop(ju,jb,jn,je,jc,jd,za,zb)
+      function virttop(ju,jb,jn,je,jc,jd,za,zb)
       implicit none
+      include 'types.f'
+      real(dp):: virttop
 
-      integer ju,jd,jn,je,jc,jb
+
+      integer:: ju,jd,jn,je,jc,jb
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'sprods_com.f'
       include 'zprods_decl.f'
-      double precision snec,prop,cv,cv0,mtsq
-      double complex c1,amp,ampho
+      real(dp):: snec,prop,cv,cv0,mtsq
+      complex(dp):: c1,amp,ampho
 
 
       mtsq=mt**2
@@ -202,7 +224,7 @@ c  +2.5*log(sca)+log(oml)*log(sca)-log(sca)^2/2
 
       call coefs(s(ju,jd),mtsq,cv0,cv,c1)
 
-      if (s(ju,jd) .lt. 0d0) then
+      if (s(ju,jd) < 0._dp) then
       prop=(s(ju,jd)-wmass**2)**2
       else
       prop=(s(ju,jd)-wmass**2)**2+(wmass*wwidth)**2
@@ -211,12 +233,12 @@ c  +2.5*log(sca)+log(oml)*log(sca)-log(sca)^2/2
       prop=prop*((s(jn,je)-wmass**2)**2+(wmass*wwidth)**2)
 
       amp=za(jc,jn)*zb(ju,jb)
-     . *(zb(je,jc)*za(jc,jd)+zb(je,jn)*za(jn,jd))
+     & *(zb(je,jc)*za(jc,jd)+zb(je,jn)*za(jn,jd))
       ampho=za(jc,jn)*zb(ju,jb)
-     . *(dcmplx(cv0+cv)*(zb(je,jc)*za(jc,jd)+zb(je,jn)*za(jn,jd))
-     . +c1*dcmplx(0.5d0)*zb(je,jb)*za(jb,jd))
+     & *(cplx1(cv0+cv)*(zb(je,jc)*za(jc,jd)+zb(je,jn)*za(jn,jd))
+     & +c1*chalf*zb(je,jb)*za(jb,jd))
 
-      virttop=dble(amp*dconjg(ampho))/prop
+      virttop=real(amp*conjg(ampho))/prop
 
       return
       end

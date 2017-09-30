@@ -1,5 +1,6 @@
       subroutine qqb_tautau(p,msq)
       implicit none
+      include 'types.f'
 ************************************************************************
 *     Author: JMC                  
 *     May, 1999.                           
@@ -11,19 +12,22 @@
 *     Kleiss and Stirling
 ************************************************************************
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'qcdcouple.f'
       include 'masses.f'
       include 'ewcouple.f'
       include 'zcouple.f'
       include 'ewcharge.f'
       include 'first.f'
-      integer j,k,nu
-      double precision msq(-nf:nf,-nf:nf),p(mxpart,4),pks(4,10)
-      double precision RMT,RGT,RMW,RGW,RMB,RMTLO,RMTUP
-      double precision GW_KS,GS_KS,fac
-      double complex qqbpp,qqbpm,qqbmp,qqbmm
-      double complex qbqpp,qbqpm,qbqmp,qbqmm,prop12
-      double precision s12,dotks
+      integer:: j,nu
+      real(dp):: msq(-nf:nf,-nf:nf),p(mxpart,4),pks(4,10)
+      real(dp):: RMT,RGT,RMW,RGW,RMB,RMTLO,RMTUP
+      real(dp):: GW_KS,GS_KS,fac
+      complex(dp):: qqbpp,qqbpm,qqbmp,qqbmm
+      complex(dp):: qbqpp,qbqpm,qbqmp,qbqmm,prop12
+      real(dp):: s12,dotks
       COMMON/COUPS/GW_KS,GS_KS
       COMMON/PARS/RMT,RGT,RMW,RGW,RMB,RMTLO,RMTUP
       COMMON/MOM/PKS
@@ -36,11 +40,11 @@ c---- Fill common blocks for Kleiss and Stirling
          rgw=wwidth
          rmt=mtau
          rgt=tauwidth
-         rmb=0d0
-         rmtlo=0d0
-         rmtup=0d0
+         rmb=zip
+         rmtlo=zip
+         rmtup=zip
          GS_KS=sqrt(gsq)
-         GW_KS=sqrt(gwsq/8d0)
+         GW_KS=sqrt(gwsq/eight)
          write(6,*) 
          write(6,*) 'rmw',rmw
          write(6,*) 'rmt',rmt
@@ -79,27 +83,23 @@ C-----Matrix elements of Kleiss and Stirling include all averaging
       qbqmp=qqbpp
       qbqmm=qqbpm
 C----set all elements to zero
-      do j=-nf,nf
-      do k=-nf,nf
-      msq(j,k)=0d0
-      enddo
-      enddo
+      msq(:,:)=zip
       
-      s12=2d0*dotks(1,2)
-      prop12=dcmplx(s12)/dcmplx((s12-zmass**2),zmass*zwidth)
+      s12=two*dotks(1,2)
+      prop12=s12/cplx2((s12-zmass**2),zmass*zwidth)
       fac=fac*esq**2
 C---fill qb-q and q-qb elements
       do j=-nf,nf
-      if (j .lt. 0) then
+      if (j < 0) then
         msq(j,-j)=fac*(abs(qbqpp*(R(-j)*re*prop12-Q(j))
-     .                    +qbqpm*(R(-j)*le*prop12-Q(j)))**2
-     .                +abs(qbqmp*(L(-j)*re*prop12-Q(j))
-     .                    +qbqmm*(L(-j)*le*prop12-Q(j)))**2)
-      elseif (j .gt. 0) then
+     &                    +qbqpm*(R(-j)*le*prop12-Q(j)))**2
+     &                +abs(qbqmp*(L(-j)*re*prop12-Q(j))
+     &                    +qbqmm*(L(-j)*le*prop12-Q(j)))**2)
+      elseif (j > 0) then
         msq(j,-j)=fac*(abs(qqbpp*(R(+j)*re*prop12-Q(j))
-     .                    +qqbpm*(R(+j)*le*prop12-Q(j)))**2
-     .                +abs(qqbmp*(L(+j)*re*prop12-Q(j))
-     .                    +qqbmm*(L(+j)*le*prop12-Q(j)))**2)
+     &                    +qqbpm*(R(+j)*le*prop12-Q(j)))**2
+     &                +abs(qqbmp*(L(+j)*re*prop12-Q(j))
+     &                    +qqbmm*(L(+j)*le*prop12-Q(j)))**2)
       endif
       enddo
       

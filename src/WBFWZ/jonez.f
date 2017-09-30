@@ -1,15 +1,20 @@
       subroutine jonez(n2,n3,n4,n1,za,zb,zab,zba,jz,jg,jw)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'cmplxmass.f'
       include 'ewcharge.f'
       include 'zcouple.f'
       include 'sprods_com.f'
       include 'zprods_decl.f'
-      integer h12,h34,i1,i2,i3,i4,n1,n2,n3,n4,jdu
-      double precision s12,s34,s123,s124,s134,s234,
+      integer:: h12,h34,i1,i2,i3,i4,n1,n2,n3,n4,jdu
+      real(dp):: s12,s34,s123,s124,s134,s234,
      & xl,xr,xq
-      double complex zab(mxpart,4,mxpart),zba(mxpart,4,mxpart),
+      complex(dp):: zab(mxpart,4,mxpart),zba(mxpart,4,mxpart),
      & j1(4,2,2,2),propz34,propz12,propw12,gmZ(2,2,2),gmZ12(2,2,2),
      & after(4,2,2),before(4,2,2),zab2,WWgmZ(2,2,2),rxw,
      & j1l(4,2,2,2),jz(4,2,2,2),jg(4,2,2,2),jw(4,2,2,2)
@@ -62,43 +67,43 @@ C---setting up couplings dependent on whether we are doing 34-line or 56-line
 
       s34=s(n3,n4)
       s12=s(n1,n2)
-      propz34=dcmplx(s34)-czmass2
-      propz12=dcmplx(s12)-czmass2
-      propw12=dcmplx(s12)-cwmass2
+      propz34=cplx1(s34)-czmass2
+      propz12=cplx1(s12)-czmass2
+      propw12=cplx1(s12)-cwmass2
 
       do jdu=1,2
-      gmZ(jdu,1,1)=(dcmplx(Q(jdu)*xq/s34)+dcmplx(L(jdu)*xl)/propz34)
-      gmZ(jdu,1,2)=(dcmplx(Q(jdu)*xq/s34)+dcmplx(L(jdu)*xr)/propz34)
-      gmZ(jdu,2,1)=(dcmplx(Q(jdu)*xq/s34)+dcmplx(R(jdu)*xl)/propz34)
-      gmZ(jdu,2,2)=(dcmplx(Q(jdu)*xq/s34)+dcmplx(R(jdu)*xr)/propz34)
+      gmZ(jdu,1,1)=(cplx1(Q(jdu)*xq/s34)+cplx1(L(jdu)*xl)/propz34)
+      gmZ(jdu,1,2)=(cplx1(Q(jdu)*xq/s34)+cplx1(L(jdu)*xr)/propz34)
+      gmZ(jdu,2,1)=(cplx1(Q(jdu)*xq/s34)+cplx1(R(jdu)*xl)/propz34)
+      gmZ(jdu,2,2)=(cplx1(Q(jdu)*xq/s34)+cplx1(R(jdu)*xr)/propz34)
 
-      gmZ12(jdu,1,1)=(dcmplx(Q(jdu)*xq/s12)+dcmplx(L(jdu)*xl)/propz12)
-      gmZ12(jdu,1,2)=(dcmplx(Q(jdu)*xq/s12)+dcmplx(L(jdu)*xr)/propz12)
-      gmZ12(jdu,2,1)=(dcmplx(Q(jdu)*xq/s12)+dcmplx(R(jdu)*xl)/propz12)
-      gmZ12(jdu,2,2)=(dcmplx(Q(jdu)*xq/s12)+dcmplx(R(jdu)*xr)/propz12)
+      gmZ12(jdu,1,1)=(cplx1(Q(jdu)*xq/s12)+cplx1(L(jdu)*xl)/propz12)
+      gmZ12(jdu,1,2)=(cplx1(Q(jdu)*xq/s12)+cplx1(L(jdu)*xr)/propz12)
+      gmZ12(jdu,2,1)=(cplx1(Q(jdu)*xq/s12)+cplx1(R(jdu)*xl)/propz12)
+      gmZ12(jdu,2,2)=(cplx1(Q(jdu)*xq/s12)+cplx1(R(jdu)*xr)/propz12)
 
       rxw=sqrt((cone-cxw)/cxw)
-      if (jdu .eq. 1) then
-      WWgmZ(jdu,1,1)=-(dcmplx(xq/s34)+dcmplx(xl)*rxw/propz34)
-      WWgmZ(jdu,1,2)=-(dcmplx(xq/s34)+dcmplx(xr)*rxw/propz34)
-      WWgmZ(jdu,2,1)=-(dcmplx(xq/s34)+dcmplx(xl)*rxw/propz34) 
-      WWgmZ(jdu,2,2)=-(dcmplx(xq/s34)+dcmplx(xr)*rxw/propz34)
+      if (jdu == 1) then
+      WWgmZ(jdu,1,1)=-(cplx1(xq/s34)+cplx1(xl)*rxw/propz34)
+      WWgmZ(jdu,1,2)=-(cplx1(xq/s34)+cplx1(xr)*rxw/propz34)
+      WWgmZ(jdu,2,1)=-(cplx1(xq/s34)+cplx1(xl)*rxw/propz34) 
+      WWgmZ(jdu,2,2)=-(cplx1(xq/s34)+cplx1(xr)*rxw/propz34)
       endif
-      if (jdu .eq. 2) then
-      WWgmZ(jdu,1,1)=(dcmplx(xq/s34)+dcmplx(xl)*rxw/propz34)
-      WWgmZ(jdu,1,2)=(dcmplx(xq/s34)+dcmplx(xr)*rxw/propz34)
-      WWgmZ(jdu,2,1)=(dcmplx(xq/s34)+dcmplx(xl)*rxw/propz34) 
-      WWgmZ(jdu,2,2)=(dcmplx(xq/s34)+dcmplx(xr)*rxw/propz34)
+      if (jdu == 2) then
+      WWgmZ(jdu,1,1)=(cplx1(xq/s34)+cplx1(xl)*rxw/propz34)
+      WWgmZ(jdu,1,2)=(cplx1(xq/s34)+cplx1(xr)*rxw/propz34)
+      WWgmZ(jdu,2,1)=(cplx1(xq/s34)+cplx1(xl)*rxw/propz34) 
+      WWgmZ(jdu,2,2)=(cplx1(xq/s34)+cplx1(xr)*rxw/propz34)
       endif
       enddo
 
       i1=n1
       i2=n2
       do h34=1,2
-         if (h34.eq.1) then 
+         if (h34==1) then 
             i3=n3
             i4=n4
-         elseif (h34.eq.2) then
+         elseif (h34==2) then
             i3=n4
             i4=n3
          endif
@@ -128,14 +133,14 @@ C----Gamma/Z attachment to exchanged W
      &  -0.5d0*za(i2,i3)*zb(i4,i1)
      & *(zab(i1,:,i1)+zab(i2,:,i2)-zab(i3,:,i3)-zab(i4,:,i4)))
 C----non-resonant e-e+ production by exchanged W-line.
-      if (h34 .eq. 1) then
-      if (((jdu .eq. 1) .and. (xq < 0)) .or.
-     &    ((jdu .eq. 2) .and. (xq >-1))) then
+      if (h34 == 1) then
+      if (((jdu == 1) .and. (xq < 0)) .or.
+     &    ((jdu == 2) .and. (xq >-1))) then
       jw(:,jdu,1,h34)=jw(:,jdu,1,h34)
      & -(zb(i1,i2)*zab(i2,:,i4)+zb(i1,i3)*zab(i3,:,i4))*za(i3,i2)
      & /(2d0*cxw*propw12*s123)
-      elseif (((jdu .eq. 2) .and. (xq < 0)) .or.
-     &        ((jdu .eq. 1) .and. (xq >-1))) then
+      elseif (((jdu == 2) .and. (xq < 0)) .or.
+     &        ((jdu == 1) .and. (xq >-1))) then
       jw(:,jdu,1,h34)=jw(:,jdu,1,h34)
      & +(zab(i3,:,i1)*za(i1,i2)+zab(i3,:,i4)*za(i4,i2))*zb(i1,i4)
      & /(2d0*cxw*propw12*s124)
@@ -164,7 +169,7 @@ C----non-resonant e-e+ production by exchanged Z/gamma-line.
      & *gmZ12(jdu,2,h34)/s124*2d0
      
 c--- to get opposite helicity, 3<->4 swap needs additional minus sign
-      if (h34 .eq. 2) then
+      if (h34 == 2) then
         j1l(:,jdu,:,h34)=-j1l(:,jdu,:,h34)
       endif
       

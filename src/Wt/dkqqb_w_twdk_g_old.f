@@ -1,4 +1,6 @@
       subroutine dkqqb_w_twdk_g_old(p,msq)
+      implicit none
+      include 'types.f'
 ************************************************************************
 *     Author: Francesco Tramontano                                     *
 *     February, 2005.                                                  *
@@ -18,32 +20,35 @@
 *                            |                                         *
 *                            --> nu(p3) + e^+(p4)                      *
 ************************************************************************
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'qcdcouple.f'
       include 'ewcouple.f'
       include 'zprods_com.f'
       include 'nwz.f'
-      integer i,j,k,nu,jpart,i3,i4,i5,i6,iq
-      double precision p(mxpart,4),q(mxpart,4),msq(-nf:nf,-nf:nf),
-     . fac,dot,tautg,msq_gq,msq_qg
-      double complex ampp(2,2),ampd(2,2),tot(2,2)
+      integer:: i,j,k,nu,jpart,i3,i4,i5,i6,iq
+      real(dp):: p(mxpart,4),q(mxpart,4),msq(-nf:nf,-nf:nf),
+     & fac,dot,tautg,msq_gq,msq_qg
+      complex(dp):: ampp(2,2),ampd(2,2),tot(2,2)
 
       do j=-nf,nf
       do k=-nf,nf
-      msq(j,k)=0d0
+      msq(j,k)=zero
       enddo
       enddo
 
 c--- set up lepton variables depending on whether it's t or tbar
-      if     (nwz .eq. -1) then
+      if     (nwz == -1) then
         i3=3
 	i4=4
 	i5=5
 	i6=6
 	iq=1 ! top quark
-      elseif (nwz .eq. +1) then
+      elseif (nwz == +1) then
         i3=4
 	i4=3
 	i5=6
@@ -74,7 +79,7 @@ c--- Note: call to tree now passes top mass as a parameter
 
 c--- Construct factored form of amplitudes by adding the helicities of
 c--- the heavy quark. Perform sum over the squares of gluon helicities
-      msq_gq=0d0
+      msq_gq=zero
       do i=1,2
         do j=1,2
           tot(i,j)=ampp(1,i)*ampd(1,j)+ampp(2,i)*ampd(2,j)
@@ -94,7 +99,7 @@ c--- the heavy quark. Perform sum over the squares of gluon helicities
       call tree(mt,2,1,i3,i4,9,ampp)
       call gs_wc_dg(q,2,1,i3,i4,i5,i6,7,8,9,ampd)
 
-      msq_qg=0d0
+      msq_qg=zero
       do i=1,2
         do j=1,2
           tot(i,j)=ampp(1,i)*ampd(1,j)+ampp(2,i)*ampd(2,j)
@@ -104,9 +109,9 @@ c--- the heavy quark. Perform sum over the squares of gluon helicities
 
       do j=-nf,nf,nf
       do k=-nf,nf,nf
-      if     ((j .eq. 5*iq) .and. (k .eq. 0)) then
+      if     ((j == 5*iq) .and. (k == 0)) then
           msq(j,k)=fac*msq_qg
-      elseif ((j .eq. 0) .and. (k .eq. 5*iq)) then
+      elseif ((j == 0) .and. (k == 5*iq)) then
           msq(j,k)=fac*msq_gq
       endif
       enddo

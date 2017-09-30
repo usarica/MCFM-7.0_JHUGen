@@ -5,8 +5,9 @@
       end
             
       function lastnbx(string)
+      include 'types.f'
       character *(*) string
-      integer l,k
+      integer:: l,k
       l=len(string)
       do k=l,1,-1
          if(string(k:k).ne.' ') then
@@ -17,8 +18,8 @@
       end
       
       function prodvec2(vec1,vec2)
-      implicit none
-      real * 8 prodvec2,vec1(4),vec2(4)
+      include 'types.f'
+      real(dp) prodvec2,vec1(4),vec2(4)
       prodvec2=vec1(4)*vec2(4)-vec1(1)*vec2(1)
      1 -vec1(2)*vec2(2)-vec1(3)*vec2(3)
       end
@@ -26,16 +27,19 @@
 
       subroutine getyetaptmass(p,y,eta,pt,mass)
       implicit none
-      real * 8 p(4),y,eta,pt,mass,pv
-      real *8 tiny
-      parameter (tiny=1.d-5)
-      y=0.5d0*log((p(4)+p(3))/(p(4)-p(3)))
+      include 'types.f'
+      include 'constants.f'
+      
+      real(dp) p(4),y,eta,pt,mass,pv
+      real(dp) tiny
+      parameter (tiny=1.e-5_dp)
+      y=0.5_dp*log((p(4)+p(3))/(p(4)-p(3)))
       pt=sqrt(p(1)**2+p(2)**2)
       pv=sqrt(pt**2+p(3)**2)
-      if(pt.lt.tiny)then
-         eta=sign(1.d0,p(3))*1.d8
+      if(pt<tiny)then
+         eta=sign(one,p(3))*1.e8_dp
       else
-         eta=0.5d0*log((pv+p(3))/(pv-p(3)))
+         eta=0.5_dp*log((pv+p(3))/(pv-p(3)))
       endif
       mass=sqrt(abs(p(4)**2-pv**2))
       end
@@ -43,9 +47,11 @@
 
       subroutine yetaptmassplot(p,dsig,prefix)
       implicit none
-      real * 8 p(4),dsig
+      include 'types.f'
+      
+      real(dp) p(4),dsig
       character *(*) prefix
-      real * 8 y,eta,pt,m
+      real(dp) y,eta,pt,m
       call getyetaptmass(p,y,eta,pt,m)
       call filld(prefix//'_y',y,dsig)
       call filld(prefix//'_eta',eta,dsig)
@@ -56,10 +62,12 @@
 
       subroutine pwhgfinalopshist
       implicit none
+      include 'types.f'
+      
       include 'pwhg_bookhist-new.h'
-      integer  f_idx,b_idx,x_idx,ixx,jxx,j,k,l
-      integer  indexhist
-      real * 8 num,numerr,den,denerr
+      integer::  f_idx,b_idx,x_idx,ixx,jxx,j,k,l
+      integer::  indexhist
+      real(dp) num,numerr,den,denerr
 
       f_idx=indexhist('dF-dpT')
       b_idx=indexhist('dB-dpT')
@@ -118,11 +126,13 @@
 
       subroutine integratehist(integrand,integral,direction)
       implicit none
+      include 'types.f'
+      
       include 'pwhg_bookhist-new.h'
-      integer  integrand,integral,direction
-      integer  indexhist,ixx,jxx
+      integer::  integrand,integral,direction
+      integer::  indexhist,ixx,jxx
       external indexhist
-      if(direction.eq.1) then
+      if(direction==1) then
         do ixx=1,nbins(integrand)
           do jxx=ixx,nbins(integrand)
             yhistarr2(ixx,integral)=yhistarr2(ixx,integral)
@@ -134,7 +144,7 @@
           enddo
           errhistarr2(ixx,integral)=sqrt(errhistarr2(ixx,integral))
         enddo
-      else if(direction.eq.-1) then
+      else if(direction==-1) then
         do ixx=1,nbins(integrand)
           do jxx=ixx,1,-1
             yhistarr2(ixx,integral)=yhistarr2(ixx,integral)
@@ -160,22 +170,24 @@
 
       subroutine get_afb_hist(f_idx,b_idx,afb_idx)
       implicit none
+      include 'types.f'
+      
       include 'pwhg_bookhist-new.h'
-      real*8   f,ef,b,eb
-      integer  ixx,f_idx,b_idx,afb_idx
+      real(dp)   f,ef,b,eb
+      integer::  ixx,f_idx,b_idx,afb_idx
       
       do ixx=1,nbins(f_idx)
          f=yhistarr2(ixx,f_idx)
          ef=errhistarr2(ixx,f_idx)
          b=yhistarr2(ixx,b_idx)
          eb=errhistarr2(ixx,b_idx)
-         if((f+b).gt.0d0) then         ! Guard against division by zero.
+         if((f+b)>0._dp) then         ! Guard against division by zero.
             yhistarr2(ixx,afb_idx)=(f-b)/(f+b)
             errhistarr2(ixx,afb_idx)=2*sqrt((f*ef)**2+(b*eb)**2)
      1                              /(f+b)**2
          else
-            yhistarr2(ixx,afb_idx)=0d0
-            errhistarr2(ixx,afb_idx)=0d0
+            yhistarr2(ixx,afb_idx)=0._dp
+            errhistarr2(ixx,afb_idx)=0._dp
          endif
       enddo
 
@@ -183,10 +195,9 @@
 
 
       function islept(j)
-      implicit none
-      logical islept
-      integer j
-      if(abs(j).ge.11.and.abs(j).le.16) then
+      logical:: islept
+      integer:: j
+      if(abs(j)>=11.and.abs(j)<=16) then
          islept = .true.
       else
          islept = .false.
@@ -194,9 +205,9 @@
       end
 
       function phepDot(p_A,p_B)
-      implicit none
-      real * 8  phepDot
-      real * 8  p_A(4),p_B(4)
+      include 'types.f'
+      real(dp)  phepDot
+      real(dp)  p_A(4),p_B(4)
       phepDot=p_A(4)*p_B(4)-p_A(1)*p_B(1)
      1       -p_A(2)*p_B(2)-p_A(3)*p_B(3)
       end
@@ -204,13 +215,12 @@
 c     calculate the separation in the lego plot between the two momenta
 c     p1 and p2 in azi and pseudorapidity
       function rsepn_p(p1,p2)
-      implicit none
-      real * 8 pi,pi2
-      parameter(pi = 3.141592653589793D0, pi2 = 9.869604401089358D0)
-      real * 8 rsepn_p,p1(0:3),p2(0:3)
-      real * 8 eta1,phi1,eta2,phi2
-      real * 8 delphi
-      real * 8 pseudorapidity,azi
+      include 'types.f'      
+      include 'constants.f'      
+      real(dp) rsepn_p,p1(0:3),p2(0:3)
+      real(dp) eta1,phi1,eta2,phi2
+      real(dp) delphi
+      real(dp) pseudorapidity,azi
       external pseudorapidity,azi
 
       phi1 = azi(p1)   
@@ -219,23 +229,22 @@ c     p1 and p2 in azi and pseudorapidity
       eta2 = pseudorapidity(p2)
 
       delphi = abs(phi1-phi2)
-      if (delphi.gt.pi) then
+      if (delphi>pi) then
          delphi = 2*pi-delphi
       endif
-      if (delphi.lt.0 .or. delphi.gt.pi) then
+      if (delphi<0 .or. delphi>pi) then
          print*,' problem in rsepn. delphi = ',delphi
       endif
       rsepn_p = sqrt( (eta1-eta2)**2 + delphi**2 )
       end
 
       function azi(p)
-      implicit none
-      real * 8 pi,pi2
-      parameter(pi = 3.141592653589793D0, pi2 = 9.869604401089358D0)
-      real * 8 azi,p(0:3)
+      include 'types.f'      
+      include 'constants.f'      
+      real(dp) azi,p(0:3)
       azi = atan(p(2)/p(1))
-      if (p(1).lt.0d0) then
-         if (azi.gt.0d0) then               
+      if (p(1)<0._dp) then
+         if (azi>0._dp) then               
             azi = azi - pi
          else
             azi = azi + pi
@@ -245,47 +254,50 @@ c     p1 and p2 in azi and pseudorapidity
 
       function pseudorapidity(p)
       implicit none
-      real * 8 p(0:3),pseudorapidity
-      real * 8 mod, costh
+      include 'types.f'      
+      real(dp) p(0:3),pseudorapidity
+      real(dp) mod, costh
       mod = sqrt(p(1)**2+p(2)**2+p(3)**2)
       costh = p(3)/mod
-      pseudorapidity=0.5*log((1+costh)/(1-costh))
+      pseudorapidity=0.5_dp*log((1._dp+costh)/(1._dp-costh))
       end
 
       subroutine buildjets(mjets,kt,eta,rap,phi,pjet,ibtag,
-     1                                               isForClustering)
+     &                                               isForClustering)
+      implicit none
+      include 'types.f'
 c     arrays to reconstruct jets
-      implicit  none
-      integer   mjets
-      real * 8  kt(mjets),eta(mjets),rap(mjets),phi(mjets),pjet(4,mjets)
-      integer   ibtag(mjets)
-      logical   isForClustering(mjets)
+      integer::   mjets
+      real(dp)::kt(mjets),eta(mjets),rap(mjets),
+     & phi(mjets),pjet(4,mjets)
+      integer::   ibtag(mjets)
+      logical::   isForClustering(mjets)
       include  'hepevt.h'
-      integer   maxtrack,maxjet
+      integer::   maxtrack,maxjet
       parameter (maxtrack=2048,maxjet=20)
-      real * 8  ptrack(4,maxtrack),pj(4,maxjet)
-      integer   jetvec(maxtrack),itrackhep(maxtrack)
-      integer   ntracks,njets
-      integer   j,k,mu
-      real * 8  r,palg,ptmin,pp,tmp
+      real(dp)  ptrack(4,maxtrack),pj(4,maxjet)
+      integer::   jetvec(maxtrack),itrackhep(maxtrack)
+      integer::   ntracks,njets
+      integer::   j,k,mu
+      real(dp)  r,palg,ptmin,pp,tmp
 C - Initialize arrays and counters for output jets
       do j=1,maxtrack
          do mu=1,4
-            ptrack(mu,j)=0d0
+            ptrack(mu,j)=0._dp
          enddo
          jetvec(j)=0
       enddo      
       ntracks=0
       do j=1,mjets
          do mu=1,4
-            pjet(mu,j)=0d0
-            pj(mu,j)=0d0
+            pjet(mu,j)=0._dp
+            pj(mu,j)=0._dp
          enddo
       enddo
 C - Extract final state particles to feed to jet finder
       do j=1,nhep
          if(.not.isForClustering(j)) cycle
-         if(ntracks.eq.maxtrack) then
+         if(ntracks==maxtrack) then
             write(*,*) 'analyze: need to increase maxtrack!'
             write(*,*) 'ntracks: ',ntracks
             stop
@@ -296,7 +308,7 @@ C - Extract final state particles to feed to jet finder
          enddo
          itrackhep(ntracks)=j
       enddo
-      if (ntracks.eq.0) then
+      if (ntracks==0) then
          return
       endif
 C --------------- C
@@ -305,14 +317,14 @@ C --------------- C
 C - R = 0.7   radius parameter
 C - f = 0.75  overlapping fraction
       palg  = -1
-      r     = 0.5d0
-      ptmin = 10d0
+      r     = 0.5_dp
+      ptmin = 10._dp
 c      call fastjetppgenkt(ptrack,ntracks,r,palg,ptmin,pjet,njets,jetvec)
       mjets=min(mjets,njets)
-      if(njets.eq.0) return
+      if(njets==0) return
 c check consistency
       do k=1,ntracks
-         if(jetvec(k).gt.0) then
+         if(jetvec(k)>0) then
             do mu=1,4
                pj(mu,jetvec(k))=pj(mu,jetvec(k))+ptrack(mu,k)
             enddo
@@ -324,7 +336,7 @@ c check consistency
             tmp=tmp+abs(pj(mu,j)-pjet(mu,j))
          enddo
       enddo
-      if(tmp.gt.1d-4) then
+      if(tmp>1d-4) then
          write(*,*) ' bug!'
       endif
 C --------------------------------------------------------------------- C
@@ -333,8 +345,8 @@ C --------------------------------------------------------------------- C
       do j=1,mjets
          kt(j)=sqrt(pjet(1,j)**2+pjet(2,j)**2)
          pp = sqrt(kt(j)**2+pjet(3,j)**2)
-         eta(j)=0.5d0*log((pjet(4,j)+pjet(3,j))/(pjet(4,j)-pjet(3,j)))
-         rap(j)=0.5d0*log((pjet(4,j)+pjet(3,j))/(pjet(4,j)-pjet(3,j)))
+         eta(j)=0.5_dp*log((pjet(4,j)+pjet(3,j))/(pjet(4,j)-pjet(3,j)))
+         rap(j)=0.5_dp*log((pjet(4,j)+pjet(3,j))/(pjet(4,j)-pjet(3,j)))
          phi(j)=atan2(pjet(2,j),pjet(1,j))
       enddo
       end

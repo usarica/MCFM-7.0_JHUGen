@@ -1,12 +1,18 @@
-      double precision function etmiss(p,etvec)
+      function etmiss(p,etvec)
       implicit none
+      include 'types.f'
+      real(dp):: etmiss
+
       include 'constants.f'
-      integer j,k
-      logical is_neutrino,is_darkmatter
-      double precision etvec(4),p(mxpart,4)
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      integer:: j,k
+      logical:: is_neutrino,is_darkmatter
+      real(dp):: etvec(4),p(mxpart,4)
 
       do k=1,4
-        etvec(k)=0d0
+        etvec(k)=0._dp
       enddo
 
       do j=1,mxpart
@@ -17,7 +23,7 @@
         endif
       enddo
 
-      etmiss=dsqrt(etvec(1)**2+etvec(2)**2)
+      etmiss=sqrt(etvec(1)**2+etvec(2)**2)
 
       return
       end

@@ -1,11 +1,16 @@
       subroutine averageovertwoZ(fxn,p,msq)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ewcouple.f'
       include 'zcouple.f'
       include 'masses.f'
-      integer kcount,jcount
-      double precision msq(-nf:nf,-nf:nf),msq1(-nf:nf,-nf:nf),
+      integer:: kcount,jcount
+      real(dp):: msq(-nf:nf,-nf:nf),msq1(-nf:nf,-nf:nf),
      & p(mxpart,4),pout1(mxpart,4),pout(mxpart,4),statfac
       pout(:,:)=0d0
       msq(:,:)=0d0

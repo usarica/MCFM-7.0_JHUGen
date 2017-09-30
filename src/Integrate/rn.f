@@ -1,8 +1,10 @@
         function rn(idummy)
-        real*8 rn,ran
+        implicit none
+        include 'types.f'
+        real(dp)::rn,ran
+        integer::ij,kl,idummy
+        integer,save::init=1
         common/seed/ij,kl
-        save init
-        data init /1/
 
         if (init.eq.1) then
         init=0
@@ -14,7 +16,7 @@
         end if
 *
   10    call ranmar(ran)
-        if (ran.lt.1d-16) goto 10
+        if (ran.lt.1.e-16_dp) goto 10
         rn=ran
 *
         end
@@ -24,8 +26,12 @@
 * universal random number generator proposed by marsaglia and zaman
 * in report fsu-scri-87-50
 * in this version rvec is a double precision variable.
-      implicit real*8(a-h,o-z)
-      common/ raset1 / ranu(97),ranc,rancd,rancm
+      implicit none
+      include 'types.f'
+      real(dp)::uni,rvec
+      real(dp)::ranu(97),ranc,rancd,rancm
+      common/ raset1 / ranu,ranc,rancd,rancm
+      integer:: iranmr,jranmr
       common/ raset2 / iranmr,jranmr
       save /raset1/,/raset2/
       uni = ranu(iranmr) - ranu(jranmr)
@@ -47,8 +53,13 @@
 * initializing routine for ranmar, must be called before generating
 * any pseudorandom numbers with ranmar. the input values should be in
 * the ranges 0<=ij<=31328 ; 0<=kl<=30081
-      implicit real*8(a-h,o-z)
-      common/ raset1 / ranu(97),ranc,rancd,rancm
+      implicit none
+      include 'types.f'
+      integer:: i,j,k,l,ii,jj,ij,kl,m
+      real(dp):: s,t
+      real(dp)::ranu(97),ranc,rancd,rancm
+      common/ raset1 / ranu,ranc,rancd,rancm
+      integer:: iranmr,jranmr
       common/ raset2 / iranmr,jranmr
       save /raset1/,/raset2/
 * this shows correspondence between the simplified input seeds ij, kl

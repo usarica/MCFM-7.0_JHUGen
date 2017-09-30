@@ -1,22 +1,28 @@
-      double complex function A1phiAQggmpmmL(k1,k2,k3,k4,za,zb)
+      function A1phiAQggmpmmL(k1,k2,k3,k4,za,zb)
+      implicit none
+      include 'types.f'
+      complex(dp):: A1phiAQggmpmmL
 c--- This is an implementation of Eq. (5.2) in
 c---  S.~Badger, John.~M.~Campbell, R.~Keith Ellis and Ciaran Williams
 c---  "Analytic results for the one-loop NMHV H-qbar-q-g-g amplitude."
 c---   preprint DESY 09-180, FERMILAB-PUB-09-505-T, IPPP/09/86
 c---   arXiv: 0910.4481 [hep-ph]
-      implicit none
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'sprods_com.f'
       include 'scale.f'
       include 'epinv.f'
       include 'deltar.f'
-      integer j,k1,k2,k3,k4
-      double complex V1L,A0phiAQggmpmm,lnrat,zab2,Lsm1,Lsm1_2mht
-      double complex sum,l23,l34,l41,l12,coef3m1234,coef3m1423,
+      integer:: j,k1,k2,k3,k4
+      complex(dp):: V1L,A0phiAQggmpmm,lnrat,zab2,Lsm1,Lsm1_2mht
+      complex(dp):: sum,l23,l34,l41,l12,coef3m1234,coef3m1423,
      & S1,S2,K1DK2,a1,a2,a3,a4,gamma,factor,I3m,
      & BGRL1,BGRL2hat,BGRL3hat
-      double precision s12,s13,s14,s23,s24,s34,s123,s234,s124,s134,mhsq
+      real(dp):: s12,s13,s14,s23,s24,s34,s123,s234,s124,s134,mhsq
       zab2(k1,k2,k3,k4)=za(k1,k2)*zb(k2,k4)+za(k1,k3)*zb(k3,k4)
       s12=s(k1,k2)
       s13=s(k1,k3)
@@ -37,10 +43,10 @@ c---   arXiv: 0910.4481 [hep-ph]
 
 
       V1L=
-     . -epinv**2-epinv*l23-0.5d0*l23**2
-     . -epinv**2-epinv*l34-0.5d0*l34**2
-     . -epinv**2-epinv*l41-0.5d0*l41**2
-     . +13d0/6d0*(epinv+l12)+119d0/18d0-deltar/6d0
+     & -epinv**2-epinv*l23-0.5_dp*l23**2
+     & -epinv**2-epinv*l34-0.5_dp*l34**2
+     & -epinv**2-epinv*l41-0.5_dp*l41**2
+     & +13._dp/6._dp*(epinv+l12)+119._dp/18._dp-deltar/6._dp
 
       A1phiAQggmpmmL=A0phiAQggmpmm(k1,k2,k3,k4,za,zb)*V1L
 
@@ -102,9 +108,9 @@ C-----K2=-(p1+p2)
 C     K1flat=gamma/(gamma**2-S1*S2)*(gamma*K1-S1*K2)
 C     K1flat=gamma/(gamma**2-S1*S2)*((S1-gamma)*(p1+p2)-gamma*((p3+p4))
 C----solve for gamma_+ and gamma_-
-      S1=dcmplx(mhsq)
-      S2=dcmplx(s12)
-      K1DK2=dcmplx(s12+0.5d0*(s13+s14+s23+s24))
+      S1=cplx1(mhsq)
+      S2=cplx1(s12)
+      K1DK2=cplx1(s12+0.5_dp*(s13+s14+s23+s24))
 
 C-gamma+ = K1DK2+sqrt(K1DK2**2-S1*S2)
 C-gamma- = K1DK2-sqrt(K1DK2**2-S1*S2)
@@ -148,9 +154,9 @@ C     K1flat=gamma/(gamma**2-S1*S2)*(gamma*K1-S1*K2)
 C     K1flat=gamma/(gamma**2-S1*S2)*((S1-gamma)*(p1+p4)-gamma*((p2+p3))
 
 C----solve for gamma_+ and gamma_-
-      S1=dcmplx(mhsq)
-      S2=dcmplx(s14)
-      K1DK2=dcmplx(s14+0.5d0*(s12+s13+s24+s34))
+      S1=cplx1(mhsq)
+      S2=cplx1(s14)
+      K1DK2=cplx1(s14+0.5_dp*(s12+s13+s24+s34))
 
 C-gamma+ = K1DK2+sqrt(K1DK2**2-S1*S2)
 C-gamma- = K1DK2-sqrt(K1DK2**2-S1*S2)
@@ -174,7 +180,7 @@ c       -za(k1,k4)^2*zab2(k3,k1f,k1)*zab2(k3,k1f,k2)*S1^2
 c         /(2*k1.k1f^-1)/*2*k2.k1f^-1*ga^-1*[ga-S1]^-1
 
       coef3m1423=coef3m1423
-     &  -mhsq**2*za(k1,k4)**2/(2d0*gamma*(gamma-mhsq))
+     &  -mhsq**2*za(k1,k4)**2/(2._dp*gamma*(gamma-mhsq))
      & *(a2*za(k3,k2)*zb(k2,k1)+a4*za(k3,k4)*zb(k4,k1))   ! *zab2(k3,k1f,k1)
      & *(a1*za(k3,k1)*zb(k1,k2)+a4*za(k3,k4)*zb(k4,k2))   ! *zab2(k3,k1f,k2)
      * /(a2*s12+a3*s13+a4*s14)                            ! (2*k1.k1f)^-1*
@@ -186,75 +192,75 @@ C----switch to other solution
       enddo
 
       sum=sum-coef3m1234*I3m(mhsq,s12,s34)
-     .       -coef3m1423*I3m(mhsq,s14,s23)
+     &       -coef3m1423*I3m(mhsq,s14,s23)
 
       sum=sum
-     & -2d0/3d0*za(k1,k3)**2*za(k3,k4)*zab2(k4,k1,k2,k3)*zb(k1,k2)
+     & -2._dp/3._dp*za(k1,k3)**2*za(k3,k4)*zab2(k4,k1,k2,k3)*zb(k1,k2)
      & *BGRL3hat(s123,s12)
 
-     & +1d0/6d0*za(k3,k4)*za(k1,k3)
-     & *(zab2(k4,k1,k3,k2)*zb(k1,k3)-3d0*zab2(k4,k2,k3,k1)*zb(k2,k3))
+     & +1._dp/6._dp*za(k3,k4)*za(k1,k3)
+     & *(zab2(k4,k1,k3,k2)*zb(k1,k3)-3._dp*zab2(k4,k2,k3,k1)*zb(k2,k3))
      & /zb(k1,k3)
      * *BGRL2hat(s123,s12)
 
      & +za(k1,k3)
-     & *(0.5d0*zab2(k4,k1,k3,k2)*zab2(k4,k1,k2,k3)*zb(k1,k2)*zb(k1,k3)
+     & *(0.5_dp*zab2(k4,k1,k3,k2)*zab2(k4,k1,k2,k3)*zb(k1,k2)*zb(k1,k3)
      & -zab2(k4,k2,k3,k1)**2*zb(k2,k3)**2
-     & -8d0/3d0*zab2(k4,k1,k3,k2)**2*zb(k1,k3)**2)
+     & -8._dp/3._dp*zab2(k4,k1,k3,k2)**2*zb(k1,k3)**2)
      & /(s123*zb(k1,k3)**2*zb(k2,k3))
      & *BGRL1(s123,s12)
 
-     & -2d0/3d0*s124*za(k3,k4)**2*za(k1,k4)*zb(k4,k2)
+     & -2._dp/3._dp*s124*za(k3,k4)**2*za(k1,k4)*zb(k4,k2)
      & *BGRL3hat(s124,s12)
 
      & +za(k3,k4)*za(k1,k4)
-     & *(1d0/3d0*zab2(k3,k1,k4,k2)*zb(k1,k4)
-     * -0.5d0*zab2(k3,k1,k2,k4)*zb(k1,k2))/zb(k1,k4)
+     & *(1._dp/3._dp*zab2(k3,k1,k4,k2)*zb(k1,k4)
+     * -0.5_dp*zab2(k3,k1,k2,k4)*zb(k1,k2))/zb(k1,k4)
      & *BGRL2hat(s124,s12)
 
-     & +zab2(k3,k1,k4,k2)*(3d0/2d0*s124*za(k3,k4)
-     & +11d0/3d0*zab2(k3,k1,k4,k2)*za(k4,k2))/(s124*zb(k1,k4))
+     & +zab2(k3,k1,k4,k2)*(3._dp/2._dp*s124*za(k3,k4)
+     & +11._dp/3._dp*zab2(k3,k1,k4,k2)*za(k4,k2))/(s124*zb(k1,k4))
      & *BGRL1(s124,s12)
 
-     & +0.5d0*za(k1,k4)*za(k1,k3)*zab2(k4,k2,k3,k1)*zb(k1,k2)/zb(k3,k1)
+     & +0.5_dp*za(k1,k4)*za(k1,k3)*zab2(k4,k2,k3,k1)*zb(k1,k2)/zb(k3,k1)
      & *BGRL2hat(s123,s23)
 
-     &-za(k1,k3)*zab2(k4,k2,k3,k1)*(3d0/2d0*zab2(k4,k1,k3,k2)*zb(k1,k3)
+     &-za(k1,k3)*zab2(k4,k2,k3,k1)*(3._dp/2._dp*zab2(k4,k1,k3,k2)*zb(k1,k3)
      &+zab2(k4,k2,k3,k1)*zb(k2,k3))/(s123*zb(k1,k3)**2)
      & *BGRL1(s123,s23)
 
-     & +0.5d0*s234*za(k1,k4)*za(k3,k4)*zb(k4,k2)/zb(k4,k3)
+     & +0.5_dp*s234*za(k1,k4)*za(k3,k4)*zb(k4,k2)/zb(k4,k3)
      & *BGRL2hat(s234,s23)
 
-     & +3d0/2d0*za(k3,k4)*zab2(k1,k3,k4,k2)/zb(k4,k3)
+     & +3._dp/2._dp*za(k3,k4)*zab2(k1,k3,k4,k2)/zb(k4,k3)
      & *BGRL1(s234,s23)
 
       A1phiAQggmpmmL=A1phiAQggmpmmL+sum
 
 c--- now add the rational pieces
       sum=
-     . za(k3,k4)*zab2(k3,k1,k4,k2)
-     .  *(2d0*za(k2,k4)*zb(k4,k2)-za(k1,k2)*zb(k2,k1))
-     .  /(12d0*s124*za(k1,k2)*zb(k2,k1)*zb(k4,k1))
-     . +(za(k2,k3)*zab2(k4,k1,k3,k2)**2*(
-     .    3d0*za(k1,k2)*zb(k2,k1)-2d0*za(k2,k3)*zb(k3,k2))
-     .  -2d0*za(k1,k3)**2*za(k2,k4)*zab2(k4,k2,k3,k1)
-     .      *zb(k2,k1)*zb(k3,k2))
-     .  /(12d0*s123*za(k1,k2)*za(k2,k3)*zb(k2,k1)*zb(k3,k1)*zb(k3,k2))
-     . +5d0*za(k3,k4)**2/(12d0*za(k2,k3)*zb(k3,k1))
-     . +5d0*za(k3,k4)*zab2(k4,k1,k3,k2)
-     .  /(6d0*za(k2,k3)*zb(k3,k1)*zb(k3,k2))
-     . +zab2(k4,k1,k3,k2)**2
-     .  /(6d0*za(k1,k2)*zb(k2,k1)*zb(k3,k1)*zb(k3,k2))
-     . -za(k1,k3)*za(k1,k4)*za(k2,k4)*zb(k2,k1)
-     .  /(3d0*za(k1,k2)*za(k2,k3)*zb(k3,k1)*zb(k3,k2))
-     . -za(k1,k3)*za(k3,k4)/(12d0*za(k1,k2)*zb(k4,k1))
-     . -za(k3,k4)**2*zb(k4,k2)/(6d0*za(k1,k2)*zb(k2,k1)*zb(k4,k1))
-     . +za(k1,k3)*za(k2,k4)*zab2(k4,k1,k3,k4)
-     .  /(4d0*za(k1,k2)*za(k2,k3)*zb(k3,k1)*zb(k4,k3))
-     . -za(k1,k3)*zab2(k4,k1,k3,k4)/(3d0*za(k1,k2)*zb(k4,k1)*zb(k4,k3))
-     . -5d0*za(k1,k4)**2*zb(k4,k1)/(12d0*za(k1,k2)*zb(k3,k1)*zb(k4,k3))
-     . +za(k1,k4)**2*zb(k4,k2)/(6d0*za(k1,k2)*zb(k3,k2)*zb(k4,k3))
+     & za(k3,k4)*zab2(k3,k1,k4,k2)
+     &  *(2._dp*za(k2,k4)*zb(k4,k2)-za(k1,k2)*zb(k2,k1))
+     &  /(12._dp*s124*za(k1,k2)*zb(k2,k1)*zb(k4,k1))
+     & +(za(k2,k3)*zab2(k4,k1,k3,k2)**2*(
+     &    3._dp*za(k1,k2)*zb(k2,k1)-2._dp*za(k2,k3)*zb(k3,k2))
+     &  -2._dp*za(k1,k3)**2*za(k2,k4)*zab2(k4,k2,k3,k1)
+     &      *zb(k2,k1)*zb(k3,k2))
+     &  /(12._dp*s123*za(k1,k2)*za(k2,k3)*zb(k2,k1)*zb(k3,k1)*zb(k3,k2))
+     & +5._dp*za(k3,k4)**2/(12._dp*za(k2,k3)*zb(k3,k1))
+     & +5._dp*za(k3,k4)*zab2(k4,k1,k3,k2)
+     &  /(6._dp*za(k2,k3)*zb(k3,k1)*zb(k3,k2))
+     & +zab2(k4,k1,k3,k2)**2
+     &  /(6._dp*za(k1,k2)*zb(k2,k1)*zb(k3,k1)*zb(k3,k2))
+     & -za(k1,k3)*za(k1,k4)*za(k2,k4)*zb(k2,k1)
+     &  /(3._dp*za(k1,k2)*za(k2,k3)*zb(k3,k1)*zb(k3,k2))
+     & -za(k1,k3)*za(k3,k4)/(12._dp*za(k1,k2)*zb(k4,k1))
+     & -za(k3,k4)**2*zb(k4,k2)/(6._dp*za(k1,k2)*zb(k2,k1)*zb(k4,k1))
+     & +za(k1,k3)*za(k2,k4)*zab2(k4,k1,k3,k4)
+     &  /(4._dp*za(k1,k2)*za(k2,k3)*zb(k3,k1)*zb(k4,k3))
+     & -za(k1,k3)*zab2(k4,k1,k3,k4)/(3._dp*za(k1,k2)*zb(k4,k1)*zb(k4,k3))
+     & -5._dp*za(k1,k4)**2*zb(k4,k1)/(12._dp*za(k1,k2)*zb(k3,k1)*zb(k4,k3))
+     & +za(k1,k4)**2*zb(k4,k2)/(6._dp*za(k1,k2)*zb(k3,k2)*zb(k4,k3))
 
       A1phiAQggmpmmL=A1phiAQggmpmmL+sum
 
@@ -262,25 +268,31 @@ c--- now add the rational pieces
       end
 
 
-      double complex function A1phiAQggmpmmR(k1,k2,k3,k4,za,zb)
+      function A1phiAQggmpmmR(k1,k2,k3,k4,za,zb)
+      implicit none
+      include 'types.f'
+      complex(dp):: A1phiAQggmpmmR
 c--- This is an implementation of Eq. (5.10) in
 c---  S.~Badger, John.~M.~Campbell, R.~Keith Ellis and Ciaran Williams
 c---  "Analytic results for the one-loop NMHV H-qbar-q-g-g amplitude."
 c---   preprint DESY 09-180, FERMILAB-PUB-09-505-T, IPPP/09/86
 c---   arXiv: 0910.4481 [hep-ph]
-      implicit none
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'sprods_com.f'
       include 'scale.f'
       include 'epinv.f'
       include 'deltar.f'
-      integer j,k1,k2,k3,k4
-      double complex VR,A0phiAQggmpmm,lnrat,zab2,Lsm1,Lsm1_2mht
-      double complex sum,l12,coef3m1423,
+      integer:: j,k1,k2,k3,k4
+      complex(dp):: VR,A0phiAQggmpmm,lnrat,zab2,Lsm1,Lsm1_2mht
+      complex(dp):: sum,l12,coef3m1423,
      & S1,S2,K1DK2,a1,a2,a3,a4,gamma,factor,I3m,
      & BGRL1,BGRL2hat
-      double precision s12,s13,s14,s23,s24,s34,s123,s234,s124,s134,mhsq
+      real(dp):: s12,s13,s14,s23,s24,s34,s123,s234,s124,s134,mhsq
       zab2(k1,k2,k3,k4)=za(k1,k2)*zb(k2,k4)+za(k1,k3)*zb(k3,k4)
       s12=s(k1,k2)
       s13=s(k1,k3)
@@ -296,8 +308,8 @@ c---   arXiv: 0910.4481 [hep-ph]
 
       l12=lnrat(musq,-s12)
 
-      VR=-epinv**2-epinv*l12-0.5d0*l12**2
-     .   -3d0/2d0*(epinv+l12)-7d0/2d0-deltar/2d0
+      VR=-epinv**2-epinv*l12-0.5_dp*l12**2
+     &   -3._dp/2._dp*(epinv+l12)-7._dp/2._dp-deltar/2._dp
       A1phiAQggmpmmR=A0phiAQggmpmm(k1,k2,k3,k4,za,zb)*VR
 
       sum=
@@ -320,9 +332,9 @@ C     K1flat=gamma/(gamma**2-S1*S2)*(gamma*K1-S1*K2)
 C     K1flat=gamma/(gamma**2-S1*S2)*((S1-gamma)*(p1+p4)-gamma*((p2+p3))
 
 C----solve for gamma_+ and gamma_-
-      S1=dcmplx(mhsq)
-      S2=dcmplx(s14)
-      K1DK2=dcmplx(s14+0.5d0*(s12+s13+s24+s34))
+      S1=cplx1(mhsq)
+      S2=cplx1(s14)
+      K1DK2=cplx1(s14+0.5_dp*(s12+s13+s24+s34))
 
 C-gamma+ = K1DK2+sqrt(K1DK2**2-S1*S2)
 C-gamma- = K1DK2-sqrt(K1DK2**2-S1*S2)
@@ -347,7 +359,7 @@ c         /(2*k1.k1f^-1)/*2*k2.k1f^-1*ga^-1*[ga-S1]^-1
 C---- NB   Factor of 1/2 added over and above the form, to get numerical agreement
 
       coef3m1423=coef3m1423
-     &  -mhsq**2*za(k1,k4)**2/(2d0*gamma*(gamma-mhsq))
+     &  -mhsq**2*za(k1,k4)**2/(2._dp*gamma*(gamma-mhsq))
      & *(a2*za(k3,k2)*zb(k2,k1)+a4*za(k3,k4)*zb(k4,k1))   ! *zab2(k3,k1f,k1)
      & *(a1*za(k3,k1)*zb(k1,k2)+a4*za(k3,k4)*zb(k4,k2))   ! *zab2(k3,k1f,k2)
      * /(a2*s12+a3*s13+a4*s14)                            ! (2*k1.k1f)^-1*
@@ -361,52 +373,52 @@ C----switch to other solution
       sum=sum-coef3m1423*I3m(mhsq,s14,s23)
 
       sum=sum
-     & -0.5d0*(za(k1,k4)*zb(k1,k2)*zab2(k3,k1,k2,k4))**2
+     & -0.5_dp*(za(k1,k4)*zb(k1,k2)*zab2(k3,k1,k2,k4))**2
      & /(zb(k1,k4)*zb(k2,k4)*s124)
      & *BGRL2hat(s124,s12)
 
-     & +2d0*za(k3,k4)*zab2(k3,k1,k4,k2)/zb(k1,k4)
+     & +2._dp*za(k3,k4)*zab2(k3,k1,k4,k2)/zb(k1,k4)
      & *BGRL1(s124,s12)
 
-     & +0.5d0*zab2(k3,k1,k4,k2)**2/(zb(k1,k4)*zb(k2,k4)*s124)
+     & +0.5_dp*zab2(k3,k1,k4,k2)**2/(zb(k1,k4)*zb(k2,k4)*s124)
      & *lnrat(-s124,-s12)
 
-     & -0.5d0*(za(k1,k4)*zb(k2,k4)*s234)**2
+     & -0.5_dp*(za(k1,k4)*zb(k2,k4)*s234)**2
      & /(zb(k2,k3)*zb(k3,k4)*zab2(k1,k2,k3,k4))
      & *BGRL2hat(s234,s23)
 
-     & -2d0*za(k3,k4)*zab2(k1,k3,k4,k2)/zb(k3,k4)
+     & -2._dp*za(k3,k4)*zab2(k1,k3,k4,k2)/zb(k3,k4)
      & *BGRL1(s234,s23)
 
-     & +0.5d0*zab2(k1,k3,k4,k2)**2
+     & +0.5_dp*zab2(k1,k3,k4,k2)**2
      & /(zb(k2,k3)*zb(k3,k4)*zab2(k1,k2,k3,k4))
      & *lnrat(-s234,-s23)
 
-     &-0.5d0*(za(k1,k2)*zb(k1,k2)*zab2(k4,k2,k3,k1))**2*zb(k2,k3)
+     &-0.5_dp*(za(k1,k2)*zb(k1,k2)*zab2(k4,k2,k3,k1))**2*zb(k2,k3)
      & /(zb(k1,k3)**3*s123)
      & *BGRL2hat(s123,s23)
 
-     & +2d0*za(k1,k3)*zb(k1,k2)*zab2(k4,k1,k2,k3)*zab2(k4,k2,k3,k1)
+     & +2._dp*za(k1,k3)*zb(k1,k2)*zab2(k4,k1,k2,k3)*zab2(k4,k2,k3,k1)
      & /(za(k2,k3)*zb(k1,k3)**2*zb(k2,k3))
      & *BGRL1(s123,s23)
 
-     & +(-2d0*za(k1,k3)*zb(k1,k2)*zab2(k4,k1,k2,k3)*zab2(k4,k2,k3,k1)
+     & +(-2._dp*za(k1,k3)*zb(k1,k2)*zab2(k4,k1,k2,k3)*zab2(k4,k2,k3,k1)
      & /(zb(k1,k3)**2*za(k2,k3)*zb(k2,k3)*s123)
-     & +0.5d0*zab2(k4,k2,k3,k1)**2*zb(k2,k3)
+     & +0.5_dp*zab2(k4,k2,k3,k1)**2*zb(k2,k3)
      & /(zb(k1,k3)**3*s123))
      & *lnrat(-s123,-s23)
 
-     & -0.5d0*(za(k1,k3)*zb(k1,k2)*zab2(k4,k1,k2,k3))**2
+     & -0.5_dp*(za(k1,k3)*zb(k1,k2)*zab2(k4,k1,k2,k3))**2
      & /(zb(k1,k3)*zb(k2,k3)*s123)
      & *BGRL2hat(s123,s12)
 
      & +za(k3,k4)*zb(k1,k2)*zab2(k4,k1,k2,k3)
-     & *(-2d0*za(k1,k3)*zb(k1,k3)-za(k2,k3)*zb(k2,k3))
+     & *(-2._dp*za(k1,k3)*zb(k1,k3)-za(k2,k3)*zb(k2,k3))
      & /(za(k2,k3)*zb(k1,k3)**2*zb(k2,k3))
      & *BGRL1(s123,s12)
 
      & +zb(k1,k2)*zab2(k4,k1,k2,k3)
-     & *(za(k2,k3)*zab2(k4,k1,k3,k2)+2d0*za(k1,k3)*zab2(k4,k2,k3,k1))
+     & *(za(k2,k3)*zab2(k4,k1,k3,k2)+2._dp*za(k1,k3)*zab2(k4,k2,k3,k1))
      & /(zb(k1,k3)**2*za(k2,k3)*zb(k2,k3)*s123)
      & *lnrat(-s123,-s12)
 
@@ -414,23 +426,23 @@ C----switch to other solution
 
 c--- now add the rational pieces
       sum=
-     .-(za(k2,k4)**2*zb(k2,k1)**2)/(2d0*za(k2,k3)*zb(k3,k1)**3)
+     .-(za(k2,k4)**2*zb(k2,k1)**2)/(2._dp*za(k2,k3)*zb(k3,k1)**3)
      .+(zab2(k4,k1,k2,k3)**2*zb(k2,k1)**2)
-     .  /(2d0*s123*zb(k3,k1)**3*zb(k3,k2))
+     &  /(2._dp*s123*zb(k3,k1)**3*zb(k3,k2))
      .-(za(k1,k4)**2*zb(k2,k1))/(2*za(k1,k2)*zb(k3,k1)*zb(k3,k2))
      .+(zb(k2,k1)*(za(k1,k3)**2*za(k2,k3)
-     .  *zab2(k4,k1,k2,k3)**2*zb(k3,k1)**2
+     &  *zab2(k4,k1,k2,k3)**2*zb(k3,k1)**2
      .+za(k1,k2)**3*zab2(k4,k2,k3,k1)**2*zb(k2,k1)*zb(k3,k2)))
-     .  /(4d0*s123**2*za(k1,k2)*za(k2,k3)*zb(k3,k1)**3*zb(k3,k2))
-     .+zab2(k3,k1,k4,k2)**2/(2d0*s124*zb(k4,k1)*zb(k4,k2))
-     .-(za(k1,k3)**2*zb(k2,k1))/(2d0*za(k1,k2)*zb(k4,k1)*zb(k4,k2))
+     &  /(4._dp*s123**2*za(k1,k2)*za(k2,k3)*zb(k3,k1)**3*zb(k3,k2))
+     .+zab2(k3,k1,k4,k2)**2/(2._dp*s124*zb(k4,k1)*zb(k4,k2))
+     .-(za(k1,k3)**2*zb(k2,k1))/(2._dp*za(k1,k2)*zb(k4,k1)*zb(k4,k2))
      .+(za(k1,k4)**2*zab2(k3,k1,k2,k4)**2*zb(k2,k1))
-     .  /(4d0*s124**2*za(k1,k2)*zb(k4,k1)*zb(k4,k2))
-     .-(za(k1,k3)*za(k1,k4)*zb(k4,k2))/(2d0*zab2(k1,k2,k3,k4)*zb(k4,k3))
+     &  /(4._dp*s124**2*za(k1,k2)*zb(k4,k1)*zb(k4,k2))
+     .-(za(k1,k3)*za(k1,k4)*zb(k4,k2))/(2._dp*zab2(k1,k2,k3,k4)*zb(k4,k3))
      .-(s234*za(k1,k4)**2*zb(k4,k2)**2)
-     .  /(4d0*za(k2,k3)*zab2(k1,k2,k3,k4)*zb(k3,k2)**2*zb(k4,k3))
+     &  /(4._dp*za(k2,k3)*zab2(k1,k2,k3,k4)*zb(k3,k2)**2*zb(k4,k3))
      .-(za(k1,k4)**2*zb(k4,k2)**2)
-     .  /(2d0*zab2(k1,k2,k3,k4)*zb(k3,k2)*zb(k4,k3))
+     &  /(2._dp*zab2(k1,k2,k3,k4)*zb(k3,k2)*zb(k4,k3))
 
       A1phiAQggmpmmR=A1phiAQggmpmmR+sum
 
@@ -438,22 +450,28 @@ c--- now add the rational pieces
       end
 
 
-      double complex function A1phiAQggmpmmF(k1,k2,k3,k4,za,zb)
+      function A1phiAQggmpmmF(k1,k2,k3,k4,za,zb)
+      implicit none
+      include 'types.f'
+      complex(dp):: A1phiAQggmpmmF
 c--- This is an implementation of Eq. (5.13) in
 c---  S.~Badger, John.~M.~Campbell, R.~Keith Ellis and Ciaran Williams
 c---  "Analytic results for the one-loop NMHV H-qbar-q-g-g amplitude."
 c---   preprint DESY 09-180, FERMILAB-PUB-09-505-T, IPPP/09/86
 c---   arXiv: 0910.4481 [hep-ph]
-      implicit none
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'sprods_com.f'
       include 'scale.f'
       include 'epinv.f'
-      integer k1,k2,k3,k4
-      double complex A0phiAQggmpmm,lnrat
-      double complex l12,zab2,BGRL1,BGRL2hat,BGRL3hat
-      double precision s12,s13,s14,s23,s24,s123,s124
+      integer:: k1,k2,k3,k4
+      complex(dp):: A0phiAQggmpmm,lnrat
+      complex(dp):: l12,zab2,BGRL1,BGRL2hat,BGRL3hat
+      real(dp):: s12,s13,s14,s23,s24,s123,s124
       zab2(k1,k2,k3,k4)=za(k1,k2)*zb(k2,k4)+za(k1,k3)*zb(k3,k4)
 
       s12=s(k1,k2)
@@ -467,29 +485,29 @@ c---   arXiv: 0910.4481 [hep-ph]
       l12=lnrat(musq,-s12)
 
       A1phiAQggmpmmF=A0phiAQggmpmm(k1,k2,k3,k4,za,zb)
-     . *(-2d0/3d0*(epinv+l12)-10d0/9d0)
-     & +2d0/3d0*za(k1,k3)*zab2(k4,k1,k3,k2)**2
+     & *(-2._dp/3._dp*(epinv+l12)-10._dp/9._dp)
+     & +2._dp/3._dp*za(k1,k3)*zab2(k4,k1,k3,k2)**2
      & /(za(k1,k2)*zb(k1,k2)*zb(k2,k3)*s123)*lnrat(-s123,-s12)
-     & -2d0/3d0*(s24-s124)*zab2(k3,k1,k4,k2)**2
+     & -2._dp/3._dp*(s24-s124)*zab2(k3,k1,k4,k2)**2
      & /(za(k1,k2)*zb(k1,k4)*zb(k2,k4)*zb(k1,k2)*s124)*lnrat(-s124,-s12)
-     & -2d0/3d0*za(k1,k3)*zab2(k4,k1,k3,k2)**2
+     & -2._dp/3._dp*za(k1,k3)*zab2(k4,k1,k3,k2)**2
      & /(za(k1,k2)*zb(k2,k3)*zb(k1,k2))*BGRL1(s123,s12)
-     & +2d0/3d0*za(k1,k4)*zab2(k3,k1,k4,k2)**2
+     & +2._dp/3._dp*za(k1,k4)*zab2(k3,k1,k4,k2)**2
      & /(za(k1,k2)*zb(k2,k4)*zb(k1,k2))*BGRL1(s124,s12)
-     & +za(k1,k3)*za(k3,k4)*zab2(k4,k1,k3,k2)/3d0*BGRL2hat(s123,s12)
-     & +za(k1,k4)*za(k3,k4)*zab2(k3,k1,k4,k2)/3d0*BGRL2hat(s124,s12)
-     & +2d0/3d0*za(k1,k3)**2*za(k3,k4)*zb(k1,k2)*zab2(k4,k1,k2,k3)
+     & +za(k1,k3)*za(k3,k4)*zab2(k4,k1,k3,k2)/3._dp*BGRL2hat(s123,s12)
+     & +za(k1,k4)*za(k3,k4)*zab2(k3,k1,k4,k2)/3._dp*BGRL2hat(s124,s12)
+     & +2._dp/3._dp*za(k1,k3)**2*za(k3,k4)*zb(k1,k2)*zab2(k4,k1,k2,k3)
      & *BGRL3hat(s123,s12)
-     & +2d0/3d0*za(k1,k4)**2*za(k3,k4)*zb(k1,k2)*zab2(k3,k1,k2,k4)
+     & +2._dp/3._dp*za(k1,k4)**2*za(k3,k4)*zb(k1,k2)*zab2(k3,k1,k2,k4)
      & *BGRL3hat(s124,s12)
       A1phiAQggmpmmF=A1phiAQggmpmmF
      & -za(k1,k3)*za(k3,k4)*zab2(k4,k1,k3,k2)
-     & /(6d0*za(k1,k2)*zb(k1,k2)*s123)
+     & /(6._dp*za(k1,k2)*zb(k1,k2)*s123)
      & -za(k1,k4)*za(k3,k4)*zab2(k3,k1,k4,k2)
-     & /(6d0*za(k1,k2)*zb(k1,k2)*s124)
+     & /(6._dp*za(k1,k2)*zb(k1,k2)*s124)
      & +(
      &  -za(k1,k3)*za(k1,k4)*zb(k1,k2)*zb(k3,k4))
-     & /(3d0*za(k1,k2)*zb(k1,k2)*zb(k3,k4)**2)
+     & /(3._dp*za(k1,k2)*zb(k1,k2)*zb(k3,k4)**2)
 
       return
       end

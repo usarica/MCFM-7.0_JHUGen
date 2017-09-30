@@ -1,5 +1,7 @@
       subroutine dkW1qqb_QQb_g(p,msq)
       implicit none
+      include 'types.f'
+
 ************************************************************************
 *     Author: R.K. Ellis                                               *
 *     January, 2012.                                                   *
@@ -14,24 +16,27 @@
 *                                                                      *
 ************************************************************************
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ewcouple.f'
       include 'qcdcouple.f'
       include 'masses.f'
       include 'plabel.f'
-      integer j,k,hb,hc,h12,j1,j2,h1,h2,hg,j2min
-      double precision msq(-nf:nf,-nf:nf),p(mxpart,4)
-      double precision fac,qqb,gg
-      double complex  prop
-      double complex  manti(2,2),mprod(2,2,2),
+      integer:: j,k,hb,hc,h12,j1,j2,h1,h2,hg,j2min
+      real(dp):: msq(-nf:nf,-nf:nf),p(mxpart,4)
+      real(dp):: fac,qqb,gg
+      complex(dp)::  prop
+      complex(dp)::  manti(2,2),mprod(2,2,2),
      & mab(2,2,2,2),mba(2,2,2,2)
-      double complex Wtop(2,2,2),Wtot(2,2,2,2),
+      complex(dp):: Wtop(2,2,2),Wtot(2,2,2,2),
      & Wabtot(2,2,2,2,2),Wbatot(2,2,2,2,2),Wqed(2,2,2,2,2)
       parameter(j2min=2)
 
 C----set all elements to zero
       do j=-nf,nf
       do k=-nf,nf
-      msq(j,k)=0d0
+      msq(j,k)=0._dp
       enddo
       enddo
 
@@ -39,11 +44,11 @@ C----set all elements to zero
       call tdecayWg(p,3,4,5,9,Wtop)
       call adecay(p,7,8,6,manti)
 
-      prop=dcmplx(zip,mt*twidth)**2
+      prop=cplx2(zip,mt*twidth)**2
       fac=V*gwsq**4*gsq**2/abs(prop)**2*gsq*V/xn
 c--- include factor for hadronic decays of W
-      if (plabel(3) .eq. 'pp') fac=2d0*xn*fac
-      if (plabel(7) .eq. 'pp') fac=2d0*xn*fac
+      if (plabel(3) == 'pp') fac=2._dp*xn*fac
+      if (plabel(7) == 'pp') fac=2._dp*xn*fac
 
       do hb=1,2
       do hg=1,2
@@ -61,7 +66,7 @@ c--- include factor for hadronic decays of W
       enddo
       enddo
 
-      qqb=0d0
+      qqb=0._dp
       do hb=1,2
       do hg=1,2
       do hc=1,2
@@ -97,7 +102,7 @@ c--- gg amplitudes
       enddo
       enddo
 
-      gg=0d0
+      gg=0._dp
       do hb=1,2
       do hg=1,2
       do hc=1,2
@@ -114,9 +119,9 @@ c--- gg amplitudes
 
 C---fill qb-q, gg and q-qb elements
       do j=-nf,nf
-      if ((j .lt. 0) .or. (j .gt. 0)) then
+      if ((j < 0) .or. (j > 0)) then
           msq(j,-j)=qqb
-      elseif (j .eq. 0) then
+      elseif (j == 0) then
           msq(0,0)=gg
       endif
       enddo

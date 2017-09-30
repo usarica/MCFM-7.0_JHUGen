@@ -1,8 +1,8 @@
-      integer nplot,maxhisto
+      integer:: nplot,maxhisto
       parameter(maxhisto=100)
-      integer maxnbin
+      integer:: maxnbin
       parameter(maxnbin=200)
-      DOUBLE PRECISION TMPHIST(maxhisto,maxnbin),
+      real(dp):: TMPHIST(maxhisto,maxnbin),
      & TMPXHIS(maxhisto,maxnbin),TMPHDEL(maxhisto),TMPHMIN(maxhisto),
      & TMPHMAX(maxhisto),TMPHAVG(maxhisto),TMPHINT(maxhisto),
      & TMPHSIG(maxhisto)
@@ -11,7 +11,7 @@
 
       CHARACTER TMPTITLE*100,TMPBOOK*3
       COMMON/TMPHISTOC/TMPBOOK(maxhisto),TMPTITLE(maxhisto)
-      INTEGER TMPNBIN(maxhisto),TMPIHIS(maxhisto,maxnbin),
+      integer:: TMPNBIN(maxhisto),TMPIHIS(maxhisto,maxnbin),
      & TMPIUSCORE(maxhisto),TMPIOSCORE(maxhisto),TMPIENT(maxhisto),
      & TMPNHIST
       COMMON/TMPHISTOI/TMPNBIN,TMPIHIS,TMPIUSCORE,TMPIOSCORE,

@@ -1,13 +1,18 @@
       subroutine singcoeffg(p,j1,j2,j3,j4,cab,cba,c00ab,c00ba)          
-      implicit none                                                     
-      include 'constants.f'                                             
+      implicit none
+      include 'types.f'
+                                                           
+      include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'                                             
       include 'masses.f'                                                
       include 'scale.f'                                                 
-      double precision p(mxpart,4),v12,htheta,x,s12,s13,s14,s23,s24,s34,
+      real(dp):: p(mxpart,4),v12,htheta,x,s12,s13,s14,s23,s24,s34,
      & xlog12,xl13,xl14,xl23,xl24,xl34,xlm13,xlm14,xlm23,xlm24,xlm34    
  
-      double complex cab(-2:-1),cba(-2:-1),c00ab(-2:-1),c00ba(-2:-1)    
-      integer j1,j2,j3,j4                                               
+      complex(dp):: cab(-2:-1),cba(-2:-1),c00ab(-2:-1),c00ba(-2:-1)    
+      integer:: j1,j2,j3,j4                                               
 C--- define Heaviside theta function (=1 for x>0) and (0 for x < 0)     
       htheta(x)=half+half*sign(one,x)                                   
                                                                         

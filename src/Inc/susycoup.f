@@ -1,2 +1,2 @@
-      double precision susycoup
+      real(dp):: susycoup
       common/susycoup/susycoup

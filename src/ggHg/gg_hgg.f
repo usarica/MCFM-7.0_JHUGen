@@ -1,10 +1,15 @@
       subroutine gg_hgg(p,msq)
       implicit none
+      include 'types.f'
+
 c---Matrix element squared averaged over initial colors and spins
 c
 c     g(-p1)+g(-p2) -->  H(p3)+g(p_iglue1=5)+g(p_iglue2=6)
 
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'ewcouple.f'
       include 'qcdcouple.f'
@@ -12,29 +17,29 @@ c     g(-p1)+g(-p2) -->  H(p3)+g(p_iglue1=5)+g(p_iglue2=6)
       include 'msq_struc.f'
       include 'nflav.f'
       include 'hdecaymode.f'
-      integer j,k,iglue1,iglue2
-      double precision p(mxpart,4),Asq,fac,msqgamgam
-      double precision Hgggg,Hgggg_1256,Hgggg_1265,Hgggg_1625
-c     .                     ,Hgggg_1652,Hgggg_1562,Hgggg_1526
-      double precision Hqagg,Haqgg,Hgqqg,Hgaag,Hqgqg,Hagag,Hggqa
-      double precision Hggqa_ab,Hggqa_ba,Hggqa_sym
-      double precision Hqgqg_ab,Hqgqg_ba,Hqgqg_sym
-      double precision Hgqqg_ab,Hgqqg_ba,Hgqqg_sym
-      double precision Hagag_ab,Hagag_ba,Hagag_sym
-      double precision Hgaag_ab,Hgaag_ba,Hgaag_sym
-      double precision Hqagg_ab,Hqagg_ba,Hqagg_sym
-      double precision Haqgg_ab,Haqgg_ba,Haqgg_sym
-      double precision Hqqqq_a,Hqqqq_b,Hqqqq_i
-      double precision Hqaqa_a,Hqaqa_b,Hqaqa_i
-      double precision Haqaq_a,Haqaq_b,Haqaq_i
-      double precision Hqaaq_a,Hqaaq_b,Hqaaq_i
-      double precision
-     . Hqrqr,Hqqqq,
-     . Habab,Haaaa,
-     . Hqarb,Hqaqa,Hqbqb,
-     . Haqbr,Haqaq,Hbqbq,
-     . Hqaaq
-      double precision msq(-nf:nf,-nf:nf),hdecay,s34
+      integer:: j,k,iglue1,iglue2
+      real(dp):: p(mxpart,4),Asq,fac,msqhgamgam
+      real(dp):: Hgggg,Hgggg_1256,Hgggg_1265,Hgggg_1625
+c     &                     ,Hgggg_1652,Hgggg_1562,Hgggg_1526
+      real(dp):: Hqagg,Haqgg,Hgqqg,Hgaag,Hqgqg,Hagag,Hggqa
+      real(dp):: Hggqa_ab,Hggqa_ba,Hggqa_sym
+      real(dp):: Hqgqg_ab,Hqgqg_ba,Hqgqg_sym
+      real(dp):: Hgqqg_ab,Hgqqg_ba,Hgqqg_sym
+      real(dp):: Hagag_ab,Hagag_ba,Hagag_sym
+      real(dp):: Hgaag_ab,Hgaag_ba,Hgaag_sym
+      real(dp):: Hqagg_ab,Hqagg_ba,Hqagg_sym
+      real(dp):: Haqgg_ab,Haqgg_ba,Haqgg_sym
+      real(dp):: Hqqqq_a,Hqqqq_b,Hqqqq_i
+      real(dp):: Hqaqa_a,Hqaqa_b,Hqaqa_i
+      real(dp):: Haqaq_a,Haqaq_b,Haqaq_i
+      real(dp):: Hqaaq_a,Hqaaq_b,Hqaaq_i
+      real(dp)::
+     & Hqrqr,Hqqqq,
+     & Habab,Haaaa,
+     & Hqarb,Hqaqa,Hqbqb,
+     & Haqbr,Haqaq,Hbqbq,
+     & Hqaaq
+      real(dp):: msq(-nf:nf,-nf:nf),hdecay,s34
 
       parameter(iglue1=5,iglue2=6)
 
@@ -51,19 +56,19 @@ C   Deal with Higgs decay
       elseif (hdecaymode == 'bqba') then
           call hbbdecay(p,3,4,hdecay)
       elseif (hdecaymode == 'gaga') then
-          hdecay=msqgamgam(hmass)
+          hdecay=msqhgamgam(s34)
       else
       write(6,*) 'Unimplemented process in gg_hgg_v'
       stop
       endif
       hdecay=hdecay/((s34-hmass**2)**2+(hmass*hwidth)**2)
 
-      Asq=(as/(3d0*pi))**2/vevsq
+      Asq=(as/(three*pi))**2/vevsq
       fac=gsq**2*Asq*hdecay
 
 c--- four gluon terms
       call HggggLO(1,2,iglue1,iglue2,
-     .             Hgggg,Hgggg_1256,Hgggg_1265,Hgggg_1625)
+     &             Hgggg,Hgggg_1256,Hgggg_1265,Hgggg_1625)
 
 c--- two quark two gluon terms
       call HQAggLO(1,2,iglue1,iglue2,Hqagg,Hqagg_ab,Hqagg_ba,Hqagg_sym)
@@ -104,106 +109,106 @@ C-qbq
 
       do j=-nf,nf
       do k=-nf,nf
-      msq(j,k)=0d0
-      msq_struc(:,j,k)=0d0
+      msq(j,k)=zip
+      msq_struc(:,j,k)=zip
 
-      if ((j.gt.0).and.(k.gt.0)) then
-        if (j.eq.k) then
-          msq(j,k)=0.5d0*aveqq*fac*Hqqqq
-          msq_struc(iqq_a,j,k)=0.5d0*aveqq*fac*Hqqqq_a
-          msq_struc(iqq_b,j,k)=0.5d0*aveqq*fac*Hqqqq_b
-          msq_struc(iqq_i,j,k)=0.5d0*aveqq*fac*Hqqqq_i
+      if ((j>0).and.(k>0)) then
+        if (j==k) then
+          msq(j,k)=half*aveqq*fac*Hqqqq
+          msq_struc(iqq_a,j,k)=half*aveqq*fac*Hqqqq_a
+          msq_struc(iqq_b,j,k)=half*aveqq*fac*Hqqqq_b
+          msq_struc(iqq_i,j,k)=half*aveqq*fac*Hqqqq_i
         else
           msq(j,k)=aveqq*fac*Hqrqr
           msq_struc(iqq_a,j,k)=msq(j,k)
-          msq_struc(iqq_b,j,k)=0d0
-          msq_struc(iqq_i,j,k)=0d0
+          msq_struc(iqq_b,j,k)=0._dp
+          msq_struc(iqq_i,j,k)=0._dp
         endif
       endif
 
-      if ((j.lt.0).and.(k.lt.0)) then
-        if (j.eq.k) then
-          msq(j,k)=0.5d0*aveqq*fac*Haaaa
+      if ((j<0).and.(k<0)) then
+        if (j==k) then
+          msq(j,k)=half*aveqq*fac*Haaaa
         else
           msq(j,k)=aveqq*fac*Habab
           msq_struc(iqq_a,j,k)=msq(j,k)
-          msq_struc(iqq_b,j,k)=0d0
-          msq_struc(iqq_i,j,k)=0d0
+          msq_struc(iqq_b,j,k)=0._dp
+          msq_struc(iqq_i,j,k)=0._dp
         endif
       endif
 
-      if ((j.gt.0).and.(k.lt.0)) then
-        if (j.eq.-k) then
-          msq(j,k)=aveqq*fac*(0.5d0*Hqagg+Hqaqa+dfloat(nflav-1)*Hqarb)
-          msq_struc(iqr,j,k)=aveqq*fac*dfloat(nflav-1)*Hqarb
+      if ((j>0).and.(k<0)) then
+        if (j==-k) then
+          msq(j,k)=aveqq*fac*(half*Hqagg+Hqaqa+real(nflav-1,dp)*Hqarb)
+          msq_struc(iqr,j,k)=aveqq*fac*real(nflav-1,dp)*Hqarb
           msq_struc(iqq_a,j,k)=aveqq*fac*Hqaqa_a
           msq_struc(iqq_b,j,k)=aveqq*fac*Hqaqa_b
           msq_struc(iqq_i,j,k)=aveqq*fac*Hqaqa_i
-          msq_struc(igg_ab,j,k)=aveqq*fac*0.5d0*Hqagg_ab
-          msq_struc(igg_ba,j,k)=aveqq*fac*0.5d0*Hqagg_ba
-          msq_struc(igg_sym,j,k)=aveqq*fac*0.5d0*Hqagg_sym
+          msq_struc(igg_ab,j,k)=aveqq*fac*half*Hqagg_ab
+          msq_struc(igg_ba,j,k)=aveqq*fac*half*Hqagg_ba
+          msq_struc(igg_sym,j,k)=aveqq*fac*half*Hqagg_sym
         else
           msq(j,k)=aveqq*fac*Hqbqb
           msq_struc(iqq_a,j,k)=msq(j,k)
-          msq_struc(iqq_b,j,k)=0d0
-          msq_struc(iqq_i,j,k)=0d0
+          msq_struc(iqq_b,j,k)=0._dp
+          msq_struc(iqq_i,j,k)=0._dp
         endif
       endif
 
-      if ((j.lt.0).and.(k.gt.0)) then
-        if (j.eq.-k) then
-          msq(j,k)=aveqq*fac*(0.5d0*Haqgg+Haqaq+dfloat(nflav-1)*Haqbr)
-          msq_struc(iqr,j,k)=aveqq*fac*dfloat(nflav-1)*Haqbr
+      if ((j<0).and.(k>0)) then
+        if (j==-k) then
+          msq(j,k)=aveqq*fac*(half*Haqgg+Haqaq+real(nflav-1,dp)*Haqbr)
+          msq_struc(iqr,j,k)=aveqq*fac*real(nflav-1,dp)*Haqbr
           msq_struc(iqq_a,j,k)=aveqq*fac*Haqaq_a
           msq_struc(iqq_b,j,k)=aveqq*fac*Haqaq_b
           msq_struc(iqq_i,j,k)=aveqq*fac*Haqaq_i
-          msq_struc(igg_ab,j,k)=aveqq*fac*0.5d0*Haqgg_ab
-          msq_struc(igg_ba,j,k)=aveqq*fac*0.5d0*Haqgg_ba
-          msq_struc(igg_sym,j,k)=aveqq*fac*0.5d0*Haqgg_sym
+          msq_struc(igg_ab,j,k)=aveqq*fac*half*Haqgg_ab
+          msq_struc(igg_ba,j,k)=aveqq*fac*half*Haqgg_ba
+          msq_struc(igg_sym,j,k)=aveqq*fac*half*Haqgg_sym
         else
           msq(j,k)=aveqq*fac*Hbqbq
           msq_struc(iqq_a,j,k)=msq(j,k)
-          msq_struc(iqq_b,j,k)=0d0
-          msq_struc(iqq_i,j,k)=0d0
+          msq_struc(iqq_b,j,k)=0._dp
+          msq_struc(iqq_i,j,k)=0._dp
         endif
       endif
 
-      if ((j.gt.0).and.(k.eq.0)) then
+      if ((j>0).and.(k==0)) then
         msq(j,0)=aveqg*fac*Hqgqg
         msq_struc(igg_ab,j,0)=aveqg*fac*Hqgqg_ab
         msq_struc(igg_ba,j,0)=aveqg*fac*Hqgqg_ba
         msq_struc(igg_sym,j,0)=aveqg*fac*Hqgqg_sym
       endif
 
-      if ((j.lt.0).and.(k.eq.0)) then
+      if ((j<0).and.(k==0)) then
         msq(j,0)=aveqg*fac*Hagag
         msq_struc(igg_ab,j,0)=aveqg*fac*Hagag_ab
         msq_struc(igg_ba,j,0)=aveqg*fac*Hagag_ba
         msq_struc(igg_sym,j,0)=aveqg*fac*Hagag_sym
       endif
 
-      if ((j.eq.0).and.(k.gt.0)) then
+      if ((j==0).and.(k>0)) then
         msq(0,k)=aveqg*fac*Hgqqg
         msq_struc(igg_ab,0,k)=aveqg*fac*Hgqqg_ab
         msq_struc(igg_ba,0,k)=aveqg*fac*Hgqqg_ba
         msq_struc(igg_sym,0,k)=aveqg*fac*Hgqqg_sym
       endif
 
-      if ((j.eq.0).and.(k.lt.0)) then
+      if ((j==0).and.(k<0)) then
         msq(0,k)=aveqg*fac*Hgaag
         msq_struc(igg_ab,0,k)=aveqg*fac*Hgaag_ab
         msq_struc(igg_ba,0,k)=aveqg*fac*Hgaag_ba
         msq_struc(igg_sym,0,k)=aveqg*fac*Hgaag_sym
       endif
 
-      if ((j.eq.0).and.(k.eq.0)) then
-        msq(0,0)=avegg*fac*(0.5d0*Hgggg+dfloat(nflav)*Hggqa)
-        msq_struc(igg_ab,0,0)=avegg*fac*dfloat(nflav)*Hggqa_ab
-        msq_struc(igg_ba,0,0)=avegg*fac*dfloat(nflav)*Hggqa_ba
-        msq_struc(igg_sym,0,0)=avegg*fac*dfloat(nflav)*Hggqa_sym
-        msq_struc(igggg_a,0,0)=avegg*fac*0.5d0*Hgggg_1256
-        msq_struc(igggg_b,0,0)=avegg*fac*0.5d0*Hgggg_1625
-        msq_struc(igggg_c,0,0)=avegg*fac*0.5d0*Hgggg_1265
+      if ((j==0).and.(k==0)) then
+        msq(0,0)=avegg*fac*(half*Hgggg+real(nflav,dp)*Hggqa)
+        msq_struc(igg_ab,0,0)=avegg*fac*real(nflav,dp)*Hggqa_ab
+        msq_struc(igg_ba,0,0)=avegg*fac*real(nflav,dp)*Hggqa_ba
+        msq_struc(igg_sym,0,0)=avegg*fac*real(nflav,dp)*Hggqa_sym
+        msq_struc(igggg_a,0,0)=avegg*fac*half*Hgggg_1256
+        msq_struc(igggg_b,0,0)=avegg*fac*half*Hgggg_1625
+        msq_struc(igggg_c,0,0)=avegg*fac*half*Hgggg_1265
       endif
 
       enddo

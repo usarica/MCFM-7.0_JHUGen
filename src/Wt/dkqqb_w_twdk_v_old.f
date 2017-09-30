@@ -1,4 +1,6 @@
       subroutine dkqqb_w_twdk_v_old(p,msqv)
+      implicit none
+      include 'types.f'
 ************************************************************************
 *     Author: Francesco Tramontano                                     *
 *     February, 2005.                                                  *
@@ -17,36 +19,39 @@
 *                            |                                         *
 *                            --> nu(p3) + e^+(p4)                      *
 ************************************************************************
-      implicit none
-      integer i,j,k
+      
+      integer:: i,j,k
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ewcouple.f'
       include 'qcdcouple.f'
       include 'zprods_com.f'
       include 'scheme.f'
       include 'masses.f'
       include 'nwz.f'
-      integer i3,i4,i5,i6,iq
-      double precision p(mxpart,4),msqv(-nf:nf,-nf:nf),
-     . msq(-nf:nf,-nf:nf),virtgqdk,gq,qg,t(4),fac,corr,nloratiotopdecay
-      double complex zab(mxpart,mxpart),zba(mxpart,mxpart)
+      integer:: i3,i4,i5,i6,iq
+      real(dp):: p(mxpart,4),msqv(-nf:nf,-nf:nf),
+     & msq(-nf:nf,-nf:nf),virtgqdk,gq,qg,t(4),fac,corr,nloratiotopdecay
+      complex(dp):: zab(mxpart,mxpart),zba(mxpart,mxpart)
       common/zabprods/zab,zba
 
       scheme='dred'
       do j=-nf,nf
       do k=-nf,nf
-      msqv(j,k)=0d0
+      msqv(j,k)=zero
       enddo
       enddo
 
 c--- set up lepton variables depending on whether it's t or tbar
-      if     (nwz .eq. -1) then
+      if     (nwz == -1) then
         i3=3
 	i4=4
 	i5=5
 	i6=6
 	iq=1 ! top quark
-      elseif (nwz .eq. +1) then
+      elseif (nwz == +1) then
         i3=4
 	i4=3
 	i5=6
@@ -75,10 +80,10 @@ c---fill matrices of spinor products
 
       do j=-nf,nf,nf
       do k=-nf,nf,nf
-      msqv(j,k)=0d0
-      if     ((j .eq. 5*iq) .and. (k .eq. 0)) then
+      msqv(j,k)=zero
+      if     ((j == 5*iq) .and. (k == 0)) then
           msqv(j,k)=fac*qg-corr*msq(j,k)
-      elseif ((j .eq. 0) .and. (k .eq. 5*iq)) then
+      elseif ((j == 0) .and. (k == 5*iq)) then
           msqv(j,k)=fac*gq-corr*msq(j,k)
       endif
       enddo
@@ -88,17 +93,23 @@ c---fill matrices of spinor products
       end
 
 
-      double precision function virtgqdk(ig,is,ie,in,jn,je,jc)
+      function virtgqdk(ig,is,ie,in,jn,je,jc)
       implicit none
+      include 'types.f'
+      real(dp):: virtgqdk
+      
 
-      integer ig,is,ie,in,je,jn,jc
+      integer:: ig,is,ie,in,je,jn,jc
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'sprods_com.f'
       include 'zprods_com.f'
-      double precision snec,taugt,prop,mtsq,cv,ct,c1
-      double complex amp(2),amp1(2),ampho(2)
-      double complex zab(mxpart,mxpart),zba(mxpart,mxpart)
+      real(dp):: snec,taugt,prop,mtsq,cv,ct,c1
+      complex(dp):: amp(2),amp1(2),ampho(2)
+      complex(dp):: zab(mxpart,mxpart),zba(mxpart,mxpart)
       common/zabprods/zab,zba
 
       mtsq=mt**2
@@ -142,11 +153,11 @@ c--- virtual amplitudes for the decay t->Wb, "c1 contribution"
      &  + za(ie,jc)*za(jc,jn)*zb(ig,in)*zb(jc,je)/za(ig,is)
      &
 
-      ampho(1)=dcmplx(ct+cv)*amp(1)+dcmplx(0.5d0*c1)*amp1(1)
-      ampho(2)=dcmplx(ct+cv)*amp(2)+dcmplx(0.5d0*c1)*amp1(2)
+      ampho(1)=cplx2(ct+cv)*amp(1)+cplx2(half*c1)*amp1(1)
+      ampho(2)=cplx2(ct+cv)*amp(2)+cplx2(half*c1)*amp1(2)
 
-      virtgqdk=dble(amp(1)*dconjg(ampho(1)))/prop
-     .        +dble(amp(2)*dconjg(ampho(2)))/prop
+      virtgqdk=real(amp(1)*conjg(ampho(1)))/prop
+     &        +real(amp(2)*conjg(ampho(2)))/prop
       return
       end
 

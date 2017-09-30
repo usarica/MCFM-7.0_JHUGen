@@ -1,2 +1,2 @@
-      logical masslessb
+      logical:: masslessb
       common/stopbmass/masslessb

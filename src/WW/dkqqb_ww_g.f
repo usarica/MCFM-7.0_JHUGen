@@ -1,5 +1,7 @@
       subroutine dkqqb_ww_g(p,msq)
       implicit none
+      include 'types.f'
+
 C----Author R.K.Ellis June 2012
 c----Matrix element for WW production with radiation in hadronic decay
 C----averaged over initial colours and spins
@@ -7,6 +9,9 @@ C----massless final state particles
 c     q(-p1)+qbar(-p2)-->n(p3)+ebar(p4)+q'(p5)+bar{q'}(p6)+g(p7)
 c--- note that non-leptonic W decays do not include scattering diagrams
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'sprods_com.f'
       include 'zprods_com.f'
@@ -18,22 +23,22 @@ c--- note that non-leptonic W decays do not include scattering diagrams
 c      include 'anomcoup.f'
       include 'plabel.f'
       include 'srdiags.f'
-      double precision msq(-nf:nf,-nf:nf),p(mxpart,4),
+      real(dp):: msq(-nf:nf,-nf:nf),p(mxpart,4),
      & fac,s567,tanw,l3,l4,l5,l6,q3,q4,q5,q6
-      double precision, parameter :: mp(nf)=(/-1d0,+1d0,-1d0,+1d0,-1d0/)
-      double complex prop12,prop34,prop567,AWW(2,2)
-      double complex propwp,propwm,propzg,cprop
-      double complex Fa12(2,2),Fb12(2,2),Fc12(2,2),Fd12(2,2)
-      double complex Fa21(2,2),Fb21(2,2),Fc21(2,2)
-      double complex qqb(4,2,2),qbq(4,2,2)
-      double complex cs_z(2,2),cs_g(2,2)
-      integer j,k,jk,tjk,hg,hq
+      real(dp), parameter :: mp(nf)=(/-1._dp,+1._dp,-1._dp,+1._dp,-1._dp/)
+      complex(dp):: prop12,prop34,prop567,AWW(2,2)
+      complex(dp):: propwp,propwm,propzg,cprop
+      complex(dp):: Fa12(2,2),Fb12(2,2),Fc12(2,2),Fd12(2,2)
+      complex(dp):: Fa21(2,2),Fb21(2,2),Fc21(2,2)
+      complex(dp):: qqb(4,2,2),qbq(4,2,2)
+      complex(dp):: cs_z(2,2),cs_g(2,2)
+      integer:: j,k,jk,tjk,hg,hq
 
-      fac=aveqq*xn*gw**8*gsq*2d0*CF
+      fac=aveqq*xn*gw**8*gsq*2._dp*CF
       do j=-nf,nf
       do k=-nf,nf
 c--set msq=0 to initalize
-      msq(j,k)=0d0
+      msq(j,k)=0._dp
       enddo
       enddo
 
@@ -42,28 +47,28 @@ c   We have --- f(p1) + f'(p2)--> q(p3)+qbar(p4)+e^-(p5)+nu~(p6)+g(p7)
 
       call spinoru(7,p,za,zb)
 
-      if ((plabel(3) .eq. 'nl').and.(plabel(5) .eq. 'qj')) then
+      if ((plabel(3) == 'nl').and.(plabel(5) == 'qj')) then
 c--- this is the normal case
          l4=le
          q4=qe
          l3=ln
-         q3=0d0
+         q3=0._dp
          l5=l(1)
          q5=q(1)
          l6=l(2)
          q6=q(2)
-         fac=2d0*xn*fac
-      else if ((plabel(3) .eq. 'el').and.(plabel(5) .eq. 'qj')) then
+         fac=2._dp*xn*fac
+      else if ((plabel(3) == 'el').and.(plabel(5) == 'qj')) then
 c--- this is the swapped case
          l4=ln
-         q4=0d0
+         q4=0._dp
          l3=le
          q3=qe
          l5=l(2)
          q5=q(2)
          l6=l(1)
          q6=q(1)
-         fac=2d0*xn*fac
+         fac=2._dp*xn*fac
       else
          return
       endif
@@ -73,35 +78,35 @@ c--- this is the swapped case
       stop
       elseif (zerowidth .neqv. .true.) then
       s567=s(5,6)+s(5,7)+s(6,7)
-      prop12=dcmplx(s(1,2)/(s(1,2)-zmass**2))
-      prop34=dcmplx(s(3,4)/(s(3,4)-wmass**2))
-      prop567=dcmplx(s567/(s567-wmass**2))
-      propwm=(s(3,4)-wmass**2)/dcmplx(s(3,4)-wmass**2,wmass*wwidth)
-      propwp=(s567-wmass**2)/dcmplx(s567-wmass**2,wmass*wwidth)
-      propzg=(s(1,2)-zmass**2)/dcmplx(s(1,2)-zmass**2,zmass*zwidth)
+      prop12=cplx1(s(1,2)/(s(1,2)-zmass**2))
+      prop34=cplx1(s(3,4)/(s(3,4)-wmass**2))
+      prop567=cplx1(s567/(s567-wmass**2))
+      propwm=(s(3,4)-wmass**2)/cplx2(s(3,4)-wmass**2,wmass*wwidth)
+      propwp=(s567-wmass**2)/cplx2(s567-wmass**2,wmass*wwidth)
+      propzg=(s(1,2)-zmass**2)/cplx2(s(1,2)-zmass**2,zmass*zwidth)
       cprop=propwp*propwm*propzg
 c--- debug
 c----for Madgraph
-c      prop12=dcmplx(s(1,2))/dcmplx(s(1,2)-zmass**2,zmass*zwidth)
-c      prop34=dcmplx(s(3,4))/dcmplx(s(3,4)-wmass**2,wmass*wwidth)
-c      prop567=dcmplx(s567)/dcmplx(s567-wmass**2,wmass*wwidth)
+c      prop12=s(1,2)/cplx2(s(1,2)-zmass**2,zmass*zwidth)
+c      prop34=s(3,4)/cplx2(s(3,4)-wmass**2,wmass*wwidth)
+c      prop567=s567/cplx2(s567-wmass**2,wmass*wwidth)
 c      cprop=cone
       endif
 
 c-- couplings with or without photon pole
 c---first index is quark helicity, second is weak isospin
-      tanw=2d0*xw/sin2w
+      tanw=2._dp*xw/sin2w
       do j=1,2
       cs_z(1,j)=+mp(j)*l(j)*sin2w*prop12
-      cs_z(2,j)=-mp(j)*2d0*Q(j)*xw*prop12
-      cs_g(1,j)=+mp(j)*2d0*Q(j)*xw
-      cs_g(2,j)=+mp(j)*2d0*Q(j)*xw
+      cs_z(2,j)=-mp(j)*2._dp*Q(j)*xw*prop12
+      cs_g(1,j)=+mp(j)*2._dp*Q(j)*xw
+      cs_g(2,j)=+mp(j)*2._dp*Q(j)*xw
       enddo
 
 
-      if ((plabel(3) .eq. 'nl').and.(plabel(5) .eq. 'qj')) then
+      if ((plabel(3) == 'nl').and.(plabel(5) == 'qj')) then
       call dkWWamps(1,2,3,4,5,6,7,Fa12,Fb12,Fc12,Fd12)
-      elseif ((plabel(3) .eq. 'el').and.(plabel(5) .eq. 'qj')) then
+      elseif ((plabel(3) == 'el').and.(plabel(5) == 'qj')) then
       call dkWWamps(1,2,3,4,5,6,7,Fb12,Fa12,Fd12,Fc12)
       endif
 
@@ -125,24 +130,24 @@ C----because W's attach to 12 line
 C---as we begin every different j,k flavour, zero out AWW
          AWW(:,:)=czip
 c--   Exclude gluon-gluon initial state
-         if (j.eq.0) go to 20
+         if (j==0) go to 20
          jk=max(j,k)
 
          do hg=1,2
             do hq=1,2
-               if (j .gt. 0) then
-                  if  (tau(jk) .eq. +1d0) then
+               if (j > 0) then
+                  if  (tau(jk) == +1._dp) then
                      AWW(hq,hg)=prop567*prop34*(mp(jk)*Fb12(hq,hg)
      &                    +(cs_z(hq,2)+cs_g(hq,2))*Fc12(hq,hg))
-                  elseif     (tau(jk) .eq. -1d0) then
+                  elseif     (tau(jk) == -1._dp) then
                      AWW(hq,hg)=prop567*prop34*(mp(jk)*Fa12(hq,hg)
      &                    +(cs_z(hq,1)+cs_g(hq,1))*Fc12(hq,hg))
                   endif
-               elseif (j .lt. 0) then
-                  if  (tau(jk) .eq. +1d0) then
+               elseif (j < 0) then
+                  if  (tau(jk) == +1._dp) then
                      AWW(hq,hg)=prop567*prop34*(mp(jk)*Fb21(hq,hg)
      &                    +(cs_z(hq,2)+cs_g(hq,2))*Fc21(hq,hg))
-                  elseif     (tau(jk) .eq. -1d0) then
+                  elseif     (tau(jk) == -1._dp) then
                      AWW(hq,hg)=prop567*prop34*(mp(jk)*Fa21(hq,hg)
      &                    +(cs_z(hq,1)+cs_g(hq,1))*Fc21(hq,hg))
                   endif
@@ -158,13 +163,13 @@ c---we need supplementary diagrams for gauge invariance.
 C---tjk is equal to 2 (u,c) or 1 (d,s,b)
                tjk=2-mod(abs(jk),2)
                do hq=1,2
-                  if (j .gt. 0) then
+                  if (j > 0) then
                      AWW(hq,hg)=AWW(hq,hg)
      &      +prop567*qqb(1,hq,hg)*(tanw*cs_z(hq,tjk)*l4+cs_g(hq,tjk)*q4)
      &      +prop567*qqb(2,hq,hg)*(tanw*cs_z(hq,tjk)*l3+cs_g(hq,tjk)*q3)
      &      +prop34 *qqb(3,hq,hg)*(tanw*cs_z(hq,tjk)*l5+cs_g(hq,tjk)*q5)
      &      +prop34 *qqb(4,hq,hg)*(tanw*cs_z(hq,tjk)*l6+cs_g(hq,tjk)*q6)
-                  elseif (j .lt. 0) then
+                  elseif (j < 0) then
                      AWW(hq,hg)=AWW(hq,hg)
      &      +prop567*qbq(1,hq,hg)*(tanw*cs_z(hq,tjk)*l4+cs_g(hq,tjk)*q4)
      &      +prop567*qbq(2,hq,hg)*(tanw*cs_z(hq,tjk)*l3+cs_g(hq,tjk)*q3)

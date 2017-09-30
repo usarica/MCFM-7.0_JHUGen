@@ -1,16 +1,19 @@
       subroutine genttvdk(r,p,pswt,*)
+      implicit none
+      include 'types.f'
 c--- this routine is an extension of gen4 to include the decay
 c--- of the top quarks for ttV processes
-      implicit none
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
       include 'mxdim.f'
       include 'breit.f'
       include 'masses.f'
       include 'limits.f'
       include 'zerowidth.f'
-      integer nu
-      double precision r(mxdim)
-      double precision p(mxpart,4),pswt,
+      integer:: nu
+      real(dp):: r(mxdim)
+      real(dp):: p(mxpart,4),pswt,
      & p1(4),p2(4),p3(4),p4(4),p5(4),p6(4),p7(4),p8(4),p9(4),p10(4),
      & p34(4),p345(4),p78(4),p678(4),
      & smin,wt34,wt345,wt78,wt678

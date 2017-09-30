@@ -1,23 +1,28 @@
       subroutine gen9_rap(r,p,wt9,*)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'mxdim.f'
       include 'breit.f'
-      integer nu
-      double precision r(mxdim)
-      double precision wt9,p(mxpart,4),tp(4),tm(4),bp(4),bm(4),
+      integer:: nu
+      real(dp):: r(mxdim)
+      real(dp):: wt9,p(mxpart,4),tp(4),tm(4),bp(4),bm(4),
      & n(4),e(4),g(4),ep(4),em(4),nn(4),nb(4),wp(4),wm(4),
      & wtepnn,wtnbem
-      double precision wtttwg,wtwp,wtwm,s3min,wt0
-      parameter(wt0=1d0/twopi**4)
+      real(dp):: wtttwg,wtwp,wtwm,s3min,wt0
+      parameter(wt0=1._dp/twopi**4)
 
 *     q(-p1) +qbar(-p2)=t(nu(p3)+e^+(p4)+b(p5))                        *
 *                       +t~(b~(p6)+e^-(p7)+nu(p8))+g(p9)               *
 *                                                                      * 
 
 
-      wt9=0d0
+      wt9=0._dp
 C---call gen5 that uses r(1)....r(13)
       call gen5(r,p,wtttwg,*999)
       wtttwg=(mt*twidth*pi)**2*wtttwg
@@ -30,7 +35,7 @@ C---call gen5 that uses r(1)....r(13)
       enddo
       
 
-      s3min=0d0
+      s3min=0._dp
       n3=1
       mass3=wmass
       width3=wwidth
@@ -56,8 +61,8 @@ C---call gen5 that uses r(1)....r(13)
       enddo
 
       return
- 999  wt9=0d0
-      p(:,:)=0d0
+ 999  wt9=0._dp
+      p(:,:)=0._dp
       return 1
       
       end

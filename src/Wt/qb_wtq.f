@@ -1,4 +1,6 @@
       subroutine qb_wtq(mq,qwidth,p,ix,is,ie,in,jn,je,jb,iy,msq)
+      implicit none
+      include 'types.f'
 ************************************************************************
 *     Author: Francesco Tramontano                                     *
 *     February, 2005.                                                  *
@@ -19,19 +21,22 @@
 *                            --> nu(p3) + e^+(p4)                      *
 ************************************************************************
 c---- helicities: 1=minus 2=plus
-      implicit none
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'qcdcouple.f'
       include 'ewcouple.f'
       include 'masses.f'
-      integer ix,is,ie,in,jn,je,jb,iy
-      double precision p(mxpart,4),fac,prop,dot,msq,mq,qwidth
-      double complex amp(2)
+      integer:: ix,is,ie,in,jn,je,jb,iy
+      real(dp):: p(mxpart,4),fac,prop,dot,msq,mq,qwidth
+      complex(dp):: amp(2)
       fac=aveqq*gsq**2*gw**8*xn*cf*half
       prop=(two*dot(p,3,4)-wmass**2)**2+(wmass*wwidth)**2
       prop=prop*((two*dot(p,5,6)-wmass**2)**2+(wmass*wwidth)**2)
       prop=prop*((two*(dot(p,5,6)+dot(p,5,7)+dot(p,6,7))-mq**2)**2
-     . +(mq*qwidth)**2)
+     & +(mq*qwidth)**2)
       call amps_4quark(mq,qwidth,p,ix,is,ie,in,jn,je,jb,iy,amp)
       msq=abs(amp(1))**2+abs(amp(2))**2
       msq=fac*msq/prop
@@ -41,12 +46,17 @@ c---- helicities: 1=minus 2=plus
 
       subroutine amps_4quark(mq,qwidth,p,ix,is,ie,in,jn,je,jb,iy,amp)
       implicit none
+      include 'types.f'
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
-      integer j,ix,is,ie,in,jn,je,jb,iy
-      double precision p(mxpart,4),dot,xDy,txy2,sxy2,t(4),q(mxpart,4),
-     . mq,qwidth
-      double complex amp(2),zab(mxpart,mxpart),zba(mxpart,mxpart)
+      integer:: j,ix,is,ie,in,jn,je,jb,iy
+      real(dp):: p(mxpart,4),dot,xDy,txy2,sxy2,t(4),q(mxpart,4),
+     & mq,qwidth
+      complex(dp):: amp(2),zab(mxpart,mxpart),zba(mxpart,mxpart)
       do j=1,4
       t(j)=p(jn,j)+p(je,j)+p(jb,j)
       q(1,j)=t(j)
@@ -77,8 +87,8 @@ c---- helicities: 1=minus 2=plus
      &    za(jb,jn)*zb(in,is) )
 
 c--- Use the "overall scheme" to include the top width when necessary
-      if (txy2+mq**2 .gt. 0d0) then
-        txy2=dsqrt(txy2**2+(mq*qwidth)**2)
+      if (txy2+mq**2 > zero) then
+        txy2=sqrt(txy2**2+(mq*qwidth)**2)
       endif
       amp(1)=amp(1)/txy2
       amp(2)=amp(2)/txy2

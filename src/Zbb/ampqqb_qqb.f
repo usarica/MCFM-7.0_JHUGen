@@ -1,8 +1,10 @@
       subroutine ampqqb_qqb(i1,i2,i5,i6,qqbA,qqbB)
       implicit none
-      integer i1,i2,i5,i6,j,k
-      double complex aqqb_zbb_new
-      double complex qqbA(2,2,2),qqbB(2,2,2)
+      include 'types.f'
+
+      integer:: i1,i2,i5,i6,j,k
+      complex(dp):: aqqb_zbb_new
+      complex(dp):: qqbA(2,2,2),qqbB(2,2,2)
       integer,parameter::swap(2)=(/2,1/)
 c--- also include diagrams where the Z is attached to b-bbar line
 c--- notation: (qqb hel, bbb hel, outgoing lepton helicity is left-handed
@@ -29,8 +31,8 @@ c--- Z to bbb, R L
 
       do j=1,2
       do k=1,2
-      qqbA(j,k,2)=Dconjg(qqbA(swap(j),swap(k),1))
-      qqbB(j,k,2)=Dconjg(qqbB(swap(j),swap(k),1))
+      qqbA(j,k,2)=conjg(qqbA(swap(j),swap(k),1))
+      qqbB(j,k,2)=conjg(qqbB(swap(j),swap(k),1))
       enddo
       enddo
       return

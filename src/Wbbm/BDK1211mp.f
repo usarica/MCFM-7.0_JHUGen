@@ -1,14 +1,20 @@
-      double complex function BDK1211mp(k1,k2,k3,k4,k5,k6,za,zb)
+      function BDK1211mp(k1,k2,k3,k4,k5,k6,za,zb)
       implicit none
+      include 'types.f'
+      complex(dp):: BDK1211mp
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'sprods_com.f'
       include 'zprods_decl.f'
-      integer k1,k2,k3,k4,k5,k6,j2,j1
-      double complex L0,L1,Lnrat,i3m,Lsm1_2mh,zab2,zba2
-      double complex T1256,T6521,box1256,box6521,
+      integer:: k1,k2,k3,k4,k5,k6,j2,j1
+      complex(dp):: L0,L1,Lnrat,i3m,Lsm1_2mh,zab2,zba2
+      complex(dp):: T1256,T6521,box1256,box6521,
      & squarebracketex,squarebracketfl3,
      & squarebracketfl3ex,squarebracket
-      double precision t,DELTA3,delta
+      real(dp):: t,DELTA3,delta
       zab2(k1,k2,k3,k4)=za(k1,k2)*zb(k2,k4)+za(k1,k3)*zb(k3,k4)
       zba2(k1,k2,k3,k4)=za(k4,k2)*zb(k2,k1)+za(k4,k3)*zb(k3,k1)
       DELTA3(k1,k2,k3,k4,k5,k6)=

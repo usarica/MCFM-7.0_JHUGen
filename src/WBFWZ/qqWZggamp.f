@@ -1,19 +1,23 @@
       subroutine qqWZggamp(i1,i2,i3,i4,i5,i6,i7,i8,
      & b7,b8,za,zb,amp78,amp87)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
       include 'cmplxmass.f'
       include 'zprods_decl.f'
       include 'sprods_com.f'
       include 'ewcharge.f'
       include 'zcouple.f'
-      integer jdu,jdd,j78,i1,i2,i3,i4,i5,i6,i7,i8,b7,b8,
+      integer:: jdu,jdd,j78,i1,i2,i3,i4,i5,i6,i7,i8,b7,b8,
      & p1,p2,p3,p4,p5,p6,p7,p8
-      double complex zab2,zba2,rxw,zba3,zba4,iza,izb,
+      complex(dp):: zab2,zba2,rxw,zba3,zba4,iza,izb,
      & amp78(2,2,2),amp87(2,2,2),bmp78(2,2,2),bmp87(2,2,2),
      & propw34,propz56,propw3456,gamzew56(2),
      & gamzee56(2,2),gamzne56(2,2),gamzqe56(2,2,2)
-      double precision t3,t4,s356,s456,
+      real(dp):: t3,t4,s356,s456,
      & s34,s56,s278,s178,s156,s234,s2347,s3456,
      & s1348,s2567,s134,s256,s345
 C-----Begin statement functions

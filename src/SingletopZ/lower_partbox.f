@@ -1,6 +1,11 @@
       subroutine lower_partbox(p,h3,lowerbox,first)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zcouple.f'
       include 'metric0.f'
       include 'masses.f'
@@ -8,20 +13,20 @@
       include 'TRydef.f' 
       include 'currentdecl.f'
       include 'tensordecl.f'
-      integer fi,nu,ro,si,om,ep,h3
-      double complex prW,prt,prq,string,lowerbox(-2:0),bit,iprZ,
+      integer:: fi,nu,ro,si,om,ep,h3
+      complex(dp):: prW,prt,prq,string,lowerbox(-2:0),bit,iprZ,
      & part5,part4,part3,part2,part1,cprop
-      double complex facuRl,facuLl,facdLl
-      double precision p(mxpart,4),mtsq,Zm(-2:0),
+      complex(dp):: facuRl,facuLl,facdLl
+      real(dp):: p(mxpart,4),mtsq,Zm(-2:0),
      & p1(4),p2(4),p3(4),p4(4),p5(4),p6(4),
      & p25(4),p34(4),p16(4),p345(4),p234(4),p2345(4),s16,s34,s234,s345
-      integer epmin
-      logical first
+      integer:: epmin
+      logical:: first
 c     
 c     statement functions
-      prW(s34)=cone/dcmplx(s34-wmass**2,zip)
-      prt(s34)=cone/dcmplx(s34-mt**2,zip)
-      prq(s34)=cone/dcmplx(s34)
+      prW(s34)=cone/cplx2(s34-wmass**2,zip)
+      prt(s34)=cone/cplx2(s34-mt**2,zip)
+      prq(s34)=cone/cplx1(s34)
 c     end statement functions
 
       mtsq=mt**2
@@ -43,19 +48,19 @@ c     end statement functions
       s345=p345(4)**2-p345(1)**2-p345(2)**2-p345(3)**2
        
 c--- Implementation of Baur-Zeppenfeld treatment of Z width
-      cprop=dcmplx(1d0/dsqrt((s34-zmass**2)**2+(zmass*zwidth)**2))
-      iprZ=dcmplx(s34-zmass**2)
+      cprop=cplx1(1d0/sqrt((s34-zmass**2)**2+(zmass*zwidth)**2))
+      iprZ=cplx1(s34-zmass**2)
 
-      if (h3 .eq. -1) then
-        facuLl=dcmplx(Qu*q1)*iprZ/s34+dcmplx(L(2)*le)
-        facuRl=dcmplx(Qu*q1)*iprZ/s34+dcmplx(R(2)*le)
-        facdLl=dcmplx(Qd*q1)*iprZ/s34+dcmplx(L(1)*le)
-c        facdRl=dcmplx(Qd*q1)*iprZ/s34+dcmplx(R(1)*le)
+      if (h3 == -1) then
+        facuLl=cplx1(Qu*q1)*iprZ/s34+cplx1(L(2)*le)
+        facuRl=cplx1(Qu*q1)*iprZ/s34+cplx1(R(2)*le)
+        facdLl=cplx1(Qd*q1)*iprZ/s34+cplx1(L(1)*le)
+c        facdRl=cplx1(Qd*q1)*iprZ/s34+cplx1(R(1)*le)
       else
-        facuLl=dcmplx(Qu*q1)*iprZ/s34+dcmplx(L(2)*re)
-        facuRl=dcmplx(Qu*q1)*iprZ/s34+dcmplx(R(2)*re)
-        facdLl=dcmplx(Qd*q1)*iprZ/s34+dcmplx(L(1)*re)
-c        facdRl=dcmplx(Qd*q1)*iprZ/s34+dcmplx(R(1)*re)
+        facuLl=cplx1(Qu*q1)*iprZ/s34+cplx1(L(2)*re)
+        facuRl=cplx1(Qu*q1)*iprZ/s34+cplx1(R(2)*re)
+        facdLl=cplx1(Qd*q1)*iprZ/s34+cplx1(L(1)*re)
+c        facdRl=cplx1(Qd*q1)*iprZ/s34+cplx1(R(1)*re)
       endif
        
       call doBtensor(p234,0d0,0d0,FB0x234,FB1x234,
@@ -81,7 +86,7 @@ c        facdRl=dcmplx(Qd*q1)*iprZ/s34+dcmplx(R(1)*re)
        
       Zm(-2)=0d0
       Zm(-1)=3d0
-      Zm( 0)=3d0*dlog(musq/mtsq)+5d0
+      Zm( 0)=3d0*log(musq/mtsq)+5d0
 
 c--- only compute poles for checking on first call
       if (first) then
@@ -91,7 +96,7 @@ c--- only compute poles for checking on first call
       endif
 
 c      write(*,*) 'epmin in lower_box', epmin
-      if (epmin .eq. -2) then
+      if (epmin == -2) then
 c        write(*,*) ' calculating all poles' 
       endif
       do ep=epmin,0

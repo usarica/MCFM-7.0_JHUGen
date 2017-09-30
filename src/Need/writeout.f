@@ -1,13 +1,18 @@
       subroutine writeout(p)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
-      integer j,n
-      double precision p(mxpart,4),dot,sum(4)
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      integer:: j,n
+      real(dp):: p(mxpart,4),dot,sum(4)
       write(6,*) 'In writeout'
-      do n=1,8
+      do n=1,mxpart
       do j=1,4
       write(6,'(a8,i3,a,i3,a3,g24.15,a2)')
-     & '      p(',n,',',j,') =',p(n,j),'d0'
+     & '      p(',n,',',j,') =',p(n,j),'._dp'
       enddo
       enddo
       write(6,'(a3,4e24.16)') 'p1',p(1,1),p(1,2),p(1,3),p(1,4)
@@ -23,55 +28,55 @@
       write(6,'(a3,4e24.16)') 'p11',p(11,1),p(11,2),p(11,3),p(11,4)
       write(6,'(a3,4e24.16)') 'p12',p(12,1),p(12,2),p(12,3),p(12,4)
 
-      write(6,*) 's12',2d0*dot(p,1,2)
-      write(6,*) 's56',2d0*dot(p,5,6)
-      write(6,*) 'sqrt(s34)',dsqrt(2d0*dot(p,3,4))
-      write(6,*) 'sqrt(s56)',dsqrt(2d0*dot(p,5,6))
-      write(6,*) 'sqrt(s67)',dsqrt(2d0*dot(p,6,7))
-      write(6,*) 'sqrt(s78)',dsqrt(2d0*dot(p,7,8))
-      write(6,*) 'sqrt(s9,10)',dsqrt(2d0*dot(p,9,10))
-      write(6,*) 'sqrt(s11,12)',dsqrt(2d0*dot(p,11,12))
+      write(6,*) 's12',2._dp*dot(p,1,2)
+      write(6,*) 's56',2._dp*dot(p,5,6)
+      write(6,*) 'sqrt(s34)',sqrt(2._dp*dot(p,3,4))
+      write(6,*) 'sqrt(s56)',sqrt(2._dp*dot(p,5,6))
+      write(6,*) 'sqrt(s67)',sqrt(2._dp*dot(p,6,7))
+      write(6,*) 'sqrt(s78)',sqrt(2._dp*dot(p,7,8))
+      write(6,*) 'sqrt(s9,10)',sqrt(2._dp*dot(p,9,10))
+      write(6,*) 'sqrt(s11,12)',sqrt(2._dp*dot(p,11,12))
       write(6,*) 'sqrt(s345)', 
-     .   dsqrt(2d0*dot(p,3,4)+2d0*dot(p,3,5)+2d0*dot(p,4,5))
+     &   sqrt(2._dp*dot(p,3,4)+2._dp*dot(p,3,5)+2._dp*dot(p,4,5))
       write(6,*) 'sqrt(s346)', 
-     .   dsqrt(2d0*dot(p,3,4)+2d0*dot(p,3,6)+2d0*dot(p,4,6))
+     &   sqrt(2._dp*dot(p,3,4)+2._dp*dot(p,3,6)+2._dp*dot(p,4,6))
       write(6,*) 'sqrt(s347)', 
-     .   dsqrt(2d0*dot(p,3,4)+2d0*dot(p,3,7)+2d0*dot(p,4,7))
+     &   sqrt(2._dp*dot(p,3,4)+2._dp*dot(p,3,7)+2._dp*dot(p,4,7))
       write(6,*) 'sqrt(s567)', 
-     .   dsqrt(2d0*dot(p,5,6)+2d0*dot(p,5,7)+2d0*dot(p,6,7))
+     &   sqrt(2._dp*dot(p,5,6)+2._dp*dot(p,5,7)+2._dp*dot(p,6,7))
       write(6,*) 'sqrt(s348)', 
-     .   dsqrt(2d0*dot(p,3,4)+2d0*dot(p,3,8)+2d0*dot(p,4,8))
+     &   sqrt(2._dp*dot(p,3,4)+2._dp*dot(p,3,8)+2._dp*dot(p,4,8))
       write(6,*) 'sqrt(s678)', 
-     .   dsqrt(2d0*dot(p,6,7)+2d0*dot(p,6,8)+2d0*dot(p,7,8))
+     &   sqrt(2._dp*dot(p,6,7)+2._dp*dot(p,6,8)+2._dp*dot(p,7,8))
       write(6,*) 'sqrt(s349)', 
-     .   dsqrt(2d0*dot(p,3,4)+2d0*dot(p,3,9)+2d0*dot(p,4,9))
+     &   sqrt(2._dp*dot(p,3,4)+2._dp*dot(p,3,9)+2._dp*dot(p,4,9))
       write(6,*) 'sqrt(s789)', 
-     .   dsqrt(2d0*dot(p,7,8)+2d0*dot(p,7,9)+2d0*dot(p,8,9))
+     &   sqrt(2._dp*dot(p,7,8)+2._dp*dot(p,7,9)+2._dp*dot(p,8,9))
       write(6,*) 'sqrt(s3456)',
-     .   dsqrt(2d0*dot(p,3,4)+2d0*dot(p,3,5)+2d0*dot(p,3,6)
-     .                                 +2d0*dot(p,4,5)+2d0*dot(p,4,6)
-     .                                                +2d0*dot(p,5,6))
+     &   sqrt(2._dp*dot(p,3,4)+2._dp*dot(p,3,5)+2._dp*dot(p,3,6)
+     &                                 +2._dp*dot(p,4,5)+2._dp*dot(p,4,6)
+     &                                                +2._dp*dot(p,5,6))
       write(6,*) 'sqrt(s3457)',
-     .   dsqrt(2d0*dot(p,3,4)+2d0*dot(p,3,5)+2d0*dot(p,3,7)
-     .                                 +2d0*dot(p,4,5)+2d0*dot(p,4,7)
-     .                                                +2d0*dot(p,5,7))
+     &   sqrt(2._dp*dot(p,3,4)+2._dp*dot(p,3,5)+2._dp*dot(p,3,7)
+     &                                 +2._dp*dot(p,4,5)+2._dp*dot(p,4,7)
+     &                                                +2._dp*dot(p,5,7))
       write(6,*) 'sqrt(s3458)',
-     .   dsqrt(2d0*dot(p,3,4)+2d0*dot(p,3,5)+2d0*dot(p,3,8)
-     .                                 +2d0*dot(p,4,5)+2d0*dot(p,4,8)
-     .                                                +2d0*dot(p,5,8))
+     &   sqrt(2._dp*dot(p,3,4)+2._dp*dot(p,3,5)+2._dp*dot(p,3,8)
+     &                                 +2._dp*dot(p,4,5)+2._dp*dot(p,4,8)
+     &                                                +2._dp*dot(p,5,8))
       write(6,*) 'sqrt(s5678)',
-     .   dsqrt(2d0*dot(p,5,6)+2d0*dot(p,5,7)+2d0*dot(p,5,8)
-     .                                 +2d0*dot(p,6,7)+2d0*dot(p,6,8)
-     .                                                +2d0*dot(p,7,8))
+     &   sqrt(2._dp*dot(p,5,6)+2._dp*dot(p,5,7)+2._dp*dot(p,5,8)
+     &                                 +2._dp*dot(p,6,7)+2._dp*dot(p,6,8)
+     &                                                +2._dp*dot(p,7,8))
       write(6,*) 'sqrt(s3459)',
-     .   dsqrt(2d0*dot(p,3,4)+2d0*dot(p,3,5)+2d0*dot(p,3,9)
-     .                                 +2d0*dot(p,4,5)+2d0*dot(p,4,9)
-     .                                                +2d0*dot(p,5,9))
+     &   sqrt(2._dp*dot(p,3,4)+2._dp*dot(p,3,5)+2._dp*dot(p,3,9)
+     &                                 +2._dp*dot(p,4,5)+2._dp*dot(p,4,9)
+     &                                                +2._dp*dot(p,5,9))
 
       write(6,*) 'sqrt(s6789)',
-     .   dsqrt(2d0*dot(p,6,7)+2d0*dot(p,6,8)+2d0*dot(p,6,9)
-     .                                 +2d0*dot(p,7,8)+2d0*dot(p,7,9)
-     .                                                +2d0*dot(p,8,9))
+     &   sqrt(2._dp*dot(p,6,7)+2._dp*dot(p,6,8)+2._dp*dot(p,6,9)
+     &                                 +2._dp*dot(p,7,8)+2._dp*dot(p,7,9)
+     &                                                +2._dp*dot(p,8,9))
 
       do j=1,4
       sum(j)=p(1,j)+p(2,j)

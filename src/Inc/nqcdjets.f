@@ -1,2 +1,2 @@
-      integer nqcdjets,nqcdstart
+      integer:: nqcdjets,nqcdstart
       common/nqcdjets/nqcdjets,nqcdstart

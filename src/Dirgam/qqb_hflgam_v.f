@@ -1,21 +1,26 @@
       subroutine qqb_hflgam_v(p,msq)
       implicit none
+      include 'types.f'
+      
 c----Matrix element for gamma + heavy quark production
 c----in order alpha_s^2
 C----averaged over initial colours and spins
 c     q(-p1)+qbar(-p2)-->gamma(p3)+c/b(p4)
 c---
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ewcouple.f'
       include 'ewcharge.f'
       include 'qcdcouple.f'
       include 'sprods_com.f'
       include 'scheme.f'
       include 'heavyflav.f'
-      double precision msq(-nf:nf,-nf:nf),p(mxpart,4),fac,qaggam,qg,gq
-      integer j,k
+      real(dp):: msq(-nf:nf,-nf:nf),p(mxpart,4),fac,qaggam,qg,gq
+      integer:: j,k
 
-      fac=4d0*V*gsq*esq*ason2pi
+      fac=4._dp*V*gsq*esq*ason2pi
 
       scheme='tH-V'
 
@@ -32,7 +37,7 @@ c      ga=-qaggam(4,2,1)*fac*aveqg
 c      ga=gq
 
 c--set msq=0 to initalize
-      msq(:,:)=0d0
+      msq(:,:)=0._dp
 
       msq( flav,0)=Q(flav)**2*qg
 c      msq(-flav,0)=Q(j)**2*ag      

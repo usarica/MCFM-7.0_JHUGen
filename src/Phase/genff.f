@@ -1,17 +1,22 @@
       subroutine genff(nperms,p,wt,msq)
+      implicit none
+      include 'types.f'
 c--- final-final subtraction.
 c--- nperms is an argument between 1 and 2
 c--- this routine calculates the jacobian associated with calculating
 c--- a given final state, by contracting a final-final dipole
-      implicit none
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'qcdcouple.f'
       include 'debug.f'
-      integer i4,i5,j,k,nperms
-      double precision p(mxpart,4),z,dot,q(mxpart,4),
-     . msq(-nf:nf,-nf:nf),wt4,wt5_4
-      double precision facq,wt,s3i4,y,omy,jacbit,wt0
-      parameter(wt0=1d0/eight/pisq)
+      integer:: i4,i5,j,k,nperms
+      real(dp):: p(mxpart,4),z,dot,q(mxpart,4),
+     & msq(-nf:nf,-nf:nf),wt4,wt5_4
+      real(dp):: facq,wt,s3i4,y,omy,jacbit,wt0
+      parameter(wt0=1._dp/eight/pisq)
       integer,parameter:: j4(2)=(/4,5/)
       integer,parameter:: j5(2)=(/5,4/)
 
@@ -39,7 +44,7 @@ c---nb all incoming
       q(i5,j)=p(i5,j)/omy
       enddo
 
-      jacbit=four*sqrt(y)/(0.5d0/sqrt(z)+0.5d0/sqrt(1d0-z))
+      jacbit=four*sqrt(y)/(0.5_dp/sqrt(z)+0.5_dp/sqrt(1._dp-z))
       wt5_4=wt0*omy*dot(q,4,5)*jacbit
 
       call wt4gen(q,wt4)
@@ -60,10 +65,10 @@ c---calculate total weight
 
       do j=-nf,nf
       do k=-nf,nf
-      msq(j,k)=0d0
-      if     ((j .gt. 0) .and. (k .lt. 0)) then
+      msq(j,k)=0._dp
+      if     ((j > 0) .and. (k < 0)) then
       msq(j,k)=facq*msq(j,k)
-      elseif ((j .lt. 0) .and. (k .gt. 0)) then
+      elseif ((j < 0) .and. (k > 0)) then
       msq(j,k)=facq*msq(j,k)
       endif
       enddo

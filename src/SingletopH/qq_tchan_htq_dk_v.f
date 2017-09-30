@@ -1,8 +1,13 @@
       subroutine qq_tchan_htq_dk_v(q,msq)
+      implicit none
+      include 'types.f'
 c--- Virtual contribution averaged over initial colors and spins
 c     u(-p1)+b(p2)->h(p3,p4)+t(nu(p5)+e+(p6)+b(p7))+d(p6)
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'epinv.f'
       include 'scheme.f'
       include 'alpha1.f'
@@ -19,22 +24,22 @@ c     u(-p1)+b(p2)->h(p3,p4)+t(nu(p5)+e+(p6)+b(p7))+d(p6)
       include 'tensorinfo.f'
       include 'anomHiggs.f'
       include 'first.f'
-      integer nu,icross,u_b,b_u,db_b,b_db
-      integer origipolesfailed,origitotal,origibadpoint
-      double precision p(mxpart,4),msq(-nf:nf,-nf:nf),fac,
+      integer:: nu,icross
+      integer:: origipolesfailed,origitotal,origibadpoint
+      real(dp):: p(mxpart,4),msq(-nf:nf,-nf:nf),fac,
      & virt(4),q(mxpart,4),p_dk(mxpart,4),hdecay,msqgamgam
-      double complex vtot(2,-2:0),vtotep(2),
+      complex(dp):: vtot(2,-2:0),vtotep(2),
      & xlower(-2:0),xmiddle(-2:0),xscalar(-2:0),
      & vlower(2,-2:0),vmiddle(2,-2:0),vscalar(2,-2:0)
-      double complex lotot(2)
-      integer j5,h5
-      logical failed
-      parameter(u_b=1,b_u=2,db_b=3,b_db=4)
+      complex(dp):: lotot(2),pdk6(4)
+      integer:: j5,h5
+      logical:: failed
+      integer,parameter:: u_b=1,b_u=2,db_b=3,b_db=4
       integer,parameter:: i1(4)=(/1,2,8,8/)
       integer,parameter:: i2(4)=(/2,1,2,1/)
       integer,parameter:: i8(4)=(/8,8,1,2/)
 ! RR added
-      double complex mdecaymb(2,2), mdecay
+      complex(dp):: mdecaymb(2,2), mdecay
             
       scheme='dred'
 
@@ -74,7 +79,7 @@ c--- fill strings of gamma matrices on first pass
       endif
 
 c--- setup for pvQCDLoop
-      call pvsetmudim(scale)     
+      call pvsetmudim(scale)
       call TRsettensorcontrol(1)
 
       origitotal=itotal
@@ -108,19 +113,19 @@ c--- setup the kinematics for the various crossings
 
       call kininv(p)
       
-      if ( nwz .eq. +1) then
+      if ( nwz == +1) then
       call tdecay(p_dk,5,6,7,mdecaymb)
       mdecay=mdecaymb(1,1)
-      elseif (nwz .eq. -1) then
+      elseif (nwz == -1) then
       call adecay(p_dk,5,6,7,mdecaymb)
       mdecay=mdecaymb(2,2)
       endif
       
 c--- fill leading order amplitudes
-      if     (nwz .eq. +1) then
+      if     (nwz == +1) then
         call ubthdamp_dk(p,1,2,3,4,6,p_dk(6,:),
      &        lotot)
-      elseif (nwz .eq. -1) then
+      elseif (nwz == -1) then
         call ubthdamp_dk(p,1,2,4,3,6,p_dk(6,:),
      &        lotot)
       else
@@ -128,18 +133,22 @@ c--- fill leading order amplitudes
        stop
       endif
       
+      do nu=1,4
+      pdk6(nu)=cplx1(p_dk(6,nu))
+      enddo
+      
 c--- setup currents
-      do j5=1,1
+      do j5=1,2
 c----- top spin h5
       h5=2*j5-3
 
-      if (nwz .eq. +1) then
-        call stringsh_dk(p,dcmplx(p_dk(6,:)),h5,.false.)
+      if (nwz == +1) then
+        call stringsh_dk(p,pdk6,h5,.false.)
       else
-        call stringsh_dk(p,dcmplx(p_dk(6,:)),h5,.true.)
+        call stringsh_dk(p,pdk6,h5,.true.)
       endif
       call scalarh(p,first,xscalar)
-      call middleh(p,first,xmiddle)      
+      call middleh(p,first,xmiddle)
       call lowerh(p,first,xlower)
 
 
@@ -165,17 +174,17 @@ c--- total virtual amplitudes
       vtot(:,:)=vlower(:,:)+vmiddle(:,:)+vscalar(:,:)
 
 c -- now include propagator of onshell top
-      vtot(:,:)=vtot(:,:)/dcmplx(zip,mt*twidth)
-      lotot(:)=lotot(:)/dcmplx(zip,mt*twidth)
+      vtot(:,:)=vtot(:,:)/cplx2(zip,mt*twidth)
+      lotot(:)=lotot(:)/cplx2(zip,mt*twidth)
 
 c--- block of code for checking poles
       call dopolesh_dk(p,'total',lotot,vtot,first,failed)
       if (failed) ipolesfailed=ipolesfailed+1
-c        if (mod(itotal,10000) .eq. 0) then
+c        if (mod(itotal,10000) == 0) then
 c          write(6,*) itotal,': bad points for PV reduction ',
-c     &     dfloat(ibadpoint)/dfloat(itotal)*100d0,'%'
+c     &     real(ibadpoint,dp)/real(itotal,dp)*100d0,'%'
 c          write(6,*) itotal,': poles failing check ',
-c     &     dfloat(ipolesfailed)/dfloat(itotal)*100d0,'%'
+c     &     real(ipolesfailed,dp)/real(itotal,dp)*100d0,'%'
 c          call flush(6)
 c        endif
 c--- this block of code rejects PS point if pole check fails
@@ -191,7 +200,7 @@ c--- this block of code rejects PS point if pole check fails
 c--- wave function renormalization
       vtot(:,-1)=vtot(:,-1)-3d0/2d0*lotot(:)    
       vtot(:, 0)=vtot(:, 0)
-     & -(3d0*dlog(musq/mt**2)+5d0)/2d0*lotot(:)
+     & -(3d0*log(musq/mt**2)+5d0)/2d0*lotot(:)
 
 c--- couplings are applied here
       fac=Cf*ason2pi*gwsq**5*xn**2*hdecay
@@ -201,14 +210,14 @@ c -- decay ME included here
           
       vtotep(:)=vtot(:,-2)*epinv**2+vtot(:,-1)*epinv+vtot(:,0)
 
-      virt(icross)=aveqq*fac*dble(
-     & +vtotep(1)*dconjg(lotot(1))+vtotep(2)*dconjg(lotot(2)))
+      virt(icross)=aveqq*fac*real(
+     & +vtotep(1)*conjg(lotot(1))+vtotep(2)*conjg(lotot(2)))
            
       enddo    ! end of loop over crossings
       
 c--- fill matrix elements
 c--- note: variable names are not correct for t~ (nwz=-1)
-      if (nwz .eq. +1) then
+      if (nwz == +1) then
         msq(+2,5)=virt(u_b)
         msq(+4,5)=virt(u_b)
         msq(+5,+2)=virt(b_u)
@@ -234,7 +243,7 @@ c--- note: variable names are not correct for t~ (nwz=-1)
    99 continue
 
 c--- This block repeats calculation using PV if requested
-      if (  (TRtensorcontrol .eq. 1) .and. (doovred .eqv. .true.)
+      if (  (TRtensorcontrol == 1) .and. (doovred .eqv. .true.)
      &.and. (pvbadpoint) ) then
         itotal=origitotal
         ibadpoint=origibadpoint
@@ -243,7 +252,7 @@ c--- This block repeats calculation using PV if requested
         dopvred=.true.
         goto 66
       endif
-
+      
       return
       end
       
@@ -252,15 +261,21 @@ c--- This block repeats calculation using PV if requested
 
 
       subroutine dopolesh_dk(p,desc,lo,virt,first,failed)
+      implicit none
+      include 'types.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'scale.f'
       include 'masses.f'
-      double precision p(mxpart,4),dot
+      integer::j5
+      real(dp):: p(mxpart,4),dot
       character*5 desc
-      double complex lo(2),virt(2,-2:0)
-      double complex spnum
-      logical first,failed
-      double precision tol
+      complex(dp):: lo(2),virt(2,-2:0)
+      complex(dp):: spnum
+      logical:: first,failed
+      real(dp):: tol
       
       failed=.false.
       tol=1d-5
@@ -271,12 +286,12 @@ c--- This block repeats calculation using PV if requested
       
       virt(j5,-2)=-lo(j5)*3d0
       virt(j5,-1)=lo(j5)*(-11d0/2d0
-     & -2d0*dlog(musq/(-2d0*dot(p,1,6)))
-     & -2d0*dlog(musq/(-2d0*dot(p,2,5)))
-     & +dlog(musq/mt**2)
+     & -2d0*log(musq/(-2d0*dot(p,1,6)))
+     & -2d0*log(musq/(-2d0*dot(p,2,5)))
+     & +log(musq/mt**2)
      & +3d0/2d0) ! Last term is from w.f. renorm
            
-      if ( abs(spnum/virt(j5,-1)-1d0) .lt. tol ) then
+      if ( abs(spnum/virt(j5,-1)-1d0) < tol ) then
         continue
       else
         failed=.true.

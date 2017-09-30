@@ -1,5 +1,7 @@
       subroutine qqb_QQbdk(p,msq)
       implicit none
+      include 'types.f'
+
 ************************************************************************
 *     Author: R.K. Ellis                                               *
 *     January, 2012.                                                   *
@@ -19,14 +21,17 @@
 *                                                                      *
 ************************************************************************
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ewcouple.f'
       include 'qcdcouple.f'
       include 'masses.f'
       include 'msq_cs.f'
       include 'plabel.f'
-      integer j,k,cs,hb,hc,h12,j1,j2,h1,h2,j1max,j2min
-      double precision msq(-nf:nf,-nf:nf),p(mxpart,4),fac,qqb
-      double complex  prop,
+      integer:: j,k,cs,hb,hc,h12,j1,j2,h1,h2,j1max,j2min
+      real(dp):: msq(-nf:nf,-nf:nf),p(mxpart,4),fac,qqb
+      complex(dp)::  prop,
      & mtop(2,2),manti(2,2),mprod(2,2,2),mtot(2,2,2),
      & mabtot(2,2,2,2),mbatot(2,2,2,2),mqed(2,2,2,2),
      & mab(2,2,2,2),mba(2,2,2,2)
@@ -35,9 +40,9 @@
 C----set all elements to zero
       do j=-nf,nf
       do k=-nf,nf
-      msq(j,k)=0d0
+      msq(j,k)=0._dp
       do cs=0,2
-      msq_cs(cs,j,k)=0d0
+      msq_cs(cs,j,k)=0._dp
       enddo
       enddo
       enddo
@@ -60,13 +65,13 @@ c      write(6,*) hb,hc,h12,abs(mtot(hb,hc,h12))
       enddo
       enddo
       enddo
-      prop=dcmplx(zip,mt*twidth)**2
+      prop=cplx2(zip,mt*twidth)**2
       fac=V*gwsq**4*gsq**2/abs(prop)**2
 c--- include factor for hadronic decays of W
-      if (plabel(3) .eq. 'pp') fac=2d0*xn*fac
-      if (plabel(7) .eq. 'pp') fac=2d0*xn*fac
+      if (plabel(3) == 'pp') fac=2._dp*xn*fac
+      if (plabel(7) == 'pp') fac=2._dp*xn*fac
 
-      qqb=0d0
+      qqb=0._dp
       do hb=1,2
       do hc=1,2
       do h12=1,2
@@ -97,9 +102,9 @@ c--- include factor for hadronic decays of W
       enddo
       enddo
 
-      msq_cs(1,0,0)=0d0
-      msq_cs(2,0,0)=0d0
-      msq_cs(0,0,0)=0d0
+      msq_cs(1,0,0)=0._dp
+      msq_cs(2,0,0)=0._dp
+      msq_cs(0,0,0)=0._dp
       do hb=1,2
       do hc=1,2
       do h1=1,2
@@ -117,13 +122,13 @@ c--- include factor for hadronic decays of W
 
 C---fill qb-q, gg and q-qb elements
       do j=-nf,nf
-      if ((j .lt. 0) .or. (j .gt. 0)) then
+      if ((j < 0) .or. (j > 0)) then
           msq(j,-j)=qqb
 C Division of quark into color structures is arbitrary
-          msq_cs(1,j,-j)=qqb/3d0
-          msq_cs(2,j,-j)=qqb/3d0
-          msq_cs(0,j,-j)=qqb/3d0
-      elseif (j .eq. 0) then
+          msq_cs(1,j,-j)=qqb/3._dp
+          msq_cs(2,j,-j)=qqb/3._dp
+          msq_cs(0,j,-j)=qqb/3._dp
+      elseif (j == 0) then
           msq(0,0)=msq_cs(1,0,0)+msq_cs(2,0,0)+msq_cs(0,0,0)
 C msq_cs(1,0,0)+msq_cs(2,0,0)+msq_cs(0,0,0)
       endif

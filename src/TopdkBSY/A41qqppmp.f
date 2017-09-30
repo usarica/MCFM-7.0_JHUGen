@@ -1,13 +1,19 @@
-      double complex function A41qqppmp(e1,p2,p3,e4,za,zb,zab,zba)
-C-----Authors: John Campbell and Keith Ellis, November 2011
+      function A41qqppmp(e1,p2,p3,e4,za,zb,zab,zba)
       implicit none
+      include 'types.f'
+      complex(dp):: A41qqppmp
+C-----Authors: John Campbell and Keith Ellis, November 2011
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'zabprods_decl.f'
-      double complex A1lcqqppmp,A1slcqqppmp,
+      complex(dp):: A1lcqqppmp,A1slcqqppmp,
      & A1fqqppmp,A1Hqqppmp
-      integer e1,p2,p3,e4,e1p,e4p
-      double precision nlf,nhf
+      integer:: e1,p2,p3,e4,e1p,e4p
+      real(dp):: nlf,nhf
       parameter(nlf=5d0,nhf=1d0)
 
 c--- perform the swaps 5 <-> 7 and 6 <-> 8

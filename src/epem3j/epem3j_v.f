@@ -1,5 +1,7 @@
       subroutine epem3j_v(p,msq)
       implicit none
+      include 'types.f'
+
 c--- simple modification of qqb_w_g.f: permuted 1 and 4, 2 and 3
 c--- to switch leptons with quarks and added a factor of Nc
 
@@ -9,6 +11,9 @@ C----averaged over initial colours and spins
 c     q(-p1)+qbar(-p2)-->W^+(nu(p3)+e^+(p4))+g(p5)
 c---
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'ewcouple.f'
       include 'qcdcouple.f'
@@ -17,17 +22,17 @@ c---
       include 'epinv.f'
       include 'scheme.f'
       include 'nflav.f'
-      integer j,k
-      double precision msq(-nf:nf,-nf:nf),msq0(-nf:nf,-nf:nf),
-     . p(mxpart,4),fac,sw,prop,virt5,subuv_lc,subuv_tr,
-     . qqbWg_lc,qqbWg_slc,qbqWg,qgWq,gqWq,qbgWqb,gqbWqb
+      integer:: j,k
+      real(dp):: msq(-nf:nf,-nf:nf),msq0(-nf:nf,-nf:nf),
+     & p(mxpart,4),fac,sw,prop,virt5,subuv_lc,subuv_tr,
+     & qqbWg_lc,qqbWg_slc,qbqWg,qgWq,gqWq,qbgWqb,gqbWqb
 
       integer,parameter::iqqbg(5)=(/4,3,2,1,5/)
 
 c--set msq=0 to initialize
       do j=-nf,nf
       do k=-nf,nf
-      msq(j,k)=0d0
+      msq(j,k)=0._dp
       enddo
       enddo
       scheme='dred'
@@ -40,15 +45,15 @@ c--- calculate lowest order
 
 c--- UV counterterm contains the finite renormalization to arrive
 c--- at MS bar scheme.
-c      subuv=ason2pi*ca*(epinv*(11d0-4d0*tr*dble(nflav)/ca)-1d0)/6d0
-      subuv_lc=ason2pi*ca*(epinv*11d0-1d0)/6d0
-      subuv_tr=ason2pi*ca*(epinv*(-4d0*tr*dble(nflav)/ca))/6d0
+c      subuv=ason2pi*ca*(epinv*(11._dp-4._dp*tr*real(nflav)/ca)-1._dp)/6._dp
+      subuv_lc=ason2pi*ca*(epinv*11._dp-1._dp)/6._dp
+      subuv_tr=ason2pi*ca*(epinv*(-4._dp*tr*real(nflav)/ca))/6._dp
 
 c--- calculate propagator
       sw=s(1,2)
       prop=sw**2/((sw-wmass**2)**2+(wmass*wwidth)**2)
 
-      fac=2d0*cf*xnsq*xn*gwsq**2*gsq*prop
+      fac=2._dp*cf*xnsq*xn*gwsq**2*gsq*prop
 
       call virt5colsep(iqqbg,za,zb,qqbWg_lc,qqbWg_slc)
 
@@ -67,6 +72,8 @@ c--- this is a copy of the routine virt5.f, but changed from a function
 c---  to a subroutine and modified to extract different colour pieces
       subroutine virt5colsep(ip,za,zb,virt5lc,virt5slc)
       implicit none
+      include 'types.f'
+
 ************************************************************************
 *     Author: R.K. Ellis                                               *
 *     July, 1999.                                                      *
@@ -79,24 +86,27 @@ c---  to a subroutine and modified to extract different colour pieces
 *   (as/4/pi) (4 pi)^ep Gamma(1+ep)*Gamma(1-ep)^2/Gamma(1-2*ep)
 ************************************************************************
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'qcdcouple.f'
       include 'zprods_decl.f'
-      integer ip(5)
-      double complex A5LOm,A5NLOm_lc,A5NLOm_slc,
-     .               A5LOp,A5NLOp_lc,A5NLOp_slc
-      double precision virt5lc,virt5slc
+      integer:: ip(5)
+      complex(dp):: A5LOm,A5NLOm_lc,A5NLOm_slc,
+     &               A5LOp,A5NLOp_lc,A5NLOp_slc
+      real(dp):: virt5lc,virt5slc
 
 c   0--> qb_R(1)+q_L(2)+l_L(3)+a_R(4)+g_L(5)
       call A5NLOcolsep(ip(1),ip(2),ip(3),ip(4),ip(5),za,zb,
-     .                 A5LOm,A5NLOm_lc,A5NLOm_slc)
+     &                 A5LOm,A5NLOm_lc,A5NLOm_slc)
 c   0--> qb_R(1)+q_L(2)+l_L(3)+a_R(4)+g_R(5)
       call A5NLOcolsep(ip(2),ip(1),ip(4),ip(3),ip(5),zb,za,
-     .                 A5LOp,A5NLOp_lc,A5NLOp_slc)
+     &                 A5LOp,A5NLOp_lc,A5NLOp_slc)
 
       virt5lc=ason2pi*(
-     . Dble(Dconjg(A5LOp)*A5NLOp_lc)+Dble(Dconjg(A5LOm)*A5NLOm_lc))
+     & Dble(conjg(A5LOp)*A5NLOp_lc)+Dble(conjg(A5LOm)*A5NLOm_lc))
       virt5slc=ason2pi*(
-     . Dble(Dconjg(A5LOp)*A5NLOp_slc)+Dble(Dconjg(A5LOm)*A5NLOm_slc))
+     & Dble(conjg(A5LOp)*A5NLOp_slc)+Dble(conjg(A5LOm)*A5NLOm_slc))
 
       return
       end
@@ -106,12 +116,17 @@ c   0--> qb_R(1)+q_L(2)+l_L(3)+a_R(4)+g_R(5)
 c--- this is a copy of the routine a5nlo.f, but modified to return
 c---  different colour pieces separately
       subroutine A5NLOcolsep(j1,j2,j3,j4,j5,za,zb,
-     .                       A5LOm,A5NLOm_lc,A5NLOm_slc)
+     &                       A5LOm,A5NLOm_lc,A5NLOm_slc)
       implicit none
+      include 'types.f'
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
-      integer j1,j2,j3,j4,j5
-      double complex A51,A52,A5NLOm_lc,A5NLOm_slc,A5LOm
+      integer:: j1,j2,j3,j4,j5
+      complex(dp):: A51,A52,A5NLOm_lc,A5NLOm_slc,A5LOm
 
 * As originally written, the functions A51, A52 correspond to
 * 0 --> q_R(1)+qb_L(3)+g_R(2)+ebar_L(4)+e_R(5)

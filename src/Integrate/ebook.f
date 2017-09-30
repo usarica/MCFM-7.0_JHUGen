@@ -27,6 +27,7 @@ c--- sets up the histogram
       subroutine ebook(N)
       IMPLICIT REAL*8 (A-H,O-Z)
       IMPLICIT INTEGER (I-N)
+      include 'types.f'
       include 'histo.f'
 c--- This is the MBOOK common block
 
@@ -47,7 +48,7 @@ c--- maximum number of PDF error sets is 1000
       
       DO I=1,NBIN(N)
         DO J=1,1000
-      EHIST(ICOUNTHISTO,J,I)=0d0
+      EHIST(ICOUNTHISTO,J,I)=zip
         ENDDO
       ENDDO
       
@@ -57,6 +58,7 @@ c--- maximum number of PDF error sets is 1000
       SUBROUTINE efill(N,X,Y)
       IMPLICIT REAL*8 (A-H,O-Z)
       IMPLICIT INTEGER (I-N)
+      include 'types.f'
       include 'PDFerrors.f'
       include 'histo.f'
       include 'ehisto.f'
@@ -83,6 +85,7 @@ c     we are normalising the weights by the bin width
       SUBROUTINE etop(N,M,BTIT,LTIT,SCALE)
       IMPLICIT REAL*8 (A-H,O-Z)
       IMPLICIT INTEGER (I-N)
+      include 'types.f'
       include 'PDFerrors.f'
 c--- This is the MBOOK common block
       include 'histo.f'
@@ -110,12 +113,12 @@ c--- loop over all PDF sets
      &' TITLE LEFT ','"',A50,'"',/1X,
      &' SET SCALE Y ',A5,/1X,
      &' (SET TICKS TOP OFF)   '/1x,     
-     &' SET LIMITS X ',F10.5,' ',F10.5,/1X,
+     &' SET LIMITS X ',F12.5,' ',F12.5,/1X,
      &' SET ORDER X Y DY ')
       DO 1 J=1,NBIN(N)
       IF(EHIST(NMATCH,K,J).EQ.0.) GO TO 1
       WRITE(95,'(3X,G13.6,2(2X,G13.6))')  
-     &                  XHIS(N,J),EHIST(NMATCH,K,J),0d0
+     &                  XHIS(N,J),EHIST(NMATCH,K,J),zip
     1 CONTINUE
       WRITE(95,200)
   200 FORMAT('   PLOT')
@@ -130,6 +133,7 @@ c--- loop over all PDF sets
       SUBROUTINE emtop(N,M,BTIT,LTIT,SCALE)
       IMPLICIT REAL*8 (A-H,O-Z)
       IMPLICIT INTEGER (I-N)
+      include 'types.f'
       include 'PDFerrors.f'
 c--- This is the MBOOK common block
       include 'histo.f'
@@ -157,7 +161,7 @@ c--- this bit writes out the normal plot
      &' TITLE LEFT ','"',A50,'"',/1X,
      &' SET SCALE Y ',A5,/1X,
      &' (SET TICKS TOP OFF)   '/1x,     
-     &' SET LIMITS X ',F10.5,' ',F10.5,/1X,
+     &' SET LIMITS X ',F12.5,' ',F12.5,/1X,
      &' SET ORDER X Y DY ')
       WRITE(99,200)
       write(99,*) 'SET COLOR RED'
@@ -180,18 +184,18 @@ c---  J.Campbell, J.Huston, W.J. Stirling, Rep. Prog. Phys. 70 (2007) 89
 
 c--- loop over all PDF sets
       DO J=1,NBIN(N)
-c        PDFperror=0d0
-c        PDFnerror=0d0
+c        PDFperror=zip
+c        PDFnerror=zip
 c        DO K=1,maxPDFsets-1,2      
 c        IF(EHIST(NMATCH,K,J).ne.0.) then
-c          PDFperror=PDFperror+max(0d0,
+c          PDFperror=PDFperror+max(zip,
 c     .    EHIST(NMATCH,K,J)-HIST(N,J),EHIST(NMATCH,K+1,J)-HIST(N,J))**2
-c          PDFnerror=PDFnerror+max(0d0,
+c          PDFnerror=PDFnerror+max(zip,
 c     .     HIST(N,J)-EHIST(NMATCH,K,J),HIST(N,J)-EHIST(NMATCH,K+1,J))**2
 c        ENDIF
 c        ENDDO
-c        maxhist(J)=HIST(N,J)+dsqrt(PDFperror)
-c        minhist(J)=HIST(N,J)-dsqrt(PDFnerror)
+c        maxhist(J)=HIST(N,J)+sqrt(PDFperror)
+c        minhist(J)=HIST(N,J)-sqrt(PDFnerror)
 c--- New implementation of PDF uncertainty
         PDFarray(0)=HIST(N,J)
         PDFarray(1:1000)=EHIST(NMATCH,1:1000,J)
@@ -208,7 +212,7 @@ c--- New implementation of PDF uncertainty
       DO J=1,NBIN(N)
       if (minhist(J) .ne. 0.) then
       WRITE(99,'(3X,G13.6,2(2X,G13.6))')  
-     &                  XHIS(N,J),minhist(J),0d0
+     &                  XHIS(N,J),minhist(J),zip
       endif
       ENDDO
       write(99,200)
@@ -217,7 +221,7 @@ c--- New implementation of PDF uncertainty
       DO J=1,NBIN(N)
       if (maxhist(J) .ne. 0.) then
       WRITE(99,'(3X,G13.6,2(2X,G13.6))')  
-     &                  XHIS(N,J),maxhist(J),0d0
+     &                  XHIS(N,J),maxhist(J),zip
       endif
       ENDDO
       write(99,200)

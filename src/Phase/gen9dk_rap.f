@@ -1,19 +1,24 @@
       subroutine gen9dk_rap(r,p,wt9,*)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'mxdim.f'
       include 'decay1q2a.f'
-      integer nu
-      double precision r(mxdim)
-      double precision wt9,p(mxpart,4),tp(4),tm(4),bp(4),bm(4),n(4),e(4)
-      double precision bmg(4),g(4),ep(4),em(4),nn(4),nb(4),wp(4),wm(4)
-      double precision wtttw,wttp,wttm,wtbmg,wtwp,wtwm,s3min,wt0
-      parameter(wt0=1d0/twopi**5)
+      integer:: nu
+      real(dp):: r(mxdim)
+      real(dp):: wt9,p(mxpart,4),tp(4),tm(4),bp(4),bm(4),n(4),e(4)
+      real(dp):: bmg(4),g(4),ep(4),em(4),nn(4),nb(4),wp(4),wm(4)
+      real(dp):: wtttw,wttp,wttm,wtbmg,wtwp,wtwm,s3min,wt0
+      parameter(wt0=1._dp/twopi**5)
       
 c--- alternate radiation between decay of top (=1) and antitop (=2) quarks;
 c--- use additional (always uniform) variable to determine choice
-      if (r(24) .lt. 0.5d0) then
+      if (r(24) < 0.5_dp) then
         decay1q2a=1
       else
         decay1q2a=2
@@ -23,7 +28,7 @@ c--- use additional (always uniform) variable to determine choice
 *                       +t~(b~(p6)+e^-(p7)+nu(p8)+g(p11))              *
 *                       +W^+(nu(p9),mu^+(p10))                         *
 
-      wt9=0d0
+      wt9=0._dp
 C---call gen4 that uses r(1)....r(10)
       call gen4(r,p,wtttw,*999)
       wtttw=(mt*twidth*pi)**2*wtttw
@@ -34,7 +39,7 @@ C---call gen4 that uses r(1)....r(10)
       e(nu)=p(4,nu)      
       enddo
       
-      s3min=0d0
+      s3min=0._dp
 c      n2=0
 c      n3=1
 c      mass3=wmass      
@@ -50,10 +55,10 @@ c--- anti-top decay
       wt9=wt0*wtttw*wttp*wtbmg*wtwp*wttm*wtwm 
 c--- multiply by a factor of two since we are including radiation
 c--- from top and anti-top quarks at the same time
-      wt9=wt9*2d0
+      wt9=wt9*2._dp
 
       do nu=1,4
-        if (decay1q2a .eq. 1) then
+        if (decay1q2a == 1) then
           p(3,nu)=nn(nu)
           p(4,nu)=ep(nu)
           p(5,nu)=bm(nu)
@@ -75,8 +80,8 @@ c--- from top and anti-top quarks at the same time
 
       return
 
- 999  wt9=0d0
-      p(:,:)=0d0
+ 999  wt9=0._dp
+      p(:,:)=0._dp
       return 1
       
       end

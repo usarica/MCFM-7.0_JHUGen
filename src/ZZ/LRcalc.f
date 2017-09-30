@@ -1,12 +1,17 @@
       subroutine LRcalc(k1,k2,k3,k4,k5,k6,za,zb,A,xpp,xmp,xpm,xmm)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'sprods_com.f'
-      integer k1,k2,k3,k4,k5,k6,l3,l4,l5,l6,h3,h5
-      double complex A(6),Xpp(2,2),Xmp(2,2),Xpm(2,2),Xmm(2,2),
+      integer:: k1,k2,k3,k4,k5,k6,l3,l4,l5,l6,h3,h5
+      complex(dp):: A(6),Xpp(2,2),Xmp(2,2),Xpm(2,2),Xmm(2,2),
      & zab2,zba2
-      double precision s12,s34,s56
+      real(dp):: s12,s34,s56
 C---statementfunctions
       zab2(k1,k2,k3,k4)=za(k1,k2)*zb(k2,k4)+za(k1,k3)*zb(k3,k4)
       zba2(k1,k2,k3,k4)=zb(k1,k2)*za(k2,k4)+zb(k1,k3)*za(k3,k4)
@@ -16,18 +21,18 @@ C---end statement functions
       s34=s(k3,k4)
       s56=s(k5,k6)
       do h3=1,2
-         if (h3 .eq.1) then
+         if (h3 ==1) then
              l3=k3
              l4=k4
-         elseif (h3 .eq.2) then
+         elseif (h3 ==2) then
              l3=k4
              l4=k3
          endif
       do h5=1,2
-         if (h5 .eq.1) then
+         if (h5 ==1) then
              l5=k5
              l6=k6
-         elseif (h5 .eq.2) then
+         elseif (h5 ==2) then
              l5=k6
              l6=k5
          endif

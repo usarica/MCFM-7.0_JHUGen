@@ -1,4 +1,6 @@
       subroutine qqb_trigam(p,msq) 
+      implicit none
+      include 'types.f'
 ************************************************************************
 *    Author: C. Williams                                               *
 *    March, 2013.                                                      *
@@ -6,20 +8,23 @@
 *    and spins                                                         *
 c     q(-p1)+qbar(-p2) --> gam(p3) + gam(p4) + gam(p5)                 *
 ************************************************************************
-      implicit none 
-      include 'constants.f' 
+       
+      include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h' 
       include 'zprods_decl.f' 
       include 'ewcouple.f' 
       include 'ewcharge.f'
-      double precision p(mxpart,4),msq(-nf:nf,-nf:nf) 
-      integer j,h1,h2,h3,h4
-      double complex qqb(2,2,2,2)
-      double precision qqbsum
-      double precision fac,statfac
-      parameter(statfac=one/6d0)
+      real(dp):: p(mxpart,4),msq(-nf:nf,-nf:nf) 
+      integer:: j,h1,h2,h3,h4
+      complex(dp):: qqb(2,2,2,2)
+      real(dp):: qqbsum
+      real(dp):: fac,statfac
+      parameter(statfac=one/6._dp)
 
 c--- initialize matrix elements
-      msq(:,:)=0d0 
+      msq(:,:)=0._dp 
       
       call spinoru(5,p,za,zb)
       
@@ -28,19 +33,19 @@ c--- fill qqb helicity amplitudes
 c--- note that summed, squared qbq amplitudes are identical
 c      call amp_lo_3gam(2,1,3,4,5,za,zb,qbq)
 
-      qqbsum=0d0
+      qqbsum=0._dp
       do h1=1,2 
       do h2=1,2 
       do h3=1,2 
       do h4=1,2
-        qqbsum=qqbsum+dble(qqb(h1,h2,h3,h4)*dconjg(qqb(h1,h2,h3,h4)))
+        qqbsum=qqbsum+real(qqb(h1,h2,h3,h4)*conjg(qqb(h1,h2,h3,h4)))
       enddo
       enddo
       enddo     
       enddo
       
 c--- overall factor except for photon charge which is applied below
-      fac=esq**3*xn*8d0*aveqq*statfac 
+      fac=esq**3*xn*8._dp*aveqq*statfac 
     
       do j=-nf,nf 
          if (j .ne. 0) then 
@@ -53,11 +58,16 @@ c--- overall factor except for photon charge which is applied below
       
       
       subroutine amp_lo_3gam(p1,p2,p3,p4,p5,za,zb,amp) 
-      implicit none 
-      include 'constants.f' 
+      implicit none
+      include 'types.f'
+       
+      include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h' 
       include 'zprods_decl.f'
-      integer p1,p2,p3,p4,p5
-      double complex amp(2,2,2,2),trigam
+      integer:: p1,p2,p3,p4,p5
+      complex(dp):: amp(2,2,2,2),trigam
 
 !======= amplitudes that are zero
       amp(2,1,1,1)=czip 
@@ -88,11 +98,17 @@ c--- overall factor except for photon charge which is applied below
       end 
 
 
-      double complex function trigam(p1,p2,p3,p4,p5,za,zb) 
-      implicit none 
-      include 'constants.f' 
+      function trigam(p1,p2,p3,p4,p5,za,zb) 
+      implicit none
+      include 'types.f'
+      complex(dp):: trigam
+       
+      include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h' 
       include 'zprods_decl.f'
-      integer p1,p2,p3,p4,p5 
+      integer:: p1,p2,p3,p4,p5 
 !----- amplitude for q(-,-p1),qb(+,-p2),gam(3,+),gam(4,+),gam(5,-) 
 !----- all momenta outgoing 
       

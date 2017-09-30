@@ -1,3 +1,3 @@
-      double precision scale,musq
+      real(dp):: scale,musq
       common/mcfmscale/scale,musq
 !$omp threadprivate(/mcfmscale/)

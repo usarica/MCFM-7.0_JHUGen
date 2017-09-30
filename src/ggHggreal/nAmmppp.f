@@ -1,13 +1,18 @@
-      double complex function nAmmppp(j4,j5,j1,j2,j3)
-c--- Caclculation of the amplitudes using results of S. Badger
+      function nAmmppp(j4,j5,j1,j2,j3)
+c--- Calculation of the amplitudes using results of S. Badger
 c--- as adapted from routines written by F. Caola
-      implicit none
+
+      include 'types.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      complex(dp)::nAmmppp
       include 'zprods_com.f'
       include 'sprods_com.f'
-      integer j1,j2,j3,j4,j5
-      double precision sH1,sH2,sH3,s125,s145,s234,s345,s3,s4,qsq
-      double complex zab_2_pH3_4,zab_5_pH4_3,zab_2_34_5,zab_4_23_1,
+      integer::j1,j2,j3,j4,j5
+      real(dp)::sH1,sH2,sH3,s125,s145,s234,s345,s3,s4,qsq
+      complex(dp)::zab_2_pH3_4,zab_5_pH4_3,zab_2_34_5,zab_4_23_1,
      & zab_2_pH_1,zab_2_pH_3,zbb_1_pH_45_3, zbb_1_pH23_pH_3,zab2,zab3
 
       zab2(j1,j2,j3,j4)=za(j1,j2)*zb(j2,j4)+za(j1,j3)*zb(j3,j4)

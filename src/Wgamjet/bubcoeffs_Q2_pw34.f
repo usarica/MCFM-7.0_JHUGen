@@ -11,13 +11,19 @@
 !======= Q2 h5=1 h6=1 LEADING COLOR AMPLITUDES (order matches KC)
 !=====  s(34)
 
-      double complex function Bcoeff_q2lcpp_s34(i1,i2,i3,i4,i5,i6,za,zb)
-      implicit none 
-      include 'constants.f' 
+      function Bcoeff_q2lcpp_s34(i1,i2,i3,i4,i5,i6,za,zb)
+      implicit none
+      include 'types.f'
+      complex(dp):: Bcoeff_q2lcpp_s34
+       
+      include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h' 
       include 'zprods_decl.f' 
       include 'sprods_com.f'
-      integer i1,i2,i3,i4,i5,i6
-      double complex zab2,t,ans 
+      integer:: i1,i2,i3,i4,i5,i6
+      complex(dp):: zab2,t,ans 
 !===== statement functions 
       zab2(i1,i2,i3,i4)=za(i1,i2)*zb(i2,i4)+za(i1,i3)*zb(i3,i4)
       t(i1,i2,i3)=s(i1,i2)+s(i2,i3)+s(i1,i3)
@@ -32,13 +38,19 @@
       return 
       end 
 
-      double complex function Bcoeff_q2lcpp_s16(i1,i2,i3,i4,i5,i6,za,zb)
-      implicit none 
-      include 'constants.f' 
+      function Bcoeff_q2lcpp_s16(i1,i2,i3,i4,i5,i6,za,zb)
+      implicit none
+      include 'types.f'
+      complex(dp):: Bcoeff_q2lcpp_s16
+       
+      include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h' 
       include 'zprods_decl.f' 
       include 'sprods_com.f'
-      integer i1,i2,i3,i4,i5,i6
-      double complex zab2,t,ans 
+      integer:: i1,i2,i3,i4,i5,i6
+      complex(dp):: zab2,t,ans 
 !===== statement functions 
       zab2(i1,i2,i3,i4)=za(i1,i2)*zb(i2,i4)+za(i1,i3)*zb(i3,i4)
       t(i1,i2,i3)=s(i1,i2)+s(i2,i3)+s(i1,i3)
@@ -54,14 +66,17 @@
 
 !============ SUBLEADING COLORS + +  
 
-      double complex function Bcoeff_q2slcpp_s34
+      function Bcoeff_q2slcpp_s34
      &     (i1,i2,i3,i4,i5,i6,za,zb)
-      implicit none 
-            include 'constants.f' 
+       
+            include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h' 
       include 'zprods_decl.f' 
       include 'sprods_com.f'
-      integer i1,i2,i3,i4,i5,i6
-      double complex zab2,t,ans 
+      integer:: i1,i2,i3,i4,i5,i6
+      complex(dp):: zab2,t,ans 
 !===== statement functions 
       zab2(i1,i2,i3,i4)=za(i1,i2)*zb(i2,i4)+za(i1,i3)*zb(i3,i4)
       t(i1,i2,i3)=s(i1,i2)+s(i2,i3)+s(i1,i3)
@@ -83,14 +98,17 @@
       return 
       end 
 
-      double complex function Bcoeff_q2slcpp_s16
+      function Bcoeff_q2slcpp_s16
      &     (i1,i2,i3,i4,i5,i6,za,zb)
-      implicit none 
-            include 'constants.f' 
+       
+            include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h' 
       include 'zprods_decl.f' 
       include 'sprods_com.f'
-      integer i1,i2,i3,i4,i5,i6
-      double complex zab2,t,ans 
+      integer:: i1,i2,i3,i4,i5,i6
+      complex(dp):: zab2,t,ans 
 !===== statement functions 
       zab2(i1,i2,i3,i4)=za(i1,i2)*zb(i2,i4)+za(i1,i3)*zb(i3,i4)
       t(i1,i2,i3)=s(i1,i2)+s(i2,i3)+s(i1,i3)
@@ -106,14 +124,17 @@
       
       
       
-      double complex function Bcoeff_q2slcpp_s125
+      function Bcoeff_q2slcpp_s125
      &     (i1,i2,i3,i4,i5,i6,za,zb)
-      implicit none 
-            include 'constants.f' 
+       
+            include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h' 
       include 'zprods_decl.f' 
       include 'sprods_com.f'
-      integer i1,i2,i3,i4,i5,i6
-      double complex zab2,t,ans 
+      integer:: i1,i2,i3,i4,i5,i6
+      complex(dp):: zab2,t,ans 
 !===== statement functions 
       zab2(i1,i2,i3,i4)=za(i1,i2)*zb(i2,i4)+za(i1,i3)*zb(i3,i4)
       t(i1,i2,i3)=s(i1,i2)+s(i2,i3)+s(i1,i3)
@@ -132,14 +153,17 @@
       end
 
 
-      double complex function Bcoeff_q2slcpp_s12
+      function Bcoeff_q2slcpp_s12
      &     (i1,i2,i3,i4,i5,i6,za,zb)
-      implicit none 
-            include 'constants.f' 
+       
+            include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h' 
       include 'zprods_decl.f' 
       include 'sprods_com.f'
-      integer i1,i2,i3,i4,i5,i6
-      double complex zab2,t,ans 
+      integer:: i1,i2,i3,i4,i5,i6
+      complex(dp):: zab2,t,ans 
 !===== statement functions 
       zab2(i1,i2,i3,i4)=za(i1,i2)*zb(i2,i4)+za(i1,i3)*zb(i3,i4)
       t(i1,i2,i3)=s(i1,i2)+s(i2,i3)+s(i1,i3)

@@ -1,14 +1,19 @@
       subroutine Afh(k1,k2,k3,k4,k5,k6,mq,Afmm,Afmp,Afpm,Afpp,
      & Ahmm,Ahmp,Ahpm,Ahpp,mhloopsq)
       implicit none
+      include 'types.f'
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'sprods_com.f'
       include 'scale.f'
-      integer k1,k2,k3,k4,k5,k6
-      double complex Afmm(-2:0),Afmp(-2:0),Afpm(-2:0),Afpp(-2:0),
+      integer:: k1,k2,k3,k4,k5,k6
+      complex(dp):: Afmm(-2:0),Afmp(-2:0),Afpm(-2:0),Afpp(-2:0),
      & Ahmm(-2:0),Ahmp(-2:0),Ahpm(-2:0),Ahpp(-2:0),
      & LOmm,LOmp,LOpm,LOpp,B0f,B0fm,A0fm,qlI2,qlI1
-      double precision s23,mhloopsq,mq
+      real(dp):: s23,mhloopsq,mq
 
       s23=s(k2,k3)
 

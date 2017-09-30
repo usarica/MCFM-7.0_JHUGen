@@ -1,11 +1,15 @@
       subroutine gg_hggg(p,msq)
       implicit none
+      include 'types.f'
 c--- Matrix element squared averaged over initial colors and spins
 c
 c     g(-p1)+g(-p2) -->  H(p34)+g(p_iglue1=5)+g(p_iglue2=6)+g(p_iglue2=7)
 c
 c--- Using the results of Frizzo and Company
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'ewcouple.f'
       include 'qcdcouple.f'
@@ -13,20 +17,20 @@ c--- Using the results of Frizzo and Company
       include 'nflav.f'
       include 'hdecaymode.f'
       include 'bitflags.f'
-      integer j,k,nu
-      double precision p(mxpart,4),Asq,fac,q(mxpart,4)
-      double precision Hggggg,msqgamgam,
-     . Hqaggg,Haqggg,Hgqqgg,Hgaagg,Hqgqgg,Hagagg,Hggqag
-      double precision qr_qrg,ar_arg,ab_abg,qa_rbg,
-     .                 gr_rqa,gb_baq,rg_rqa,bg_baq,aq_brg
+      integer::j,k,nu
+      real(dp)::p(mxpart,4),Asq,fac,q(mxpart,4)
+      real(dp)::Hggggg,msqgamgam,
+     & Hqaggg,Haqggg,Hgqqgg,Hgaagg,Hqgqgg,Hagagg,Hggqag
+      real(dp)::qr_qrg,ar_arg,ab_abg,qa_rbg,
+     &                 gr_rqa,gb_baq,rg_rqa,bg_baq,aq_brg
 
-      double precision qq_qqg,aq_aqg,aa_aag,
-     .                 gq_qqa,ga_aaq,qg_qqa,ag_aaq
-      double precision ra_rag,qa_qag
+      real(dp)::qq_qqg,aq_aqg,aa_aag,
+     &                 gq_qqa,ga_aaq,qg_qqa,ag_aaq
+      real(dp)::ra_rag,qa_qag
 
-      double precision dummy
+      real(dp)::dummy
 
-      double precision msq(-nf:nf,-nf:nf),hdecay,s34
+      real(dp)::msq(-nf:nf,-nf:nf),hdecay,s34
       s34=(p(3,4)+p(4,4))**2
      & -(p(3,1)+p(4,1))**2-(p(3,2)+p(4,2))**2-(p(3,3)+p(4,3))**2
 
@@ -44,7 +48,7 @@ C   Deal with Higgs decay
 
       hdecay=hdecay/((s34-hmass**2)**2+(hmass*hwidth)**2)
 
-      Asq=(as/(3d0*pi))**2/vevsq
+      Asq=(as/(three*pi))**2/vevsq
 
 C---swap momenta so that Higgs decay products are last
       do nu=1,4
@@ -146,67 +150,67 @@ c--- apply flags
 C----Fill up array with values;
       do j=-nf,nf
       do k=-nf,nf
-      msq(j,k)=0d0
+      msq(j,k)=zip
 
 C ---qq
-      if ((j.gt.0).and.(k.gt.0)) then
-        if (j.eq.k) then
-          msq(j,k)=0.5d0*aveqq*fac*qq_qqg
+      if ((j>0).and.(k>0)) then
+        if (j==k) then
+          msq(j,k)=half*aveqq*fac*qq_qqg
         else
           msq(j,k)=aveqq*fac*qr_qrg
         endif
       endif
 
 C ---aa
-      if ((j.lt.0).and.(k.lt.0)) then
-        if (j.eq.k) then
-          msq(j,k)=0.5d0*aveqq*fac*aa_aag
+      if ((j<0).and.(k<0)) then
+        if (j==k) then
+          msq(j,k)=half*aveqq*fac*aa_aag
         else
           msq(j,k)=aveqq*fac*ab_abg
         endif
       endif
 
 c ---qa
-      if ((j.gt.0).and.(k.lt.0)) then
-        if (j.eq.-k) then
-          msq(j,k)=aveqq*fac*(Hqaggg/6d0+qa_qag+dfloat(nflav-1)*qa_rbg)
+      if ((j>0).and.(k<0)) then
+        if (j==-k) then
+          msq(j,k)=aveqq*fac*(Hqaggg/six+qa_qag+real(nflav-1,dp)*qa_rbg)
         else
           msq(j,k)=aveqq*fac*ra_rag
         endif
       endif
 
 c ---aq
-      if ((j.lt.0).and.(k.gt.0)) then
-        if (j.eq.-k) then
-          msq(j,k)=aveqq*fac*(Haqggg/6d0+aq_aqg+dfloat(nflav-1)*aq_brg)
+      if ((j<0).and.(k>0)) then
+        if (j==-k) then
+          msq(j,k)=aveqq*fac*(Haqggg/six+aq_aqg+real(nflav-1,dp)*aq_brg)
         else
           msq(j,k)=aveqq*fac*ar_arg
         endif
       endif
 
 c--- qg
-      if ((j.gt.0).and.(k.eq.0)) then
-       msq(j,0)=aveqg*fac*((Hqgqgg+qg_qqa)*0.5d0+dfloat(nflav-1)*rg_rqa)
+      if ((j>0).and.(k==0)) then
+       msq(j,0)=aveqg*fac*((Hqgqgg+qg_qqa)*half+real(nflav-1,dp)*rg_rqa)
       endif
 
 c--- ag
-      if ((j.lt.0).and.(k.eq.0)) then
-       msq(j,0)=aveqg*fac*((Hagagg+ag_aaq)*0.5d0+dfloat(nflav-1)*bg_baq)
+      if ((j<0).and.(k==0)) then
+       msq(j,0)=aveqg*fac*((Hagagg+ag_aaq)*half+real(nflav-1,dp)*bg_baq)
       endif
 
 c--- gq
-      if ((j.eq.0).and.(k.gt.0)) then
-       msq(0,k)=aveqg*fac*((Hgqqgg+gq_qqa)*0.5d0+dfloat(nflav-1)*gr_rqa)
+      if ((j==0).and.(k>0)) then
+       msq(0,k)=aveqg*fac*((Hgqqgg+gq_qqa)*half+real(nflav-1,dp)*gr_rqa)
       endif
 
 c--- ga
-      if ((j.eq.0).and.(k.lt.0)) then
-       msq(0,k)=aveqg*fac*((Hgaagg+ga_aaq)*0.5d0+dfloat(nflav-1)*gb_baq)
+      if ((j==0).and.(k<0)) then
+       msq(0,k)=aveqg*fac*((Hgaagg+ga_aaq)*half+real(nflav-1,dp)*gb_baq)
       endif
 
 c--- gg
-      if ((j.eq.0).and.(k.eq.0)) then
-        msq(0,0)=avegg*fac*(Hggggg/6d0+dfloat(nflav)*Hggqag)
+      if ((j==0).and.(k==0)) then
+        msq(0,0)=avegg*fac*(Hggggg/six+real(nflav,dp)*Hggqag)
       endif
 
       enddo

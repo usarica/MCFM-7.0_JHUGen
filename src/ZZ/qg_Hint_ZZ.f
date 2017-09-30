@@ -1,31 +1,36 @@
       subroutine qg_Hint_ZZ(p,msq)
       implicit none
+      include 'types.f'
+
 !==== C.W Oct 2013
 !==== routine for calculating q(qb) g initiated inteferences in
 !==== H=>ZZ
 !===== returns only the interference
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'qlfirst.f'
-      double precision p(mxpart,4),msq(-nf:nf,-nf:nf)
-      double complex qg_tH(2,2,2,2),qbg_tH(2,2,2,2),
+      real(dp):: p(mxpart,4),msq(-nf:nf,-nf:nf)
+      complex(dp):: qg_tH(2,2,2,2),qbg_tH(2,2,2,2),
      & gq_tH(2,2,2,2),gqb_tH(2,2,2,2)
-      double complex qg_bH(2,2,2,2),qbg_bH(2,2,2,2),
+      complex(dp):: qg_bH(2,2,2,2),qbg_bH(2,2,2,2),
      & gq_bH(2,2,2,2),gqb_bH(2,2,2,2)
-      double complex qg_contu(2,2,2,2),qbg_contu(2,2,2,2),
+      complex(dp):: qg_contu(2,2,2,2),qbg_contu(2,2,2,2),
      & gq_contu(2,2,2,2),gqb_contu(2,2,2,2)
-      double complex qg_contd(2,2,2,2),qbg_contd(2,2,2,2),
+      complex(dp):: qg_contd(2,2,2,2),qbg_contd(2,2,2,2),
      & gq_contd(2,2,2,2),gqb_contd(2,2,2,2)
-      double complex A_higgs_XG,A_higgs_GX,A_cont_XG,A_cont_GX
-      integer j,h1,h2,h34,h56,k
-      double precision fac
+      complex(dp):: A_higgs_XG,A_higgs_GX,A_cont_XG,A_cont_GX
+      integer:: j,h1,h2,h34,h56,k
+      real(dp):: fac
 
       if(qlfirst) then
          qlfirst=.false.
          call qlinit
       endif
 
-      msq(:,:)=0d0
+      msq(:,:)=zip
       call spinoru(7,p,za,zb)
 
 C-----Ordering of call is outgoing quark,outgoing antiquark,gluon
@@ -47,7 +52,7 @@ C-----Ordering of call is outgoing quark,outgoing antiquark,gluon
 
 
 !======= down type pieces
-         if(mod(abs(j),2).eq.1) then
+         if(mod(abs(j),2)==1) then
             do h1=1,2
                do h2=1,2
                   do h34=1,2
@@ -65,13 +70,13 @@ C-----Ordering of call is outgoing quark,outgoing antiquark,gluon
                         A_cont_GX=
      &                       gqb_contd(h1,h2,h34,h56)
 
-                        msq(j,0)=msq(j,0)+cdabs(A_cont_XG+A_higgs_XG)**2
-                        msq(0,j)=msq(0,j)+cdabs(A_cont_GX+A_higgs_GX)**2
+                        msq(j,0)=msq(j,0)+abs(A_cont_XG+A_higgs_XG)**2
+                        msq(0,j)=msq(0,j)+abs(A_cont_GX+A_higgs_GX)**2
 !======== subtract S**2 and B**2
                         msq(j,0)=msq(j,0)
-     &                       -cdabs(A_cont_XG)**2-cdabs(A_higgs_XG)**2
+     &                       -abs(A_cont_XG)**2-abs(A_higgs_XG)**2
                         msq(0,j)=msq(0,j)
-     &                       -cdabs(A_cont_GX)**2-cdabs(A_higgs_GX)**2
+     &                       -abs(A_cont_GX)**2-abs(A_higgs_GX)**2
                      enddo
                   enddo
                enddo
@@ -95,13 +100,13 @@ C-----Ordering of call is outgoing quark,outgoing antiquark,gluon
                         A_cont_GX=
      &                       gqb_contu(h1,h2,h34,h56)
 
-                        msq(j,0)=msq(j,0)+cdabs(A_cont_XG+A_higgs_XG)**2
-                        msq(0,j)=msq(0,j)+cdabs(A_cont_GX+A_higgs_GX)**2
+                        msq(j,0)=msq(j,0)+abs(A_cont_XG+A_higgs_XG)**2
+                        msq(0,j)=msq(0,j)+abs(A_cont_GX+A_higgs_GX)**2
 !======== subtract S**2 and B**2
                         msq(j,0)=msq(j,0)
-     &                       -cdabs(A_cont_XG)**2-cdabs(A_higgs_XG)**2
+     &                       -abs(A_cont_XG)**2-abs(A_higgs_XG)**2
                         msq(0,j)=msq(0,j)
-     &                       -cdabs(A_cont_GX)**2-cdabs(A_higgs_GX)**2
+     &                       -abs(A_cont_GX)**2-abs(A_higgs_GX)**2
                      enddo
                   enddo
                enddo
@@ -117,7 +122,7 @@ C-----Ordering of call is outgoing quark,outgoing antiquark,gluon
       do j=1,nf
 
 !=======down type pieces
-         if(mod(j,2).eq.1) then
+         if(mod(j,2)==1) then
 
             do h1=1,2
                do h2=1,2
@@ -136,13 +141,13 @@ C-----Ordering of call is outgoing quark,outgoing antiquark,gluon
                         A_cont_GX=
      &                       gq_contd(h1,h2,h34,h56)
 
-                        msq(j,0)=msq(j,0)+cdabs(A_cont_XG+A_higgs_XG)**2
-                        msq(0,j)=msq(0,j)+cdabs(A_cont_GX+A_higgs_GX)**2
+                        msq(j,0)=msq(j,0)+abs(A_cont_XG+A_higgs_XG)**2
+                        msq(0,j)=msq(0,j)+abs(A_cont_GX+A_higgs_GX)**2
 !======== subtract S**2 and B**2
                         msq(j,0)=msq(j,0)
-     &                       -cdabs(A_cont_XG)**2-cdabs(A_higgs_XG)**2
+     &                       -abs(A_cont_XG)**2-abs(A_higgs_XG)**2
                         msq(0,j)=msq(0,j)
-     &                       -cdabs(A_cont_GX)**2-cdabs(A_higgs_GX)**2
+     &                       -abs(A_cont_GX)**2-abs(A_higgs_GX)**2
                      enddo
                   enddo
                enddo
@@ -166,13 +171,13 @@ C-----Ordering of call is outgoing quark,outgoing antiquark,gluon
                         A_cont_GX=
      &                       gq_contu(h1,h2,h34,h56)
 
-                        msq(j,0)=msq(j,0)+cdabs(A_cont_XG+A_higgs_XG)**2
-                        msq(0,j)=msq(0,j)+cdabs(A_cont_GX+A_higgs_GX)**2
+                        msq(j,0)=msq(j,0)+abs(A_cont_XG+A_higgs_XG)**2
+                        msq(0,j)=msq(0,j)+abs(A_cont_GX+A_higgs_GX)**2
 !======== subtract S**2 and B**2
                         msq(j,0)=msq(j,0)
-     &                       -cdabs(A_cont_XG)**2-cdabs(A_higgs_XG)**2
+     &                       -abs(A_cont_XG)**2-abs(A_higgs_XG)**2
                         msq(0,j)=msq(0,j)
-     &                       -cdabs(A_cont_GX)**2-cdabs(A_higgs_GX)**2
+     &                       -abs(A_cont_GX)**2-abs(A_higgs_GX)**2
                      enddo
                   enddo
                enddo
@@ -181,7 +186,7 @@ C-----Ordering of call is outgoing quark,outgoing antiquark,gluon
       enddo
 
 !===== colour factor
-      fac=aveqg*V/2d0
+      fac=aveqg*V/two
 
 !==== rescale matrix elements by appropriate factor
       do j=-nf,nf

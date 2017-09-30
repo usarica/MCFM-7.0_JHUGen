@@ -1,4 +1,6 @@
       subroutine qqb_w_twdk_g(p,msq)
+      implicit none
+      include 'types.f'
 ************************************************************************
 *     Author: Francesco Tramontano                                     *
 *     February, 2005.                                                  *
@@ -18,35 +20,38 @@
 *                            |                                         *
 *                            --> nu(p3) + e^+(p4)                      *
 ************************************************************************
-      implicit none
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'qcdcouple.f'
       include 'ewcouple.f'
       include 'nores.f'
       include 'nwz.f'
       include 'jetcuts.f'
-      integer ia,ig,j,k,i3,i4,i5,i6,iq
-      double precision p(mxpart,4),msq(-nf:nf,-nf:nf),fac,dot,prop,
-     . msq_gq,msq_qg,msq_gg,msq_qb,msq_bq,msq_ab,msq_ba
-      double complex ampgq_ga(2,2),ampgq_ag(2,2),
-     .               ampqg_ga(2,2),ampqg_ag(2,2),
-     .               ampgg_ga(2,2),ampgg_ag(2,2)
+      integer:: ia,ig,j,k,i3,i4,i5,i6,iq
+      real(dp):: p(mxpart,4),msq(-nf:nf,-nf:nf),fac,dot,prop,
+     & msq_gq,msq_qg,msq_gg,msq_qb,msq_bq,msq_ab,msq_ba
+      complex(dp):: ampgq_ga(2,2),ampgq_ag(2,2),
+     &               ampqg_ga(2,2),ampqg_ag(2,2),
+     &               ampgg_ga(2,2),ampgg_ag(2,2)
 
       do j=-nf,nf
       do k=-nf,nf
-      msq(j,k)=0d0
+      msq(j,k)=zip
       enddo
       enddo
 
 c--- set up lepton variables depending on whether it's t or tbar
-      if     (nwz .eq. -1) then
+      if     (nwz == -1) then
         i3=3
         i4=4
         i5=5
         i6=6
         iq=+1 ! quark initial state
-      elseif (nwz .eq. +1) then
+      elseif (nwz == +1) then
         i3=4
         i4=3
         i5=6
@@ -62,7 +67,7 @@ c--- set up lepton variables depending on whether it's t or tbar
       prop=(two*dot(p,3,4)-wmass**2)**2+(wmass*wwidth)**2
       prop=prop*((two*dot(p,5,6)-wmass**2)**2+(wmass*wwidth)**2)
       prop=prop*((two*dot(p,5,6)+two*dot(p,5,7)+two*dot(p,6,7)-mt**2)**2
-     .         +(mt*twidth)**2)
+     &         +(mt*twidth)**2)
 
 c--- calculate amplitudes for g+q in initial state
       call gs_wt_prog(mt,twidth,p,1,2,i3,i4,i5,i6,7,8,ampgq_ag)
@@ -80,29 +85,29 @@ c--- from non-resonant diagrams only (gauge-dependent)
       call gs_wt_prog_nores(p,2,8,i3,i4,i5,i6,7,1,ampgg_ga)
       endif
 
-      msq_gq=0d0
-      msq_qg=0d0
-      msq_gg=0d0
+      msq_gq=zip
+      msq_qg=zip
+      msq_gg=zip
 c--- sum over helicities of gluons
       do ia=1,2
       do ig=1,2
         msq_gq=msq_gq+xn*cf**2*(
-     .        + abs(ampgq_ag(ia,ig))**2 + abs(ampgq_ga(ig,ia))**2
-     .        - one/xn/cf*dble(ampgq_ag(ia,ig)*dconjg(ampgq_ga(ig,ia))))
+     &        + abs(ampgq_ag(ia,ig))**2 + abs(ampgq_ga(ig,ia))**2
+     &        - one/xn/cf*real(ampgq_ag(ia,ig)*conjg(ampgq_ga(ig,ia))))
         msq_qg=msq_qg+xn*cf**2*(
-     .        + abs(ampqg_ag(ia,ig))**2 + abs(ampqg_ga(ig,ia))**2
-     .        - one/xn/cf*dble(ampqg_ag(ia,ig)*dconjg(ampqg_ga(ig,ia))))
+     &        + abs(ampqg_ag(ia,ig))**2 + abs(ampqg_ga(ig,ia))**2
+     &        - one/xn/cf*real(ampqg_ag(ia,ig)*conjg(ampqg_ga(ig,ia))))
       if (nores .eqv. .false.) then
         msq_gg=msq_gg+xn*cf**2*(
-     .        + abs(ampgg_ag(ia,ig))**2 + abs(ampgg_ga(ig,ia))**2
-     .        - one/xn/cf*dble(ampgg_ag(ia,ig)*dconjg(ampgg_ga(ig,ia))))
+     &        + abs(ampgg_ag(ia,ig))**2 + abs(ampgg_ga(ig,ia))**2
+     &        - one/xn/cf*real(ampgg_ag(ia,ig)*conjg(ampgg_ga(ig,ia))))
       endif
       enddo
       enddo
 
 c-- veto b-jet contribution if doing subtraction and pt(b)>ptbjetmin GeV
-      if (dsqrt(p(8,1)**2+p(8,2)**2) .gt. ptbjetmin) then
-        msq_gg=0d0
+      if (sqrt(p(8,1)**2+p(8,2)**2) > ptbjetmin) then
+        msq_gg=zip
       endif
 
       msq_gq=msq_gq/prop
@@ -139,18 +144,18 @@ c      endif
 c--- if we're doing the window method, we must have mb>0 and the
 c--- gg, qqb contributions shouldn't be included here
 c      if (runstring(1:3) .ne. 'sub') then
-c        msq_gg=0d0
-c        msq_qqb=0d0
+c        msq_gg=zip
+c        msq_qqb=zip
 c      endif
 
       do j=-nf,nf,nf
       do k=-nf,nf,nf
-      msq(j,k)=0d0
-      if     ((j .eq. +5*iq) .and. (k .eq. 0)) then
+      msq(j,k)=zip
+      if     ((j == +5*iq) .and. (k == 0)) then
           msq(j,k)=aveqg*fac*msq_qg
-      elseif ((j .eq. 0) .and. (k .eq. +5*iq)) then
+      elseif ((j == 0) .and. (k == +5*iq)) then
           msq(j,k)=aveqg*fac*msq_gq
-      elseif ((j .eq. 0) .and. (k .eq. 0)) then
+      elseif ((j == 0) .and. (k == 0)) then
           if (nores .eqv. .false.) msq(j,k)=avegg*fac*msq_gg
       endif
       enddo

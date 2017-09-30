@@ -1,15 +1,20 @@
       subroutine qq_tchan_htq(p,msq)
       implicit none
+      include 'types.f'
+      
 c---  Matrix element squared averaged over initial colors and spins
 c---  u(-p1)+b(p2)->H(p3,p4)+t(p5)+d(p6) etc
       include 'ewcouple.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'hdecaymode.f'
       include 'masses.f'
       include 'nwz.f'
       include 'zprods_com.f'
-      integer j,nu,eta,e5
-      double precision p(mxpart,4),q(mxpart,4),p5Deta,s34,hdecay,
+      integer:: j,nu,eta,e5
+      real(dp):: p(mxpart,4),q(mxpart,4),p5Deta,s34,hdecay,
      & msq(-nf:nf,-nf:nf),dot,msqgamgam,fac,
      & b_u,u_b,db_b,b_db,d_bb,ub_bb,bb_d,bb_ub,ubhtdsq
 
@@ -48,7 +53,7 @@ C -- zero all matrix elements
       
       fac=xn**2*aveqq*gwsq**3*hdecay
 
-      if (nwz .eq. 1) then
+      if (nwz == 1) then
         call spinoru(7,q,za,zb) 
 
         u_b=ubhtdsq(1,2,3,4,5,6,e5)*fac
@@ -66,7 +71,7 @@ C -- zero all matrix elements
         msq(+5,+2)=b_u
         msq(+5,+4)=b_u
 
-      elseif(nwz .eq. -1) then
+      elseif(nwz == -1) then
         call spinoru(7,q,zb,za) 
 
         d_bb=ubhtdsq(1,2,4,3,5,6,e5)*fac

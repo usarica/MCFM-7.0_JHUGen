@@ -1,3 +1,3 @@
-      double precision aii,aif,afi,aff,alfa
+      real(dp):: aii,aif,afi,aff,alfa
       common/alfacut/aii,aif,afi,aff
-      parameter(alfa=1d0)
+      parameter(alfa=1._dp)

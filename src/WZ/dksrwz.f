@@ -1,13 +1,18 @@
 c--- File written by FORM program dksrwz.frm on Thu Jul 26 20:12:12 CDT 2012
       subroutine dksrwz(p1,p2,p3,p4,p5,p6,p7,f)
       implicit none
+      include 'types.f'
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'sprods_com.f'
       include 'zprods_com.f'
       include 'nwz.f'
-      integer p1,p2,p3,p4,p5,p6,p7
-      double precision s12,s123,s124,s567
-      double complex iza,izb,cc11,cc12,f(4,2,2)
+      integer:: p1,p2,p3,p4,p5,p6,p7
+      real(dp):: s12,s123,s124,s567
+      complex(dp):: iza,izb,cc11,cc12,f(4,2,2)
 C     first index of f controls the choice of diagrams
 C     second index of f  is helicity of 5-6 line,
 C     third is gluon helicity
@@ -73,7 +78,7 @@ C     third is gluon helicity
      &    iza(p6,p7)*s123**(-1) - za(p2,p3)*za(p3,p6)*zb(p1,p3)*zb(p4,
      &    p7)*iza(p5,p7)*s123**(-1) )
 
-      if (nwz .eq. 1) then
+      if (nwz == 1) then
       call dksrwzc(p1,p2,p3,p4,p5,p6,p7,cc11,cc12)
       f(3,1,1)=cc11
       f(3,1,2)=cc12
@@ -84,7 +89,7 @@ C     third is gluon helicity
       f(4,1,2)=cc12
       f(4,2,1)=czip
       f(4,2,2)=czip
-      elseif (nwz .eq. -1) then
+      elseif (nwz == -1) then
       call dksrwzc(p4,p3,p2,p1,p5,p6,p7,cc11,cc12)
       f(3,1,1)=cc11
       f(3,1,2)=cc12

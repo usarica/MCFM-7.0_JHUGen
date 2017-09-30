@@ -1,2 +1,2 @@
-      double precision amz
+      real(dp):: amz
       common/couple/amz

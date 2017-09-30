@@ -1,5 +1,7 @@
       subroutine qqb_tth(pin,msq)
       implicit none
+      include 'types.f'
+
 ************************************************************************
 *     Author: R.K. Ellis                                               *
 *     December, 1999.                                                  *
@@ -12,34 +14,37 @@ C                      +H(b(p9)+bbar(p10))
 C
 ************************************************************************
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ewcouple.f'
       include 'zprods_com.f'
       include 'qcdcouple.f'
       include 'couple.f'
-      include 'part.f'
+      include 'kpart.f'
       include 'masses.f'
       include 'plabel.f'
       include 'msbarmasses.f'
       include 'hdecaymode.f'
       include 'first.f'
 
-      integer j,k,nu
-      double precision msq(-nf:nf,-nf:nf),pin(mxpart,4),p(mxpart,4)
-      double precision pw1(4),pw2(4),q(4),a(4),r(4),b(4),h(4),
+      integer:: j,k,nu
+      real(dp):: msq(-nf:nf,-nf:nf),pin(mxpart,4),p(mxpart,4)
+      real(dp):: pw1(4),pw2(4),q(4),a(4),r(4),b(4),h(4),
      & q1(4),q2(4),a1(4),a2(4)
-      double precision sh,sw1,sw2,qDq,aDa,rDr,bDb,densq,
-     . p3Dp5,p6Dp8,q1Dq1,q2Dq2,a1Da1,a2Da2
-      double precision wtqqb,wtgg,hdecay,mt_eff,massfrun
-      double precision gamr1,gamr2,gamb1,gamb2,gamq4,gama7,dot
-      double precision fac,facqq,facgg,denr,denb,denq1,denq2,dena1,dena2
-      double precision p1Dr,p2Dr,p1Db,p2Db,p4Dq,p7Da,msqgamgam
-      integer q4,a7,r1,r2,b1,b2
+      real(dp):: sh,sw1,sw2,qDq,aDa,rDr,bDb,densq,
+     & p3Dp5,p6Dp8,q1Dq1,q2Dq2,a1Da1,a2Da2
+      real(dp):: wtqqb,wtgg,hdecay,mt_eff,massfrun
+      real(dp):: gamr1,gamr2,gamb1,gamb2,gamq4,gama7,dot
+      real(dp):: fac,facqq,facgg,denr,denb,denq1,denq2,dena1,dena2
+      real(dp):: p1Dr,p2Dr,p1Db,p2Db,p4Dq,p7Da,msqgamgam
+      integer:: q4,a7,r1,r2,b1,b2
       parameter(q4=3,a7=5,r1=6,r2=8,b1=9,b2=10)
       save mt_eff
 !$omp threadprivate(mt_eff)
       if (first) then
 c--- run mt to appropriate scale
-        if (part .eq. 'lord') then
+        if (kpart==klord) then
           mt_eff=massfrun(mt_msbar,hmass,amz,1)
         else
           mt_eff=massfrun(mt_msbar,hmass,amz,2)
@@ -114,8 +119,8 @@ C   Deal with Higgs decay
       fac=2d0*p3Dp5*2d0*p6Dp8/densq
      &   *gwsq**5*gsq**2*mt_eff**2/wmass**2*hdecay
 C---include factor for hadronic decays of top
-      if (plabel(3) .eq. 'pp') fac=2d0*xn*fac
-      if (plabel(7) .eq. 'pp') fac=2d0*xn*fac
+      if (plabel(3) == 'pp') fac=2d0*xn*fac
+      if (plabel(7) == 'pp') fac=2d0*xn*fac
       facqq=aveqq*V/4d0*fac
       facgg=avegg*V*xn/4d0*fac
 
@@ -160,11 +165,11 @@ C----set all elements to zero
 
 C---fill qb-q, gg and q-qb elements
       do j=-nf,nf
-      if (j .lt. 0) then
+      if (j < 0) then
           msq(j,-j)=facqq*wtqqb
-      elseif (j .eq. 0) then
+      elseif (j == 0) then
           msq(j,j)=facgg*wtgg
-      elseif (j .gt. 0) then
+      elseif (j > 0) then
           msq(j,-j)=facqq*wtqqb
       endif
       enddo

@@ -1,8 +1,10 @@
       subroutine read_dm_params
-      implicit none 
+      implicit none
+      include 'types.f'
+       
       include 'dm_params.f' 
       character*200 line 
-      integer j
+      integer:: j
       open(unit=35,file='dm_parameters.DAT',status='old',err=440) 
 
       read(35,*) xmass  
@@ -44,14 +46,14 @@
       write(6,*) '***************************************' 
 
 c--- for scalar or pseudoscalar mediator, set scalar couplings
-      if (  (dm_mediator .eq. 'scalar')
-     & .or. (dm_mediator .eq. 'pseudo') ) then
+      if (  (dm_mediator == 'scalar')
+     & .or. (dm_mediator == 'pseudo') ) then
         call set_scalar_coups()
       endif
       
 c--- for axial-vector or pseudoscalar mediator, check couplings
-      if (  (dm_mediator .eq. 'axvect')
-     & .or. (dm_mediator .eq. 'pseudo') ) then
+      if (  (dm_mediator == 'axvect')
+     & .or. (dm_mediator == 'pseudo') ) then
         call check_dmAxC()
       endif
 
@@ -69,17 +71,22 @@ c--- for axial-vector or pseudoscalar mediator, check couplings
 
 
       subroutine check_dmAxC
-      implicit none 
-      include 'constants.f' 
+      implicit none
+      include 'types.f'
+       
+      include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h' 
       include 'dm_params.f' 
 !----- check that dmL = -dmR for axial coupling 
-      integer j 
-      logical reset 
+      integer:: j 
+      logical:: reset 
 
       reset=.false. 
 
       do j=1,nf
-         if(dabs(dmL(j)+dmR(j)).gt.1d-8) then 
+         if(abs(dmL(j)+dmR(j))>1.e-8_dp) then 
           dmR(j)=-dmL(j)
           reset=.true. 
           endif
@@ -99,21 +106,23 @@ c--- for axial-vector or pseudoscalar mediator, check couplings
 
       
       subroutine set_scalar_coups
-      implicit none 
+      implicit none
+      include 'types.f'
+       
       include 'dm_params.f' 
       include 'masses.f' 
       include 'ewcouple.f' 
       include 'first.f' 
-      integer j 
-      double precision inv_v
-!----- inv v = 1/v = dsqrt(gwsq/4m_W^2) 
-      inv_v=dsqrt(gwsq/(4d0*wmass**2)) 
+      integer:: j 
+      real(dp):: inv_v
+!----- inv v = 1/v = sqrt(gwsq/4m_W^2) 
+      inv_v=sqrt(gwsq/(4._dp*wmass**2)) 
 
       if(yukawa_scal) then 
       if(effective_th) then 
-         dmL(1)=0d0 
-         dmL(2)=0d0 
-         dmL(3)=0d0 
+         dmL(1)=0._dp 
+         dmL(2)=0._dp 
+         dmL(3)=0._dp 
          dmL(4)=mc/dm_lam 
          dmL(5)=mb/dm_lam 
          do j=1,5 
@@ -127,9 +136,9 @@ c         if(first) then
 c            first=.false.
 c         endif
       else
-         dmL(1)=0d0 
-         dmL(2)=0d0 
-         dmL(3)=0d0 
+         dmL(1)=0._dp 
+         dmL(2)=0._dp 
+         dmL(3)=0._dp 
          dmL(4)=mc*inv_v/g_dmq
          dmL(5)=mb*inv_v/g_dmq
          do j=1,5 

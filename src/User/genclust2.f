@@ -1,4 +1,6 @@
       subroutine genclust2(q,R,qfinal,isub)
+      implicit none
+      include 'types.f'
 c--- this is a wrapper routine for the jet clustering algorithm
 c--- which re-routes according to the value of 'algorithm'  to:
 c---  ('ktal') genclust_kt.f     for kt clustering
@@ -6,105 +8,124 @@ c---  ('ankt') genclust_kt.f     for "anti-kt" clustering
 c---  ('cone') genclust_cone.f   for cone algorithm
 c---  ('hqrk') genclust_hqrk.f   for simplified heavy-quark algorithm
 c---  ('none') to perform no clustering at all
-      implicit none
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'clustering.f'
       include 'jetcuts.f'
       include 'jetlabel.f'
       include 'bbproc.f'
-      include 'process.f'
-      include 'part.f'
+      include 'kprocess.f'
+      include 'kpart.f'
       include 'nqcdjets.f'
       include 'notag.f'
-      character*4 mypart
-      double precision q(mxpart,4),qfinal(mxpart,4),
+      include 'first.f'
+      include 'mpicommon.f'
+      integer mykpart
+      real(dp):: q(mxpart,4),qfinal(mxpart,4),
      & qreorder(mxpart,4),R,Rbbmin
-      integer isub,i,nu,njetsmin,njetsmax
-      logical first
+      integer:: isub,i,nu,njetsmin,njetsmax
       common/Rbbmin/Rbbmin
-      common/mypart/mypart
-      data first/.true./
-      save first
-!$omp threadprivate(first)
+      common/mykpart/mykpart
 
       if ((first) .and.
-     &   ((nqcdjets .gt. 0).or.(part .eq. 'real').or.(notag.gt.0))) then
+     &   ((nqcdjets > 0).or.(kpart==kreal).or.(notag>0))) then
         first=.false.
         call read_jetcuts(ptjetmin,etajetmin,etajetmax)
+!$omp master
+      if (rank == 0) then
       write(6,*)
       write(6,*) '*********** Basic jet-defining parameters **********'
-      if     (algorithm .eq. 'ktal') then
+      if     (jetalgorithm == kt) then
       write(6,*) '*          (Run II kT clustering algorithm)        *'
-      elseif (algorithm .eq. 'ankt') then
+      elseif (jetalgorithm == antikt) then
       write(6,*) '*     (Anti-kt algorithm - see arXiv:0802.1189)    *'
-      elseif (algorithm .eq. 'cone') then
+      elseif (jetalgorithm == Rsepcone) then
       write(6,*) '*              (Run II cone algorithm)             *'
-      elseif (algorithm .eq. 'hqrk') then
+      elseif (jetalgorithm == hqrk) then
       write(6,*) '*        (Simple cone algorithm for W/Z+Q+j)       *'
-      elseif (algorithm .eq. 'none') then
+      elseif (jetalgorithm == noclustering) then
       write(6,*) '*             (no clustering algorithm)            *'
       else
       write(6,*)
       write(6,*) 'Invalid selection of algorithm in input file.'
-      write(6,*) 'Please select either ktal, cone, hqrk or none'
+      write(6,*) 'Please select either ktal, ankt, cone, hqrk or none'
       stop
       endif
       write(6,*) '*                                                  *'
       write(6,79) ' *     pt(jet)         > ',ptjetmin
       write(6,79) ' *   |pseudo-rap(jet)| > ',etajetmin
       write(6,79) ' *   |pseudo-rap(jet)| < ',etajetmax
+      endif
+!$omp end master
       if (bbproc) then
         ptbjetmin=max(ptjetmin,ptbjetmin)
         etabjetmax=min(etajetmax,etabjetmax)
       write(6,79) ' *   pt(b-jet)         > ',ptbjetmin
       write(6,79) ' * |pseudo-rap(b-jet)| < ',etabjetmax
       endif
-      if (algorithm .eq. 'hqrk') then
+      if (jetalgorithm == hqrk) then
       write(6,79) ' *   b-bbar separation : ',Rbbmin
       write(6,79) ' *        cone size, R : ',R
       else
+!$omp master
+      if (rank == 0) then
       write(6,79) ' * pseudo-cone size, R : ',R
       endif
+!$omp end master
+      endif
+!$omp master
+      if (rank == 0) then
       write(6,*) '*                                                  *'
-      if ((case .eq. 'W_twdk') .or. (case .eq. 'Wtdkay')) then
+      endif
+!$omp end master
+      if ((kcase==kW_twdk) .or. (kcase==kWtdkay)) then
       write(6,79) ' *   pt(b-jet @ NLO)   < ',ptbjetmin
       write(6,*) '*                                                  *'
       endif
       njetsmin=nqcdjets-notag
       if (inclusive) then
-        if( (part.eq.'real') .or. (mypart.eq.'tota')
-     &  .or.(mypart.eq.'todk') )then
+        if( (kpart==kreal) .or. (mykpart==ktota)
+     &  .or.(mykpart==ktodk) )then
           njetsmax=nqcdjets+1
+        elseif (mykpart==knnlo) then
+          njetsmax=nqcdjets+2
         else
           njetsmax=nqcdjets
         endif
       else
         njetsmax=nqcdjets-notag
       endif
+!$omp master
+      if (rank == 0) then
       write(6,78) njetsmin,njetsmax
       write(6,*) '****************************************************'
       call flush(6)
+      endif
+!$omp end master
       endif
    78 format(' *    Cross-section defined by:  ',i2,' <= jets <=',
      &        i2,'    *')
    79 format(a25,f8.4,'                   *')
 
-      if     (algorithm .eq. 'ktal') then
+      if     (jetalgorithm == kt) then
         call genclust_kt(q,R,qfinal,isub,+1)
-      elseif (algorithm .eq. 'ankt') then
+      elseif (jetalgorithm == antikt) then
         call genclust_kt(q,R,qfinal,isub,-1)
-      elseif (algorithm .eq. 'cone') then
+      elseif (jetalgorithm == Rsepcone) then
         call genclust_cone(q,R,qfinal,isub)
-      elseif (algorithm .eq. 'hqrk') then
+      elseif (jetalgorithm == hqrk) then
         call genclust_hqrk(q,R,qfinal,isub)
-      elseif (algorithm .eq. 'none') then
+      elseif (jetalgorithm == noclustering) then
         do i=1,mxpart
           do nu=1,4
             qfinal(i,nu)=q(i,nu)
           enddo
         enddo
         jets=nqcdjets
-      if ((part .eq. 'real') .and. (isub .eq. 0)) jets=jets+1
+      if ((kpart==kreal) .and. (isub == 0)) jets=jets+1
         return
       else
         write(6,*) 'Invalid choice of jet algorithm, must be'
@@ -114,18 +135,18 @@ c---  ('none') to perform no clustering at all
 
 c--- reorder jets for some special cases, to preserve identities of
 c--- particles for use in the plotting routines
-      if (    (case .eq. 'qq_ttg')
-     &   .or. (case .eq. 'tt_bbl')
-     &   .or. (case .eq. 'tt_bbh')
-     &   .or. (case .eq. 'tt_ldk')
-     &   .or. (case .eq. 'tt_hdk')
-     &   .or. (case .eq. 'tt_udk')
-     &   .or. (case .eq. 'tthWdk')
-     &   .or. (case .eq. 'tt_bbu')
-     &   .or. (case .eq. '4ftwdk')
-     &   .or. (case .eq. 'dk_4ft')
-     &   .or. (case .eq. 'qq_ttw')
-     &   .or. (case .eq. 'ttwldk')) then
+      if (    (kcase==kqq_ttg)
+     &   .or. (kcase==ktt_bbl)
+     &   .or. (kcase==ktt_bbh)
+     &   .or. (kcase==ktt_ldk)
+     &   .or. (kcase==ktt_hdk)
+     &   .or. (kcase==ktt_udk)
+     &   .or. (kcase==ktthWdk)
+     &   .or. (kcase==ktt_bbu)
+     &   .or. (kcase==k4ftwdk)
+     &   .or. (kcase==kdk_4ft)
+     &   .or. (kcase==kqq_ttw)
+     &   .or. (kcase==kttwldk)) then
       call jetreorder(qfinal,qreorder,isub)
       do i=1,mxpart
         do nu=1,4

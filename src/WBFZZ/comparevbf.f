@@ -1,22 +1,27 @@
       subroutine comparevbf(msq)
+      implicit none
+      include 'types.f'
 c--- Compares MCFM calculation of VBF processes with pre-calculated
 c--- Madgraph results for the same set-up; phase-space point must be
 c--- generated using getvbfpoint(p)
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'nproc.f'
       include 'nwz.f'
-      include 'process.f'
+      include 'kprocess.f'
       include 'VVstrong.f'
-      integer i1,i2,i3,i4,j,k
-      double precision msq(-nf:nf,-nf:nf),msq1(-nf:nf,-nf:nf),
+      integer:: i1,i2,i3,i4,j,k
+      real(dp):: msq(-nf:nf,-nf:nf),msq1(-nf:nf,-nf:nf),
      &       msq4(-nf:nf,-nf:nf,-nf:nf,-nf:nf),val,wtmax
       
             msq4(:,:,:,:)=0d0
       
-      if (case .eq. 'qqZZqq') then
+      if (kcase==kqqZZqq) then
         if (VVstrong .eqv. .false.) then
-          if (nproc .eq. 220) then
+          if (nproc == 220) then
             msq4(-5,-5,-5,-5) =    1.1068508287128592d-023
             msq4(-5,-4,-5,-4) =    1.3150178136104677d-022
             msq4(-5,-3,-5,-3) =    9.1970828111657355d-024
@@ -348,7 +353,7 @@ c--- generated using getvbfpoint(p)
             msq4(+5,+5,+5,+5) =    3.6718819340182467d-025
           endif
         else
-          if (nproc .eq. 2201) then
+          if (nproc == 2201) then
             msq4(-5,-5,-5,-5) =    1.6827183186324598d-021
             msq4(-5,-4,-5,-4) =    4.8398718195919706d-021
             msq4(-5,-3,-5,-3) =    2.0437049317755488d-021
@@ -671,7 +676,7 @@ c--- generated using getvbfpoint(p)
           endif
         endif
 
-      elseif (case .eq. 'qqWWqq') then
+      elseif (kcase==kqqWWqq) then
         if (VVstrong .eqv. .false.) then
           msq4(-5,-5,-5,-5) =    2.8045504206496833d-019
           msq4(-5,-4,-5,-4) =    1.8032505451597463d-019
@@ -966,7 +971,7 @@ c--- generated using getvbfpoint(p)
           msq4(-2,+2,0,0) =    1.6369904906352648d-016
         endif
       
-      elseif (case .eq. 'qqVVqq') then
+      elseif (kcase==kqqVVqq) then
         msq4(-4,-4,-4,-4) =    1.2085311083386681d-018
         msq4(-4,-3,-4,-3) =    1.1233823075893307d-018
         msq4(-4,-2,-4,-2) =    3.6717277124080636d-019
@@ -1080,9 +1085,9 @@ c--- generated using getvbfpoint(p)
         msq4(+4,+3,+3,+4) =    1.2210346622028960d-019
         msq4(+4,+4,+4,+4) =    1.3134870946173960d-020
       
-      elseif (case .eq. 'qqWWss') then
+      elseif (kcase==kqqWWss) then
         if (VVstrong .eqv. .false.) then
-          if (nwz .eq. +1) then
+          if (nwz == +1) then
             msq4(-3,-3,-4,-4) =    2.1170486266559388d-022
             msq4(-3,-1,-4,-2) =    1.9520785046726101d-023
             msq4(-3,+2,-4,+1) =    3.7411234439614776d-024
@@ -1126,7 +1131,7 @@ c--- generated using getvbfpoint(p)
             msq4(+3,+3,+4,+4) =    1.9064664136285500d-024
           endif
         else
-          if (nwz .eq. +1) then
+          if (nwz == +1) then
             msq4(-3,-3,-4,-4) =    1.5017824966633456d-022
             msq4(-3,-1,-4,-2) =    1.6175121642118841d-022
             msq4(-3,+2,-4,+1) =    6.0341264716405304d-024
@@ -1171,9 +1176,9 @@ c--- generated using getvbfpoint(p)
           endif
         endif
       
-      elseif (case .eq. 'qqWZqq') then
+      elseif (kcase==kqqWZqq) then
         if (VVstrong .eqv. .false.) then
-          if (nwz .eq. +1) then
+          if (nwz == +1) then
             msq4(-4,-3,-4,-4) =    1.2930410728260502d-022
             msq4(-4,-1,-4,-2) =    7.1442626554613886d-023
             msq4(-4,+2,-4,+1) =    1.4965346890314823d-023
@@ -1313,7 +1318,7 @@ c--- generated using getvbfpoint(p)
             msq4(+4,+3,+4,+4) =    9.4003964167879224d-024
           endif
         else
-          if (nwz .eq. +1) then
+          if (nwz == +1) then
             msq4(-4,-3,-4,-4) =    6.8511770133018667d-022
             msq4(-4,-1,-4,-2) =    9.4088661752703524d-022
             msq4(-4,+2,-4,+1) =    1.6489946991793819d-021
@@ -1504,7 +1509,7 @@ c--- perform comparison
         if((msq(j,k).ne.0d0).or.(msq1(j,k).ne.0d0)) then
           val=abs(msq(j,k)/msq1(j,k)-1d0)
           write(6,*) j,k,msq(j,k),msq1(j,k),msq(j,k)/msq1(j,k)
-          if (val .gt. wtmax) wtmax=val
+          if (val > wtmax) wtmax=val
         endif
       enddo
       enddo

@@ -85,6 +85,7 @@ C--   Photon: f = 13.
 
       double precision function GetOnePDF(prefix,ih,x,q,f)
       implicit none
+      include 'mpicommon.f'
       logical warn,fatal
       parameter(warn=.false.,fatal=.true.)
 C--   Set warn=.true. to turn on warnings when extrapolating.
@@ -163,7 +164,9 @@ C--   are large enough.
 C--   Remove trailing blanks from prefix before assigning filename.
          filename = prefix(1:len_trim(prefix))//'.'//set//'.dat'
 C--   Line below can be commented out if you don't want this message.
+         if (rank == 0) then
          print *,"Reading PDF grid from ",filename(1:len_trim(filename))
+         endif
 !$omp critical(MrsRead)
          open(unit=33,file=filename,iostat=io,status='old')
          if (io.ne.0) then

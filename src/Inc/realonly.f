@@ -1,2 +1,2 @@
-      logical realonly
+      logical:: realonly
       common/realonly/realonly

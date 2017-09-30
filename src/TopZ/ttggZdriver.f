@@ -1,16 +1,21 @@
       subroutine ttggZdriver(p,etatb,etat,ampsq1,ampsq2,ampsq0)
+      implicit none
+      include 'types.f'
 C     Calculate the matrix elements squared for the process
 C      g(-p1)+g(-p2)-->l(p3)+a(p4)+t(p5)+t~(p6)
 C     eta5 is the vector chosen to make the  t~ massleses
 C     eta6 is the vector chosen to make the  t massleses
-      implicit none
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zcouple.f'
       include 'ewcharge.f'
       include 'masses.f'
-      double precision p(mxpart,4),s34,ampsq1,ampsq2,ampsq0
-      integer h1,h2,h3,h4,h56,etatb,etat
-      double complex ampAB(2,2,2,2,2),ampBA(2,2,2,2,2),prop,
+      real(dp):: p(mxpart,4),s34,ampsq1,ampsq2,ampsq0
+      integer:: h1,h2,h3,h4,h56,etatb,etat
+      complex(dp):: ampAB(2,2,2,2,2),ampBA(2,2,2,2,2),prop,
      & ampQED(2,2,2,2,2),
      & XABL(2,2,2,2,2),XABR(2,2,2,2,2),
      & XBAL(2,2,2,2,2),XBAR(2,2,2,2,2)
@@ -19,7 +24,7 @@ C     eta6 is the vector chosen to make the  t massleses
 
 C     In the call s34 is the mass^2 of the lepton pair
       s34=2d0*(p(3,4)*p(4,4)-p(3,1)*p(4,1)-p(3,2)*p(4,2)-p(3,3)*p(4,3))
-      prop=s34/dcmplx(s34-zmass**2,zmass*zwidth)
+      prop=s34/cplx2(s34-zmass**2,zmass*zwidth)
 
       do h1=1,2
       do h2=1,2
@@ -55,11 +60,11 @@ C     In the call s34 is the mass^2 of the lepton pair
       ampQED(h1,h2,h3,h4,h56)=
      & ampAB(h1,h2,h3,h4,h56)+ampBA(h1,h2,h3,h4,h56)
       ampsq1=ampsq1
-     &  +dble(ampAB(h1,h2,h3,h4,h56)*Dconjg(ampAB(h1,h2,h3,h4,h56)))
+     &  +real(ampAB(h1,h2,h3,h4,h56)*conjg(ampAB(h1,h2,h3,h4,h56)))
       ampsq2=ampsq2
-     &  +dble(ampBA(h1,h2,h3,h4,h56)*Dconjg(ampBA(h1,h2,h3,h4,h56)))
+     &  +real(ampBA(h1,h2,h3,h4,h56)*conjg(ampBA(h1,h2,h3,h4,h56)))
       ampsq0=ampsq0
-     & -dble(ampQED(h1,h2,h3,h4,h56)*Dconjg(ampQED(h1,h2,h3,h4,h56)))
+     & -real(ampQED(h1,h2,h3,h4,h56)*conjg(ampQED(h1,h2,h3,h4,h56)))
      & /xn**2
       enddo
       enddo

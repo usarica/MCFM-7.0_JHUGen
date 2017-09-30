@@ -5,20 +5,24 @@ c--- package for writing out ROOT ntuples.
 
 
       subroutine bookfill(tag,p,wt)
-c--- This is the routine called by nplotter: when the output is to be
-c--- initialized (tag="book") or added to (tag="plot")
       implicit none
+      include 'types.f'
+c--- This is the routine called by nplotter: when the output is to be
+c--- initialized (tag="book") or added to (tag="plot")      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'maxwt.f'
-
-      character tag*4
-      double precision p(mxpart,4)
-      double precision wt 
+      integer tag
+      real(dp):: p(mxpart,4)
+      real(dp):: wt 
+      integer, parameter:: tagbook=1, tagplot=2
 
       if (.not.skipnt) then
-        if     (tag .eq. 'book') then
+        if     (tag == tagbook) then
           call FROOT_book
-        elseif (tag .eq. 'plot') then
+        elseif (tag == tagplot) then
           call FROOT_fill(p,wt)
         endif
       endif
@@ -27,9 +31,11 @@ c--- initialized (tag="book") or added to (tag="plot")
       end
 
       subroutine NTfinalize
+      implicit none
+      include 'types.f'
 c--- This is the routine called at the end of the program's execution;
 c--- it should finalize the output and close opened files, if necessary
-      implicit none
+      
       
       call PrintNT()
       call RootNTOutp()
@@ -40,22 +46,24 @@ c--- it should finalize the output and close opened files, if necessary
 
       subroutine FROOT_book
       implicit none
+      include 'types.f'
+      
       include 'npart.f'
       include 'mxdim.f'
       include 'scale.f'
       include 'facscale.f'
       include 'PDFerrors.f'
 c--- Added to keep track of number of momenta entries to be filled
-      include 'part.f'
-      double precision scale_store,facscale_store
+      include 'kpart.f'
+      real(dp):: scale_store,facscale_store
 c--- Extra definitions to facilitate dummy call to lowint
-      double precision dummy,wgt,r(mxdim),lowint
-      integer ifill
-      integer imaxmom,ipdf
+      real(dp):: dummy,wgt,r(mxdim),lowint
+      integer:: ifill
+      integer:: imaxmom,ipdf
       character*100 outfile
       character*255 runname
-      integer lenocc
-      logical first
+      integer:: lenocc
+      logical:: first
       common/iarray/imaxmom,ipdf            
       common/runname/runname
       data first/.true./
@@ -65,7 +73,7 @@ c--- Need to ascertain the correct size for momenta n-tuples when this routine
 c--- is called for the first time, achieved via a dummy call to lowint
       if (first) then      
         do ifill=1,mxdim
-          r(ifill)=0.5d0
+          r(ifill)=0.5_dp
         enddo
 c--- Be careful that dynamic scale choices aren't ruined
 c--- (in versions 5.1 and before, this occured when calling lowint)
@@ -76,8 +84,8 @@ c--- (in versions 5.1 and before, this occured when calling lowint)
         facscale=facscale_store
         
         imaxmom=npart
-        if ((part.eq.'real').or.(part.eq.'tota').or.(part.eq.'todk'))
-     .    imaxmom=imaxmom+1
+        if ((kpart==kreal).or.(kpart==ktota).or.(kpart==ktodk))
+     &    imaxmom=imaxmom+1
 
         first=.false.
       endif
@@ -101,27 +109,32 @@ c --- Create an empty ntuple with the usual file name:
 
       subroutine FROOT_fill(p,wt)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'wts_bypart.f'
       include 'PDFerrors.f'      
-      double precision p(mxpart,4)
-      double precision wt 
+      real(dp):: p(mxpart,4)
+      real(dp):: wt 
 c--- Extra common block to carry the information about maximum momenta entries
-      integer imaxmom,ipdf
+      integer:: imaxmom,ipdf
       common/iarray/imaxmom,ipdf
-      integer i
+      integer:: i
 c--- assume at most 10 final state particles and 60 PDF sets
       real pfill(105)
       character*3 labelE,labelx,labely,labelz
       character*5 labelPDF
-      logical first
+      logical:: first
 c--- force pfill to be allocated statically
       common/pfillcommon/pfill      
       data first/.true./
       save first
       
 c--- If the event weight is zero, don't bother to add the n-tuple
-      if (wt .eq. 0d0) then
+      if (wt == 0._dp) then
         return
       endif
 
@@ -202,9 +215,11 @@ c--- dummy routines, as in dsw_dummy
 
       subroutine dswhbook(n,titlex,dx,xmin,xmax)
       implicit none
-      integer n
+      include 'types.f'
+      
+      integer:: n
       character titlex*8
-      real*8 dx,xmin,xmax
+      real(dp)::dx,xmin,xmax
 
       call dsw_error
 
@@ -214,8 +229,10 @@ c
 
       subroutine dswhfill(n,var,wgt)
       implicit none
-      integer n
-      real*8 var,wgt
+      include 'types.f'
+      
+      integer:: n
+      real(dp)::var,wgt
 
       call dsw_error
 
@@ -226,6 +243,8 @@ c
 
       subroutine dsw_error
       implicit none
+      include 'types.f'
+      
 
       write(6,*) 'This version of MCFM has not been compiled for'
       write(6,*) 'FROOT output only; DSW-style histograms are not'

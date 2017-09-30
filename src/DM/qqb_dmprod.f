@@ -1,34 +1,38 @@
-
       subroutine qqb_dm_prod(p,msq) 
-      implicit none      
+      implicit none
+      include 'types.f'
+            
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'dm_params.f'
       
-      double precision p(mxpart,4),msq(-nf:nf,-nf:nf)
+      real(dp):: p(mxpart,4),msq(-nf:nf,-nf:nf)
 !------- first index = helicity of fermion line, 
 !-------- second index, helicity of xi(p3),3rd xi~(p4) massive allows
 !-------- helicity violation.
-      double complex qqb_dmamp(2,2,2)
-      double complex qbq_dmamp(2,2,2)
-      double precision qbq_sum,qqb_sum
-      double complex prop
+      complex(dp):: qqb_dmamp(2,2,2)
+      complex(dp):: qbq_dmamp(2,2,2)
+      real(dp):: qbq_sum,qqb_sum
+      complex(dp):: prop
     
-      double precision s34,fac
-      integer h1,h2,h3 
-      integer j,k,nu
+      real(dp):: s34,fac
+      integer:: h1,h2,h3 
+      integer:: j,k,nu
 
       fac=one/dm_lam**4*xn
 
-      if(dm_mediator.eq.'vector') then 
+      if(dm_mediator=='vector') then 
          call dmprod_vec(p,1,2,3,4,qqb_dmamp)  
          call dmprod_vec(p,2,1,3,4,qbq_dmamp) 
-      elseif(dm_mediator.eq.'axvect') then 
+      elseif(dm_mediator=='axvect') then 
 !         call dmprod_avec(p,1,2,3,4,qqb_dmamp)
 !         call dmprod_avec(p,2,1,3,4,qbq_dmamp)        
-      elseif(dm_mediator.eq.'scalar') then 
+      elseif(dm_mediator=='scalar') then 
          call dmprod_scal(p,1,2,3,4,qqb_dmamp)
          call dmprod_scal(p,2,1,3,4,qbq_dmamp)
-      elseif(dm_mediator.eq.'pseudo') then 
+      elseif(dm_mediator=='pseudo') then 
 !         call dmprod_ps(p,1,2,3,4,qqb_dmamp)
 !         call dmprod_ps(p,2,1,3,4,qbq_dmamp) 
       endif
@@ -41,7 +45,7 @@
       s34=s34+(p(3,nu)+p(4,nu))**2 
      
       medwidth=1d0
-!      prop=dcmplx(one/(s34-medmass**2),medwidth*medmass) 
+!      prop=cplx2(one/(s34-medmass**2),medwidth*medmass) 
 !      prop=one/medmass**2
       prop=one
       qbq_sum=0d0 
@@ -49,8 +53,8 @@
       do h1=1,2 
          do h2=1,2 
             do h3=1,2
-            qqb_sum=qqb_sum+cdabs(prop*qqb_dmamp(h1,h2,h3))**2
-            qbq_sum=qbq_sum+cdabs(prop*qbq_dmamp(h1,h2,h3))**2
+            qqb_sum=qqb_sum+abs(prop*qqb_dmamp(h1,h2,h3))**2
+            qbq_sum=qbq_sum+abs(prop*qbq_dmamp(h1,h2,h3))**2
          enddo
       enddo
       enddo
@@ -65,11 +69,11 @@
 
             
       do j=-nf,nf
-           if((j.lt.0)) then
+           if((j<0)) then
               msq(j,-j)=qbq_sum*aveqq*fac
-           elseif((j.gt.0)) then 
+           elseif((j>0)) then 
               msq(j,-j)=qqb_sum*aveqq*fac
-           elseif(j.eq.0) then 
+           elseif(j==0) then 
               msq(0,0)=0d0 
            endif
         enddo
@@ -83,13 +87,18 @@
       end 
 
       subroutine gen_masslessvecs(pin,pout,a,b) 
-      implicit none 
+      implicit none
+      include 'types.f'
+       
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'dm_params.f'
-      double precision pin(mxpart,4),pout(mxpart,4) 
-      integer i,nu
-      integer a,b
-      double precision beta,sab,opb,omb
+      real(dp):: pin(mxpart,4),pout(mxpart,4) 
+      integer:: i,nu
+      integer:: a,b
+      real(dp):: beta,sab,opb,omb
 
       sab=0d0 
       do nu=1,3
@@ -101,15 +110,15 @@
 !      write(6,*) ' in genmas', sab
 
       beta=1d0-4d0*xmass**2/sab
-      beta=dsqrt(beta)
+      beta=sqrt(beta)
       opb=(one+beta)
       omb=one-beta
       
       do i=1,mxpart
          do nu=1,4
-            if(i.eq.a) then 
+            if(i==a) then 
                pout(a,nu)=0.5d0*(opb/beta*pin(a,nu)-omb/beta*pin(b,nu))
-            elseif(i.eq.b) then 
+            elseif(i==b) then 
                pout(b,nu)=0.5d0*(opb/beta*pin(b,nu)-omb/beta*pin(a,nu))
             else
                pout(i,nu)=pin(i,nu)
@@ -121,13 +130,18 @@
  
 
       subroutine dmprod_scal(p,i1,i2,i3,i4,amp) 
-      implicit none 
+      implicit none
+      include 'types.f'
+       
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
-      double precision p(mxpart,4),q(mxpart,4) 
-      double complex amp(2,2,2),amp_dec(2,2)
-      integer i1,i2,i3,i4 
-      integer h1,h2
+      real(dp):: p(mxpart,4),q(mxpart,4) 
+      complex(dp):: amp(2,2,2),amp_dec(2,2)
+      integer:: i1,i2,i3,i4 
+      integer:: h1,h2
 !--------- generate phase space with massless vectors
       call gen_masslessvecs(p,q,i3,i4) 
 !--------- generate spinors 
@@ -149,15 +163,20 @@
 
 
       subroutine dmprod_vec(p,i1,i2,i3,i4,amp) 
-      implicit none 
-      include 'constants.f' 
+      implicit none
+      include 'types.f'
+       
+      include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h' 
       include 'zprods_decl.f'
       include 'dm_params.f'
-      double precision p(mxpart,4),q(mxpart,4)
-      double complex amp(2,2,2) 
-!      double complex jpp(4),jpm(4),jmp(4),jmm(4) 
-      integer i1,i2,i3,i4 
-      double complex Nmm,Npp
+      real(dp):: p(mxpart,4),q(mxpart,4)
+      complex(dp):: amp(2,2,2) 
+!      complex(dp):: jpp(4),jpm(4),jmp(4),jmm(4) 
+      integer:: i1,i2,i3,i4 
+      complex(dp):: Nmm,Npp
 !----- generate phase space with massless vectors       
       call gen_masslessvecs(p,q,i3,i4)
 !----- generate spinors 

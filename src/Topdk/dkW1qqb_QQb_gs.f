@@ -1,5 +1,7 @@
       subroutine dkW1qqb_QQb_gs(p,msqc)
       implicit none
+      include 'types.f'
+
 ************************************************************************
 *     Author: R.K. Ellis                                               *
 *     November, 2011.                                                  *
@@ -14,17 +16,20 @@
 *                                                                      *
 ************************************************************************
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'ptilde.f'
       include 'qcdcouple.f'
       include 'alfacut.f'
       include 'qqgg.f'
       include 'incldip.f'
-      double precision msqc(maxd,-nf:nf,-nf:nf),p(mxpart,4)
-      double precision
+      real(dp):: msqc(maxd,-nf:nf,-nf:nf),p(mxpart,4)
+      real(dp)::
      & msq39_4(-nf:nf,-nf:nf),msq49_3(-nf:nf,-nf:nf),
      & dummyv(-nf:nf,-nf:nf),sub39_4(4),sub49_3(4),dsubv
-      integer j,k,nd
+      integer:: j,k,nd
       external qqb_QQbdk,donothing_gvec
 
       ndmax=2
@@ -32,7 +37,7 @@
       do j=-nf,nf
       do k=-nf,nf
       do nd=1,ndmax
-        msqc(nd,j,k)=0d0
+        msqc(nd,j,k)=0._dp
         incldip(nd)=.true.
       enddo
       enddo
@@ -44,8 +49,8 @@
      & qqb_QQbdk,donothing_gvec)
       do j=-nf,nf
         k=-j
-        msqc(1,j,k)=sub39_4(qq)*msq39_4(j,k)*2d0*cf
-        msqc(2,j,k)=sub49_3(qq)*msq49_3(j,k)*2d0*cf
+        msqc(1,j,k)=sub39_4(qq)*msq39_4(j,k)*2._dp*cf
+        msqc(2,j,k)=sub49_3(qq)*msq49_3(j,k)*2._dp*cf
       enddo
 
       return

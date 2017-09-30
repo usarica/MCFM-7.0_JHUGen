@@ -59,7 +59,8 @@ C***************************************************************C
       data xmin,xmax,qsqmin,qsqmax/1d-5,1d0,1.25d0,1d7/
       data init/0/
       save xx,qq,xmin,xmax,qsqmin,qsqmax,init,f,emb2,emc2
-      common /store/ xxl,qql,qqlc,qqlb,cc1,cc2,cc3,cc4,cc6,cc8
+      common /store/ xxl,qql,qqlc,qqlb,cc1,cc2,cc3,cc4,cc6,cc8,
+     & ccc,ccb
 !$omp threadprivate(xx,qq,xmin,xmax,qsqmin,qsqmax,init,f,emb2,emc2)
 !$omp threadprivate(/store/)
       xsave=x

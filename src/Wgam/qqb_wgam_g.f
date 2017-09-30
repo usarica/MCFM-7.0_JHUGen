@@ -1,5 +1,7 @@
       subroutine qqb_wgam_g(p,msq)
       implicit none
+      include 'types.f'
+      
 C-----Author Keith Ellis, September 2002
 C----- updated: John Campbell, August 2011 (anomalous couplings)
 c----Matrix element for W gam production
@@ -10,21 +12,24 @@ C For nwz=-1
 c     ubar(-p1)+d(-p2)-->W^-(e^-(p3)+nbar(p4)) + gamma(p5) + g(p6)
 c---
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ewcouple.f'
       include 'qcdcouple.f'
       include 'ckm.f'
       include 'zprods_com.f'
       include 'nwz.f'
-      integer j,k
-      double precision msq(-nf:nf,-nf:nf),p(mxpart,4),fac
-      double precision qbq,qqb,qg,gq,qbg,gqb
-      double precision ubdgmsq
+      integer:: j,k
+      real(dp):: msq(-nf:nf,-nf:nf),p(mxpart,4),fac
+      real(dp):: qbq,qqb,qg,gq,qbg,gqb
+      real(dp):: ubdgmsq
 
 
       call spinoru(6,p,za,zb)
-      fac=V/2d0*gwsq**2*4d0*gsq*esq
+      fac=V/2._dp*gwsq**2*4._dp*gsq*esq
 
-      if (nwz .eq. -1) then 
+      if (nwz == -1) then 
       qbq=aveqq*fac*ubdgmsq(1,2,3,4,5,6,za,zb)
       qqb=aveqq*fac*ubdgmsq(2,1,3,4,5,6,za,zb)
       gq=aveqg*fac*ubdgmsq(6,2,3,4,5,1,za,zb)
@@ -32,7 +37,7 @@ c---
       gqb=aveqg*fac*ubdgmsq(2,6,3,4,5,1,za,zb)
       qbg=aveqg*fac*ubdgmsq(1,6,3,4,5,2,za,zb)
 
-      elseif (nwz .eq. +1) then 
+      elseif (nwz == +1) then 
       qbq=aveqq*fac*ubdgmsq(2,1,4,3,5,6,zb,za)
       qqb=aveqq*fac*ubdgmsq(1,2,4,3,5,6,zb,za)
       gq=aveqg*fac*ubdgmsq(2,6,4,3,5,1,zb,za)
@@ -46,19 +51,19 @@ c---
       do j=-nf,nf
       do k=-nf,nf
 c--set msq=0 to initalize
-      msq(j,k)=0d0
-          if ((j .gt. 0) .and. (k .lt. 0)) then
+      msq(j,k)=0._dp
+          if ((j > 0) .and. (k < 0)) then
             msq(j,k)=Vsq(j,k)*qqb
-          elseif ((j .eq. 0) .and. (k .lt. 0)) then
+          elseif ((j == 0) .and. (k < 0)) then
             msq(j,k)=Vsum(k)*gqb
             
-          elseif ((j .eq. 0) .and. (k .gt. 0)) then
+          elseif ((j == 0) .and. (k > 0)) then
             msq(j,k)=Vsum(k)*gq
-          elseif ((j .lt. 0) .and. (k .gt. 0)) then
+          elseif ((j < 0) .and. (k > 0)) then
             msq(j,k)=Vsq(j,k)*qbq
-          elseif ((j .gt. 0) .and. (k .eq. 0)) then
+          elseif ((j > 0) .and. (k == 0)) then
             msq(j,k)=Vsum(j)*qg
-         elseif ((j .lt. 0) .and. (k .eq. 0)) then
+         elseif ((j < 0) .and. (k == 0)) then
             msq(j,k)=Vsum(j)*qbg
           endif
       enddo
@@ -66,34 +71,40 @@ c--set msq=0 to initalize
       return
       end
 
-      double precision function ubdgmsq(p1,p2,p3,p4,p5,p6,za,zb)
+      function ubdgmsq(p1,p2,p3,p4,p5,p6,za,zb)
       implicit none
+      include 'types.f'
+      real(dp):: ubdgmsq
+      
 C     Matrix element for 
 C     ub(-p1)+d(-p2)=e-(p3)+nu~(p4)+gamma(p5)+g(p6)
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'sprods_com.f'
       include 'zprods_decl.f'
       include 'zerowidth.f'
       include 'anomcoup.f'
       include 'xanomcoup.f'
-      integer p1,p2,p3,p4,p5,p6
-      double complex aLL,aRR,aRL,aLR,prp34,prp345,zazb
-      double precision s345,s156,s256,xfac
+      integer:: p1,p2,p3,p4,p5,p6
+      complex(dp):: aLL,aRR,aRL,aLR,prp34,prp345,zazb
+      real(dp):: s345,s156,s256,xfac
 
       zazb(p1,p2,p3,p4)=+za(p1,p2)*zb(p2,p4)+za(p1,p3)*zb(p3,p4)
 
       s156=s(p1,p5)+s(p1,p6)+s(p5,p6)
       s256=s(p2,p5)+s(p2,p6)+s(p5,p6)
       s345=s(p3,p4)+s(p3,p5)+s(p4,p5)
-      prp34=s(p3,p4)/dcmplx(s(p3,p4)-wmass**2,wmass*wwidth)
+      prp34=s(p3,p4)/cplx2(s(p3,p4)-wmass**2,wmass*wwidth)
 
     
 c--- apply a dipole form factor to anomalous couplings, with power two (only if tevscale > 0)
-      if (tevscale .gt. 0d0) then
-        xfac=1d0/(1d0+s345/(tevscale*1d3)**2)**2
+      if (tevscale > 0._dp) then
+        xfac=1._dp/(1._dp+s345/(tevscale*1d3)**2)**2
       else
-        xfac=1d0
+        xfac=1._dp
       endif
       xdelk_g=xfac*delk_g
       xlambda_g=xfac*lambda_g
@@ -103,7 +114,7 @@ c--- zerowidth: no final state radiation, so we can set prp345 to zero
         prp345=czip
       else
 c--- otherwise, usual Breit-Wigner form
-        prp345=s345/dcmplx(s345-wmass**2,wmass*wwidth)
+        prp345=s345/cplx2(s345-wmass**2,wmass*wwidth)
       endif
 
 c---  c.f. Eqs.(4.9)-(4.12) of hep-ph/9803250 (multiplied by -i)
@@ -160,13 +171,13 @@ c--- note: there is a typo in Eq. (15), <45> should be replaced by [45]
 c--- note partial fractioning of W propagators to go beyond zerowidth approx.
       aRR=aRR+(prp34-prp345)*(Qd-Qu)
      & *zb(p4,p5)*(za(p1,p2)*zb(p2,p5)+za(p1,p6)*zb(p6,p5))
-     & /(2d0*s(p3,p4)**2*(s345-s(p3,p4))*za(p1,p6)*za(p6,p2))
+     & /(2._dp*s(p3,p4)**2*(s345-s(p3,p4))*za(p1,p6)*za(p6,p2))
      & *(xlambda_g*za(p3,p4)*za(p1,p5)*zb(p4,p5)
      &  +(xdelk_g+xlambda_g)*za(p1,p3)*s(p3,p4))
 
       aLR=aLR+(prp34-prp345)*(Qd-Qu)
      & *za(p3,p5)*za(p1,p5)
-     & /(2d0*s(p3,p4)**2*(s345-s(p3,p4))*za(p1,p6)*za(p6,p2))
+     & /(2._dp*s(p3,p4)**2*(s345-s(p3,p4))*za(p1,p6)*za(p6,p2))
      & *(xlambda_g*za(p3,p5)*zb(p3,p4)
      &    *(za(p1,p2)*zb(p2,p5)+za(p1,p6)*zb(p6,p5))
      &  -(xdelk_g+xlambda_g)
@@ -174,19 +185,19 @@ c--- note partial fractioning of W propagators to go beyond zerowidth approx.
 
       aLL=aLL+(prp34-prp345)*(Qu-Qd)
      & *za(p3,p5)*(zb(p2,p1)*za(p1,p5)+zb(p2,p6)*za(p6,p5))
-     & /(2d0*s(p3,p4)**2*(s345-s(p3,p4))*zb(p2,p6)*zb(p6,p1))
+     & /(2._dp*s(p3,p4)**2*(s345-s(p3,p4))*zb(p2,p6)*zb(p6,p1))
      & *(xlambda_g*zb(p4,p3)*zb(p2,p5)*za(p3,p5)
      &  +(xdelk_g+xlambda_g)*zb(p2,p4)*s(p3,p4))
 
       aRL=aRL+(prp34-prp345)*(Qu-Qd)
      & *zb(p4,p5)*zb(p2,p5)
-     & /(2d0*s(p3,p4)**2*(s345-s(p3,p4))*zb(p2,p6)*zb(p6,p1))
+     & /(2._dp*s(p3,p4)**2*(s345-s(p3,p4))*zb(p2,p6)*zb(p6,p1))
      & *(xlambda_g*zb(p4,p5)*za(p4,p3)
      &    *(zb(p2,p1)*za(p1,p5)+zb(p2,p6)*za(p6,p5))
      &  -(xdelk_g+xlambda_g)
      &    *(zb(p2,p1)*za(p1,p3)+zb(p2,p6)*za(p6,p3))*s(p3,p4))
 
-      ubdgmsq=cdabs(aLL)**2+cdabs(aRR)**2+cdabs(aRL)**2+cdabs(aLR)**2
+      ubdgmsq=abs(aLL)**2+abs(aRR)**2+abs(aRL)**2+abs(aLR)**2
       
       return
       end

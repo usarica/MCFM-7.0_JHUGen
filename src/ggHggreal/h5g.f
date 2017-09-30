@@ -6,23 +6,27 @@ C FOR PROCESS : g g -> g g g h
 
 C overall coupling factors have been removed
 C
-      IMPLICIT NONE
+
+      include 'types.f'
+      include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
 C
 C CONSTANTS
 C
-      INTEGER    NEXTERNAL,   NCOMB
-      PARAMETER (NEXTERNAL=5, NCOMB= 16)
+      integer,parameter:: NEXTERNAL=5, NCOMB= 16
 
 C
 C ARGUMENTS
 C
-      DOUBLE PRECISION ANS
+      real(dp)::ANS
 C
 C LOCAL VARIABLES
 C
-      INTEGER NHEL(NEXTERNAL,NCOMB)
-      DOUBLE PRECISION T,GG_GGG
-      INTEGER IHEL
+      integer::NHEL(NEXTERNAL,NCOMB)
+      real(dp)::T,GG_GGG
+      integer:: IHEL
       include 'hels.f'
 
 C ----------
@@ -30,7 +34,7 @@ C BEGIN CODE
 C ----------
 
 
-      ANS=0D0
+      ANS=zip
 
 c--  sum over helicities
       DO IHEL=1,16
@@ -38,8 +42,8 @@ c--  sum over helicities
               ANS=ANS+T
       ENDDO
 
-c--  Multiply by 2d0 to account for the other 16 helicity configs
-      ANS=ANS*2d0
+c--  Multiply by two to account for the other 16 helicity configs
+      ANS=ANS*two
 
       RETURN
       END

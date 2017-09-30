@@ -1,12 +1,17 @@
       subroutine gg_hWWgg_v(p,msq)
+      implicit none
+      include 'types.f'
 c--- Virtual matrix element squared averaged over initial colors and spins
 c
 c     g(-p1)+g(-p2)-->H -->  W^- (e^-(p5)+nubar(p6))
 c                          + W^+ (nu(p3)+e^+(p4))+g(p_iglue1=7)+g(p_iglue2=8)
 c
 c    Calculation is fully analytic
-      implicit none
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'ewcouple.f'
       include 'qcdcouple.f'
@@ -15,18 +20,18 @@ c    Calculation is fully analytic
       include 'scheme.f'
       include 'nflav.f'
       include 'deltar.f'
-      integer j,k,i5,i6
-      double precision p(mxpart,4),msq(fn:nf,fn:nf),s3456
-      double precision hdecay,Asq,fac
-      double precision qrqr,qarb,aqbr,abab,qbra,bqar
-      double precision qaqa,aqaq,qqqq,aaaa
-      double precision qagg,aqgg,qgqg,gqqg,agag,gaag,ggqa
-      double precision gggg
-      double precision Hqarbvsqanal
-      double precision Hqaqavsqanal
-      double precision HAQggvsqanal
-      double precision Hggggvsqanal
-      logical CheckEGZ
+      integer:: j,k,i5,i6
+      real(dp):: p(mxpart,4),msq(fn:nf,fn:nf),s3456
+      real(dp):: hdecay,Asq,fac
+      real(dp):: qrqr,qarb,aqbr,abab,qbra,bqar
+      real(dp):: qaqa,aqaq,qqqq,aaaa
+      real(dp):: qagg,aqgg,qgqg,gqqg,agag,gaag,ggqa
+      real(dp):: gggg
+      real(dp):: Hqarbvsqanal
+      real(dp):: Hqaqavsqanal
+      real(dp):: HAQggvsqanal
+      real(dp):: Hggggvsqanal
+      logical:: CheckEGZ
       common/CheckEGZ/CheckEGZ
 !$omp threadprivate(/CheckEGZ/)
       parameter(i5=7,i6=8)
@@ -34,10 +39,10 @@ C***************************************************
       scheme='dred'
 C***************************************************
 
-      if     (scheme .eq. 'dred') then
-        deltar=0d0
-      elseif (scheme .eq. 'tH-V') then
-        deltar=1d0
+      if     (scheme == 'dred') then
+        deltar=0._dp
+      elseif (scheme == 'tH-V') then
+        deltar=1._dp
       else
         write(6,*) 'Invalid scheme in gg_hgg_v.f'
         stop
@@ -50,15 +55,15 @@ c--- hep-ph/0506196 using the point specified in Eq. (51)
 c--- Set up spinor products
       call spinoru(i6,p,za,zb)
 
-      Asq=(as/(3d0*pi))**2/vevsq
+      Asq=(as/(3._dp*pi))**2/vevsq
 
 C   Deal with Higgs decay to WW
       s3456=s(3,4)+s(3,5)+s(3,6)+s(4,5)+s(4,6)+s(5,6)
       hdecay=gwsq**3*wmass**2*s(3,5)*s(6,4)
       hdecay=hdecay/(((s3456-hmass**2)**2+(hmass*hwidth)**2)
-     .   *((s(3,4)-wmass**2)**2+(wmass*wwidth)**2)
-     .   *((s(5,6)-wmass**2)**2+(wmass*wwidth)**2))
-      Asq=(as/(3d0*pi))**2/vevsq
+     &   *((s(3,4)-wmass**2)**2+(wmass*wwidth)**2)
+     &   *((s(5,6)-wmass**2)**2+(wmass*wwidth)**2))
+      Asq=(as/(3._dp*pi))**2/vevsq
       fac=ason2pi*Asq*gsq**2*hdecay
 
 c--- for checking EGZ
@@ -162,57 +167,57 @@ C      write(6,*) 'aaaa',aaaa
 
       do j=-nf,nf
       do k=-nf,nf
-      msq(j,k)=0d0
+      msq(j,k)=0._dp
 
-      if ((j.eq.0).and.(k.eq.0)) then
+      if ((j==0).and.(k==0)) then
 C---gg - all poles cancelled
-             msq(j,k)=fac*avegg*(half*gggg+dfloat(nflav)*ggqa)
+             msq(j,k)=fac*avegg*(half*gggg+real(nflav,dp)*ggqa)
 
-      elseif ((j.gt.0).and.(k.gt.0)) then
+      elseif ((j>0).and.(k>0)) then
 C---qq - all poles cancelled
-             if (j.eq.k) then
+             if (j==k) then
              msq(j,k)=aveqq*fac*half*qqqq
              else
              msq(j,k)=aveqq*fac*qrqr
              endif
 
-      elseif ((j.lt.0).and.(k.lt.0)) then
+      elseif ((j<0).and.(k<0)) then
 C---aa - all poles cancelled
-             if (j.eq.k) then
+             if (j==k) then
              msq(j,k)=aveqq*fac*half*aaaa
              else
              msq(j,k)=aveqq*fac*abab
              endif
 
-      elseif ((j.gt.0).and.(k.lt.0)) then
+      elseif ((j>0).and.(k<0)) then
 C----qa scattering - all poles cancelled
-         if (j.eq.-k) then
-         msq(j,k)=aveqq*fac*(dfloat(nflav-1)*qarb+qaqa+half*qagg)
+         if (j==-k) then
+         msq(j,k)=aveqq*fac*(real(nflav-1,dp)*qarb+qaqa+half*qagg)
              else
          msq(j,k)=aveqq*fac*qbra
          endif
 
-      elseif ((j.lt.0).and.(k.gt.0)) then
+      elseif ((j<0).and.(k>0)) then
 C----aq scattering - all poles cancelled
-         if (j.eq.-k) then
-         msq(j,k)=aveqq*fac*(dfloat(nflav-1)*aqbr+aqaq+half*aqgg)
+         if (j==-k) then
+         msq(j,k)=aveqq*fac*(real(nflav-1,dp)*aqbr+aqaq+half*aqgg)
              else
          msq(j,k)=aveqq*fac*bqar
          endif
 
-      elseif ((j.eq.0).and.(k.gt.0)) then
+      elseif ((j==0).and.(k>0)) then
 C----gq scattering - all poles cancelled
          msq(j,k)=aveqg*fac*gqqg
 
-      elseif ((j.eq.0).and.(k.lt.0)) then
+      elseif ((j==0).and.(k<0)) then
 C----ga scattering - all poles cancelled
          msq(j,k)=aveqg*fac*gaag
 
-      elseif ((j.gt.0).and.(k.eq.0)) then
+      elseif ((j>0).and.(k==0)) then
 C----qg scattering - all poles cancelled
          msq(j,k)=aveqg*fac*qgqg
 
-      elseif ((j.lt.0).and.(k.eq.0)) then
+      elseif ((j<0).and.(k==0)) then
 C----ag scattering - all poles cancelled
          msq(j,k)=aveqg*fac*agag
       endif

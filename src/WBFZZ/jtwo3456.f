@@ -1,17 +1,22 @@
       subroutine jtwo3456(n2,n3,n4,n5,n6,n1,za,zb,zab,zba,j2,j2w)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ewcharge.f'
       include 'zcouple.f'
       include 'masses.f'
       include 'sprods_com.f'
       include 'zprods_decl.f'
-      integer h1,h34,h56,i1,i2,i3,i4,i5,i6,n1,n2,n3,n4,n5,n6,jdu,al,nu
+      integer:: h1,h34,h56,i1,i2,i3,i4,i5,i6,n1,n2,n3,n4,n5,n6,jdu,al,nu
 
-      double precision s34,s56,s234,s156,s356,s456,s3456,
+      real(dp):: s34,s56,s234,s156,s356,s456,s3456,
      & s23456,s13456,t3,t4,t5,xl1,xr1,xq1,xl2,xr2,xq2
 
-      double complex zab(mxpart,4,mxpart),zba(mxpart,4,mxpart),
+      complex(dp):: zab(mxpart,4,mxpart),zba(mxpart,4,mxpart),
      & j2(4,2,2,2,2),zab2,zba2,prop34,prop56,prop3456,gmZ1(2,2,2),
      & gmZ2(2,2,2),gmZ3(2,2,2),gml56(2,2),
      & before(4,2,2,2),straddle(4,2,2,2),after(4,2,2,2),j2w(4,2,2,2),
@@ -57,33 +62,33 @@ C---setting up couplings dependent on whether we are doing 34-line or 56-line
       endif
 
       s34=s(n3,n4)
-      prop34=dcmplx(s34-zmass**2,zmass*zwidth)
+      prop34=cplx2(s34-zmass**2,zmass*zwidth)
       s56=s(n5,n6)
-      prop56=dcmplx(s56-zmass**2,zmass*zwidth)
+      prop56=cplx2(s56-zmass**2,zmass*zwidth)
       s3456=t4(n3,n4,n5,n6)
-      prop3456=dcmplx(s3456-zmass**2,zmass*zwidth)
+      prop3456=cplx2(s3456-zmass**2,zmass*zwidth)
 
       do jdu=1,2
-      gmZ1(jdu,1,1)=dcmplx(Q(jdu)*xq1/s34)+dcmplx(L(jdu)*xl1)/prop34
-      gmZ1(jdu,1,2)=dcmplx(Q(jdu)*xq1/s34)+dcmplx(L(jdu)*xr1)/prop34
-      gmZ1(jdu,2,1)=dcmplx(Q(jdu)*xq1/s34)+dcmplx(R(jdu)*xl1)/prop34
-      gmZ1(jdu,2,2)=dcmplx(Q(jdu)*xq1/s34)+dcmplx(R(jdu)*xr1)/prop34
+      gmZ1(jdu,1,1)=cplx1(Q(jdu)*xq1/s34)+cplx1(L(jdu)*xl1)/prop34
+      gmZ1(jdu,1,2)=cplx1(Q(jdu)*xq1/s34)+cplx1(L(jdu)*xr1)/prop34
+      gmZ1(jdu,2,1)=cplx1(Q(jdu)*xq1/s34)+cplx1(R(jdu)*xl1)/prop34
+      gmZ1(jdu,2,2)=cplx1(Q(jdu)*xq1/s34)+cplx1(R(jdu)*xr1)/prop34
 
-      gmZ2(jdu,1,1)=dcmplx(Q(jdu)*xq2/s56)+dcmplx(L(jdu)*xl2)/prop56
-      gmZ2(jdu,1,2)=dcmplx(Q(jdu)*xq2/s56)+dcmplx(L(jdu)*xr2)/prop56
-      gmZ2(jdu,2,1)=dcmplx(Q(jdu)*xq2/s56)+dcmplx(R(jdu)*xl2)/prop56
-      gmZ2(jdu,2,2)=dcmplx(Q(jdu)*xq2/s56)+dcmplx(R(jdu)*xr2)/prop56
+      gmZ2(jdu,1,1)=cplx1(Q(jdu)*xq2/s56)+cplx1(L(jdu)*xl2)/prop56
+      gmZ2(jdu,1,2)=cplx1(Q(jdu)*xq2/s56)+cplx1(L(jdu)*xr2)/prop56
+      gmZ2(jdu,2,1)=cplx1(Q(jdu)*xq2/s56)+cplx1(R(jdu)*xl2)/prop56
+      gmZ2(jdu,2,2)=cplx1(Q(jdu)*xq2/s56)+cplx1(R(jdu)*xr2)/prop56
 
-      gmZ3(jdu,1,1)=dcmplx(Q(jdu)*xq1/s3456)+dcmplx(L(jdu)*xl1)/prop3456
-      gmZ3(jdu,1,2)=dcmplx(Q(jdu)*xq1/s3456)+dcmplx(L(jdu)*xr1)/prop3456
-      gmZ3(jdu,2,1)=dcmplx(Q(jdu)*xq1/s3456)+dcmplx(R(jdu)*xl1)/prop3456
-      gmZ3(jdu,2,2)=dcmplx(Q(jdu)*xq1/s3456)+dcmplx(R(jdu)*xr1)/prop3456
+      gmZ3(jdu,1,1)=cplx1(Q(jdu)*xq1/s3456)+cplx1(L(jdu)*xl1)/prop3456
+      gmZ3(jdu,1,2)=cplx1(Q(jdu)*xq1/s3456)+cplx1(L(jdu)*xr1)/prop3456
+      gmZ3(jdu,2,1)=cplx1(Q(jdu)*xq1/s3456)+cplx1(R(jdu)*xl1)/prop3456
+      gmZ3(jdu,2,2)=cplx1(Q(jdu)*xq1/s3456)+cplx1(R(jdu)*xr1)/prop3456
       enddo
 
-      gml56(1,1)=dcmplx(xq1*xq2/s56)+dcmplx(xl1*xl2)/prop56
-      gml56(1,2)=dcmplx(xq1*xq2/s56)+dcmplx(xl1*xr2)/prop56
-      gml56(2,1)=dcmplx(xq1*xq2/s56)+dcmplx(xr1*xl2)/prop56
-      gml56(2,2)=dcmplx(xq1*xq2/s56)+dcmplx(xr1*xr2)/prop56
+      gml56(1,1)=cplx1(xq1*xq2/s56)+cplx1(xl1*xl2)/prop56
+      gml56(1,2)=cplx1(xq1*xq2/s56)+cplx1(xl1*xr2)/prop56
+      gml56(2,1)=cplx1(xq1*xq2/s56)+cplx1(xr1*xl2)/prop56
+      gml56(2,2)=cplx1(xq1*xq2/s56)+cplx1(xr1*xr2)/prop56
 
       i1=n1
       i2=n2
@@ -128,10 +133,10 @@ C---setting up couplings dependent on whether we are doing 34-line or 56-line
       enddo
       enddo
       do h56=1,2
-         if (h56.eq.1) then 
+         if (h56==1) then 
             i5=n5
             i6=n6
-         elseif (h56.eq.2) then
+         elseif (h56==2) then
             i5=n6
             i6=n5
          endif
@@ -146,10 +151,10 @@ C---setting up couplings dependent on whether we are doing 34-line or 56-line
      & -za(i5,i4)/s456*(zba(i3,:,i4)*zb(i4,i6)+zba(i3,:,i5)*zb(i5,i6))
 
       do h34=1,2
-         if (h34.eq.1) then 
+         if (h34==1) then 
             i3=n3
             i4=n4
-        elseif (h34.eq.2) then
+        elseif (h34==2) then
             i3=n4
             i4=n3
         endif

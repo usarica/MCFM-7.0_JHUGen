@@ -1,24 +1,27 @@
       subroutine wampd(mq,qwidth,p1,pn,pe,pb,t1,amp)
-c     t(t1/p1) --> Pn(pn)+Pe^+(pe)+b(pb)
       implicit none
+      include 'types.f'
+c     t(t1/p1) --> Pn(pn)+Pe^+(pe)+b(pb)
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'sprods_com.f'
       include 'zprods_com.f'
-      integer p1,pe,pn,pb,t1
-      double complex amp(2)
-      integer i,j
-      double precision propd,propt,tsq,mq,qwidth
+      integer:: p1,pe,pn,pb,t1
+      complex(dp):: amp(2)
+      integer:: j
+      real(dp):: propd,propt,tsq,mq,qwidth
 
-      propd=dsqrt((s(pe,pn)-wmass**2)**2+(wmass*wwidth)**2)
+      propd=sqrt((s(pe,pn)-wmass**2)**2+(wmass*wwidth)**2)
       tsq  =s(pe,pn)+s(pe,pb)+s(pn,pb)
-      propt=dsqrt((tsq-mq**2)**2+(mq*qwidth)**2) 
+      propt=sqrt((tsq-mq**2)**2+(mq*qwidth)**2) 
 
 c      write(6,*) propd,tsq,propt
 
-      do i=1,2
-      amp(i)=0d0
-      enddo
+      amp(:)=zip
 
 c--- label on amplitudes represents heavy quark helicity
 c---  amp(1)= negative helicity, amp(2)= positive helicity    

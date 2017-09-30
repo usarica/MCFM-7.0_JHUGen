@@ -1,17 +1,20 @@
       subroutine jZexch2(p1,p2,p3,p4,p5,p6,p7,p8,za,zb,amp)
       implicit none
+      include 'types.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
       include 'cmplxmass.f'
       include 'zprods_decl.f'
       include 'sprods_com.f'
       include 'ewcharge.f'
       include 'zcouple.f'
-      integer jdu1,jdu2,i1,i2,i3,i4,
+      integer:: jdu1,jdu2,i1,i2,i3,i4,
      & p1,p2,p3,p4,p5,p6,p7,p8
-      double complex zab2,zba2,amp(2,2,2),rxw,gamZ56ne(2),
+      complex(dp):: zab2,zba2,amp(2,2,2),rxw,gamZ56ne(2),
      & propw34,propz28,propZ56,propW3456,gameW(2),gamZ56ee(2),
      & gamZ56qe(2,2,2),gamZ28qq(2,2,2,2)
-      double precision qn,t3,t4,s134,s128,s345,s347,s356,s156,s456,
+      real(dp):: qn,t3,t4,s134,s128,s345,s347,s356,s156,s456,
      & s278,s567,s3456,s28,s34,s56,
      & twop34Dp1278,twop56Dp1278,q3,q4,l3,l4
 C     amp(jdu1,jdu2,h17,h28)

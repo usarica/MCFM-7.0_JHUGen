@@ -1,6 +1,8 @@
       subroutine readcoup
-c--- reads in the anomalous couplings from the file anomcoup.DAT
       implicit none
+      include 'types.f'
+c--- reads in the anomalous couplings from the file anomcoup.DAT
+      
       include 'anomcoup.f'
       include 'zerowidth.f'
      
@@ -16,7 +18,7 @@ c      read(21,*) lambda_g
 c      read(21,*) tevscale
 c      close(21)
 c--- E-M gauge invariance requires that delg1_g=0
-c      delg1_g=0d0
+c      delg1_g=0._dp
       
 c   20 continue   
       
@@ -24,24 +26,24 @@ c   20 continue
       write(6,*)  '*************** Anomalous couplings ****************'
       write(6,*)  '*                                                  *'
       write(6,99) '*            Delta_g1(Z)  =  ',delg1_z,
-     .                '                *'
-      write(6,99) '*            Delta_g1(g)  =  ',0d0,
-     .                '                *'
+     &                '                *'
+      write(6,99) '*            Delta_g1(g)  =  ',0._dp,
+     &                '                *'
       write(6,99) '*            Delta_K(Z)   =  ',delk_z,
-     .                '                *'
+     &                '                *'
       write(6,99) '*            Delta_K(g)   =  ',delk_g,
-     .                '                *'
+     &                '                *'
       write(6,99) '*            Lambda(Z)    =  ',lambda_z,
-     .                '                *'
+     &                '                *'
       write(6,99) '*            Lambda(g)    =  ',lambda_g,
-     .                '                *'
+     &                '                *'
       write(6,99) '*            TeV-scale    =  ',tevscale,
-     .                ' TeV            *'
+     &                ' TeV            *'
       write(6,*)  '****************************************************'
       
 c--- Check to see whether anomalous couplings are being used
       if (max(abs(delg1_z),abs(lambda_g),abs(lambda_z),
-     .        abs(delk_g),abs(delk_z)) .gt. 1d-8) then
+     &        abs(delk_g),abs(delk_z)) > 1.e-8_dp) then
         anomtgc=.true.
       if (zerowidth .eqv. .false.) then
         write(6,*)

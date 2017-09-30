@@ -1,3 +1,3 @@
-      double complex za(mxpart,mxpart),zb(mxpart,mxpart)
+      complex(dp):: za(mxpart,mxpart),zb(mxpart,mxpart)
 
 

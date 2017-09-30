@@ -1,5 +1,7 @@
       subroutine nplotter_Ztj(p,wt,wt2,switch)
       implicit none
+      include 'types.f'
+      
 c -- R. Rontsch, 2013-02-28
 c -- Taylored for generic observables in pp -> Z(-> e-(p3) e+(p4)) t(p5) d(p6) g(p7) [top not decaying]
 c--- Variable passed in to this routine:
@@ -12,25 +14,28 @@ c---     wt:  weight of this event
 c
 c---    wt2:  weight^2 of this event
 c
-c--- switch:  an integer equal to 0 or 1, depending on the type of event
+c--- switch:  an integer:: equal to 0 or 1, depending on the type of event
 c---                0  --> lowest order, virtual or real radiation
 c---                1  --> counterterm for real radiation
       include 'vegas_common.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'histo.f'
       include 'plabel.f'
       include 'outputflags.f'
-      double precision p(mxpart,4),wt,wt2,ptjet(mxpart),yjet(mxpart),
+      real(dp):: p(mxpart,4),wt,wt2,ptjet(mxpart),yjet(mxpart),
      & pt,pttwo,yrap,yraptwo,yrapthree,etarap,etaraptwo,etarapthree,
      & tiny
-      double precision ptl,pta,ptt,ptj1,ptj2,ptla,
+      real(dp):: ptl,pta,ptt,ptj1,ptj2,ptla,
      & yl,ya,yt,yj1,yj2,yla,ytj,
      & ylat,ylaj,etat,etala,etatj,etalat,etalaj,mla,mtj,mlat,mlaj,
      & Dytj,Dylat,Dylaj,Detalat,Detalaj
-      double precision twomass,threemass
-      integer switch,n,nplotmax,j,iorder(mxpart),ijet,hj,sj
-      character*4 tag
-      parameter(tiny=1d-8)
+      real(dp):: twomass,threemass
+      integer:: switch,n,nplotmax,j,iorder(mxpart),ijet,hj,sj
+      integer tag
+      parameter(tiny=1.e-8_dp)
       logical, save::first=.true.
       common/nplotmax/nplotmax
 ccccc!$omp threadprivate(first,/nplotmax/)
@@ -44,11 +49,11 @@ ccccc!$omp threadprivate(first,/nplotmax/)
       if (first) then
 c--- Initialize histograms, without computing any quantities; instead
 c--- set them to dummy values
-        tag='book'
+        tag=tagbook
         goto 99
       else
 c---  Add event in histograms
-        tag='plot'
+        tag=tagplot
       endif
 
 ************************************************************************
@@ -60,9 +65,9 @@ c---  Add event in histograms
 c -- start with jet definitions
       ijet=0
        do j=2,7
-         if ((plabel(j) .eq. 'pp') .or. (plabel(j) .eq. 'bq')
-     &   .or.(plabel(j) .eq. 'ba')) then
-           if (p(j,4) .gt. tiny) then
+         if ((plabel(j) == 'pp') .or. (plabel(j) == 'bq')
+     &   .or.(plabel(j) == 'ba')) then
+           if (p(j,4) > tiny) then
              ijet=ijet+1
              ptjet(ijet)=pt(j,p)
              yjet(ijet)=yrap(j,p)
@@ -80,15 +85,15 @@ c       sj=jetindex(iorder(2))
 c -- get pt and rapidity of hardest and next-hardest jets
        ptj1=ptjet(hj)
        yj1=yjet(hj)
-       if (ijet .eq. 2) then
+       if (ijet == 2) then
           ptj2=ptjet(sj)
           yj2=yjet(sj)
        else
-          ptj2=0d0
-          yj2=0d0
+          ptj2=0._dp
+          yj2=0._dp
        endif
        
-       if (ptj2 .ge. ptj1) then
+       if (ptj2 >= ptj1) then
           write(*,*) ptj1,ptj2
           stop
        endif
@@ -146,7 +151,7 @@ c--- Call histogram routines
 c--- Book and fill ntuple if that option is set, remembering to divide
 c--- by # of iterations now that is handled at end for regular histograms
       if (creatent .eqv. .true.) then
-        call bookfill(tag,p,wt/dfloat(itmx))  
+        call bookfill(tag,p,wt/real(itmx,dp))  
       endif
 
 c--- "n" will count the number of histograms
@@ -170,81 +175,81 @@ c---   llplot:  equal to "lin"/"log" for linear/log scale
 c -- One-particle plots
 c -- lepton plots
       call bookplot(n,tag,'pt(e-)',ptl,wt,wt2,
-     & 0d0,200d0,10d0,'log')
+     & 0._dp,200._dp,10._dp,'log')
       n=n+1
       call bookplot(n,tag,'eta(e-)',yl,wt,wt2,
-     & -2.2d0,2.2d0,0.2d0,'lin')
+     & -2.2_dp,2.2_dp,0.2_dp,'lin')
       n=n+1
       call bookplot(n,tag,'pt(e+)',pta,wt,wt2,
-     & 0d0,200d0,10d0,'log')
+     & 0._dp,200._dp,10._dp,'log')
       n=n+1
       call bookplot(n,tag,'eta(e+)',ya,wt,wt2,
-     & -2.2d0,2.2d0,0.2d0,'lin')
+     & -2.2_dp,2.2_dp,0.2_dp,'lin')
       n=n+1     
 
 c -- top plots
-      call bookplot(n,tag,'pt(t)',ptt,wt,wt2,0d0,500d0,10d0,'log')
+      call bookplot(n,tag,'pt(t)',ptt,wt,wt2,0._dp,500._dp,10._dp,'log')
       n=n+1     
-      call bookplot(n,tag,'eta(t)',etat,wt,wt2,-3d0,3d0,0.1d0,'lin')
+      call bookplot(n,tag,'eta(t)',etat,wt,wt2,-3._dp,3._dp,0.1_dp,'lin')
       n=n+1     
-      call bookplot(n,tag,'y(t)',yt,wt,wt2,-3d0,3d0,0.1d0,'lin')
+      call bookplot(n,tag,'y(t)',yt,wt,wt2,-3._dp,3._dp,0.1_dp,'lin')
       n=n+1     
 
 c -- jet plots
-      call bookplot(n,tag,'pt(j1)',ptj1,wt,wt2,0d0,500d0,10d0,'log')
+      call bookplot(n,tag,'pt(j1)',ptj1,wt,wt2,0._dp,500._dp,10._dp,'log')
       n=n+1     
-      call bookplot(n,tag,'y(j1)',yj1,wt,wt2,-6d0,6d0,0.2d0,'lin')
+      call bookplot(n,tag,'y(j1)',yj1,wt,wt2,-6._dp,6._dp,0.2_dp,'lin')
       n=n+1     
-      call bookplot(n,tag,'pt(j2)',ptj2,wt,wt2,0d0,500d0,10d0,'log')
+      call bookplot(n,tag,'pt(j2)',ptj2,wt,wt2,0._dp,500._dp,10._dp,'log')
       n=n+1     
-      call bookplot(n,tag,'y(j2)',yj2,wt,wt2,-6d0,6d0,0.2d0,'lin')
+      call bookplot(n,tag,'y(j2)',yj2,wt,wt2,-6._dp,6._dp,0.2_dp,'lin')
       n=n+1     
 
 c -- Two particle plots
-      call bookplot(n,tag,'pt(la)',ptla,wt,wt2,0d0,500d0,10d0,'log')
+      call bookplot(n,tag,'pt(la)',ptla,wt,wt2,0._dp,500._dp,10._dp,'log')
       n=n+1     
-      call bookplot(n,tag,'m(Z)',mla,wt,wt2,0d0,200d0,5d0,'log')
+      call bookplot(n,tag,'m(Z)',mla,wt,wt2,0._dp,200._dp,5._dp,'log')
       n=n+1     
-      call bookplot(n,tag,'m(Z)',mla,wt,wt2,0d0,200d0,5d0,'lin')
+      call bookplot(n,tag,'m(Z)',mla,wt,wt2,0._dp,200._dp,5._dp,'lin')
       n=n+1     
-      call bookplot(n,tag,'m(tj)',mtj,wt,wt2,0d0,500d0,10d0,'log')
+      call bookplot(n,tag,'m(tj)',mtj,wt,wt2,0._dp,500._dp,10._dp,'log')
       n=n+1     
-      call bookplot(n,tag,'y(Z)',yla,wt,wt2,-5d0,5d0,0.1d0,'lin')
+      call bookplot(n,tag,'y(Z)',yla,wt,wt2,-5._dp,5._dp,0.1_dp,'lin')
       n=n+1     
-      call bookplot(n,tag,'eta(Z)',etala,wt,wt2,-5d0,5d0,0.1d0,'lin')
+      call bookplot(n,tag,'eta(Z)',etala,wt,wt2,-5._dp,5._dp,0.1_dp,'lin')
       n=n+1     
-      call bookplot(n,tag,'y(tj)',ytj,wt,wt2,-3d0,3d0,0.1d0,'lin')
+      call bookplot(n,tag,'y(tj)',ytj,wt,wt2,-3._dp,3._dp,0.1_dp,'lin')
       n=n+1     
-      call bookplot(n,tag,'eta(tj)',etatj,wt,wt2,-6d0,6d0,0.2d0,'lin')
+      call bookplot(n,tag,'eta(tj)',etatj,wt,wt2,-6._dp,6._dp,0.2_dp,'lin')
       n=n+1     
-      call bookplot(n,tag,'Delta y(tj)',Dytj,wt,wt2,-5d0,5d0,
-     & 0.1d0,'lin')
+      call bookplot(n,tag,'Delta y(tj)',Dytj,wt,wt2,-5._dp,5._dp,
+     & 0.1_dp,'lin')
       n=n+1     
       
 c -- Three particle plots
-      call bookplot(n,tag,'m(lat)',mlat,wt,wt2,0d0,500d0,10d0,'log')
+      call bookplot(n,tag,'m(lat)',mlat,wt,wt2,0._dp,500._dp,10._dp,'log')
       n=n+1     
-      call bookplot(n,tag,'m(laj)',mlaj,wt,wt2,0d0,500d0,10d0,'log')
+      call bookplot(n,tag,'m(laj)',mlaj,wt,wt2,0._dp,500._dp,10._dp,'log')
       n=n+1     
-      call bookplot(n,tag,'y(lat)',ylat,wt,wt2,-3d0,3d0,0.1d0,'lin')
+      call bookplot(n,tag,'y(lat)',ylat,wt,wt2,-3._dp,3._dp,0.1_dp,'lin')
       n=n+1     
-      call bookplot(n,tag,'eta(lat)',etalat,wt,wt2,-6d0,6d0,0.2d0,'lin')
+      call bookplot(n,tag,'eta(lat)',etalat,wt,wt2,-6._dp,6._dp,0.2_dp,'lin')
       n=n+1     
-      call bookplot(n,tag,'y(laj)',ylaj,wt,wt2,-4d0,4d0,0.1d0,'lin')
+      call bookplot(n,tag,'y(laj)',ylaj,wt,wt2,-4._dp,4._dp,0.1_dp,'lin')
       n=n+1     
-      call bookplot(n,tag,'eta(laj)',etalaj,wt,wt2,-5d0,5d0,0.1d0,'lin')
+      call bookplot(n,tag,'eta(laj)',etalaj,wt,wt2,-5._dp,5._dp,0.1_dp,'lin')
       n=n+1     
-      call bookplot(n,tag,'Delta y(la,t)',Dylat,wt,wt2,-5d0,5d0,
-     & 0.1d0,'lin')
+      call bookplot(n,tag,'Delta y(la,t)',Dylat,wt,wt2,-5._dp,5._dp,
+     & 0.1_dp,'lin')
       n=n+1     
-      call bookplot(n,tag,'Delta eta(la,t)',Detalat,wt,wt2,-5d0,5d0,
-     & 0.1d0,'lin')
+      call bookplot(n,tag,'Delta eta(la,t)',Detalat,wt,wt2,-5._dp,5._dp,
+     & 0.1_dp,'lin')
       n=n+1     
-      call bookplot(n,tag,'Delta y(la,j)',Dylaj,wt,wt2,-5d0,5d0,
-     & 0.1d0,'lin')
+      call bookplot(n,tag,'Delta y(la,j)',Dylaj,wt,wt2,-5._dp,5._dp,
+     & 0.1_dp,'lin')
       n=n+1     
-      call bookplot(n,tag,'Delta eta(la,j)',Detalaj,wt,wt2,-5d0,5d0,
-     & 0.1d0,'lin')
+      call bookplot(n,tag,'Delta eta(la,j)',Detalaj,wt,wt2,-5._dp,5._dp,
+     & 0.1_dp,'lin')
       n=n+1     
 
 ************************************************************************

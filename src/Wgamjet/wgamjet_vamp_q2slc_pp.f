@@ -2,29 +2,35 @@
 !==== Wgam jet ++ (34) pieces
 
 
-      double complex function wgamjet_vamp_q2slc_pp(i1,i2,i3,i4,i5,i6
+      function wgamjet_vamp_q2slc_pp(i1,i2,i3,i4,i5,i6
+      implicit none
+      include 'types.f'
+      complex(dp):: wgamjet_vamp_q2slc_pp
      &,za,zb)
-      include 'constants.f' 
+      include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h' 
       include 'zprods_decl.f' 
       include 'sprods_com.f'
-      integer i1,i2,i3,i4,i5,i6
-      double complex Atree_q2pp
-      double complex d2me1,d2me2,d2me3,d1m1,d1m2,d1m3
-      double complex Dcoeff2me_q2slcpp_s26s34s126s134
-      double complex Dcoeff2me_q2slcpp_s25s34s125s134
-      double complex Dcoeff2me_q2slcpp_s12s34s126s125
-      double complex Dcoeff1m_q2slcpp_s126s12s26
-      double complex Dcoeff1m_q2slcpp_s126s16s12
-      double complex Dcoeff1m_q2slcpp_s125s12s25
-      double complex Bcoeff_q2slcpp_s34
-      double complex Bcoeff_q2slcpp_s16
-      double complex Bcoeff_q2slcpp_s12
-      double complex Bcoeff_q2slcpp_s125
-      double complex b34,b126,b16,b12,b125
+      integer:: i1,i2,i3,i4,i5,i6
+      complex(dp):: Atree_q2pp
+      complex(dp):: d2me1,d2me2,d2me3,d1m1,d1m2,d1m3
+      complex(dp):: Dcoeff2me_q2slcpp_s26s34s126s134
+      complex(dp):: Dcoeff2me_q2slcpp_s25s34s125s134
+      complex(dp):: Dcoeff2me_q2slcpp_s12s34s126s125
+      complex(dp):: Dcoeff1m_q2slcpp_s126s12s26
+      complex(dp):: Dcoeff1m_q2slcpp_s126s16s12
+      complex(dp):: Dcoeff1m_q2slcpp_s125s12s25
+      complex(dp):: Bcoeff_q2slcpp_s34
+      complex(dp):: Bcoeff_q2slcpp_s16
+      complex(dp):: Bcoeff_q2slcpp_s12
+      complex(dp):: Bcoeff_q2slcpp_s125
+      complex(dp):: b34,b126,b16,b12,b125
 
-      logical do_check 
+      logical:: do_check 
       common/do_check_wgamj/do_check
-      double complex zab2
+      complex(dp):: zab2
       zab2(i1,i2,i3,i4)=za(i1,i2)*zb(i2,i4)+za(i1,i3)*zb(i3,i4)
 
       Atree_q2pp= (za(i1,i3)**2*zab2(i2,i3,i4,i5))/
@@ -50,7 +56,7 @@
       b125=Bcoeff_q2slcpp_s125(i1,i2,i3,i4,i5,i6,za,zb)
       b12=Bcoeff_q2slcpp_s12(i1,i2,i3,i4,i5,i6,za,zb)
 
-      b126=-3d0/2d0*Atree_q2pp-b34-b16-b12-b125
+      b126=-3._dp/2._dp*Atree_q2pp-b34-b16-b12-b125
 
       if(do_check) then
 !==== print out information for KC 

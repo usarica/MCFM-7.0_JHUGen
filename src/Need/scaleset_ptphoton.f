@@ -1,15 +1,20 @@
       subroutine scaleset_ptphoton(p,mu0)
+      implicit none
+      include 'types.f'
 c--- subroutine to calculate dynamic scale equal to
 c---  pt(photon)
-      implicit none
+      
       include 'constants.f'
-      include 'process.f'
-      double precision p(mxpart,4),mu0,pt
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      include 'kprocess.f'
+      real(dp):: p(mxpart,4),mu0,pt
 
-      if    ((case .eq. 'Wgamma') .or.
-     &       (case .eq. 'Zgamma')) then
+      if    ((kcase==kWgamma) .or.
+     &       (kcase==kZgamma)) then
         mu0=pt(5,p)
-      elseif((case .eq. 'dirgam')) then
+      elseif((kcase==kdirgam)) then
         mu0=pt(3,p)
       else
         write(6,*) 'dynamicscale pt(photon)'//

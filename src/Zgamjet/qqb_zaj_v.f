@@ -1,12 +1,17 @@
 
       subroutine qqb_zaj_v(p,msqv)
+      implicit none
+      include 'types.f'
 ****************************************************************
 *   Virtual matrix element for
 *   0 -> q(-p1) + qb(-p4) + g(p2) + a(p3) + lb(p5) + l(p6)
 *   l = charged lepton/neutrino
 ****************************************************************
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'qcdcouple.f'
       include 'zprods_decl.f'
       include 'sprods_com.f'
@@ -15,12 +20,12 @@
       include 'epinv2.f'
       include 'epinv.f'
       include 'nflav.f'
-      double precision p(mxpart,4),msqv(-nf:nf,-nf:nf)
-      double precision msq0(-nf:nf,-nf:nf),subuv
-      double complex a60h(4,16),a6vh(5,16)
-      double precision pbdk(mxpart,4)
-      double precision qqb(2),qbq(2),qg(2),qbg(2),gq(2),gqb(2)
-      integer i,j,k
+      real(dp):: p(mxpart,4),msqv(-nf:nf,-nf:nf)
+      real(dp):: msq0(-nf:nf,-nf:nf),subuv
+      complex(dp):: a60h(4,16),a6vh(5,16)
+      real(dp):: pbdk(mxpart,4)
+      real(dp):: qqb(2),qbq(2),qg(2),qbg(2),gq(2),gqb(2)
+      integer:: i,j,k
       integer,parameter:: jj(-nf:nf)=(/-1,-2,-1,-2,-1,0,1,2,1,2,1/)
       integer,parameter:: kk(-nf:nf)=(/-1,-2,-1,-2,-1,0,1,2,1,2,1/)
 c-----set scheme
@@ -29,7 +34,8 @@ c-----calculate lowest order for UV renormalization
       call qqb_zaj(p,msq0)
 c-----UV counterterm contains the finite renormalization to arrive
 c-----at MS bar scheme. 
-      subuv=ason2pi*xn*(epinv*(11d0-2d0*dble(nflav)/xn)-1d0)/6d0
+      subuv=ason2pi*xn
+     & *(epinv*(11._dp-2._dp*real(nflav,dp)/xn)-1._dp)/6._dp
 c-----swap momenta
 c-----implemented (ala bdk)
 c----- 0 -> q(p1) + qb(p4) + gam(p2) + gam(p3) + lb(p5) + l(p6)
@@ -95,22 +101,22 @@ c-----initialize msq
 c-----fill msq
       do j=-nf,nf
       do k=-nf,nf
-          if ((j .eq. 0) .and. (k .eq. 0)) then
-            msqv(j,k)=0d0
-          elseif ((j .eq. 0) .and. (k .lt. 0)) then
+          if ((j == 0) .and. (k == 0)) then
+            msqv(j,k)=0._dp
+          elseif ((j == 0) .and. (k < 0)) then
             msqv(j,k)=aveqg*gqb(-kk(k))-subuv*msq0(j,k)
-          elseif ((j .eq. 0) .and. (k .gt. 0)) then
+          elseif ((j == 0) .and. (k > 0)) then
             msqv(j,k)=aveqg*gq(kk(k))-subuv*msq0(j,k)
-          elseif ((j .gt. 0) .and. (k .eq. -j)) then
+          elseif ((j > 0) .and. (k == -j)) then
             msqv(j,k)=aveqq*qqb(jj(j))-subuv*msq0(j,k)
-          elseif ((j .lt. 0) .and. (k .eq. -j)) then
+          elseif ((j < 0) .and. (k == -j)) then
             msqv(j,k)=aveqq*qbq(kk(k))-subuv*msq0(j,k)
-          elseif ((j .gt. 0) .and. (k .eq. 0)) then
+          elseif ((j > 0) .and. (k == 0)) then
             msqv(j,k)=aveqg*qg(jj(j))-subuv*msq0(j,k)
-          elseif ((j .lt. 0) .and. (k .eq. 0)) then
+          elseif ((j < 0) .and. (k == 0)) then
             msqv(j,k)=aveqg*qbg(-jj(j))-subuv*msq0(j,k)
           else
-            msqv(j,k)=0d0
+            msqv(j,k)=0._dp
           endif
       enddo
       enddo
@@ -119,12 +125,17 @@ c-----donehere
       end
 
       subroutine zaj_m6vsq(qi,a60h,a6vh,msqv)
+      implicit none
+      include 'types.f'
 ***********************************************
 * virtual matrix element squared
 * qqb_zaj, for initial state flavor qi
 ***********************************************
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'sprods_com.f'
       include 'ewcouple.f'
@@ -134,61 +145,61 @@ c-----donehere
       include 'masses.f'
       include 'new_pspace.f'
       include 'ipsgen.f'
-      double precision t
-      integer j1,j2,j3,j4,j5,j6
-      double complex a60h(4,16),m60hA(16),m60hB(16)
-      double complex a6vh(5,16),m6vhA(16),m6vhB(16)
-      double complex propzQQ,propzLL,propzQL(3:4)
-      double precision m6sqvhAA(16),m6sqvhBB(16),m6sqvhAB(16)
-      double precision m6sqvh(16),msqv
-      double precision iwdth,iph,izz,qq1,ee,gg
-      double precision SumQiNf,SumViNf,sw,cw
-      integer qi,i,j,k
+      real(dp):: t
+      integer:: j1,j2,j3,j4,j5,j6
+      complex(dp):: a60h(4,16),m60hA(16),m60hB(16)
+      complex(dp):: a6vh(5,16),m6vhA(16),m6vhB(16)
+      complex(dp):: propzQQ,propzLL,propzQL(3:4)
+      real(dp):: m6sqvhAA(16),m6sqvhBB(16),m6sqvhAB(16)
+      real(dp):: m6sqvh(16),msqv
+      real(dp):: iwdth,iph,izz,qq1,ee,gg
+      real(dp):: SumQiNf,SumViNf,sw,cw
+      integer:: qi,i,j,k
 c-----electric and strong coupling
-      ee=dsqrt(esq)
-      gg=dsqrt(gsq)
-      sw=dsqrt(xw)
-      cw=dsqrt(1D0-xw)
+      ee=sqrt(esq)
+      gg=sqrt(gsq)
+      sw=sqrt(xw)
+      cw=sqrt(one-xw)
 c-----Z propagator
-      iwdth = 1D0
+      iwdth = one
 c-----QQ propagator
-      propzQQ=s(5,6)/Dcmplx(s(5,6)-zmass**2,iwdth*zwidth*zmass)
+      propzQQ=s(5,6)/cplx2(s(5,6)-zmass**2,iwdth*zwidth*zmass)
 c-----QL propagator (2,3)
-      propzQL(3)=t(1,4,2)/Dcmplx(t(1,4,2)-zmass**2,iwdth*zwidth*zmass)
+      propzQL(3)=t(1,4,2)/cplx2(t(1,4,2)-zmass**2,iwdth*zwidth*zmass)
 c-----dress the amplitude with couplings etc.
 c-----iph,izz -> switches for photon/z contribution
       iph=one
       izz=one
 c-----qq1 -> choose electron/neutrino contributions
-      qq1=dabs(q1)
+      qq1=abs(q1)
 c-----LO amplitude
 c-----M(+-xx-+)
       do i=1,4
          m60hA(i)=twort2*ee**3*gg*
-     .   (+Q(qi)*(q1*Q(qi)+r1*r(qi)*propzQQ)*a60h(1,i) )
+     &   (+Q(qi)*(q1*Q(qi)+r1*r(qi)*propzQQ)*a60h(1,i) )
          m60hB(i)=twort2*ee**3*gg*
-     .   (-qq1*(q1*Q(qi)+r1*r(qi)*propzQL(3))*a60h(3,i) )
+     &   (-qq1*(q1*Q(qi)+r1*r(qi)*propzQL(3))*a60h(3,i) )
       enddo
 c-----M(+-xx+-)
       do i=5,8
          m60hA(i)=twort2*ee**3*gg*
-     .   (+Q(qi)*(q1*Q(qi)+l1*r(qi)*propzQQ)*a60h(1,i) )
+     &   (+Q(qi)*(q1*Q(qi)+l1*r(qi)*propzQQ)*a60h(1,i) )
          m60hB(i)=twort2*ee**3*gg*
-     .   (+qq1*(q1*Q(qi)+l1*r(qi)*propzQL(3))*a60h(3,i) )
+     &   (+qq1*(q1*Q(qi)+l1*r(qi)*propzQL(3))*a60h(3,i) )
       enddo
 c-----(-+xx+-)
       do i=9,12
          m60hA(i)=twort2*ee**3*gg*
-     .   (+Q(qi)*(q1*Q(qi)+l1*l(qi)*propzQQ)*a60h(1,i)) 
+     &   (+Q(qi)*(q1*Q(qi)+l1*l(qi)*propzQQ)*a60h(1,i)) 
          m60hB(i)=twort2*ee**3*gg*
-     .   (-qq1*(q1*Q(qi)+l1*l(qi)*propzQL(3))*a60h(3,i)) 
+     &   (-qq1*(q1*Q(qi)+l1*l(qi)*propzQL(3))*a60h(3,i)) 
       enddo
 c-----(-+xx-+)
       do i=13,16
          m60hA(i)=twort2*ee**3*gg*
-     .   (+Q(qi)*(q1*Q(qi)+r1*l(qi)*propzQQ)*a60h(1,i)) 
+     &   (+Q(qi)*(q1*Q(qi)+r1*l(qi)*propzQQ)*a60h(1,i)) 
          m60hB(i)=twort2*ee**3*gg*
-     .   (+qq1*(q1*Q(qi)+r1*l(qi)*propzQL(3))*a60h(3,i)) 
+     &   (+qq1*(q1*Q(qi)+r1*l(qi)*propzQL(3))*a60h(3,i)) 
       enddo
 c-----Virtual amplitude
 c-----Sum of nf light quark electric charge
@@ -204,71 +215,71 @@ c-----Sum of nf light quark z-coupling: vL(i)+vR(i)
 c-----M(+-xx-+)
       do i=1,4
          m6vhA(i)=twort2*ee**3*gg*
-     .   ( + Q(qi)*( 
-     .             +(q1*Q(qi)+r1*r(qi)*propzQQ)*a6vh(1,i)
-     .             +(q1*SumQiNf + half*r1*SumViNf*propzQQ)*a6vh(2,i)
-     .             +(r1/two/sw/cw)*propzQQ*a6vh(3,i) 
-     .             ) )
+     &   ( + Q(qi)*( 
+     &             +(q1*Q(qi)+r1*r(qi)*propzQQ)*a6vh(1,i)
+     &             +(q1*SumQiNf + half*r1*SumViNf*propzQQ)*a6vh(2,i)
+     &             +(r1/two/sw/cw)*propzQQ*a6vh(3,i) 
+     &             ) )
          m6vhB(i)=twort2*ee**3*gg*
-     .   ( - qq1*( 
-     .           +(q1*Q(qi)+r1*r(qi)*propzQL(3))*a6vh(4,i)
-     .           +(r1/two/sw/cw)*propzQL(3)*a6vh(5,i) 
-     .           ))
+     &   ( - qq1*( 
+     &           +(q1*Q(qi)+r1*r(qi)*propzQL(3))*a6vh(4,i)
+     &           +(r1/two/sw/cw)*propzQL(3)*a6vh(5,i) 
+     &           ))
       enddo
 c-----M(+-xx+-)
       do i=5,8
          m6vhA(i)=twort2*ee**3*gg*
-     .   ( + Q(qi)*(
-     .             +(q1*Q(qi)+l1*r(qi)*propzQQ)*a6vh(1,i)
-     .             +(q1*SumQiNf + half*l1*SumViNf*propzQQ)*a6vh(2,i)
-     .             +(l1/two/sw/cw)*propzQQ*a6vh(3,i) 
-     .             ))
+     &   ( + Q(qi)*(
+     &             +(q1*Q(qi)+l1*r(qi)*propzQQ)*a6vh(1,i)
+     &             +(q1*SumQiNf + half*l1*SumViNf*propzQQ)*a6vh(2,i)
+     &             +(l1/two/sw/cw)*propzQQ*a6vh(3,i) 
+     &             ))
          m6vhB(i)=twort2*ee**3*gg*
-     .   ( + qq1*(
-     .           +(q1*Q(qi)+l1*r(qi)*propzQL(3))*a6vh(4,i)
-     .           +(l1/two/sw/cw)*propzQL(3)*a6vh(5,i) 
-     .           ))
+     &   ( + qq1*(
+     &           +(q1*Q(qi)+l1*r(qi)*propzQL(3))*a6vh(4,i)
+     &           +(l1/two/sw/cw)*propzQL(3)*a6vh(5,i) 
+     &           ))
       enddo
 c-----(-+xx+-)
       do i=9,12
          m6vhA(i)=twort2*ee**3*gg*
-     .   ( + Q(qi)*(
-     .             +(q1*Q(qi)+l1*l(qi)*propzQQ)*a6vh(1,i)
-     .             +(q1*SumQiNf + half*l1*SumViNf*propzQQ)*a6vh(2,i)
-     .             +(l1/two/sw/cw)*propzQQ*a6vh(3,i)
-     .             ))
+     &   ( + Q(qi)*(
+     &             +(q1*Q(qi)+l1*l(qi)*propzQQ)*a6vh(1,i)
+     &             +(q1*SumQiNf + half*l1*SumViNf*propzQQ)*a6vh(2,i)
+     &             +(l1/two/sw/cw)*propzQQ*a6vh(3,i)
+     &             ))
          m6vhB(i)=twort2*ee**3*gg*
-     .   ( - qq1*(
-     .           +(q1*Q(qi)+l1*l(qi)*propzQL(3))*a6vh(4,i)
-     .           +(l1/two/sw/cw)*propzQL(3)*a6vh(5,i)
-     .           ))
+     &   ( - qq1*(
+     &           +(q1*Q(qi)+l1*l(qi)*propzQL(3))*a6vh(4,i)
+     &           +(l1/two/sw/cw)*propzQL(3)*a6vh(5,i)
+     &           ))
       enddo
 c-----(-+xx-+)
       do i=13,16
          m6vhA(i)=twort2*ee**3*gg*
-     .   ( + Q(qi)*(
-     .             +(q1*Q(qi)+r1*l(qi)*propzQQ)*a6vh(1,i)
-     .             +(q1*SumQiNf + half*r1*SumViNf*propzQQ)*a6vh(2,i)
-     .             +(r1/two/sw/cw)*propzQQ*a6vh(3,i)
-     .             ))
+     &   ( + Q(qi)*(
+     &             +(q1*Q(qi)+r1*l(qi)*propzQQ)*a6vh(1,i)
+     &             +(q1*SumQiNf + half*r1*SumViNf*propzQQ)*a6vh(2,i)
+     &             +(r1/two/sw/cw)*propzQQ*a6vh(3,i)
+     &             ))
          m6vhB(i)=twort2*ee**3*gg*
-     .   ( + qq1*(
-     .           +(q1*Q(qi)+r1*l(qi)*propzQL(3))*a6vh(4,i)
-     .           +(r1/two/sw/cw)*propzQL(3)*a6vh(5,i)
-     .           ))
+     &   ( + qq1*(
+     &           +(q1*Q(qi)+r1*l(qi)*propzQL(3))*a6vh(4,i)
+     &           +(r1/two/sw/cw)*propzQL(3)*a6vh(5,i)
+     &           ))
       enddo
 c-----square the helicity amplitudes
       do i=1,16
-         m6sqvhAA(i)=two*dble(dconjg(m60hA(i))*m6vhA(i))
-         m6sqvhBB(i)=two*dble(dconjg(m60hB(i))*m6vhB(i))
-         m6sqvhAB(i)= two*dble(dconjg(m60hA(i))*m6vhB(i))
-     .               +two*dble(dconjg(m60hB(i))*m6vhA(i))
+         m6sqvhAA(i)=two*real(conjg(m60hA(i))*m6vhA(i))
+         m6sqvhBB(i)=two*real(conjg(m60hB(i))*m6vhB(i))
+         m6sqvhAB(i)= two*real(conjg(m60hA(i))*m6vhB(i))
+     &               +two*real(conjg(m60hB(i))*m6vhA(i))
       enddo
       do i=1,16
 c         m6sqvh(i)=m6sqvhAA(i)+m6sqvhBB(i)+m6sqvhAB(i)
-         if     (ipsgen .eq. 1) then
+         if     (ipsgen == 1) then
             m6sqvh(i)=m6sqvhAA(i)
-         elseif (ipsgen .eq. 2) then
+         elseif (ipsgen == 2) then
             m6sqvh(i)=m6sqvhBB(i)+m6sqvhAB(i)
          else
             write(6,*) 'Parameter ipsgen should be 1 or 2'
@@ -288,7 +299,7 @@ c-----sum them up
       enddo
 c-----multiply by color factors
 c-----average over spins,no average over colors
-      msqv=8D0*msqv*gsq/16D0/pi**2
+      msqv=8._dp*msqv*gsq/16._dp/pi**2
 c-----donehere
       return
       end

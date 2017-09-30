@@ -1,19 +1,24 @@
       subroutine qqb_fourgam_gs(p,msq)
+      implicit none
+      include 'types.f'
 c---Matrix element SUBTRACTION squared averaged over initial colors and spins
 c---    q(p1) + q~(p2) --> gam(p3) + gam(p4) + gam(p5) +gam(p6) + g(p7)
 c--- (and all crossings)
 c---
 c--- C. W, Sept 2014
-      implicit none 
+       
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ptilde.f'
       include 'qqgg.f'
       include 'ewcharge.f'
       include 'frag.f'
       include 'phot_dip.f'
-      integer j,k,nd
-      double precision p(mxpart,4),msq(maxd,-nf:nf,-nf:nf)
-      double precision msq17_2(-nf:nf,-nf:nf),msq27_1(-nf:nf,-nf:nf),
+      integer:: j,k,nd
+      real(dp):: p(mxpart,4),msq(maxd,-nf:nf,-nf:nf)
+      real(dp):: msq17_2(-nf:nf,-nf:nf),msq27_1(-nf:nf,-nf:nf),
      & sub17_2(4),sub27_1(4),dummyv(-nf:nf,-nf:nf),dsubv,
      &  msq37_1(-nf:nf,-nf:nf), msq47_1(-nf:nf,-nf:nf),
      &  msq57_1(-nf:nf,-nf:nf), msq67_1(-nf:nf,-nf:nf),
@@ -49,11 +54,11 @@ c--- extra photon dipoles in the case of fragmentation
       msq(nd,j,k)=0d0
       enddo
 
-      if     ((j .gt. 0) .and. (k .lt. 0)
-     &    .or.(j .lt. 0) .and. (k .gt. 0)) then
+      if     ((j > 0) .and. (k < 0)
+     &    .or.(j < 0) .and. (k > 0)) then
          msq(1,j,k)=2d0*cf*sub17_2(qq)*msq17_2(j,k)
          msq(2,j,k)=2d0*cf*sub27_1(qq)*msq27_1(j,k)
-      elseif ((j .ne. 0) .and. (k .eq. 0)) then
+      elseif ((j .ne. 0) .and. (k == 0)) then
          msq(2,j,k)=2d0*tr*sub27_1(qg)*msq27_1(j,-j)
          if (frag) then
             msq(3,j,k)=Q(j)**2*msq37_1(j,k)*sub37_1/4d0
@@ -61,7 +66,7 @@ c--- extra photon dipoles in the case of fragmentation
             msq(5,j,k)=Q(j)**2*msq57_1(j,k)*sub57_1/4d0
             msq(6,j,k)=Q(j)**2*msq67_1(j,k)*sub67_1/4d0
          endif
-      elseif ((j .eq. 0) .and. (k .ne. 0)) then
+      elseif ((j == 0) .and. (k .ne. 0)) then
          msq(1,j,k)=2d0*tr*sub17_2(qg)*msq17_2(-k,k)
          if (frag) then
           msq(3,j,k)=Q(k)**2*msq37_1(j,k)*sub37_1/4d0

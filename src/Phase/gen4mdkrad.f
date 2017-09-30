@@ -1,9 +1,14 @@
       subroutine gen4mdkrad(r,p,pswt,*)
+      implicit none
+      include 'types.f'
 c--- this routine is an extension of gen4 to include the decay
 c--- of one of the heavy particles, with radiation included in the decay
       
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'mxdim.f'
       include 'masses.f'
       include 'zerowidth.f'
@@ -11,34 +16,34 @@ c--- of one of the heavy particles, with radiation included in the decay
       include 'phasemin.f'
       include 'breit.f'
       include 'x1x2.f'
-      double precision r(mxdim)
-      double precision p(mxpart,4),pswt,smin
-      double precision p1(4),p2(4),p12(4),p8(4),p34568(4),
+      real(dp):: r(mxdim)
+      real(dp):: p(mxpart,4),pswt,smin
+      real(dp):: p1(4),p2(4),p12(4),p8(4),p34568(4),
      & p7(4),p3458(4),p345(4),p6(4),wt12,wt34568,wt3458
-      double precision p34(4),p5(4),p3(4),p4(4),wt345,wt34
-      double precision mtbsq
-      integer nu
-      double precision xjac,p1ext(4),p2ext(4),wt0
-      double precision tau,x1mx2,surd,lntaum
+      real(dp):: p34(4),p5(4),p3(4),p4(4),wt345,wt34
+      real(dp):: mtbsq
+      integer:: nu
+      real(dp):: xjac,p1ext(4),p2ext(4),wt0
+      real(dp):: tau,x1mx2,surd,lntaum
       common/pext/p1ext,p2ext
-      parameter(wt0=1d0/twopi**2)
+      parameter(wt0=1._dp/twopi**2)
 !$omp threadprivate(/pext/)
  
 c--- this part is taken from gen4
-      lntaum=dlog(taumin)
-      tau=dexp(lntaum*(one-r(14)))
+      lntaum=log(taumin)
+      tau=exp(lntaum*(one-r(14)))
       xjac=-lntaum*tau
 
       x1mx2=two*r(15)-one
-      surd=dsqrt(x1mx2**2+four*tau) 
+      surd=sqrt(x1mx2**2+four*tau) 
            
       xx(1)=half*(+x1mx2+surd)
       xx(2)=half*(-x1mx2+surd)
 
       pswt=xjac*two/surd
 
-      if   ((xx(1) .gt. 1d0)  .or. (xx(2) .gt. 1d0)
-     & .or. (xx(1) .lt. xmin) .or. (xx(2) .lt. xmin)) return 1 
+      if   ((xx(1) > 1._dp)  .or. (xx(2) > 1._dp)
+     & .or. (xx(1) < xmin) .or. (xx(2) < xmin)) return 1 
 
       do nu=1,4
       p1(nu)=xx(1)*p1ext(nu)
@@ -52,13 +57,13 @@ c--- these must be set this way for this part
 
 c--- taken from phase4
       mtbsq=(mt+mb)**2
-      call phi1_2m(0d0,r(1),r(2),r(3),mtbsq,p12,p7,p34568,wt12,*99)
+      call phi1_2m(0._dp,r(1),r(2),r(3),mtbsq,p12,p7,p34568,wt12,*99)
       call phi3m(r(4),r(5),p34568,p3458,p6,mt,mb,wt34568,*99)
-c      r(6)=1d0-1d-4*r(6) ! debug - soft p8
-      call phi1_2m(0d0,r(6),r(7),r(8),mb,p3458,p8,p345,wt3458,*99)
+c      r(6)=1._dp-1.e-4_dp*r(6) ! debug - soft p8
+      call phi1_2m(0._dp,r(6),r(7),r(8),mb,p3458,p8,p345,wt3458,*99)
       pswt=pswt*wt0*wt12*wt34568*wt3458
 c--- alternative
-c      r(2)=r(2)*1d-5 ! DEBUG: s78 small
+c      r(2)=r(2)*1.e-5_dp ! DEBUG: s78 small
 c      call phi1_2(r(1),r(2),r(3),r(4),p12,p3456,p78,wt12,*99)
 c      call phi3m0(r(5),r(6),p78,p7,p8,wt78,*99)
 c      call phi3m(r(7),r(8),p3456,p345,p6,mt,mb,wt3456,*99)

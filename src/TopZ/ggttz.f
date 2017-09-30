@@ -1,5 +1,7 @@
       subroutine ggttz(denu,denb,denq1,denq2,dena1,dena2,propz,wtgg)
       implicit none
+      include 'types.f'
+
 ************************************************************************
 *     Author: R.K. Ellis                                               *
 *     May, 2011                                                        *
@@ -29,16 +31,19 @@
 *  last two indices of coupling to quarks L and R and leptons le,re    *
 ************************************************************************
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zcouple.f'
       include 'ewcharge.f'
       include 'zprods_com.f'
       include 'masses.f'
       include 'topzlabels.f'
-      double complex mab(2,2,2,2),mba(2,2,2,2),xab(2,2,2),xba(2,2,2),
+      complex(dp)::mab(2,2,2,2),mba(2,2,2,2),xab(2,2,2),xba(2,2,2),
      & propz
-      double precision denu,denb,denq1,denq2,dena1,dena2,wtgg,s12
-      integer h1,h2,h3
-      s12=dble(za(p1,p2)*zb(p2,p1))
+      real(dp):: denu,denb,denq1,denq2,dena1,dena2,wtgg,s12
+      integer:: h1,h2,h3
+      s12=real(za(p1,p2)*zb(p2,p1))
       mab(1,1,1,1)= + s12**(-2)*denb**(-1)*denq1**(-1) * ( za(p1,p2)**2
      &    *za(p1,q4)*za(p2,b2)*za(p7,a7)*za(p9,b1)*zb(p1,b1)*zb(p2,b2)*
      &    zb(p4,q4)*zb(p10,a7) )
@@ -1071,9 +1076,9 @@ c--- (for charge and couplings of top quark, use up-charge)
       do h2=2,1,-1
       do h3=1,2
       wtgg=wtgg
-     & +cdabs(xab(h1,h2,h3))**2
-     & +cdabs(xba(h1,h2,h3))**2
-     & -1d0/xnsq*cdabs(xab(h1,h2,h3)+xba(h1,h2,h3))**2
+     & +abs(xab(h1,h2,h3))**2
+     & +abs(xba(h1,h2,h3))**2
+     & -1d0/xnsq*abs(xab(h1,h2,h3)+xba(h1,h2,h3))**2
       enddo
       enddo
       enddo

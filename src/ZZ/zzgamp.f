@@ -1,5 +1,7 @@
       subroutine zzgamp(k1,k2,k3,k4,k5,k6,k7,za,zb,z12,z34,z56)
       implicit none
+      include 'types.f'
+      
 C-----Author:R.K. Ellis, Novemeber 2013
 c---  This is the new code for the amplitudes for ZZ+gluon production
 c---  (singly-resonant diagrams are included)
@@ -8,12 +10,15 @@ C---  0 --> q(-p1)+qb(-p2)+e-(p3)+e+(p4)+mu-(p5)+mu(p6)+g(p7)
 C---  
 C---  Order of indices for z12 is h1,hg,h34,h56
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'srdiags.f'
-      double complex z12(2,2,2,2),z34(2,2,2,2),z56(2,2,2,2)
-      double complex DRP,DRM,SRmm,SRmp,SRpm,SRpp
-      integer p1,p2,p3,p4,p5,p6,p7,h34,h56
-      integer k1,k2,k3,k4,k5,k6,k7
+      complex(dp):: z12(2,2,2,2),z34(2,2,2,2),z56(2,2,2,2)
+      complex(dp):: DRP,DRM,SRmm,SRmp,SRpm,SRpp
+      integer:: p1,p2,p3,p4,p5,p6,p7,h34,h56
+      integer:: k1,k2,k3,k4,k5,k6,k7
 C--   order of indices is z12(hq,h34,h56,hg)
       
       p1=k1
@@ -21,18 +26,18 @@ C--   order of indices is z12(hq,h34,h56,hg)
       p7=k7
 
       do h34=1,2
-         if (h34 .eq. 1) then
+         if (h34 == 1) then
             p3=k3
             p4=k4
-         elseif (h34 .eq. 2) then
+         elseif (h34 == 2) then
             p3=k4
             p4=k3
          endif
          do h56=1,2
-            if (h56 .eq. 1) then
+            if (h56 == 1) then
                p5=k5
                p6=k6
-            elseif (h56 .eq. 2) then
+            elseif (h56 == 2) then
                p5=k6
                p6=k5
             endif
@@ -48,10 +53,10 @@ c---  do not calculate single resonant diagrams unnecessarily
       if (srdiags .eqv. .false.) return
 
          do h56=1,2
-            if (h56 .eq. 1) then
+            if (h56 == 1) then
                p5=k5
                p6=k6
-            elseif (h56 .eq. 2) then
+            elseif (h56 == 2) then
                p5=k6
                p6=k5
             endif
@@ -68,10 +73,10 @@ C----- ( -sign required when performing (za<-->zb))
          enddo
 
          do h34=1,2
-            if (h34 .eq. 1) then
+            if (h34 == 1) then
                p3=k3
                p4=k4
-            elseif (h34 .eq. 2) then
+            elseif (h34 == 2) then
                p3=k4
                p4=k3
             endif
@@ -92,16 +97,22 @@ C----- ( -sign required when performing (za<-->zb))
 
 
 
-      double complex function DRPa(p1,p2,p3,p4,p5,p6,p7,za,zb)
-      implicit none 
+      function DRPa(p1,p2,p3,p4,p5,p6,p7,za,zb)
+      implicit none
+      include 'types.f'
+      complex(dp):: DRPa
+       
 C---  Unsymmetrized version of the doubly resonant piece
 C---  1_q^-,2_q^+,3_e^-,4_eb^+,5_mu^-,6_mb^-,7_g^+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'sprods_com.f'
-      integer p1,p2,p3,p4,p5,p6,p7
-      double precision t
-      double complex zab2
+      integer:: p1,p2,p3,p4,p5,p6,p7
+      real(dp):: t
+      complex(dp):: zab2
 C----Begin statement functions
       t(p1,p2,p3)=s(p1,p2)+s(p2,p3)+s(p1,p3)
       zab2(p1,p2,p3,p4)=za(p1,p2)*zb(p2,p4)+za(p1,p3)*zb(p3,p4)
@@ -116,16 +127,22 @@ C----End statement functions
       return
       end
 
-      double complex function DRMa(p1,p2,p3,p4,p5,p6,p7,za,zb)
-      implicit none 
+      function DRMa(p1,p2,p3,p4,p5,p6,p7,za,zb)
+      implicit none
+      include 'types.f'
+      complex(dp):: DRMa
+       
 C---  Unsymmetrized version of the doubly resonant piece
 C---  1_q^-,2_qb^+,3_e^-,4_eb^+,5_mu^-,6_mb^-,7_g^-
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'sprods_com.f'
-      integer p1,p2,p3,p4,p5,p6,p7
-      double precision t
-      double complex zab2
+      integer:: p1,p2,p3,p4,p5,p6,p7
+      real(dp):: t
+      complex(dp):: zab2
 C----Begin statement functions
       t(p1,p2,p3)=s(p1,p2)+s(p2,p3)+s(p1,p3)
       zab2(p1,p2,p3,p4)=za(p1,p2)*zb(p2,p4)+za(p1,p3)*zb(p3,p4)
@@ -140,16 +157,22 @@ C----End statement functions
       end
 
 
-      double complex function SRmp(p1,p2,p3,p4,p5,p6,p7,za,zb)
-      implicit none 
+      function SRmp(p1,p2,p3,p4,p5,p6,p7,za,zb)
+      implicit none
+      include 'types.f'
+      complex(dp):: SRmp
+       
 C---  Unsymmetrized version of the singly resonant piece
 C---  1_q^-,2_qb^+,3_e^-,4_eb^+,5_mu^-,6_mb^-,7_g^+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'sprods_com.f'
-      integer p1,p2,p3,p4,p5,p6,p7
-      double precision t,s3456
-      double complex zab2
+      integer:: p1,p2,p3,p4,p5,p6,p7
+      real(dp):: t,s3456
+      complex(dp):: zab2
       zab2(p1,p2,p3,p4)=za(p1,p2)*zb(p2,p4)+za(p1,p3)*zb(p3,p4)
       s3456=t(p1,p2,p7)
       SRmp=
@@ -160,16 +183,22 @@ C---  1_q^-,2_qb^+,3_e^-,4_eb^+,5_mu^-,6_mb^-,7_g^+
 
       end
 
-      double complex function SRmm(p1,p2,p3,p4,p5,p6,p7,za,zb)
-      implicit none 
+      function SRmm(p1,p2,p3,p4,p5,p6,p7,za,zb)
+      implicit none
+      include 'types.f'
+      complex(dp):: SRmm
+       
 C---  Unsymmetrized version of the singly resonant piece
 C---  1_q^-,2_qb^+,3_e^-,4_eb^+,5_mu^-,6_mb^-,7_g^-
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'sprods_com.f'
-      integer p1,p2,p3,p4,p5,p6,p7
-      double precision t,s3456
-      double complex zab2
+      integer:: p1,p2,p3,p4,p5,p6,p7
+      real(dp):: t,s3456
+      complex(dp):: zab2
       zab2(p1,p2,p3,p4)=za(p1,p2)*zb(p2,p4)+za(p1,p3)*zb(p3,p4)
       s3456=t(p1,p2,p7)
       SRmm=(za(p3,p5)*zb(p2,p4)/t(p3,p5,p6)
@@ -179,16 +208,22 @@ C---  1_q^-,2_qb^+,3_e^-,4_eb^+,5_mu^-,6_mb^-,7_g^-
       return
       end
 
-      double complex function SRpp(p1,p2,p3,p4,p5,p6,p7,za,zb)
-      implicit none 
+      function SRpp(p1,p2,p3,p4,p5,p6,p7,za,zb)
+      implicit none
+      include 'types.f'
+      complex(dp):: SRpp
+       
 C---  Unsymmetrized version of the singly resonant piece
 C---  1_q^+,2_qb^-,3_e^-,4_eb^+,5_mu^-,6_mb^-,7_g^+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'sprods_com.f'
-      integer p1,p2,p3,p4,p5,p6,p7
-      double precision t,s3456
-      double complex zab2
+      integer:: p1,p2,p3,p4,p5,p6,p7
+      real(dp):: t,s3456
+      complex(dp):: zab2
       zab2(p1,p2,p3,p4)=za(p1,p2)*zb(p2,p4)+za(p1,p3)*zb(p3,p4)
       s3456=t(p1,p2,p7)
       SRpp=
@@ -199,16 +234,22 @@ C---  1_q^+,2_qb^-,3_e^-,4_eb^+,5_mu^-,6_mb^-,7_g^+
       return
       end
 
-      double complex function SRpm(p1,p2,p3,p4,p5,p6,p7,za,zb)
-      implicit none 
+      function SRpm(p1,p2,p3,p4,p5,p6,p7,za,zb)
+      implicit none
+      include 'types.f'
+      complex(dp):: SRpm
+       
 C---  Unsymmetrized version of the singly resonant piece
 C---  1_q^+,2_qb^-,3_e^-,4_eb^+,5_mu^-,6_mb^-,7_g^-
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'sprods_com.f'
-      integer p1,p2,p3,p4,p5,p6,p7
-      double precision t,s3456
-      double complex zab2
+      integer:: p1,p2,p3,p4,p5,p6,p7
+      real(dp):: t,s3456
+      complex(dp):: zab2
       zab2(p1,p2,p3,p4)=za(p1,p2)*zb(p2,p4)+za(p1,p3)*zb(p3,p4)
       s3456=t(p1,p2,p7)
       SRpm=
@@ -220,23 +261,35 @@ C---  1_q^+,2_qb^-,3_e^-,4_eb^+,5_mu^-,6_mb^-,7_g^-
       end
 
 
-      double complex function DRP(p1,p2,p3,p4,p5,p6,p7,za,zb)
-      implicit none 
+      function DRP(p1,p2,p3,p4,p5,p6,p7,za,zb)
+      implicit none
+      include 'types.f'
+      complex(dp):: DRP
+       
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
-      integer p1,p2,p3,p4,p5,p6,p7
-      double complex DRPa
+      integer:: p1,p2,p3,p4,p5,p6,p7
+      complex(dp):: DRPa
       DRP=
      & DRPa(p1,p2,p3,p4,p5,p6,p7,za,zb)+DRPa(p1,p2,p5,p6,p3,p4,p7,za,zb)
       return
       end
 
-      double complex function DRM(p1,p2,p3,p4,p5,p6,p7,za,zb)
-      implicit none 
+      function DRM(p1,p2,p3,p4,p5,p6,p7,za,zb)
+      implicit none
+      include 'types.f'
+      complex(dp):: DRM
+       
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
-      integer p1,p2,p3,p4,p5,p6,p7
-      double complex DRMa
+      integer:: p1,p2,p3,p4,p5,p6,p7
+      complex(dp):: DRMa
       DRM=
      & DRMa(p1,p2,p3,p4,p5,p6,p7,za,zb)+DRMa(p1,p2,p5,p6,p3,p4,p7,za,zb)
       return

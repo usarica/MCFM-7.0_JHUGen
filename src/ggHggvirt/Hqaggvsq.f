@@ -1,11 +1,14 @@
-      double precision function Hqaggvsq(j1,j2,j3,j4)
+      function Hqaggvsq(j1,j2,j3,j4)
       implicit none
+      include 'types.f'
+      real(dp):: Hqaggvsq
+      
       include 'epinv.f'
       include 'epinv2.f'
       include 'first_time.f'
 C---  matrix element squared for H--q(j1)+a(j2)+g(j3)+g(j4)
-      integer al,j1,j2,j3,j4
-      double precision q(4,5),qswap(4,5),sqres(-2:0)
+      integer:: al,j1,j2,j3,j4
+      real(dp):: q(4,5),qswap(4,5),sqres(-2:0)
       common/GZmom/q
 !$omp threadprivate(/GZmom/)
 

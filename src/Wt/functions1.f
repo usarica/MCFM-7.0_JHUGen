@@ -1,11 +1,15 @@
-      double complex function fc002(msq,taugs,qsq)
+      function fc002(msq,taugs,qsq)
       implicit none
-      double precision qsq,msq,qsqhat,taugs,qgs,cgs2
-      double complex lnrat,I3me
+      include 'types.f'
+      include 'constants.f'
+      complex(dp):: fc002
+      
+      real(dp):: qsq,msq,qsqhat,taugs,qgs,cgs2
+      complex(dp):: lnrat,I3me
 
       qsqhat=qsq-msq
       qgs=qsqhat-taugs
-      cgs2=(qsqhat-taugs)**2-4d0*taugs*msq
+      cgs2=(qsqhat-taugs)**2-four*taugs*msq
 
       fc002 =
      &  - 1.D0/12.D0*qgs*cgs2**(-1)*msq
@@ -36,14 +40,18 @@
       return
       end
 
-      double complex function fc00(msq,taugs,qsq)
+      function fc00(msq,taugs,qsq)
       implicit none
-      double precision qsq,msq,qsqhat,taugs,qgs,cgs2
-      double complex lnrat,I3me
+      include 'types.f'
+      include 'constants.f'
+      complex(dp):: fc00
+      
+      real(dp):: qsq,msq,qsqhat,taugs,qgs,cgs2
+      complex(dp):: lnrat,I3me
 
       qsqhat=qsq-msq
       qgs=qsqhat-taugs
-      cgs2=(qsqhat-taugs)**2-4d0*taugs*msq
+      cgs2=(qsqhat-taugs)**2-four*taugs*msq
 
       fc00 =
      &  - 1.D0/2.D0*I3me(msq,taugs,qsq)*cgs2**(-1)*msq*taugs**2

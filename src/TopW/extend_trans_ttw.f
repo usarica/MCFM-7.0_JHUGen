@@ -1,15 +1,20 @@
       subroutine extend_trans_ttw(pold,p,ptrans,pext)
       implicit none
+      include 'types.f'
+      
 ************************************************************************
 *     Authors: J.M. Campbell and R.K. Ellis                            *
 *     August, 2008.                                                    *
 ************************************************************************
       include 'constants.f'
-      double precision pold(mxpart,4),p(mxpart,4),ptrans(mxpart,4),
-     . pext(mxpart,4),pt(4),ptt(4),ptb(4),pttb(4),
-     . p3(4),p4(4),p5(4),p6(4),p7(4),p8(4),
-     . p3out(4),p4out(4),p5out(4),p6out(4),p7out(4),p8out(4)
-      integer nu
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      real(dp):: pold(mxpart,4),p(mxpart,4),ptrans(mxpart,4),
+     & pext(mxpart,4),pt(4),ptt(4),ptb(4),pttb(4),
+     & p3(4),p4(4),p5(4),p6(4),p7(4),p8(4),
+     & p3out(4),p4out(4),p5out(4),p6out(4),p7out(4),p8out(4)
+      integer:: nu
       
       do nu=1,4
         pt(nu)=p(5,nu)

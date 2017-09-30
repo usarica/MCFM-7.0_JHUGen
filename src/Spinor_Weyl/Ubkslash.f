@@ -1,12 +1,13 @@
 c-----multiplication of a barred spinor with k-slash from the right
 C-----and return resultant spinor f. Weyl representation.
 C     Energy component in MCFM notation = k(4)
-      subroutine Ubkslash(sp,k,f) 
+      subroutine Ubkslash(spinor,k,f) 
       implicit none
+      include 'types.f'
+      include 'constants.f'
       include 'swapxz.f'
-      double complex sp(4),k(4),f(4),czip,im,kslash(4,4),E,kx,ky,kz
-      integer i,j
-      parameter(czip=(0d0,0d0),im=(0d0,1d0))
+      complex(dp):: spinor(4),k(4),f(4),kslash(4,4),E,kx,ky,kz
+      integer:: i,j
       logical,save::first
       data first/.true./
 !$omp threadprivate(first)
@@ -52,7 +53,7 @@ C----create kslash after performing the swap (x<->z),(y->-y)
       do i=1,4
       f(i)=czip
       do j=1,4
-      f(i)=f(i)+sp(j)*kslash(j,i)
+      f(i)=f(i)+spinor(j)*kslash(j,i)
       enddo
       enddo  
       return

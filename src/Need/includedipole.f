@@ -3,8 +3,10 @@
       !      It calls the original and then the user one
       logical function includedipole(nd,ptrans)
       implicit none
+      include 'types.f'
       include 'constants.f'
-      double precision ptrans(mxpart,4)
+      include 'mxpart.f'
+      real(dp) ptrans(mxpart,4)
       integer nd
       logical mcfm_includedipole, userincludedipole
       
@@ -27,42 +29,48 @@ c--- This function returns TRUE if the specified point ptrans,
 c--- corresponding to dipole nd (nd=0 => real radiation),
 c--- should be included 
       implicit none
+      include 'types.f'
       include 'constants.f'
+      include 'mxpart.f'
       include 'clustering.f'
       include 'npart.f'
       include 'ptilde.f'
       include 'jetlabel.f'
-      include 'process.f'
+      include 'kprocess.f'
       include 'frag.f'
       include 'phot_dip.f'
       include 'nqcdjets.f'
       include 'nproc.f'
       include 'notag.f'
+      include 'taucut.f'
+      include 'hdecaymode.f'
 c---- SSbegin
       include 'reweight.f'
 c---- SSend  
 
-      double precision ptrans(mxpart,4),pjet(mxpart,4),rcut
+      real(dp) ptrans(mxpart,4),pjet(mxpart,4),rcut,pt,pttwo
       integer j,nd,isub
       logical gencuts,failedgencuts,photoncuts,makecuts,filterWbbmas,
-     & photonfailed,filterW_bjet,is_photon
+     &     photonfailed,filterW_bjet,is_photon
+      logical gencuts_VHbb
       integer count_photo,nphotons
-      logical passed_frix,iso
+      logical passed_frix,iso, passed_taucut
 c      integer ij
-c      double precision y32,y43,z3,z4,z5,z6
-c      double precision dphizj,pt5sq,pt6sq,pt7sq
+c      real(dp) y32,y43,z3,z4,z5,z6
+c      real(dp) dphizj,pt5sq,pt6sq,pt7sq
 
 c      character*30 runstring
 c      common/runstring/runstring
       common/rcut/rcut
       common/makecuts/makecuts
-c---- SSbegin                                                                                                        
-c---- set default reweight to 1 (hence no reweighting)                                                                
-      reweight = 1.0d0
+c---- SSbegin
+c---- set default reweight to 1 (hence no reweighting)
+      reweight = 1.0_dp
 c---- SSend  
 
 c--- default: include this contribution
       mcfmincdipole=.true.
+      
 c--- isub=1 for dipole subtractions, isub=0 for real radiation
       if (nd .gt. 0) then
         isub=1
@@ -129,7 +137,7 @@ c--- fill ptilde array as persistent storage for the jet momenta
 c--- for the Wbb process, we divide up contributions in a specific way;
 c--- therefore filter events using special code and skip normal jet testing 
 c--- NOTE: only for process numbers > 400 (20 and 25 should be handled normally) 
-      if ((case .eq. 'Wbbmas') .and. (nproc .gt. 400)) then
+      if ((kcase==kWbbmas) .and. (nproc .gt. 400)) then
         mcfmincdipole=filterWbbmas()
       if (mcfmincdipole .eqv. .false.) return
         if (makecuts) then
@@ -142,7 +150,7 @@ c--- NOTE: only for process numbers > 400 (20 and 25 should be handled normally)
 
 c--- for the Wb+X process, we divide up contributions in a specific way;
 c--- therefore filter events using special code and skip normal jet testing   
-      if (case .eq. 'W_bjet') then
+      if (kcase==kW_bjet) then
         mcfmincdipole=filterW_bjet()
       if (mcfmincdipole .eqv. .false.) return
         if (makecuts) then
@@ -151,31 +159,71 @@ c--- therefore filter events using special code and skip normal jet testing
         endif
       goto 99
       endif
+
      
-c--- if the number of jets is not correct, then do not include dipole
-      if ((clustering .and. (jets .ne. nqcdjets-notag)
-     &       .and. (inclusive .eqv. .false.)) .or.
-     &    (clustering .and. (jets .lt. nqcdjets-notag)
-     &       .and. (inclusive .eqv. .true.))) then
-          mcfmincdipole=.false.
-          return
+      if (usescet) then
+!==== special version for hadronic decays of Vector bosons at LO
+         if(((kcase.eq.kWHbbar).or.(kcase.eq.kZHbbar)
+     &        .or.(kcase.eq.kWH1jet).or.(kcase.eq.kZH1jet))
+     &        .and.(hdecaymode=='bqba')) then 
+            call maketaucut_bb(ptrans,jets,isub,passed_taucut)
+         else
+c--- branch for QT-cut 
+!            passed_taucut=.true.
+!            if ((npart==2).and.(isub==0)) then
+!              continue
+!            else
+!              if (pttwo(3,4,ptrans) < taucut) passed_taucut=.false.
+!            endif
+!=== default
+c---  for SCET calculation do not check jets, make tau cut instead
+            call maketaucut(ptrans,pjet,jets,isub,passed_taucut)
+         endif
+        mcfmincdipole=passed_taucut
+c           write(6,*) 'includedipole: nd,mcfmincdipole',nd,mcfmincdipole
+c           if (passed_taucut .eqv. .false.) write(6,*) 'tau failed: ',nd
+        if (mcfmincdipole .eqv. .false.) return
       else
-c--- otherwise check the lepton cuts, if necessary
-        if (makecuts) then
-          failedgencuts=gencuts(pjet,jets)        
-          if (failedgencuts) then
+c--- for a normal calculation,      
+c--- if the number of jets is not correct, then do not include dipole
+        if ((clustering .and. (jets .ne. nqcdjets-notag)
+     &         .and. (inclusive .eqv. .false.)) .or.
+     &      (clustering .and. (jets .lt. nqcdjets-notag)
+     &         .and. (inclusive .eqv. .true.))) then
+            mcfmincdipole=.false.
+            return
+        endif
+      endif
+
+
+!==== special case for WHbb and ZHbb, b's have special handling w.r.t tau cuts
+!==== above, so call special cutting routine 
+!      if((kcase==kWHbbar).or.(kcase.eq.kZHbbar)
+!     & .or.(kcase==kWH1jet).or.(kcase.eq.kZH1jet)) then
+!         if(usescet) then             
+!            if(makecuts) then
+!            failedgencuts=gencuts(pjet,jets)
+!            if(failedgencuts) then             
+!               mcfmincdipole=.false.
+!               return
+!            endif
+!         endif
+!         goto 99
+!      endif
+!      endif
+      
+c--- check the lepton cuts, if necessary
+      if (makecuts) then
+        failedgencuts=gencuts(pjet,jets)
+        if (failedgencuts) then
           mcfmincdipole=.false.
           return
-        endif
-c          call writeout(ptrans)
-c          pause
         endif
       endif
       
 c      call Wgamcuts(ptrans,failedgencuts)
 c      if (failedgencuts .eqv. .false.) mcfmincdipole=.false.
-      
-     
+
    99 continue
       
       return
@@ -202,15 +250,15 @@ c          ptildejet(nd,i,j)=ptrans(i,j)
 c          enddo
 c        enddo
 c      jets=1
-c        if (y43 .gt. 0d0) jets=2
-c      if     ((case .eq. 'qq_tbg') .or. (case .eq. 'epem3j')) then
+c        if (y43 .gt. 0._dp) jets=2
+c      if     ((kcase==kqq_tbg) .or. (kcase==kepem3j)) then
 cc---     only keep events that have 3 jets when ycut=rcut
 c        if ((y32 .lt. rcut) .or. (y43 .gt. rcut)) then
 c          mcfmincdipole=.false.
 c          jets=-1
 c        endif
 c        return
-c      elseif (case .eq. 'qqtbgg') then
+c      elseif (kcase==kqqtbgg) then
 cc---     only keep events that have 4 jets when ycut=rcut
 c        if (y43 .lt. rcut) then
 c          mcfmincdipole=.false.
@@ -255,6 +303,6 @@ c        dphizj=atan2(pjet(3,1)+pjet(4,1),pjet(3,2)+pjet(4,2))
 c     .        -atan2(pjet(ij,1),pjet(ij,2))
 c        if (dphizj .gt. pi) dphizj=twopi-dphizj
 c        if (dphizj .lt. -pi) dphizj=twopi+dphizj
-c      if (abs(dphizj) .gt. pi-1d-1) mcfmincdipole=.false.
+c      if (abs(dphizj) .gt. pi-1.e-1_dp) mcfmincdipole=.false.
 c      endif
 c      

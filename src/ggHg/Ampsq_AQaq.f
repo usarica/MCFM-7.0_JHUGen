@@ -1,14 +1,19 @@
       subroutine Ampsq_AQaq_nonid(p1,p2,p3,p4,ampsq)
+      implicit none
+      include 'types.f'
 c--- this routine is a wrapper to the leading order amplitudes
 c--- of D.&S. 0906.0008; it performs the squaring and sum over
 c--- helicities and returns the ME in the same fashion as h4qn
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_com.f'
-      integer p1,p2,p3,p4,j1,j2,j3,j4,h1,h2
-      double precision ampsq
-      double complex amp(2,2),
-     . A0Hqarbmppm,A0Hqarbmpmp
+      integer:: p1,p2,p3,p4,j1,j2,j3,j4,h1,h2
+      real(dp):: ampsq
+      complex(dp):: amp(2,2),
+     & A0Hqarbmppm,A0Hqarbmpmp
 
 c--- the routine expects momenta to be labelled:
 c---                                 q(p1)+Q(p2) --> q(p3)+Q(p4)
@@ -33,28 +38,33 @@ c--- (in D.&S. notation, overall 4*C^2*gs^4 is applied in gg_hgg.f)
       ampsq=zip
       do h1=1,2
       do h2=1,2
-      ampsq=ampsq+cdabs(amp(h1,h2))**2
+      ampsq=ampsq+abs(amp(h1,h2))**2
       enddo
       enddo
       
-      ampsq=ampsq*V/4d0
+      ampsq=ampsq*V/4._dp
       
       return
       end
       
       
       subroutine Ampsq_AQaq_ident(p1,p2,p3,p4,
-     .                            ampsq,ampsq_a,ampsq_b,ampsq_i)
+     &                            ampsq,ampsq_a,ampsq_b,ampsq_i)
+      implicit none
+      include 'types.f'
 c--- this routine is a wrapper to the leading order amplitudes
 c--- of D.&S. 0906.0008; it performs the squaring and sum over
 c--- helicities and returns the ME in the same fashion as h4qn
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_com.f'
-      integer p1,p2,p3,p4,j1,j2,j3,j4,h1,h2
-      double precision ampsq,ampsq_a,ampsq_b,ampsq_i
-      double complex amp_a(2,2),amp_b(2,2),
-     . A0Hqarbmppm,A0Hqarbmpmp
+      integer:: p1,p2,p3,p4,j1,j2,j3,j4,h1,h2
+      real(dp):: ampsq,ampsq_a,ampsq_b,ampsq_i
+      complex(dp):: amp_a(2,2),amp_b(2,2),
+     & A0Hqarbmppm,A0Hqarbmpmp
 
 c--- the routine expects momenta to be labelled:
 c---                                 q(p1)+Q(p2) --> q(p3)+Q(p4)
@@ -90,17 +100,17 @@ c--- (in D.&S. notation, overall 4*C^2*gs^4 is applied in gg_hgg.f)
       ampsq_i=zip
       do h1=1,2
       do h2=1,2
-      ampsq_a=ampsq_a+cdabs(amp_a(h1,h2))**2
-      ampsq_b=ampsq_b+cdabs(amp_b(h1,h2))**2
-      if (h1 .eq. h2) then
-        ampsq_i=ampsq_i+2d0/xn*dble(amp_a(h1,h2)*dconjg(amp_b(h1,h2)))
+      ampsq_a=ampsq_a+abs(amp_a(h1,h2))**2
+      ampsq_b=ampsq_b+abs(amp_b(h1,h2))**2
+      if (h1 == h2) then
+        ampsq_i=ampsq_i+2._dp/xn*real(amp_a(h1,h2)*conjg(amp_b(h1,h2)),dp)
       endif
       enddo
       enddo
       
-      ampsq_a=ampsq_a*V/4d0
-      ampsq_b=ampsq_b*V/4d0
-      ampsq_i=ampsq_i*V/4d0
+      ampsq_a=ampsq_a*V/4._dp
+      ampsq_b=ampsq_b*V/4._dp
+      ampsq_i=ampsq_i*V/4._dp
       
       ampsq=ampsq_a+ampsq_b+ampsq_i
       

@@ -1,39 +1,44 @@
       subroutine gen_vgamj(r,p,wt,*) 
+      implicit none
+      include 'types.f'
 c---- Author: C. Williams, June 2012      
-      implicit none 
-      include 'constants.f' 
+       
+      include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h' 
       include 'mxdim.f' 
       include 'limits.f'
       include 'leptcuts.f' 
       include 'zerowidth.f' 
       include 'breit.f' 
-      double precision r(mxdim),p(mxpart,4),wt
-      double precision wt0,p12(4),p34(4),p3(4),p4(4),p5(4),p6(4)
-      double precision p56(4),p1(4),p2(4)
-      double precision lntaum,tau,xx(2),xmin,xmax,xjac,lnxmin
-      integer i,nu
-      double precision Qsq,taumin
+      real(dp):: r(mxdim),p(mxpart,4),wt
+      real(dp):: wt0,p12(4),p34(4),p3(4),p4(4),p5(4),p6(4)
+      real(dp):: p56(4),p1(4),p2(4)
+      real(dp):: lntaum,tau,xx(2),xmin,xmax,xjac,lnxmin
+      integer:: i,nu
+      real(dp):: Qsq,taumin
       parameter(wt0=one/twopi**2) 
-      double precision wt3456,wt56,wt34
+      real(dp):: wt3456,wt56,wt34
       include 'energy.f'
 
-      wt=0d0
+      wt=0._dp
 
 !----- initialize p 
       do i=1,mxpart 
          do nu=1,4 
-            p(i,nu)=0d0 
+            p(i,nu)=0._dp 
          enddo
       enddo
 
       do nu=1,4 
-         p12(nu)=0d0 
-         p1(nu)=0d0 
-         p2(nu)=0d0 
-         p3(nu)=0d0 
-         p4(nu)=0d0 
-         p5(nu)=0d0 
-         p6(nu)=0d0 
+         p12(nu)=0._dp 
+         p1(nu)=0._dp 
+         p2(nu)=0._dp 
+         p3(nu)=0._dp 
+         p4(nu)=0._dp 
+         p5(nu)=0._dp 
+         p6(nu)=0._dp 
       enddo
 
 !-------- generate Qsq. 
@@ -43,29 +48,29 @@ c---- Author: C. Williams, June 2012
         taumin=max(wsqmin,gammpt**2)/sqrts**2
       endif
       
-      lntaum=dlog(taumin)
-      tau=dexp(lntaum*(one-r(1)))         
+      lntaum=log(taumin)
+      tau=exp(lntaum*(one-r(1)))         
       xjac=-lntaum*tau      
       Qsq=tau*sqrts**2
       xjac=xjac*sqrts**2
   
 !------ generate x1 
       xmin=tau 
-      xmax=1d0 
-      lnxmin=dlog(xmin/xmax)
-      xx(1)=xmax*dexp(lnxmin*(one-r(2)))
+      xmax=1._dp 
+      lnxmin=log(xmin/xmax)
+      xx(1)=xmax*exp(lnxmin*(one-r(2)))
       xjac=xjac*(-lnxmin*xx(1))/(xx(1)*sqrts**2)
       xx(2)=Qsq/(xx(1)*sqrts**2) 
          
 c--- check that xx(1) and xx(2) are in range      
-      if((xx(1).gt.1d0).or.(xx(2).gt.1d0)) return 1
+      if((xx(1)>1._dp).or.(xx(2)>1._dp)) return 1
          
 !---------- generate intial state 
-      p1(3)=-sqrts/2d0*xx(1)
-      p1(4)=-sqrts/2d0*xx(1)
+      p1(3)=-sqrts/2._dp*xx(1)
+      p1(4)=-sqrts/2._dp*xx(1)
 
-      p2(3)=sqrts/2d0*xx(2)
-      p2(4)=-sqrts/2d0*xx(2)
+      p2(3)=sqrts/2._dp*xx(2)
+      p2(4)=-sqrts/2._dp*xx(2)
 
       do nu=1,4 
          p12(nu)=-p1(nu)-p2(nu) 

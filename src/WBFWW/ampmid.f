@@ -1,17 +1,20 @@
       subroutine ampmid(i1,i2,i3,i4,i5,i6,i7,i8,za,zb,amp)
       implicit none
+      include 'types.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
       include 'zprods_decl.f'
       include 'sprods_com.f'
       include 'cmplxmass.f'
       include 'ewcharge.f'
       include 'zcouple.f'
-      integer jdu1,jdu2,h28,h17,i1,i2,i3,i4,i5,i6,i7,i8,
+      integer:: jdu1,jdu2,h28,h17,i1,i2,i3,i4,i5,i6,i7,i8,
      & p1,p2,p3,p4,p5,p6,p7,p8
-      double complex zba2,amp(2,2,2,2),
+      complex(dp):: zba2,amp(2,2,2,2),
      & propw34,propw56,propz28,propz17,
      & gam17e(2,2),gam17n(2,2),gam28e(2,2),gam28n(2,2)
-      double precision t3,
+      real(dp):: t3,
      & s456,s345,s356,s346,s137,s147,s157,s167,s238,s248,s258,s268
 C     amp(jdu1,jdu2,h17,h28)
 C-----Begin statement functions

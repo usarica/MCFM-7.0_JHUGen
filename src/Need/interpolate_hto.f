@@ -1,16 +1,18 @@
       subroutine interpolate_hto(mh,hwidth)
+      implicit none
+      include 'types.f'
 c--- This routine reads in the file hto_output.dat, prepared
 c--- by the HTO program of G. Passarino, and uses linear interpolation
 c--- to obtain the Higgs width parameter CPGH for any input Higgs
 c--- mass (mh) between 50 GeV and 1500 GeV
-      implicit none
-      logical first
-      double precision mh,hwidth,m1,g1,m2,g2,eps
+      
+      logical:: first
+      real(dp):: mh,hwidth,m1,g1,m2,g2,eps
       data first/.true./
       save first
-      parameter(eps=1d-8)
+      parameter(eps=1.e-8_dp)
       
-      if ((mh .lt. 50d0) .or. (mh .gt. 1500d0)) then
+      if ((mh < 50._dp) .or. (mh > 1500._dp)) then
         write(6,*) 'Higgs mass outside HTO interpolation range;'
         write(6,*) 'requires  50 GeV < mH < 1500 GeV'  
         stop
@@ -33,7 +35,7 @@ c--- mass (mh) between 50 GeV and 1500 GeV
       read(12,*)
    77 continue
       read(12,99) m1,g1
-      if (mh-m1 .gt. 0.5d0+eps) goto 77
+      if (mh-m1 > 0.5_dp+eps) goto 77
       read(12,99) m2,g2
       close(12)
       

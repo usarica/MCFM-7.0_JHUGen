@@ -1,8 +1,11 @@
       subroutine kingen(p)
       implicit none
+      include 'types.f'
       include 'constants.f'
-      integer iout
-      double precision p(mxpart,4),s(mxpart,mxpart)
+      include 'nf.f'
+      include 'mxpart.f'
+      integer:: iout
+      real(dp):: p(mxpart,4),s(mxpart,mxpart)
       call dotem(10,p,s)
       write(6,*) 'p1',p(1,1),p(1,2),p(1,3),p(1,4)
       write(6,*) 'p2',p(2,1),p(2,2),p(2,3),p(2,4)

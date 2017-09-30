@@ -1,2 +1,2 @@
-      logical creatent,dswhisto
+      logical:: creatent,dswhisto
       common/outputflags/creatent,dswhisto

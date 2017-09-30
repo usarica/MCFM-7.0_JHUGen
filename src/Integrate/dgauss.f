@@ -1,15 +1,17 @@
-      DOUBLE PRECISION FUNCTION DGAUSS(F,A,B,EPS)
-      DOUBLE PRECISION F,A,B,EPS
-      DOUBLE PRECISION W(12),X(12),AA,BB,C1,C2,U,S8,S16,CONST
-      LOGICAL MFLAG,RFLAG
+      function DGAUSS(F,A,B,EPS)
+      include 'types.f'
+      real(dp):: DGAUSS
+      real(dp):: F,A,B,EPS
+      real(dp):: W(12),X(12),AA,BB,C1,C2,U,S8,S16,CONST
+      logical:: MFLAG,RFLAG
       EXTERNAL F
 C
 C     ******************************************************************
 C
-C     ADAPTIVE DOUBLE PRECISION GAUSSIAN QUADRATURE.
+C     ADAPTIVE real(dp):: GAUSSIAN QUADRATURE.
 C
 C     DGAUSS IS SET EQUAL TO THE APPROXIMATE VALUE OF THE INTEGRAL OF
-C     THE FUNCTION F OVER THE INTERVAL (A,B), WITH ACCURACY PARAMETER
+C     THE function F OVER THE INTERVAL (A,B), WITH ACCURACY PARAMETER
 C     EPS.
 C
 C     ******************************************************************
@@ -85,7 +87,7 @@ C  COMPUTATIONAL LOOP.
       IF(BB.NE.B) GO TO 1
       RETURN
 C
-    6 FORMAT( 4X, 'FUNCTION DGAUSS ... TOO HIGH ACCURACY REQUIRED')
+    6 FORMAT( 4X, 'function DGAUSS ... TOO HIGH ACCURACY REQUIRED')
       END
       SUBROUTINE ABEND
 C
@@ -96,8 +98,8 @@ C CERN PROGLIB# Z035    ABEND           .VERSION KERNVAX  1.10  811126
           SUBROUTINE KERSET(ERCODE,LGFILE,LIMITM,LIMITR)
                     PARAMETER(KOUNTE  =  27)
           CHARACTER*6         ERCODE,   CODE(KOUNTE)
-          LOGICAL             MFLAG,    RFLAG
-          INTEGER             KNTM(KOUNTE),       KNTR(KOUNTE)
+          logical::             MFLAG,    RFLAG
+          integer::             KNTM(KOUNTE),       KNTR(KOUNTE)
           DATA      LOGF      /  0  /
           DATA      CODE(1), KNTM(1), KNTR(1)  / 'C204.1', 100, 100 /
           DATA      CODE(2), KNTM(2), KNTR(2)  / 'C204.2', 100, 100 /

@@ -5,17 +5,22 @@
 *    TAUBAR ---> NUBAR(3) NU(4) E^+(5)
 *    TAU    ---> NU(6)    E^-(7)  NUBAR(8)
 *
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      DOUBLE COMPLEX RPLPL,RPLMN,RMNPL,RMNMN,DEN,SPROD
-      DOUBLE COMPLEX SPL(10,10),SMN(10,10)
-      DOUBLE PRECISION FAC,DOTKS
-      DOUBLE PRECISION RMT,RGT,RMW,RGW,RMB,RMTLO,RMTUP,GW,GS
+      implicit none
+      include 'types.f'
+      include 'cplx.h'
+c      IMPLICIT real(dp):: (A-H,O-Z)
+      complex(dp):: RPLPL,RPLMN,RMNPL,RMNMN,DEN,SPROD
+      complex(dp):: SPL(10,10),SMN(10,10)
+      real(dp):: FAC,DOTKS,CT,CTBAR,D12,D34,D35,D45,D67,D68,D78,
+     & XT,XTBAR,RMW2,RMGW,RMT2,RMB2,RMGT,SCALE
+      real(dp):: RMT,RGT,RMW,RGW,RMB,RMTLO,RMTUP,GW,GS,PLAB(4,10)
+      integer:: I1,I2,K
       COMMON/COUPS/GW,GS
       COMMON/CSTD/SPL,SMN
-      COMMON/MOM/PLAB(4,10)
+      COMMON/MOM/PLAB
       COMMON/PARS/RMT,RGT,RMW,RGW,RMB,RMTLO,RMTUP
-      DATA INIT/0/
-      SAVE RMW2,RMGW,RMT2,RMB2,RMGT,SCALE,INIT
+      integer, save::init=0
+      SAVE RMW2,RMGW,RMT2,RMB2,RMGT,SCALE
 !$omp threadprivate(RMW2,RMGW,RMT2,RMB2,RMGT,SCALE,INIT)
 !$omp threadprivate(/COUPS/,/PARS/,/MOM/,/CSTD/)  
 
@@ -39,36 +44,36 @@
       D67=DOTKS(6,7)/SCALE
       D68=DOTKS(6,8)/SCALE
       D78=DOTKS(7,8)/SCALE
-      XT=   2.D0*(D67+D68+D78) + RMB2
-      XTBAR=2.D0*(D34+D35+D45) + RMB2
-      DEN=2.D0*D12*
-     . DCMPLX(XT   -RMT2,RMGT)*
-     . DCMPLX(XTBAR-RMT2,RMGT)*
-     . DCMPLX(2.D0*D45-RMW2,RMGW)*
-     . DCMPLX(2.D0*D78-RMW2,RMGW)
+      XT=   2._dp*(D67+D68+D78) + RMB2
+      XTBAR=2._dp*(D34+D35+D45) + RMB2
+      DEN=2._dp*D12*
+     & cplx2(XT   -RMT2,RMGT)*
+     & cplx2(XTBAR-RMT2,RMGT)*
+     & cplx2(2._dp*D45-RMW2,RMGW)*
+     & cplx2(2._dp*D78-RMW2,RMGW)
 
 *
 * THE AUXILIARY VECTORS FROM THE T AND TBAR MOMENTA
-      CT   =XT   /(2.D0*(D68+D78))
-      CTBAR=XTBAR/(2.D0*(D34+D45))
+      CT   =XT   /(2._dp*(D68+D78))
+      CTBAR=XTBAR/(2._dp*(D34+D45))
       DO 11 K=1,4
-      PLAB(K,9) =PLAB(K,3)+(1.D0-CTBAR)*PLAB(K,4)+PLAB(K,5)
-      PLAB(K,10)=PLAB(K,6)+PLAB(K,7)+(1.D0-CT   )*PLAB(K,8)
+      PLAB(K,9) =PLAB(K,3)+(1._dp-CTBAR)*PLAB(K,4)+PLAB(K,5)
+      PLAB(K,10)=PLAB(K,6)+PLAB(K,7)+(1._dp-CT   )*PLAB(K,8)
    11 CONTINUE
 *
       CALL STD
 * THE SPINOR PART OF THE NUMERATOR
-      SPROD=-SPL(8,10)*SMN(9,4)/DCMPLX(SCALE)
+      SPROD=-SPL(8,10)*SMN(9,4)/cplx1(SCALE)
       RPLMN=SPROD*SMN(10,I2)*SPL(I1,9)/SCALE
       RPLPL=RMT2*SPL(8,I1)*SMN(I2,4)/SCALE
       RMNMN=SPROD*SMN(10,I1)*SPL(I2,9)/SCALE
       RMNPL=RMT2*SPL(8,I2)*SMN(I1,4)/SCALE
 
-      FAC=GW**8*(1D0/SCALE)**4*
-     . D67*D35*128.D0**2/ABS(DEN)**2
+      FAC=GW**8*(1._dp/SCALE)**4*
+     & D67*D35*128._dp**2/ABS(DEN)**2
 
 * ADD NU,NUBAR SPIN SUM, Q,QBAR AVERAGE, COLOUR SUM &AVERAGE
-      FAC=FAC *4.D0         /4.D0           *3.D0       /9.D0
+      FAC=FAC *4._dp         /4._dp           *3._dp       /9._dp
 
       RETURN
       END

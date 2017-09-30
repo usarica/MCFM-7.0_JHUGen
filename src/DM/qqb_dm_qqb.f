@@ -1,26 +1,31 @@
 
       subroutine qqb_dm_qqb(p,i1,i2,i5,i6,amp_a,amp_b)
       implicit none
+      include 'types.f'
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'dm_params.f'
       include 'zprods_com.f'
       include 'sprods_com.f'
       include 'first.f'
 !------ amplitudes=> ME's for q(i1)+Qb(i5)+Q(i6)+qb(i2)+x(3)+x~(4)
-      double precision p(mxpart,4),q(mxpart,4)
-      integer i1,i2,i5,i6
-!      double precision msqA,msqB
-      double complex amp_a(2,2,2,2),amp_b(2,2,2,2)
-      integer h1,h2,h3,h4
-!      double complex aqqb_zbb_new,cor
-      double complex qqb_dm_qqb_VLR,qqb_dm_qqb_VRL,qqb_dm_qqb_VLL
+      real(dp):: p(mxpart,4),q(mxpart,4)
+      integer:: i1,i2,i5,i6
+!      real(dp):: msqA,msqB
+      complex(dp):: amp_a(2,2,2,2),amp_b(2,2,2,2)
+      integer:: h1,h2,h3,h4
+!      complex(dp):: aqqb_zbb_new,cor
+      complex(dp):: qqb_dm_qqb_VLR,qqb_dm_qqb_VRL,qqb_dm_qqb_VLL
      & ,qqb_dm_qqb_VRR
-      double complex qqb_dm_qqb_Ax_VLR,qqb_dm_qqb_Ax_VRL
+      complex(dp):: qqb_dm_qqb_Ax_VLR,qqb_dm_qqb_Ax_VRL
      & ,qqb_dm_qqb_Ax_VLL,qqb_dm_qqb_Ax_VRR
-      double complex amp_pa(2,2),amp_pb(2,2),amp_dec(2,2)
-      double precision bp,beta,s34
+      complex(dp):: amp_pa(2,2),amp_pb(2,2),amp_dec(2,2)
+      real(dp):: bp,beta,s34
 
-!      double complex tc1(2,2,2,2),Rc2(2,2,2,2)
+!      complex(dp):: tc1(2,2,2,2),Rc2(2,2,2,2)
 
       do h1=1,2
          do h2=1,2
@@ -35,7 +40,7 @@
 
 !      ampA(:,:,:,:)=czip
 
-      if(xmass.gt.1d-8) then
+      if(xmass>1d-8) then
 !---------generate massless phase space
          call gen_masslessvecs(p,q,3,4)
 !---------generate spinors
@@ -53,7 +58,7 @@
 
 
 
-      if(dm_mediator.eq.'vector') then
+      if(dm_mediator=='vector') then
 !----- Z => qqb L L (LR,RL,LL,RR)
          amp_a(1,1,1,2)=qqb_dm_qqb_VLR(i1,i6,i5,i2,3,4)
          amp_a(1,1,2,1)=qqb_dm_qqb_VRL(i1,i6,i5,i2,3,4)
@@ -94,7 +99,7 @@
          amp_b(2,1,2,1)=qqb_dm_qqb_VRL(i6,i2,i1,i5,3,4)
          amp_b(2,1,1,1)=qqb_dm_qqb_VLL(i6,i2,i1,i5,3,4)
          amp_b(2,1,2,2)=qqb_dm_qqb_VRR(i6,i2,i1,i5,3,4)
-      elseif(dm_mediator.eq.'axvect') then
+      elseif(dm_mediator=='axvect') then
          !----- Z => qqb L L (LR,RL,LL,RR)
          amp_a(1,1,1,2)=qqb_dm_qqb_Ax_VLR(i1,i6,i5,i2,3,4)
          amp_a(1,1,2,1)=qqb_dm_qqb_Ax_VRL(i1,i6,i5,i2,3,4)
@@ -135,11 +140,11 @@
          amp_b(2,1,2,1)=qqb_dm_qqb_Ax_VRL(i6,i2,i1,i5,3,4)
          amp_b(2,1,1,1)=qqb_dm_qqb_Ax_VLL(i6,i2,i1,i5,3,4)
          amp_b(2,1,2,2)=qqb_dm_qqb_Ax_VRR(i6,i2,i1,i5,3,4)
-      elseif(dm_mediator.eq.'scalar') then
+      elseif(dm_mediator=='scalar') then
          call qqb_dm_qqb_Samps(p,i1,i5,i6,i2,za,zb,amp_pa)
          call qqb_dm_qqb_Samps(p,i5,i1,i2,i6,za,zb,amp_pb)
          s34=s(3,4)
-         beta=dsqrt(1d0-4d0*xmass**2/s34)
+         beta=sqrt(1d0-4d0*xmass**2/s34)
          bp=0.5d0*(one+beta)
          call dm_scal_decay(3,4,za,zb,bp,amp_dec)
          do h1=1,2
@@ -152,7 +157,7 @@
       enddo
       enddo
       enddo
-      elseif(dm_mediator.eq.'pseudo') then
+      elseif(dm_mediator=='pseudo') then
          if(first) then
             first = .false.
             call check_dmAxC
@@ -161,7 +166,7 @@
          call qqb_dm_qqb_Samps(p,i1,i5,i6,i2,za,zb,amp_pa)
          call qqb_dm_qqb_Samps(p,i5,i1,i2,i6,za,zb,amp_pb)
          s34=s(3,4)
-         beta=dsqrt(1d0-4d0*xmass**2/s34)
+         beta=sqrt(1d0-4d0*xmass**2/s34)
          bp=0.5d0*(one+beta)
 
 !         write(6,*) 'In QQ ',3,4,bp,s34,xmass
@@ -182,12 +187,18 @@
 
 
 !--------- function for helicity conserving amplitudes
-      double complex function qqb_dm_qqb_VLR(i1,i2,i3,i4,i5,i6)
+      function qqb_dm_qqb_VLR(i1,i2,i3,i4,i5,i6)
       implicit none
+      include 'types.f'
+      complex(dp):: qqb_dm_qqb_VLR
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_com.f'
       include 'sprods_com.f'
-      integer i1,i2,i3,i4,i5,i6
+      integer:: i1,i2,i3,i4,i5,i6
 !------ copy exisitng MCFM structure
 c--- This corresponds to A++(1,2,3,4) of eq. (12.3) in BDK
 c    The notation of BDK calculates the following amplitude
@@ -223,12 +234,18 @@ C          -aqqb_zbb_new(i4,i3,i2,i1,i6,i5)
       return
       end
 
-      double complex function qqb_dm_qqb_VRL(i1,i2,i3,i4,i5,i6)
+      function qqb_dm_qqb_VRL(i1,i2,i3,i4,i5,i6)
       implicit none
+      include 'types.f'
+      complex(dp):: qqb_dm_qqb_VRL
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_com.f'
       include 'sprods_com.f'
-      integer i1,i2,i3,i4,i5,i6
+      integer:: i1,i2,i3,i4,i5,i6
 !------ copy exisitng MCFM structure
 c--- This corresponds to A++(1,2,3,4) of eq. (12.3) in BDK
 c    The notation of BDK calculates the following amplitude
@@ -263,13 +280,19 @@ C          -aqqb_zbb_new(i4,i3,i2,i1,i6,i5)
       return
       end
 
-      double complex function qqb_dm_qqb_VLL(i1,i2,i3,i4,i5,i6)
+      function qqb_dm_qqb_VLL(i1,i2,i3,i4,i5,i6)
       implicit none
+      include 'types.f'
+      complex(dp):: qqb_dm_qqb_VLL
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'dm_params.f'
       include 'zprods_com.f'
       include 'sprods_com.f'
-      integer i1,i2,i3,i4,i5,i6
+      integer:: i1,i2,i3,i4,i5,i6
 !------ copy exisitng MCFM structure
 c--- This corresponds to A++(1,2,3,4) of eq. (12.3) in BDK
 c    The notation of BDK calculates the following amplitude
@@ -312,13 +335,19 @@ C          -aqqb_zbb_new(i4,i3,i2,i1,i6,i5)
       return
       end
 
-            double complex function qqb_dm_qqb_VRR(i1,i2,i3,i4,i5,i6)
-      implicit none
+            function qqb_dm_qqb_VRR(i1,i2,i3,i4,i5,i6)
+            implicit none
+      include 'types.f'
+      complex(dp):: qqb_dm_qqb_VRR
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'dm_params.f'
       include 'zprods_com.f'
       include 'sprods_com.f'
-      integer i1,i2,i3,i4,i5,i6
+      integer:: i1,i2,i3,i4,i5,i6
 !------ copy exisitng MCFM structure
 c--- This corresponds to A++(1,2,3,4) of eq. (12.3) in BDK
 c    The notation of BDK calculates the following amplitude

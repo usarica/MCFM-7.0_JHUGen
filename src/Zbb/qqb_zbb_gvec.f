@@ -1,5 +1,7 @@
       subroutine qqb_zbb_gvec(p,n,in,msq)
       implicit none
+      include 'types.f'
+
 C-----Nov 10 99 --- checked that gives the right matrix element
 C     when summed over polarizations.
 
@@ -12,6 +14,9 @@ c---but this routine contains no factor of 1/2 for identical gluons
 c   in the final state.
 
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'masses.f'
       include 'ewcouple.f'
       include 'qcdcouple.f'
@@ -26,15 +31,15 @@ c   in the final state.
 
 C ip is the label of the emitter
 C in is the label of the contracted line
-      integer j,k,pq,pl,in,ics
-      double precision fac,n(4)
-      double complex zab(mxpart,mxpart),zba(mxpart,mxpart),prop
-      double precision msq(-nf:nf,-nf:nf),p(mxpart,4),ggqqb(2,2),tmp
+      integer:: j,k,pq,pl,in,ics
+      real(dp):: fac,n(4)
+      complex(dp):: zab(mxpart,mxpart),zba(mxpart,mxpart),prop
+      real(dp):: msq(-nf:nf,-nf:nf),p(mxpart,4),ggqqb(2,2),tmp
 
 
       do j=-nf,nf
       do k=-nf,nf
-      msq(j,k)=0d0
+      msq(j,k)=0._dp
       enddo
       enddo
 
@@ -46,11 +51,11 @@ c---ie, za(i,j)*zb(j,i)=s(i,j)
 
 
 C---exclude the photon pole, 4*mbsq choosen as a scale approx above upsilon
-c      if (s(3,4) .lt. 4d0*mbsq) return
+c      if (s(3,4) < 4._dp*mbsq) return
 
       do pq=1,2
       do pl=1,2
-      ggqqb(pq,pl) =0d0
+      ggqqb(pq,pl) =0._dp
       enddo
       enddo
 
@@ -60,9 +65,9 @@ C arguments 1-4 represent (1) incoming quark line
 C                         (2) incoming quark line
 C                         (3) outgoing gluon line
 C                         (4) outgoing gluon line contracted with n
-      if     (in .eq. 1) then
+      if     (in == 1) then
         call zbbsqn(5,6,2,1,p,n,za,zb,zab,zba,ggqqb)
-      elseif (in .eq. 2)  then
+      elseif (in == 2)  then
         call zbbsqn(5,6,1,2,p,n,za,zb,zab,zba,ggqqb)
 c--- since we have interchanged 1 and 2 to get the gg matrix element,
 c---  the colour structures should be interchanged too
@@ -75,7 +80,7 @@ c---  the colour structures should be interchanged too
         enddo
       endif
 
-      prop=s(3,4)/dcmplx((s(3,4)-zmass**2),zmass*zwidth)
+      prop=s(3,4)/cplx2((s(3,4)-zmass**2),zmass*zwidth)
       fac=v*xn/four*(esq*gsq)**2*two
 
       do pq=1,2
@@ -85,18 +90,18 @@ c---  the colour structures should be interchanged too
       enddo
       do j=-nflav,nflav
       do k=-nflav,nflav
-      if     ((j .eq. 0) .and. (k .eq. 0)) then
+      if     ((j == 0) .and. (k == 0)) then
        msq(j,k)=
-     . +cdabs(Q(flav)*q1+L(flav)*l1*prop)**2*ggqqb(1,1)
-     . +cdabs(Q(flav)*q1+R(flav)*r1*prop)**2*ggqqb(2,2)
-     . +cdabs(Q(flav)*q1+L(flav)*r1*prop)**2*ggqqb(1,2)
-     . +cdabs(Q(flav)*q1+R(flav)*l1*prop)**2*ggqqb(2,1)
+     & +abs(Q(flav)*q1+L(flav)*l1*prop)**2*ggqqb(1,1)
+     & +abs(Q(flav)*q1+R(flav)*r1*prop)**2*ggqqb(2,2)
+     & +abs(Q(flav)*q1+L(flav)*r1*prop)**2*ggqqb(1,2)
+     & +abs(Q(flav)*q1+R(flav)*l1*prop)**2*ggqqb(2,1)
        do ics=0,2
        msqv_cs(ics,j,k)=
-     . +cdabs(Q(flav)*q1+L(flav)*l1*prop)**2*avegg*fac*mmsqv_cs(ics,1,1)
-     . +cdabs(Q(flav)*q1+R(flav)*l1*prop)**2*avegg*fac*mmsqv_cs(ics,2,1)
-     . +cdabs(Q(flav)*q1+L(flav)*r1*prop)**2*avegg*fac*mmsqv_cs(ics,1,2)
-     . +cdabs(Q(flav)*q1+R(flav)*r1*prop)**2*avegg*fac*mmsqv_cs(ics,2,2)
+     & +abs(Q(flav)*q1+L(flav)*l1*prop)**2*avegg*fac*mmsqv_cs(ics,1,1)
+     & +abs(Q(flav)*q1+R(flav)*l1*prop)**2*avegg*fac*mmsqv_cs(ics,2,1)
+     & +abs(Q(flav)*q1+L(flav)*r1*prop)**2*avegg*fac*mmsqv_cs(ics,1,2)
+     & +abs(Q(flav)*q1+R(flav)*r1*prop)**2*avegg*fac*mmsqv_cs(ics,2,2)
        enddo
       endif
 
@@ -108,6 +113,8 @@ c---  the colour structures should be interchanged too
 
       subroutine zbbsqn(i1,i2,i5,i6,p,n,za,zb,zab,zba,msq)
       implicit none
+      include 'types.f'
+
 C-----Apart from overall factors returns the matrix element squared
 C-----msq dependent on the helicities pq and pl of the quark and
 C-----lepton lines for
@@ -118,12 +125,15 @@ C                       (i2) incoming quark line
 C                       (i5) outgoing gluon line
 C                       (i6) outgoing gluon line contracted with n
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'mmsqv_cs.f'
-      double complex qcdabn(2,2,2),qcdban(2,2,2),qedn(2,2,2)
-      double complex zab(mxpart,mxpart),zba(mxpart,mxpart)
-      double precision msq(2,2),n(4),p(mxpart,4),nDp5
-      integer i1,i2,i3,i4,i5,i6,pg,pq,pl
+      complex(dp):: qcdabn(2,2,2),qcdban(2,2,2),qedn(2,2,2)
+      complex(dp):: zab(mxpart,mxpart),zba(mxpart,mxpart)
+      real(dp):: msq(2,2),n(4),p(mxpart,4),nDp5
+      integer:: i1,i2,i3,i4,i5,i6,pg,pq,pl
 
       i3=3
       i4=4
@@ -141,9 +151,9 @@ C  1=L,2=R
 
       do pq=1,2
       do pl=1,2
-      mmsqv_cs(0,pq,pl)=0d0
-      mmsqv_cs(1,pq,pl)=0d0
-      mmsqv_cs(2,pq,pl)=0d0
+      mmsqv_cs(0,pq,pl)=0._dp
+      mmsqv_cs(1,pq,pl)=0._dp
+      mmsqv_cs(2,pq,pl)=0._dp
 
       do pg=1,2
       qedn(pg,pq,pl)=qcdabn(pg,pq,pl)+qcdban(pg,pq,pl)

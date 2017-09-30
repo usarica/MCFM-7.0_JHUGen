@@ -1,28 +1,33 @@
       subroutine stop_def(xsqV,xsqR,q,mc,ms)
-c--- Subroutine to be run for each event to calculate log's, bubbles,
-c--- triangles and boxes (A0,B0,C0,C00,C001,C002,D00) and fill the
-c--- common block in stopf1inc.f
       implicit none
+      include 'types.f'
+c--- Subroutine to be run for each event to calculate log's, bubbles,
+c--- triangles and boxes (A0,B0,C0,C00,C001,C002,._dp0) and fill the
+c--- common block in stopf1inc.f
+      
       include 'constants.f'
-      double precision xsqV,xsqR,q(mxpart,4),ms,mc
-      double precision muR,ms2,mc2,xsn,xsd,s,t,u,qsq,dot,cDs
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      real(dp):: xsqV,xsqR,q(mxpart,4),ms,mc
+      real(dp):: muR,ms2,mc2,xsn,xsd,s,t,u,qsq,dot,cDs
       include 'stopf1inc.f'
-      double complex lnrat,LLs1,LLs2,tr1f,tr2f,tr3,tr3c00f,tr3c001f
+      complex(dp):: lnrat,LLs1,LLs2,tr1f,tr2f,tr3,tr3c00f,tr3c001f
      .,tr3c002f,tr3s00f,tr3s001f,tr3s002f,tr4,tr5,B0xf,Bfun
       external lnrat,LLs1,LLs2,tr1f,tr2f,tr3,tr3c00f,tr3c001f
      .,tr3c002f,tr3s00f,tr3s001f,tr3s002f,tr4,tr5,B0xf,Bfun
 
       ms2 = ms**2
       mc2 = mc**2
-      cDs = dot(q,3,4)+mc2*dot(q,4,2)/2d0/dot(q,3,2)
-     .  +ms2*dot(q,3,2)/2d0/dot(q,4,2)
-      qsq = ms2+mc2+2d0*cDs+2d0*dot(q,3,2)+2d0*dot(q,4,2)
-      s   = ms2+2d0*dot(q,4,2)
-      t   = mc2+2d0*dot(q,3,2)
-      u   = mc2+ms2+2d0*cDs
-      xsn = (1d0-dsqrt(1d0-4d0*ms*mc/(u-(ms-mc)**2)))
-      xsd = (1d0+dsqrt(1d0-4d0*ms*mc/(u-(ms-mc)**2)))
-      muR = dsqrt(xsqR)
+      cDs = dot(q,3,4)+mc2*dot(q,4,2)/2._dp/dot(q,3,2)
+     &  +ms2*dot(q,3,2)/2._dp/dot(q,4,2)
+      qsq = ms2+mc2+2._dp*cDs+2._dp*dot(q,3,2)+2._dp*dot(q,4,2)
+      s   = ms2+2._dp*dot(q,4,2)
+      t   = mc2+2._dp*dot(q,3,2)
+      u   = mc2+ms2+2._dp*cDs
+      xsn = (1._dp-sqrt(1._dp-4._dp*ms*mc/(u-(ms-mc)**2)))
+      xsd = (1._dp+sqrt(1._dp-4._dp*ms*mc/(u-(ms-mc)**2)))
+      muR = sqrt(xsqR)
 
       lRc1      = lnrat(mc*muR,mc2-t)
       lRs1      = lnrat(ms*muR,ms2-s)

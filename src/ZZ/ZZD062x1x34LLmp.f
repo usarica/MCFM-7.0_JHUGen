@@ -1,14 +1,19 @@
       subroutine ZZD062x1x34LLmp(j1,j2,j3,j4,j5,j6,za,zb,mt,Xmp,Xpm)
       implicit none
+      include 'types.f'
+
 c--- Author: J. M. Campbell, October 2013
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'sprods_com.f'
       include 'zprods_decl.f'
       include 'docheck.f'
-      integer k1,k2,k3,k4,k5,k6
-      integer h3,h5,j1,j2,j3,j4,j5,j6
-      double precision mt,s134
-      double complex zab2,amp,Xmp(2,2),Xpm(2,2)
+      integer:: k1,k2,k3,k4,k5,k6
+      integer:: h3,h5,j1,j2,j3,j4,j5,j6
+      real(dp):: mt,s134
+      complex(dp):: zab2,amp,Xmp(2,2),Xpm(2,2)
 
 C---statement functions
       zab2(k1,k2,k3,k4)=za(k1,k2)*zb(k2,k4)+za(k1,k3)*zb(k3,k4)
@@ -20,17 +25,17 @@ C---end statement functions
 
       do h3=1,2
       do h5=1,2
-      if (h3 .eq. 1) then
+      if (h3 == 1) then
         k3=j3
         k4=j4
-      elseif (h3 .eq. 2) then
+      elseif (h3 == 2) then
         k3=j4
         k4=j3
       endif
-      if (h5 .eq. 1) then
+      if (h5 == 1) then
         k5=j5
         k6=j6
-      elseif (h5 .eq. 2) then
+      elseif (h5 == 2) then
         k5=j6
         k6=j5
       endif
@@ -51,7 +56,7 @@ C---end statement functions
 c--- obtain remaining coefficients by c.c.
       do h3=1,2
       do h5=1,2
-      Xpm(h3,h5)=dconjg(Xmp(3-h3,3-h5))
+      Xpm(h3,h5)=conjg(Xmp(3-h3,3-h5))
       enddo
       enddo
 

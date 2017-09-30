@@ -1,6 +1,11 @@
       subroutine extra(p,yextra)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'poles.f'
       include 'alpha1.f'
@@ -8,18 +13,18 @@
       include 'scale.f'
       include 'ewcouple.f'
       include 'nwz.f'
-      integer k1,k2,ep,eta
-      double complex prW,yextra(2,2,-2:0),
+      integer:: k1,k2,ep,eta
+      complex(dp):: prW,yextra(2,2,-2:0),
      & qlI2,qlI3,qlI2diff(-2:0),iza,izb,
      & vert25x1,vert25x2,vert25x3,vert16x1,iprZ,cprop
-      double precision p(mxpart,4),q(mxpart,4),mtsq,mwsq
-      double precision p16(4),p34(4),p235(4),p25(4),
+      real(dp):: p(mxpart,4),q(mxpart,4),mtsq,mwsq
+      real(dp):: p16(4),p34(4),p235(4),p25(4),
      & s16,s25,s34,s235,p5Deta,p2Dp5,omal
-      integer p1,p2,p3,p4,k5,e5,p6
+      integer:: p1,p2,p3,p4,k5,e5,p6
       parameter(p1=1,p2=2,p3=3,p4=4,k5=5,p6=7,e5=6)
 
 c----statement functions
-      prW(s16)=cone/dcmplx(s16-wmass**2)
+      prW(s16)=cone/cplx1(s16-wmass**2)
       iza(k1,k2)=cone/za(k1,k2)
       izb(k1,k2)=cone/zb(k1,k2)
 c----end statement functions
@@ -48,15 +53,15 @@ C---choose auxiliary vector
       q(5,:)=p(5,:)-0.5d0*mtsq*p(eta,:)/p5Deta
       q(e5,:)=0.5d0*mtsq*p(eta,:)/p5Deta
 
-      if (nwz .eq. +1) then
+      if (nwz == +1) then
       call spinoru(7,q,za,zb)
-      elseif (nwz .eq. -1) then
+      elseif (nwz == -1) then
       call spinoru(7,q,zb,za)
       endif
 
 c--- Implementation of Baur-Zeppenfeld treatment of Z width
-      cprop=dcmplx(1d0/dsqrt((s34-zmass**2)**2+(zmass*zwidth)**2))
-      iprZ=dcmplx(s34-zmass**2)
+      cprop=cplx1(1d0/sqrt((s34-zmass**2)**2+(zmass*zwidth)**2))
+      iprZ=cplx1(s34-zmass**2)
 
       do ep=-2,0
       qlI2diff(ep)=qlI2(s25,0d0,mtsq,musq,ep)

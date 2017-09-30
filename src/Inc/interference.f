@@ -1,5 +1,5 @@
-      logical interference,bw34_56
+      logical:: interference,bw34_56
       common/interference/interference,bw34_56
-      double precision vsymfact
+      real(dp):: vsymfact
       common/vsymfact/vsymfact
 !$omp threadprivate(/interference/,/vsymfact/)

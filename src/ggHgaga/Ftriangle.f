@@ -1,14 +1,20 @@
-      double complex function Ftriangle(x)
-      implicit none 
+      function Ftriangle(x)
+      implicit none
+      include 'types.f'
+      complex(dp):: Ftriangle
+       
       include 'constants.f'
-      double precision x,y
-      double complex arg
-      y=1d0-4d0*x
-      if (y .gt. 0d0) then
-      arg=dcmplx((1d0+sqrt(y))/(1d0-sqrt(y)))
-      Ftriangle=+dcmplx(0.5d0)*(log(arg)-impi)**2
-      elseif (y .le. 0d0) then
-      Ftriangle=-dcmplx(2d0)*dcmplx(asin(half/sqrt(x)))**2
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
+      real(dp):: x,y
+      complex(dp):: arg
+      y=1._dp-4._dp*x
+      if (y > 0._dp) then
+      arg=cplx1((1._dp+sqrt(y))/(1._dp-sqrt(y)))
+      Ftriangle=+chalf*(log(arg)-impi)**2
+      elseif (y <= 0._dp) then
+      Ftriangle=-ctwo*cplx1(asin(half/sqrt(x)))**2
       endif
       return 
       end 

@@ -1,4 +1,6 @@
       subroutine Bamp_mpm(q,mc,ms,Bmpm)
+      implicit none
+      include 'types.f'
 c--- u + g  ->  c + s + d  (t-channel single-charm)
 ************************************************************************
 *                                                                      *
@@ -6,42 +8,45 @@ c--- u + g  ->  c + s + d  (t-channel single-charm)
 * DATE  : 12/17/2008                                                    *
 *                                                                      *
 ************************************************************************
-      implicit none
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_com.f'
       include 'epinv.f'
       include 'stopf1inc.f'
-      double precision q(mxpart,4),dot,cDs,gDs,cDg,mc,ms,
-     . mc2,ms2,qsq,s,t,u,xsn,xsd,xs
-      double complex trc,trg,trs,trsgc,zmpm,Bmpm
+      real(dp):: q(mxpart,4),dot,cDs,gDs,cDg,mc,ms,
+     & mc2,ms2,qsq,s,t,u,xsn,xsd,xs
+      complex(dp):: trc,trg,trs,trsgc,zmpm,Bmpm
 
       mc2=mc**2
       ms2=ms**2
 
-      cDs=dot(q,3,4)+mc2*dot(q,4,2)/2d0/dot(q,3,2)
-     . +ms2*dot(q,3,2)/2d0/dot(q,4,2)
+      cDs=dot(q,3,4)+mc2*dot(q,4,2)/2._dp/dot(q,3,2)
+     & +ms2*dot(q,3,2)/2._dp/dot(q,4,2)
       cDg=dot(q,3,2)
       gDs=dot(q,4,2)
-      qsq=mc2+ms2+2d0*cDs+2d0*cDg+2d0*gDs
-      s=ms2+2d0*gDs
-      t=mc2+2d0*cDg
-      u=mc2+ms2+2d0*cDs
+      qsq=mc2+ms2+2._dp*cDs+2._dp*cDg+2._dp*gDs
+      s=ms2+2._dp*gDs
+      t=mc2+2._dp*cDg
+      u=mc2+ms2+2._dp*cDs
 
-      xsn=(1d0-dsqrt(1d0-4d0*ms*mc/(u-(ms-mc)**2)))
-      xsd=(1d0+dsqrt(1d0-4d0*ms*mc/(u-(ms-mc)**2)))
+      xsn=(1._dp-sqrt(1._dp-4._dp*ms*mc/(u-(ms-mc)**2)))
+      xsd=(1._dp+sqrt(1._dp-4._dp*ms*mc/(u-(ms-mc)**2)))
       xs=-xsn/xsd
 
-      trg=2d0*za(5,2)*zb(2,1)
-      trs=2d0*za(5,4)*zb(4,1)+ms**2*za(5,2)*zb(2,1)/gDs
-      trc=2d0*za(5,3)*zb(3,1)+mc**2*za(5,2)*zb(2,1)/cDg
-      trsgc=2d0*zb(1,4)*za(4,2)*zb(2,3)*za(3,5)
+      trg=2._dp*za(5,2)*zb(2,1)
+      trs=2._dp*za(5,4)*zb(4,1)+ms**2*za(5,2)*zb(2,1)/gDs
+      trc=2._dp*za(5,3)*zb(3,1)+mc**2*za(5,2)*zb(2,1)/cDg
+      trsgc=2._dp*zb(1,4)*za(4,2)*zb(2,3)*za(3,5)
       zmpm=za(4,3)*zb(2,4)**2
 
       Bmpm = -mc*ms*ms2*(gDs+cDg)*(cDs*(-4*trc*gDs**3+(-2*trs*cDg+trsgc
      &   +3*mc2*trg)*gDs**2+cDg*(2*trs*cDg-trsgc-ms2*trg)*gDs+2*ms2*trg*
      &   cDg**2)+gDs*(cDg*(-2*mc2*trs*gDs+4*ms2*trc*gDs-ms2*trsgc+mc2*ms
      &   2*trg)+mc2*gDs*(2*trs*gDs+trsgc-3*ms2*trg))+2*trg*cDs**2*gDs*(2
-     &   *gDs-3*cDg))*tr5Xs/(cDg*(cDs**2-mc2*ms2)*gDs**2)/2.0d+0
+     &   *gDs-3*cDg))*tr5Xs/(cDg*(cDs**2-mc2*ms2)*gDs**2)/2.0_dp
 
       Bmpm = mc*ms*(gDs+cDg)*(-2*mc2**2*trg*cDs*gDs**2+cDg**2*(mc2*(2*(
      &   trsgc-2*mc2*trs+ms2*trc)*gDs+ms2*(3*mc2*trg-trsgc))+mc2*cDs*(2*
@@ -49,13 +54,13 @@ c--- u + g  ->  c + s + d  (t-channel single-charm)
      &   *(mc2*(2*trs*gDs-2*trs*cDs-ms2*trg+ms2*trc)+cDs*(2*trg*cDs+trsg
      &   c+ms2*trg))+mc2*cDg*gDs*(cDs*(-2*(trg+trc)*gDs+trsgc+mc2*trg)+6
      &   *trg*cDs**2+mc2*(trsgc-ms2*trg))+4*trs*cDg**4*cDs)*tr5Xc/(cDg**
-     &   3*(cDs**2-mc2*ms2))/2.0d+0+Bmpm
+     &   3*(cDs**2-mc2*ms2))/2.0_dp+Bmpm
 
       Bmpm = mc*ms*ms2*(cDs*(-4*trc*gDs**3+(-2*trs*cDg+trsgc+3*mc2*trg)
      &   *gDs**2+cDg*(2*trs*cDg-trsgc-ms2*trg)*gDs+2*ms2*trg*cDg**2)+gDs
      &   *(cDg*(-2*mc2*trs*gDs+4*ms2*trc*gDs-ms2*trsgc+mc2*ms2*trg)+mc2*
      &   gDs*(2*trs*gDs+trsgc-3*ms2*trg))+2*trg*cDs**2*gDs*(2*gDs-3*cDg)
-     &   )*tr4Xs/(cDg*(cDs**2-mc2*ms2)*gDs)/2.0d+0+Bmpm
+     &   )*tr4Xs/(cDg*(cDs**2-mc2*ms2)*gDs)/2.0_dp+Bmpm
 
       Bmpm = mc*ms*(2*mc2**2*trg*cDs*gDs**2+cDg**2*(mc2*(ms2*(trsgc-3*m
      &   c2*trg)-2*(trsgc-2*mc2*trs+ms2*trc)*gDs)+mc2*cDs*(-2*(trg+trc)*
@@ -63,7 +68,7 @@ c--- u + g  ->  c + s + d  (t-channel single-charm)
      &   rs*gDs-2*trs*cDs-ms2*trg+ms2*trc)+cDs*(2*trg*cDs+trsgc+ms2*trg)
      &   )-mc2*cDg*gDs*(cDs*(-2*(trg+trc)*gDs+trsgc+mc2*trg)+6*trg*cDs**
      &   2+mc2*(trsgc-ms2*trg))-4*trs*cDg**4*cDs)*tr4Xc/(cDg**2*(cDs**2-
-     &   mc2*ms2))/2.0d+0+Bmpm
+     &   mc2*ms2))/2.0_dp+Bmpm
 
       Bmpm = mc*ms*(2*mc2**2*ms2*trg*gDs**2+cDg**2*(cDs*(ms2*(trsgc+mc2
      &   *trg)-2*(trsgc-2*mc2*trs+2*ms2*trg+ms2*trc)*gDs)+mc2*ms2*(-2*tr
@@ -71,13 +76,13 @@ c--- u + g  ->  c + s + d  (t-channel single-charm)
      &   +mc2*ms2*trc)*gDs-mc2*(ms2*trg*(5*cDs+mc2)+trsgc*(cDs+ms2)))+2*
      &   cDg**3*(2*trs*cDs*gDs+ms2*(trg+trc)*cDs+ms2*(trsgc-2*mc2*trs+ms
      &   2*trg))-4*ms2*trs*cDg**4)*tr3Xs/(cDg**2*(cDs-mc*ms)*(cDs+mc*ms)
-     &   )/2.0d+0+Bmpm
+     &   )/2.0_dp+Bmpm
 
       Bmpm = mc*ms*(cDg*gDs*(cDs*(-2*mc2*trs*gDs+4*ms2*trc*gDs-ms2*trsg
      &   c-5*mc2*ms2*trg)-mc2*ms2*(2*trs*gDs+trsgc+ms2*trg))+mc2*gDs**2*
      &   (2*trs*cDs*gDs-4*ms2*trc*gDs+trsgc*cDs+ms2*trg*cDs+ms2*trsgc+3*
      &   mc2*ms2*trg)+2*mc2*ms2*cDg**2*(trs*gDs+ms2*trg))*tr3Xc/(cDg*(cD
-     &   s**2-mc**2*ms**2)*gDs)/2.0d+0+Bmpm
+     &   s**2-mc**2*ms**2)*gDs)/2.0_dp+Bmpm
 
       Bmpm = ms*(-cDg**3*gDs*(cDs**2*(4*trc*gDs**2+(-2*trsgc+6*mc2*sck*
      &   trs-4*mc2*trs+4*ms2*trc)*gDs-ms2*(trsgc+mc2*(3*sck-2)*trg))+mc2
@@ -90,7 +95,7 @@ c--- u + g  ->  c + s + d  (t-channel single-charm)
      &   gDs**3*(trs*(cDs+ms2)*(2*gDs+2*cDs+ms2-mc2)+ms2*(trg+trc)*gDs)+
      &   mc2*cDg*(cDs-mc*ms)*(cDs+mc*ms)*gDs**3*(-2*trg*gDs+ms2*(trs+2*(
      &   trg+trc))-mc2*trs)+2*ms2*trc*cDg**5*(cDs-mc*ms)*(cDs+mc*ms))*lV
-     &   s/(mc*cDg**3*(cDs-mc*ms)*(cDs+mc*ms)*gDs**2)/4.0d+0+Bmpm
+     &   s/(mc*cDg**3*(cDs-mc*ms)*(cDs+mc*ms)*gDs**2)/4.0_dp+Bmpm
 
       Bmpm = mc*(cDg**2*gDs**2*(cDs**2*(2*trg*gDs**2-2*(-trsgc+3*mc2*tr
      &   s+ms2*trc)*gDs+ms2*(trsgc+2*mc2*trg))-mc2*ms2*(2*trg*gDs**2-4*(
@@ -102,7 +107,7 @@ c--- u + g  ->  c + s + d  (t-channel single-charm)
      &   +2*cDs+ms2-mc2)+ms2*(trg+trc)*gDs)-cDg*(cDs-mc*ms)*(cDs+mc*ms)*
      &   gDs**3*(2*trg*gDs*(gDs+cDs)+mc2*(ms2*(trs+trg+2*trc)-trsgc))+2*
      &   ms2*trc*cDg**5*(mc2*ms2-cDs**2))*lVc/(ms*cDg**3*(cDs-mc*ms)*(cD
-     &   s+mc*ms)*gDs**2)/4.0d+0+Bmpm
+     &   s+mc*ms)*gDs**2)/4.0_dp+Bmpm
 
       Bmpm = Bmpm-trg*xs*cDs*(mc2*gDs**2-2*cDg*cDs*gDs+ms2*cDg**2)*lRc
      &   s/((xs**2-1)*cDg**2*gDs)
@@ -130,7 +135,7 @@ c--- u + g  ->  c + s + d  (t-channel single-charm)
      &   +2*(-9*trsgc+17*mc2*trs+8*mc2*trg+11*ms2*trc)*gDs+6*(mc-ms)*(ms
      &   +mc)*trc*cDs+ms2*(-9*trsgc+mc2*(26*trs+17*trg-3*trc)-5*ms2*trc)
      &   )+6*(mc-ms)*(ms+mc)*ms2*trc*cDg**5*(2*gDs+ms2))/(mc*ms*cDg**3*g
-     &   Ds**2*(2*gDs+ms2))/1.2d+1+Bmpm
+     &   Ds**2*(2*gDs+ms2))/1.2e+1_dp+Bmpm
 
       Bmpm = B0cgsf*(-cDg**3*(-4*(2*mc2*trs+ms2*trc)*gDs**3+ms2*cDs*(-4
      &   *trc*gDs**2+2*(trsgc+mc2*trs+2*mc2*trg-2*ms2*trc)*gDs+ms2*(trsg
@@ -151,7 +156,7 @@ c--- u + g  ->  c + s + d  (t-channel single-charm)
      &   ms2*trg))-ms2*cDg**4*(-4*trc*gDs**2-2*(-trsgc+2*mc2*trs+mc2*trg
      &   +ms2*trc)*gDs+2*(ms**2-mc**2)*trc*cDs+ms2*(trsgc+mc2*(-3*trs-2*
      &   trg+trc)))-2*ms2*(ms2-mc2)*trc*cDg**5)/(mc*ms*cDg**3*gDs**2)/4.
-     &   0d+0+Bmpm
+     &   0_dp+Bmpm
 
       Bmpm = mc*tr3s00ft*(cDg*(2*trg*gDs**3+cDs*(4*trg*gDs**2+2*(trsgc-
      &   2*mc2*trs+2*ms2*trg+ms2*trc)*gDs-ms2*(trsgc+mc2*trg))-2*(-trsgc
@@ -175,7 +180,7 @@ c--- u + g  ->  c + s + d  (t-channel single-charm)
       Bmpm = ls*ms*(cDg*(8*trc*gDs**3+4*(-trsgc-2*mc2*trs+3*ms2*trc)*gD
      &   s**2+2*ms2*(-2*trsgc-mc2*trs+2*mc2*trg+2*ms2*trc)*gDs+ms2**2*(m
      &   c2*trg-trsgc))+mc2*gDs*(trsgc*(4*gDs+ms2)-(2*gDs+ms2)*(-2*trs*g
-     &   Ds+4*trg*gDs+3*ms2*trg)))/(mc*cDg*(2*gDs+ms2)**2)/2.0d+0+Bmpm
+     &   Ds+4*trg*gDs+3*ms2*trg)))/(mc*cDg*(2*gDs+ms2)**2)/2.0_dp+Bmpm
 
       Bmpm = Bmpm-LsB2*mc*ms*(-2*mc2**2*trg*cDs*gDs**3+cDg**3*(mc2*(-4
      &   *trs*gDs**2-4*ms2*trc*gDs+ms2*(3*trsgc+ms2*trg))+cDs*(ms2*(trsg
@@ -202,7 +207,7 @@ c--- u + g  ->  c + s + d  (t-channel single-charm)
       Bmpm = lc*mc*(-cDg*(2*trg*gDs**2+2*(trg*cDs+trsgc-3*mc2*trs+ms2*t
      &   rc)*gDs+ms2*(3*mc2*trg-trsgc))+gDs*(2*trg*gDs**2+2*trg*cDs*gDs-
      &   mc2*trsgc+mc2*ms2*trg)+2*cDg**2*(4*trs*gDs+ms2*(trc-2*trg)))/(m
-     &   s*cDg*(2*cDg+mc2))/2.0d+0+Bmpm
+     &   s*cDg*(2*cDg+mc2))/2.0_dp+Bmpm
 
       Bmpm = epinv*(mc2*trg*(mc*ms*(xs**2-1)-4*lp*xs*cDs)*gDs**2+ms*cDg
      &   **2*(mc*(xs**2-1)*(ms2*(2*sck-1)*trg-4*(sck-1)*trs*gDs)-4*lp*ms
@@ -225,7 +230,7 @@ c--- u + g  ->  c + s + d  (t-channel single-charm)
      &   (2*trs*cDs+ms2*(3*trs+2*(trg+trc)))*gDs**3*(2*(gDs+cDs)+ms2)+2*
      &   mc2*ms2*cDg**2*gDs**2*((trs+trc)*gDs-trg*(cDs+ms2))+2*mc2*ms2*c
      &   Dg**3*gDs*((trs+trc)*gDs+ms2*(trs+trg+trc))+2*ms2*trc*cDg**5*(2
-     &   *gDs+4*cDs+mc2)+4*ms2*trc*cDg**6)/(mc*ms*cDg**3*gDs**2)/4.0d+0+
+     &   *gDs+4*cDs+mc2)+4*ms2*trc*cDg**6)/(mc*ms*cDg**3*gDs**2)/4.0_dp+
      &   Bmpm
 
       Bmpm = Bmpm-B0csf*mc*ms*(-cDg*(mc2*(2*trs*gDs+ms2*(trc-trg))+ms2
@@ -234,7 +239,7 @@ c--- u + g  ->  c + s + d  (t-channel single-charm)
      &   Dg+2*mc2*ms2*trg)+mc2*((trsgc-mc2*trs+ms2*(trg-trs))*gDs+ms2*(m
      &   s2+mc2)*trg)+cDs**2*(2*trc*gDs-trg*(2*cDg+ms2+mc2)+2*trs*cDg)-2
      &   *trg*cDs**3+2*ms2*trs*cDg**2)/(cDg*(cDs-mc*ms)*(cDs+mc*ms))/2.0
-     &   d+0
+     &   _dp
 
       Bmpm = 3*mc*tr3s002ft*(2*cDg+mc2)*(trs*((2*cDg+mc2)*cDs*gDs-ms2*c
      &   Dg**2)-2*ms2*(trg+trc)*cDg*gDs)/(ms*cDg**3)+Bmpm

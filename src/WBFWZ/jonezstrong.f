@@ -1,14 +1,19 @@
       subroutine jonezstrong(n2,n3,n4,n1,za,zb,zab,zba,jglue)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'cmplxmass.f'
       include 'ewcharge.f'
       include 'zcouple.f'
       include 'sprods_com.f'
       include 'zprods_decl.f'
-      integer h12,h34,i1,i2,i3,i4,n1,n2,n3,n4,jdu
-      double precision s34,s134,s234,xl,xr,xq
-      double complex zab(mxpart,4,mxpart),zba(mxpart,4,mxpart),
+      integer:: h12,h34,i1,i2,i3,i4,n1,n2,n3,n4,jdu
+      real(dp):: s34,s134,s234,xl,xr,xq
+      complex(dp):: zab(mxpart,4,mxpart),zba(mxpart,4,mxpart),
      & jglue(4,2,2,2),propz34,gmZ(2,2,2),
      & after(4,2,2),before(4,2,2)
 c--- returns gluon current for  mu -> e^- e^+ qq
@@ -55,23 +60,23 @@ C---setting up couplings dependent on whether we are doing 34-line or 56-line
       endif
 
       s34=s(n3,n4)
-      propz34=dcmplx(s34)-czmass2
+      propz34=cplx1(s34)-czmass2
 
       do jdu=1,2
-      gmZ(jdu,1,1)=(dcmplx(Q(jdu)*xq/s34)+dcmplx(L(jdu)*xl)/propz34)
-      gmZ(jdu,1,2)=(dcmplx(Q(jdu)*xq/s34)+dcmplx(L(jdu)*xr)/propz34)
-      gmZ(jdu,2,1)=(dcmplx(Q(jdu)*xq/s34)+dcmplx(R(jdu)*xl)/propz34)
-      gmZ(jdu,2,2)=(dcmplx(Q(jdu)*xq/s34)+dcmplx(R(jdu)*xr)/propz34)
+      gmZ(jdu,1,1)=(cplx1(Q(jdu)*xq/s34)+cplx1(L(jdu)*xl)/propz34)
+      gmZ(jdu,1,2)=(cplx1(Q(jdu)*xq/s34)+cplx1(L(jdu)*xr)/propz34)
+      gmZ(jdu,2,1)=(cplx1(Q(jdu)*xq/s34)+cplx1(R(jdu)*xl)/propz34)
+      gmZ(jdu,2,2)=(cplx1(Q(jdu)*xq/s34)+cplx1(R(jdu)*xr)/propz34)
       enddo
 
       i1=n1
       i2=n2
       do h34=1,2
 
-      if (h34.eq.1) then 
+      if (h34==1) then 
         i3=n3
         i4=n4
-      elseif (h34.eq.2) then
+      elseif (h34==2) then
         i3=n4
         i4=n3
       endif

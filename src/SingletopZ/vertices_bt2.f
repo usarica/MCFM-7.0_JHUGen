@@ -2,19 +2,24 @@
      &  vert25x8,vert25x9,vert25x10,
      &  vert25x11,vert25x12,vert25x13,vert25x14,vert25x15,
      &  vert25x16)
+      implicit none
+      include 'types.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'poles.f'
       include 'scale.f'
       include 'masses.f'
       include 'decl_kininv.f'
 
-      double precision mtsq
-      integer ep
-      double complex qlI2,qlI3,epqlI3,ep2qlI3
-      double complex vert25x8,vert25x9
-      double complex vert25x10,vert25x11,vert25x12,vert25x13,vert25x14
-      double complex vert25x15, vert25x16
-      double precision p5Dp234,denbt2
+      real(dp)::mtsq
+      integer::ep
+      complex(dp)::qlI2,qlI3,epqlI3,ep2qlI3
+      complex(dp)::vert25x8,vert25x9
+      complex(dp)::vert25x10,vert25x11,vert25x12,
+     & vert25x13,vert25x14,vert25x15, vert25x16
+      real(dp)::p5Dp234,denbt2
 
       mtsq=mt**2
       p5Dp234=(s16-s234-mtsq)/2d0

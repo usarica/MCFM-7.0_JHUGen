@@ -1,20 +1,25 @@
       subroutine subqcdm(i1,i2,i3,i4,i5,i6,p156,p256,za,zb,
      & invtwog1Dc,invtwog2Dc,mc,aamp,bamp)
+      implicit none
+      include 'types.f'
 c*******************************************************************
 c     the matrix elements of the
 C     helicity amplitudes for the QCD process
 c     s(-p1)+cbar(-p2) --> l(p3)+abar(p4)+g(p5)+g(p6)
 c     multiplied by ((a+l)^2-M**2)/g^4/gwsq^2/2
 c*******************************************************************
-      implicit none
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
-      integer i1,i2,i3,i4,i5,i6,h1,h2,hf
-      double precision p156,p256,s34,mc,invtwog1Dc,invtwog2Dc
+      integer:: i1,i2,i3,i4,i5,i6,h1,h2,hf
+      real(dp):: p156,p256,s34,mc,invtwog1Dc,invtwog2Dc
 C     p156=2*p1.p5+2*p1.p6+2*p5.p6
 C     p256=2*p2.p5+2*p2.p6+2*p5.p6
-      double complex aamp(2,2,2),bamp(2,2,2)
-      s34=dble(za(i3,i4)*zb(i4,i3))
+      complex(dp):: aamp(2,2,2),bamp(2,2,2)
+      s34=real(za(i3,i4)*zb(i4,i3))
       aamp(1,1,1) =  + four*p256**(-1) * (  -1./(zb(i5,i1))/(zb(i5,i6))
      &    *za(i4,i3)*za(i6,i2)*zb(i1,i4)**2 -1./(zb(i5,i6))/(zb(i6,i1))
      &    *za(i4,i3)*za(i5,i2)*zb(i1,i4)**2 )

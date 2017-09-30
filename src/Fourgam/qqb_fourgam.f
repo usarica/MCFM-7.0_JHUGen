@@ -1,4 +1,6 @@
       subroutine qqb_fourgam(p,msq)
+      implicit none
+      include 'types.f'
 ************************************************************************
 *    Author: C Williams                                                *
 *    Sept, 2014.                                                       *
@@ -6,15 +8,18 @@
 *    and spins (plus all crossings)                                    *
 c     q(-p1)+qbar(-p2) --> gam(p3) + gam(p4) + gam(p5) + gam(p6)       *
 ************************************************************************
-      implicit none
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'ewcharge.f'
       include 'ewcouple.f'
       include 'zprods_decl.f'
-      integer j
-      double precision p(mxpart,4),msq(-nf:nf,-nf:nf),
+      integer:: j
+      real(dp):: p(mxpart,4),msq(-nf:nf,-nf:nf),
      & ampsq_3gam1g,qqb,qbq,fac,cfac
-      double precision symfac 
+      real(dp):: symfac 
       parameter (symfac=one/24d0)
 
       call spinoru(6,p,za,zb)

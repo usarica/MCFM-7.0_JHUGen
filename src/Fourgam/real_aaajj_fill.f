@@ -1,15 +1,21 @@
       subroutine real_aaajj_fill(j1,j2,j3,j4,j5,j6,j7,za,zb,real_aaajj)
       implicit none
+      include 'types.f'
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
-      integer j1,j2,j3,j4,j5,j6,j7
-      double complex real_aaajj(2,2,2,2,2,2), aaajj_aMHV, aaajj_j6MHV
-      double complex aaajj_j7MHV, aaajj_aaNMHV, aaajj_aj6NMHV
-      double complex aaajj_aj7NMHV, aaajj_jjNMHV
+      integer:: j1,j2,j3,j4,j5,j6,j7
+      complex(dp)::real_aaajj(2,2,2,2,2,2), aaajj_aMHV, aaajj_j6MHV
+      complex(dp)::aaajj_j7MHV, aaajj_aaNMHV, aaajj_aj6NMHV
+      complex(dp)::aaajj_aj7NMHV, aaajj_jjNMHV
 
       real_aaajj(:,:,:,:,:,:)=czip
 
-! real_aaajj is dimension 6 array with entries real_aaajj(hel(j1),hel(j3),...)
+! real_aaajj is dimension 6 array 
+! with entries real_aaajj(hel(j1),hel(j3),...)
 ! because helicity of quark line is conserved
       real_aaajj(2,1,2,2,2,2)=aaajj_aMHV(j1,j2,j3,j4,j5,j6,j7,za,zb)
       real_aaajj(2,2,1,2,2,2)=aaajj_aMHV(j1,j2,j4,j3,j5,j6,j7,za,zb)
@@ -86,46 +92,70 @@
       return
       end
       
-      double complex function aaajj_aMHV(i1,i2,i3,i4,i5,i6,i7,za,zb)
+      function aaajj_aMHV(i1,i2,i3,i4,i5,i6,i7,za,zb)
       implicit none
+      include 'types.f'
+      complex(dp):: aaajj_aMHV
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
-      integer i1,i2,i3,i4,i5,i6,i7
+      integer:: i1,i2,i3,i4,i5,i6,i7
       aaajj_aMHV = (za(i1,i2)**2*za(i2,i3)**2)/
      & (za(i1,i4)*za(i1,i5)*za(i1,i7)*za(i2,i4)*za(i2,i5)*za(i2,i6)*
      &   za(i6,i7))
       return
       end
 
-      double complex function aaajj_j6MHV(i1,i2,i3,i4,i5,i6,i7,za,zb)
+      function aaajj_j6MHV(i1,i2,i3,i4,i5,i6,i7,za,zb)
       implicit none
+      include 'types.f'
+      complex(dp):: aaajj_j6MHV
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
-      integer i1,i2,i3,i4,i5,i6,i7
+      integer:: i1,i2,i3,i4,i5,i6,i7
       aaajj_j6MHV = (za(i1,i2)**2*za(i1,i6)*za(i2,i6)**2)/
      & (za(i1,i3)*za(i1,i4)*za(i1,i5)*za(i1,i7)*za(i2,i3)*za(i2,i4)*
      &   za(i2,i5)*za(i6,i7))
       return
       end
 
-      double complex function aaajj_j7MHV(i1,i2,i3,i4,i5,i6,i7,za,zb)
+      function aaajj_j7MHV(i1,i2,i3,i4,i5,i6,i7,za,zb)
       implicit none
+      include 'types.f'
+      complex(dp):: aaajj_j7MHV
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
-      integer i1,i2,i3,i4,i5,i6,i7
+      integer:: i1,i2,i3,i4,i5,i6,i7
       aaajj_j7MHV = (za(i1,i2)**2*za(i2,i7)**3)/
      & (za(i1,i3)*za(i1,i4)*za(i1,i5)*za(i2,i3)*za(i2,i4)*za(i2,i5)*
      &   za(i2,i6)*za(i6,i7))
       return
       end
 
-      double complex function aaajj_aaNMHV(i1,i2,i3,i4,i5,i6,i7,za,zb)
+      function aaajj_aaNMHV(i1,i2,i3,i4,i5,i6,i7,za,zb)
       implicit none
+      include 'types.f'
+      complex(dp):: aaajj_aaNMHV
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'sprods_com.f'
-      integer i1,i2,i3,i4,i5,i6,i7
-      double precision t
+      integer:: i1,i2,i3,i4,i5,i6,i7
+      real(dp):: t
       t(i1,i2,i3)=s(i1,i2)+s(i2,i3)+s(i3,i1)
 
 
@@ -225,13 +255,19 @@
       return
       end
 
-      double complex function aaajj_aj6NMHV(i1,i2,i3,i4,i5,i6,i7,za,zb)
+      function aaajj_aj6NMHV(i1,i2,i3,i4,i5,i6,i7,za,zb)
       implicit none
+      include 'types.f'
+      complex(dp):: aaajj_aj6NMHV
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'sprods_com.f'
-      integer i1,i2,i3,i4,i5,i6,i7
-      double precision t
+      integer:: i1,i2,i3,i4,i5,i6,i7
+      real(dp):: t
       t(i1,i2,i3)=s(i1,i2)+s(i2,i3)+s(i3,i1)
 
       aaajj_aj6NMHV = (za(i1,i3)**2*za(i2,i6)**2*zb(i7,i1)**2*
@@ -349,13 +385,19 @@
       return
       end
 
-      double complex function aaajj_aj7NMHV(i1,i2,i3,i4,i5,i6,i7,za,zb)
+      function aaajj_aj7NMHV(i1,i2,i3,i4,i5,i6,i7,za,zb)
       implicit none
+      include 'types.f'
+      complex(dp):: aaajj_aj7NMHV
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'sprods_com.f'
-      integer i1,i2,i3,i4,i5,i6,i7
-      double precision t
+      integer:: i1,i2,i3,i4,i5,i6,i7
+      real(dp):: t
       t(i1,i2,i3)=s(i1,i2)+s(i2,i3)+s(i3,i1)
 
       aaajj_aj7NMHV =
@@ -455,13 +497,19 @@
       return
       end
 
-      double complex function aaajj_jjNMHV(i1,i2,i3,i4,i5,i6,i7,za,zb)
+      function aaajj_jjNMHV(i1,i2,i3,i4,i5,i6,i7,za,zb)
       implicit none
+      include 'types.f'
+      complex(dp):: aaajj_jjNMHV
+      
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'zprods_decl.f'
       include 'sprods_com.f'
-      integer i1,i2,i3,i4,i5,i6,i7
-      double precision t
+      integer:: i1,i2,i3,i4,i5,i6,i7
+      real(dp):: t
       t(i1,i2,i3)=s(i1,i2)+s(i2,i3)+s(i3,i1)
       aaajj_jjNMHV = -(((za(i1,i2)*zb(i2,i6) - za(i3,i1)*zb(i3,i6))*
      &      (t(i2,i3,i6)*za(i7,i2) - za(i6,i2)*za(i7,i2)*zb(i2,i6) - 

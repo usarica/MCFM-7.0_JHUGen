@@ -1,15 +1,20 @@
       subroutine qq_tchan_ztqg(p,msq)
+      implicit none
+      include 'types.f'
 c---Matrix element squared averaged over initial colors and spins
 c     u(-p1)+b(p2)->e^-(p3)+e^+(p4)+t(p5)+d(p6)+g(p7)
-      implicit none
+      
       include 'ewcouple.f'
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'qcdcouple.f'
       include 'masses.f'
       include 'nwz.f'
       include 'zprods_com.f'
-      integer j,k,nu,k5a,k5b
-      double precision p(mxpart,4),q(mxpart,4),p5Dp3,p5Dp4,
+      integer:: j,k,nu,k5a,k5b
+      real(dp):: p(mxpart,4),q(mxpart,4),p5Dp3,p5Dp4,
      & msq(-nf:nf,-nf:nf),dot,fac,ampsqL,ampsqH,
      & b_u,u_b,db_b,b_db,d_bb,ub_bb,bb_d,bb_ub,
      & db_g,g_b,u_g,g_db,b_g,g_u,
@@ -37,7 +42,7 @@ C   Construct demassified momentum for p5 wrt p4 and store in position k5b
 
       fac=8d0*cf*xn**2*gsq*gwsq**2*esq**2
 
-      if (nwz .eq. 1) then
+      if (nwz == 1) then
       call spinoru(8,q,za,zb) 
 
       call ubztdgsq(1,2,3,4,k5a,k5b,6,7,ampsqL,ampsqH)
@@ -85,7 +90,7 @@ c--- In g-q diagrams, remove corrections on light line
       msq(0,-3)=g_db
       msq(5,0)=b_g
 
-      elseif(nwz .eq. -1) then
+      elseif(nwz == -1) then
       call spinoru(8,q,zb,za) 
 
       call ubztdgsq(1,2,4,3,k5b,k5a,6,7,ampsqL,ampsqH)

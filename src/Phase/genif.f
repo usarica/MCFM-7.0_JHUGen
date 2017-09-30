@@ -1,17 +1,20 @@
       subroutine genif(nperms,p,wt,msq)
-c----initial-final subtraction.
       implicit none
+      include 'types.f'
+c----initial-final subtraction.
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
       include 'qcdcouple.f'
       include 'xmin.f'
       include 'debug.f'
-      logical justjac
+      logical:: justjac
 
-      integer i1,i2,i3,i4,i5,j,k,nperms
-      double precision p(mxpart,4),u,z,dot,q(mxpart,4),
-     . msq(-nf:nf,-nf:nf),omxmin
-      double precision facq,si1i3,si1i4,si3i4,x,omx,wt0,
-     . wt5_4,wt4,wt,jacbit
+      integer:: i1,i2,i3,i4,i5,j,k,nperms
+      real(dp):: p(mxpart,4),u,z,dot,q(mxpart,4),
+     & msq(-nf:nf,-nf:nf),omxmin
+      real(dp):: facq,si1i3,si1i4,si3i4,x,omx,wt0,
+     & wt5_4,wt4,wt,jacbit
       parameter(wt0=one/eight/pisq)
       common/justjac/justjac
       integer,parameter:: j1(4)=(/1,1,2,2/)
@@ -84,10 +87,10 @@ c----initial wrt to final
 
       do j=-nf,nf
       do k=-nf,nf
-      msq(j,k)=0d0
-      if     ((j .gt. 0) .and. (k .lt. 0)) then
+      msq(j,k)=0._dp
+      if     ((j > 0) .and. (k < 0)) then
       msq(j,k)=facq*msq(j,k)
-      elseif ((j .lt. 0) .and. (k .gt. 0)) then
+      elseif ((j < 0) .and. (k > 0)) then
       msq(j,k)=facq*msq(j,k)
       endif
 

@@ -1,4 +1,6 @@
       subroutine genclust_kt(q,Rmin,qfinal,isub,ipow)
+      implicit none
+      include 'types.f'
 c--- Clusters momenta using plabel to determine which
 c--- particles should be clustered. Forms 'jets' jets according to
 c--- the standard kT algorithm with cone size Rmin.
@@ -12,19 +14,22 @@ c--- Modified 23/11/09: generalized to include whole class of kt-like
 c---                    algorithms with measures raised to the power
 c---                    "ipow" passed into routine. In particular,
 c---                    ipow = +1 (normal kt), ipow = -1 ("anti-kt")
-      implicit none
+
       include 'constants.f'
+      include 'nf.f'
+      include 'mxpart.f'
+      include 'cplx.h'
       include 'npart.f'
       include 'jetcuts.f'
       include 'jetlabel.f'
       include 'plabel.f'
       include 'is_functions_com.f'
 
-      double precision q(mxpart,4),qjet(mxpart,4),qfinal(mxpart,4)
-      double precision pt,Rmin,dijmin,dkmin,ayrap
-      integer i,nu,iter,nmin1,nmin2,maxjet,nk,
-     . ajet,jetindex(mxpart),isub,ipow
-      logical jetmerge,failed,is_hadronic
+      real(dp):: q(mxpart,4),qjet(mxpart,4),qfinal(mxpart,4)
+      real(dp):: pt,Rmin,dijmin,dkmin,ayrap
+      integer:: i,nu,iter,nmin1,nmin2,maxjet,nk,
+     & ajet,jetindex(mxpart),isub,ipow
+      logical:: jetmerge,failed,is_hadronic
       common/jetmerge/jetmerge
 !$omp threadprivate(/jetmerge/)
 
@@ -34,7 +39,7 @@ c---                    ipow = +1 (normal kt), ipow = -1 ("anti-kt")
 
       do i=1,mxpart
         do nu=1,4
-        qfinal(i,nu)=0d0
+        qfinal(i,nu)=0._dp
         enddo
       enddo
 
@@ -53,7 +58,7 @@ c--- the dipole contributions, where isub=1.
       enddo
 
 c--- for no partons, just switch q into qfinal
-      if (maxjet .eq. 0) then
+      if (maxjet == 0) then
         do i=1,mxpart
           do nu=1,4
             qfinal(i,nu)=q(i,nu)
@@ -64,11 +69,11 @@ c--- for no partons, just switch q into qfinal
       endif
 
 c--- skip clustering if we only have one parton
-      if (maxjet .eq. 1) goto 2
+      if (maxjet == 1) goto 2
 
 c--- for W+bbj, skip if b and b-bar are too close together
-c      if ( ((nproc.eq.292) .or. (nproc.eq.297))
-c     .     .and. (isub .eq.0) .and. (R(q,5,6) .lt. Rmin) ) then
+c      if ( ((nproc==292) .or. (nproc==297))
+c     &     .and. (isub ==0) .and. (R(q,5,6) < Rmin) ) then
 c        jets=-1
 c        return
 c      endif
@@ -92,7 +97,7 @@ c      write(*,*) 'Comparing pair (',nmin1,',',nmin2,') value of'
 c      write(*,*) 'dijmin = ',dijmin,' with ',nk,' value of dk = ',dkmin
 
 c--- step3: compare the two ...
-      if (dijmin .lt. dkmin) then
+      if (dijmin < dkmin) then
 c---  ... if we should combine, go ahead
 c        write(*,*) 'Clustered ',nmin1,nmin2
         jetmerge=.true.
@@ -116,7 +121,7 @@ c        write(*,*) 'Now swapping ',jets,' and ',nk
 c--- in the next iteration we search for jets in pjet from iter+1...maxjet
 c--- so if this condition isn't true then there's one jet left at maxjet
 
-      if (iter .lt. maxjet-1) goto 1
+      if (iter < maxjet-1) goto 1
 
  2    continue
       jets=jets+1
@@ -130,7 +135,7 @@ c--- restore incoming partons
 c--- set all other momenta to zero and restore leptons
       do i=3,npart+2
         do nu=1,4
-          qfinal(i,nu)=0d0
+          qfinal(i,nu)=0._dp
           if (.not.(is_hadronic(i))) then
             qfinal(i,nu)=q(i,nu)
           endif
@@ -153,9 +158,9 @@ c        write(*,*) 'pt: ',pt(i,qjet),' vs min. ',ptjetmin
 c        write(*,*) 'aeta: ',aetarap(i,qjet),' vs min. ',etajetmin
 c        write(*,*) 'aeta: ',aetarap(i,qjet),' vs max. ',etajetmax
 
-        if ((pt(i,qjet) .ge. ptjetmin) .and.
-     .      (ayrap(i,qjet) .ge. etajetmin) .and.
-     .      (ayrap(i,qjet) .le. etajetmax)) then
+        if ((pt(i,qjet) >= ptjetmin) .and.
+     &      (ayrap(i,qjet) >= etajetmin) .and.
+     &      (ayrap(i,qjet) <= etajetmax)) then
         ajet=ajet+1
         do nu=1,4
           qfinal(jetindex(ajet),nu)=qjet(i,nu)
@@ -165,10 +170,10 @@ c        write(*,*) 'aeta: ',aetarap(i,qjet),' vs max. ',etajetmax
       enddo
 
 c--- if no jets are removed by eta and pt cuts, then jets=ajet
-      if (ajet .lt. jets) then
+      if (ajet < jets) then
         do i=ajet+1,jets
           do nu=1,4
-            qfinal(jetindex(i),nu)=0d0
+            qfinal(jetindex(i),nu)=0._dp
           enddo
         enddo
         jets=ajet

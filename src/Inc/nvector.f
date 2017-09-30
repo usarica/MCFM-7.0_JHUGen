@@ -1,2 +1,2 @@
-      integer nvector
+      integer:: nvector
       parameter(nvector=6)
